@@ -1,5 +1,5 @@
 import nrcLogo from '/nrcLogo.svg'
-import './App.css'
+import './styles/App.css'
 
 function App() {
 
