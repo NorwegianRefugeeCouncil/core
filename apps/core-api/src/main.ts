@@ -3,8 +3,10 @@
  * This is only a minimal backend to get started.
  */
 
-import express from 'express';
 import * as path from 'path';
+
+import express from 'express';
+
 import welcomeRouter from './controllers/welcome.controller';
 
 const app = express();

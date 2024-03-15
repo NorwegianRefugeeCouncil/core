@@ -1,11 +1,12 @@
-import express from 'express';
+import { Router } from 'express';
+
 import { getWelcomeMessage } from '../services/welcome.service';
 
-const router = express.Router();
+const router = Router();
 
 router.get('/', async (req, res) => {
-    const welcomeMessage = getWelcomeMessage();
-    res.send(welcomeMessage);
+  const welcomeMessage = getWelcomeMessage();
+  res.send(welcomeMessage);
 });
 
 export default router;

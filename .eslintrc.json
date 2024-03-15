@@ -1,7 +1,44 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nx"],
+  "plugins": ["@nx", "prettier", "import"],
+  "extends": [
+    "plugin:import/recommended",
+    "plugin:import/typescript",
+    "plugin:prettier/recommended"
+  ],
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "project": [
+          "tsconfig.base.json",
+          "**/tsconfig.json",
+          "**/tsconfig.*.json"
+        ]
+      }
+    }
+  },
+  "rules": {
+    "comma-dangle": ["error", "always-multiline"],
+    "no-param-reassign": [
+      "error",
+      { "props": true, "ignorePropertyModificationsFor": ["state"] }
+    ],
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "parent",
+          "sibling",
+          "index"
+        ],
+        "newlines-between": "always"
+      }
+    ]
+  },
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
@@ -32,7 +69,16 @@
       "rules": {}
     },
     {
-      "files": ["*.spec.ts", "*.spec.tsx", "*.spec.js", "*.spec.jsx"],
+      "files": [
+        "*.spec.ts",
+        "*.spec.tsx",
+        "*.spec.js",
+        "*.spec.jsx",
+        "*.test.ts",
+        "*.test.tsx",
+        "*.test.js",
+        "*.test.jsx"
+      ],
       "env": {
         "jest": true
       },
