@@ -8,5 +8,5 @@ describe('home page', () => {
     cy.get('img').should('have.length', 1)
     cy.get('a').should('have.length', 1)
   })
-
 })
+export {}

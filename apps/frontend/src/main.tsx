@@ -1,11 +1,11 @@
 import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './styles/index.css'
+import {render} from 'react-dom'
+import App from './App'
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
+import { theme, NativeBaseProvider} from '@nrcno/nrc-design-system';
 
 const router = createBrowserRouter([
   {
@@ -14,8 +14,11 @@ const router = createBrowserRouter([
   },
 ]);
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const root = document.getElementById('root');
+render(
   <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>,
+    <NativeBaseProvider theme={theme}>
+      <RouterProvider router={router} />
+    </NativeBaseProvider>
+  </React.StrictMode>, root
 )

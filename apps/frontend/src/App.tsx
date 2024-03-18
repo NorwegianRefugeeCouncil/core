@@ -1,18 +1,17 @@
-import nrcLogo from '/nrcLogo.svg'
-import './styles/App.css'
+import { Logo, Text, Box } from '@nrcno/nrc-design-system'
+import { Logos } from '@nrcno/nrc-design-system/lib/esm/types/icons';
 
-function App() {
+const App:React.FC = () => (
+  <>
+    <Box>
+      <a href="https://www.nrc.no" target="_blank">
+        <Logo height="80px" name={Logos.Horizontal}/>
+      </a>
+    </Box>
+    <Text variant='heading'>
+      CORE
+    </Text>
+  </>
+)
 
-  return (
-    <>
-      <div>
-        <a href="https://www.nrc.no" target="_blank">
-          <img src={nrcLogo} className="logo" alt="NRC logo" />
-        </a>
-      </div>
-      <h1>CORE</h1>
-    </>
-  )
-}
-
-export default App
+export default App;
