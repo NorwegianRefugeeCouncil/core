@@ -9,4 +9,4 @@ router.get('/', async (req, res) => {
   res.send(welcomeMessage);
 });
 
-export default router;
+export { router as welcomeRouter };

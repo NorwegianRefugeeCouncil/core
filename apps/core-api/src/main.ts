@@ -7,7 +7,7 @@ import * as path from 'path';
 
 import express from 'express';
 
-import welcomeRouter from './controllers/welcome.controller';
+import { welcomeRouter } from './controllers/welcome.controller';
 
 const app = express();
 
