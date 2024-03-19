@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: core
+    ports:
+      - "5432:5432"
+  oidc:
+    image: qlik/simple-oidc-provider
+    environment:
+      USERS: '[{"id": "1", "email": "test@example.com", "password": "password"}]'
+      CLIENTS: '[{"id": "test", "redirect_uris": ["http://localhost:3333/callback"]}]'
+    ports:
+      - "9000:9000"

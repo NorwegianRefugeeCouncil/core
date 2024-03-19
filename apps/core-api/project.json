@@ -18,6 +18,27 @@
           "buildTarget": "core-api:build:production"
         }
       }
+    },
+    "compose": {
+      "executor": "nx:run-commands",
+      "configurations": {
+        "up": {
+          "command": "docker compose up -d --build"
+        },
+        "down": {
+          "command": "docker compose down"
+        }
+      }
+    },
+    "local-serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "nx run core-api:compose:up",
+          "nx run core-api:serve"
+        ],
+        "parallel": false
+      }
     }
   },
   "tags": []
