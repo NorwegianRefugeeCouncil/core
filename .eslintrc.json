@@ -24,6 +24,7 @@
       "error",
       { "props": true, "ignorePropertyModificationsFor": ["state"] }
     ],
+    "prefer-arrow-callback": "error",
     "import/order": [
       "error",
       {

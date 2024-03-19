@@ -1,5 +1,3 @@
 import { WelcomeModel } from '../models/welcome.model';
 
-export function getWelcome() {
-  return new WelcomeModel('Welcome to core-api!');
-}
+export const getWelcome = () => new WelcomeModel('Welcome to core-api!');
