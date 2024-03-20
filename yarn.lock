@@ -10712,7 +10712,7 @@ nanomatch@^1.2.9:
     snapdragon "^0.8.1"
     to-regex "^3.0.1"
 
-native-base@~3.4:
+native-base@^3.4.28, native-base@~3.4:
   version "3.4.28"
   resolved "https://registry.yarnpkg.com/native-base/-/native-base-3.4.28.tgz#81b174c8fab1a38fc4560abc12b63dc836c6a14a"
   integrity sha512-EDg9UFDNmfYXPInpRbxce+4oWFEIGaM7aG6ey4hVllcvMC3PkgCvkiXEB+7EemgC7Qr8CuFjgMTx7P0vvnwZeQ==
@@ -12035,12 +12035,12 @@ react-native-remix-icon@^0.3.0:
   resolved "https://registry.yarnpkg.com/react-native-remix-icon/-/react-native-remix-icon-0.3.0.tgz#1b594dc7703f42eff9c016b3150764701d59ebd2"
   integrity sha512-GKwada565yFZOh/6y9ssI8ykrQbWUyAmoayfezQt85sorKimh3vpJaJJy35874HMJUYnzkIyRTWL9OivxZMfXA==
 
-react-native-safe-area-context@~3.3.2:
+react-native-safe-area-context@3.3.2, react-native-safe-area-context@~3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/react-native-safe-area-context/-/react-native-safe-area-context-3.3.2.tgz#9549a2ce580f2374edb05e49d661258d1b8bcaed"
   integrity sha512-yOwiiPJ1rk+/nfK13eafbpW6sKW0jOnsRem2C1LPJjM3tfTof6hlvV5eWHATye3XOpu2cJ7N+HdkUvUDGwFD2Q==
 
-react-native-svg@~12.1.1:
+react-native-svg@12.1.1, react-native-svg@~12.1.1:
   version "12.1.1"
   resolved "https://registry.yarnpkg.com/react-native-svg/-/react-native-svg-12.1.1.tgz#5f292410b8bcc07bbc52b2da7ceb22caf5bcaaee"
   integrity sha512-NIAJ8jCnXGCqGWXkkJ1GTzO4a3Md5at5sagYV8Vh4MXYnL4z5Rh428Wahjhh+LIjx40EE5xM5YtwyJBqOIba2Q==

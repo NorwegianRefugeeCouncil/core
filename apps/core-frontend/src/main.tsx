@@ -1,6 +1,8 @@
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import { NativeBaseProvider } from 'native-base';
+import { theme } from '@nrcno/nrc-design-system';
 
 import App from './app/app';
 
@@ -9,8 +11,10 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <NativeBaseProvider theme={theme}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </NativeBaseProvider>
   </StrictMode>,
 );
