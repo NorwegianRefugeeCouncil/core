@@ -1,16 +1,14 @@
-import { Logo, Text, Box } from '@nrcno/nrc-design-system';
-import { Logos } from '@nrcno/nrc-design-system/lib/esm/types/icons';
 import { Route, Routes, Link } from 'react-router-dom';
 
-export function App() {
+const App: React.FC = () => {
   return (
     <div>
-      <Box>
+      <div>
         <a href="https://www.nrc.no" target="_blank" rel="noreferrer">
-          <Logo height="80px" name={Logos.Horizontal} />
+          <img height="80px" src="/nrcLogo.svg" alt="NRC Logo" />
         </a>
-      </Box>
-      <Text variant="heading">CORE</Text>
+      </div>
+      <h1>CORE</h1>
       <br />
       <div role="navigation">
         <ul>
@@ -43,6 +41,6 @@ export function App() {
       </Routes>
     </div>
   );
-}
+};
 
 export default App;

@@ -46,28 +46,6 @@ export default defineConfig({
     },
   },
 
-  test: {
-    globals: true,
-    cache: {
-      dir: '../../node_modules/.vitest',
-    },
-    environment: 'jsdom',
-    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-
-    reporters: ['default'],
-    coverage: {
-      reportsDirectory: '../../coverage/apps/core-frontend',
-      provider: 'v8',
-    },
-  },
-
-  resolve: {
-    extensions: extensions,
-    alias: {
-      'react-native': 'react-native-web',
-    },
-  },
-
   optimizeDeps: {
     esbuildOptions: {
       resolveExtensions: extensions,

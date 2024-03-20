@@ -5,6 +5,14 @@
   "sourceRoot": "apps/core-frontend-e2e/src",
   "implicitDependencies": ["core-frontend"],
   "tags": [],
-  "// targets": "to see all targets run: nx show project core-frontend-e2e --web",
-  "targets": {}
+  "targets": {
+    "e2e": {
+      "executor": "@nx/cypress:cypress",
+      "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
+      "options": {
+        "cypressConfig": "apps/core-frontend-e2e/cypress.config.cjs",
+        "passWithNoTests": true,
+        "testingType": "e2e"
+      }
+    }}
 }

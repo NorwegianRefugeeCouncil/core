@@ -1,30 +1,24 @@
 import { render } from '@testing-library/react';
-
 import { BrowserRouter } from 'react-router-dom';
 
 import App from './app';
-import { NativeBaseProvider, theme } from '@nrcno/nrc-design-system';
 
 describe('App', () => {
   it('should render successfully', () => {
     const { baseElement } = render(
-      <NativeBaseProvider theme={theme}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </NativeBaseProvider>,
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>,
     );
     expect(baseElement).toBeTruthy();
   });
 
-  it('should have a greeting as the title', () => {
+  it('should have CORE as the title', () => {
     const { getByText } = render(
-      <NativeBaseProvider theme={theme}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </NativeBaseProvider>,
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>,
     );
-    expect(getByText(/Welcome core-frontend/gi)).toBeTruthy();
+    expect(getByText(/CORE/gi)).toBeTruthy();
   });
 });
