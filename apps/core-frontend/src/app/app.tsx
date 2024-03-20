@@ -1,21 +1,10 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Logo, Text, Box } from '@nrcno/nrc-design-system';
 import { Logos } from '@nrcno/nrc-design-system/lib/esm/types/icons';
 import { Route, Routes, Link } from 'react-router-dom';
 
-import NxWelcome from './nx-welcome';
-import styles from './app.module.scss';
-
 export function App() {
   return (
     <div>
-      <NxWelcome title="core-frontend" />
-
-      {/* START: routes */}
-      {/* These routes and navigation have been generated for you */}
-      {/* Feel free to move and update them to fit your needs */}
-      <br />
-
       <Box>
         <a href="https://www.nrc.no" target="_blank" rel="noreferrer">
           <Logo height="80px" name={Logos.Horizontal} />
@@ -52,7 +41,6 @@ export function App() {
           }
         />
       </Routes>
-      {/* END: routes */}
     </div>
   );
 }

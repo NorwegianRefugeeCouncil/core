@@ -44,24 +44,6 @@ export default defineConfig({
     commonjsOptions: {
       transformMixedEsModules: true,
     },
-    // rollupOptions: {
-    //   external: [
-    //     'react',
-    //     'jsx-runtime',
-    //     'react-dom',
-    //     'react-native',
-    //     'react-native-svg',
-    //     // "react/jsx-runtime",
-    //   ],
-    //   output: {
-    //     globals: {
-    //       react: 'React',
-    //       'jsx-runtime': 'jsxRuntime',
-    //       'react-native': 'ReactNative',
-    //       'react-dom': 'ReactDOM',
-    //     },
-    //   },
-    // },
   },
 
   test: {
