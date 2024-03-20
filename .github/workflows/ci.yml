@@ -28,5 +28,5 @@ jobs:
       - run: yarn install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
 
-      - run: yarn nx-cloud record -- nx format:check
+      - run: yarn nx-cloud record nx format:check
       - run: yarn nx affected -t lint test build
