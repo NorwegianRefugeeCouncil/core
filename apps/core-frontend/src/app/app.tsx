@@ -1,10 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import styles from './app.module.scss';
-import { Logo, Text, Box } from '@nrcno/nrc-design-system'
+import { Logo, Text, Box } from '@nrcno/nrc-design-system';
 import { Logos } from '@nrcno/nrc-design-system/lib/esm/types/icons';
-import NxWelcome from './nx-welcome';
-
 import { Route, Routes, Link } from 'react-router-dom';
+
+import NxWelcome from './nx-welcome';
+import styles from './app.module.scss';
 
 export function App() {
   return (
@@ -16,15 +16,12 @@ export function App() {
       {/* Feel free to move and update them to fit your needs */}
       <br />
 
-
       <Box>
-      <a href="https://www.nrc.no" target="_blank">
-        <Logo height="80px" name={Logos.Horizontal}/>
-      </a>
-    </Box>
-    <Text variant='heading'>
-      CORE
-    </Text>
+        <a href="https://www.nrc.no" target="_blank" rel="noreferrer">
+          <Logo height="80px" name={Logos.Horizontal} />
+        </a>
+      </Box>
+      <Text variant="heading">CORE</Text>
       <br />
       <div role="navigation">
         <ul>
