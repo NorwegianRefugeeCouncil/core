@@ -8,7 +8,7 @@
       "executor": "@nx/vite:dev-server",
       "defaultConfiguration": "development",
       "options": {
-          "buildTarget": "core-frontend:build"
+        "buildTarget": "core-frontend:build"
       },
       "configurations": {
         "development": {
@@ -22,23 +22,22 @@
     "build": {
       "executor": "@nx/vite:build",
       "options": {
-          "outputPath": "dist/apps/core-frontend"
+        "outputPath": "dist/apps/core-frontend"
       }
     },
     "test": {
       "executor": "@nx/vite:test",
       "options": {
-          "config": "apps/core-frontend/vitest.config.ts"
+        "config": "apps/core-frontend/vitest.config.ts"
       }
     },
     "preview": {
       "executor": "@nx/vite:preview-server",
       "defaultConfiguration": "development",
       "options": {
-          "buildTarget": "core-frontend:build:development"
+        "buildTarget": "core-frontend:build:development"
       },
-      "configurations": {
-      }
+      "configurations": {}
     }
   },
   "tags": []
