@@ -39,3 +39,6 @@ testem.log
 Thumbs.db
 
 .nx/cache
+
+config/certs/*
+!config/certs/.gitkeep
