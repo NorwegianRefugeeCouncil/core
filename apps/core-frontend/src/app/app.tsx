@@ -1,6 +1,6 @@
 import { Route, Routes, Link } from 'react-router-dom';
 
-const App: React.FC = () => {
+export const App: React.FC = () => {
   return (
     <div>
       <div>
@@ -42,5 +42,3 @@ const App: React.FC = () => {
     </div>
   );
 };
-
-export default App;

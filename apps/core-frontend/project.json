@@ -12,10 +12,10 @@
       },
       "configurations": {
         "development": {
-          "buildTarget": "core-api:build:development"
+          "buildTarget": "core-frontend:build:development"
         },
         "production": {
-          "buildTarget": "core-api:build:production"
+          "buildTarget": "core-frontend:build:production"
         }
       }
     },
