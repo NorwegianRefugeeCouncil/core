@@ -5,21 +5,17 @@
     {
       "client_id": "foo",
       "client_secret": "bar",
-      "redirect_uris": [
-        "https://localhost:10000/oauth2/callback"
-      ]
+      "redirect_uris": ["https://localhost:10000/oauth2/callback"]
     }
   ],
   "claim_mapping": {
-    "openid": [ "sub" ],
-    "email": [ "email", "email_verified" ],
-    "profile": [ "name", "nickname" ],
+    "openid": ["sub"],
+    "email": ["email", "email_verified"],
+    "profile": ["name", "nickname"],
     "groups": ["groups"]
   },
-  "cookies":{
-    "keys": [
-      "5298099a779da67d6c46855e6400799a"
-    ]
+  "cookies": {
+    "keys": ["5298099a779da67d6c46855e6400799a"]
   },
   "jwks": [
     {

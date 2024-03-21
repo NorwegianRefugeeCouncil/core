@@ -33,10 +33,7 @@
     "local-serve": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          "nx run core-api:compose:up",
-          "nx run core-api:serve"
-        ],
+        "commands": ["nx run core-api:compose:up", "nx run core-api:serve"],
         "parallel": false
       }
     }
