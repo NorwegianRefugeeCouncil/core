@@ -1,5 +1,4 @@
 const { nxE2EPreset } = require('@nx/cypress/plugins/cypress-preset');
-
 const { defineConfig } = require('cypress');
 
 module.exports = defineConfig({

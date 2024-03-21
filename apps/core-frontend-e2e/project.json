@@ -10,9 +10,10 @@
       "executor": "@nx/cypress:cypress",
       "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
       "options": {
-        "cypressConfig": "apps/core-frontend-e2e/cypress.config.cjs",
+        "cypressConfig": "apps/core-frontend-e2e/cypress.config.js",
         "passWithNoTests": true,
         "testingType": "e2e"
       }
-    }}
+    }
+  }
 }
