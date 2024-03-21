@@ -26,7 +26,7 @@ static_resources:
           filters:
             - name: envoy.filters.network.http_connection_manager
               typed_config:
-                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                '@type': type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
                 stat_prefix: ingress_http
                 codec_type: AUTO
                 route_config:
@@ -34,10 +34,10 @@ static_resources:
                   virtual_hosts:
                     - name: local_web
                       domains:
-                        - "*"
+                        - '*'
                       typed_per_filter_config:
                         envoy.filters.http.ext_authz:
-                          "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                          '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
                           check_settings:
                             context_extensions:
                               virtual_host: local_web
@@ -49,7 +49,7 @@ static_resources:
                             cluster: oidc
                           typed_per_filter_config:
                             envoy.filters.http.ext_authz:
-                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
                               disabled: true
                         - match:
                             prefix: /.well-known
@@ -57,7 +57,7 @@ static_resources:
                             cluster: oidc
                           typed_per_filter_config:
                             envoy.filters.http.ext_authz:
-                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
                               disabled: true
                         - match:
                             prefix: /auth
@@ -65,7 +65,7 @@ static_resources:
                             cluster: oidc
                           typed_per_filter_config:
                             envoy.filters.http.ext_authz:
-                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
                               disabled: true
                         - match:
                             prefix: /token
@@ -73,7 +73,7 @@ static_resources:
                             cluster: oidc
                           typed_per_filter_config:
                             envoy.filters.http.ext_authz:
-                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
                               disabled: true
                         - match:
                             prefix: /me
@@ -81,7 +81,7 @@ static_resources:
                             cluster: oidc
                           typed_per_filter_config:
                             envoy.filters.http.ext_authz:
-                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
                               disabled: true
                         - match:
                             prefix: /session
@@ -89,7 +89,7 @@ static_resources:
                             cluster: oidc
                           typed_per_filter_config:
                             envoy.filters.http.ext_authz:
-                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
                               disabled: true
                         - match:
                             prefix: /interaction
@@ -97,7 +97,7 @@ static_resources:
                             cluster: oidc
                           typed_per_filter_config:
                             envoy.filters.http.ext_authz:
-                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
                               disabled: true
                         - match:
                             prefix: /oauth2
@@ -105,31 +105,31 @@ static_resources:
                             cluster: oauth2_proxy
                           typed_per_filter_config:
                             envoy.filters.http.ext_authz:
-                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
                               disabled: true
                         - match:
-                            prefix: "/static"
+                            prefix: '/static'
                           route:
                             cluster: web
                           typed_per_filter_config:
                             envoy.filters.http.ext_authz:
-                              "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
                               disabled: true
                         - match:
-                            prefix: ""
+                            prefix: ''
                           route:
                             cluster: web
                             timeout: 600s
                 http_filters:
                   - name: envoy.filters.http.ext_authz
                     typed_config:
-                      "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
+                      '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
                       http_service:
                         server_uri:
                           uri: 127.0.0.1:4180
                           cluster: oauth2_proxy
                           timeout: 0.250s
-                        path_prefix: ""
+                        path_prefix: ''
                         authorization_request:
                           allowed_headers:
                             patterns:
@@ -204,10 +204,10 @@ static_resources:
                             requires_any:
                               requirements:
                                 - provider_name: origins-0
-                                - allow_missing: { }
+                                - allow_missing: {}
                   - name: envoy.filters.http.router
                     typed_config:
-                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+                      '@type': type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
   clusters:
     - name: web
       connect_timeout: 0.25s

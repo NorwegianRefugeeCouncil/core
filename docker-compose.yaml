@@ -6,11 +6,11 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: core
     ports:
-      - "5432:5432"
+      - '5432:5432'
   oauth2-proxy:
     image: quay.io/oauth2-proxy/oauth2-proxy:v7.4.0
     ports:
-      - "4180:4180"
+      - '4180:4180'
     restart: on-failure
     depends_on:
       - oidc
@@ -60,17 +60,17 @@ services:
     healthcheck:
       test: curl http://localhost/.well-known/openid-configuration
     ports:
-      - "9000:9000"
+      - '9000:9000'
   envoy:
     image: envoyproxy/envoy:v1.20-latest
     depends_on:
       - oauth2-proxy
       - oidc
     ports:
-      - "10000:10000"
+      - '10000:10000'
     volumes:
       - ./config/envoy.yaml:/etc/envoy/envoy.yaml
       - ./config/certs/tls.key:/etc/envoy/certs/tls.key
       - ./config/certs/tls.crt:/etc/envoy/certs/tls.crt
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'
