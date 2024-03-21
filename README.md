@@ -35,3 +35,13 @@ brew install nss # if you use Firefox
 ```
 ./scripts/create-local-tls-certificate.sh
 ```
+
+## Database migrations
+
+You can create new database migrations by running:
+
+```
+npx knex migrate:make migration_name --knexfile libs/db/knexfile.ts
+```
+
+They will run automatically the next time you start the server.
