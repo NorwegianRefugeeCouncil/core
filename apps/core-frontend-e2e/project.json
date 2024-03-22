@@ -1,0 +1,19 @@
+{
+  "name": "core-frontend-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/core-frontend-e2e/src",
+  "implicitDependencies": ["core-frontend"],
+  "tags": [],
+  "targets": {
+    "e2e": {
+      "executor": "@nx/cypress:cypress",
+      "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
+      "options": {
+        "cypressConfig": "apps/core-frontend-e2e/cypress.config.js",
+        "passWithNoTests": true,
+        "testingType": "e2e"
+      }
+    }
+  }
+}
