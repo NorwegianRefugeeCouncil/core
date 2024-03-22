@@ -26,7 +26,10 @@ module.exports = async function () {
   });
   // Wait for the server to be ready
   console.log('Waiting for the server to be ready...');
-  await waitOn({ resources: ['http-get://localhost:3333/api'], timeout: 30000});
+  await waitOn({
+    resources: ['http-get://localhost:3333/api'],
+    timeout: 30000,
+  });
 
   // Hint: Use `globalThis` to pass variables to global teardown.
   globalThis.__TEARDOWN_MESSAGE__ = '\nTearing down...\n';
