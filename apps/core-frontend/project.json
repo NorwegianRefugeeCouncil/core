@@ -1,0 +1,44 @@
+{
+  "name": "core-frontend",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/core-frontend/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nx/vite:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "core-frontend:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "core-frontend:build:development"
+        },
+        "production": {
+          "buildTarget": "core-frontend:build:production"
+        }
+      }
+    },
+    "build": {
+      "executor": "@nx/vite:build",
+      "options": {
+        "outputPath": "dist/apps/core-frontend"
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "options": {
+        "config": "apps/core-frontend/vitest.config.ts"
+      }
+    },
+    "preview": {
+      "executor": "@nx/vite:preview-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "core-frontend:build:development"
+      },
+      "configurations": {}
+    }
+  },
+  "tags": []
+}
