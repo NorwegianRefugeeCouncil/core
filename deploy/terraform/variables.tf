@@ -67,3 +67,13 @@ variable "oidc_well_known_url" {
   type        = string
   description = "OIDC Well Known URL"
 }
+
+variable "postgres_version" {
+  type = string
+  description = "Postgres version"
+}
+
+variable "postgres_storage_mb" {
+  type = number
+  description = "MB for postgres storage"
+}

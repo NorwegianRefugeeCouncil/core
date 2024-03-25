@@ -42,61 +42,32 @@ resource "azurerm_linux_web_app" "app" {
   depends_on = [
     azurerm_role_assignment.acr_pull
   ]
-}
 
-# AzureRM provider does not yet support the authsettingsv2.
-# For now, we rely on the azapi provider to update the
-# app service with proper oidc settings.
-resource azapi_update_resource app_auth {
-  provider    = azapi.runtime
-  type        = "Microsoft.Web/sites/config@2022-03-01"
-  resource_id = "${azurerm_linux_web_app.app.id}/config/web"
-  body        = jsonencode({
-    properties = {
-      siteAuthSettingsV2 = {
-        platform = {
-          enabled        = true
-          runtimeVersion = "~1"
-        }
-        globalValidation = {
-          requireAuthentication       = true
-          unauthenticatedClientAction = "RedirectToLoginPage"
-          redirectToProvider          = "oidc"
-        }
-        identityProviders = {
-          customOpenIdConnectProviders = {
-            oidc = {
-              registration = {
-                clientId         = var.oidc_client_id
-                clientCredential = {
-                  clientSecretSettingName = "oidc_AUTHENTICATION_SECRET"
-                }
-                openIdConnectConfiguration = {
-                  wellKnownOpenIdConfiguration = var.oidc_well_known_url
-                }
-              },
-              login = {
-                nameClaimType = "name"
-                scopes         = [
-                  "openid",
-                  "profile",
-                  "email",
-                  "groups"
-                ]
-              }
-            }
-          }
-        }
-        login = {
-          tokenStore = {
-            enabled                    = true
-            tokenRefreshExtensionHours = 72
-          }
-        }
-        httpSettings = {
-          requireHttps = true
-        }
-      }
+  auth_settings_v2 {
+    auth_enabled = true
+    require_authentication = true
+    require_https = true
+    unauthenticated_action = "RedirectToLoginPage"
+    default_provider = "custom_oidc_v2"
+    forward_proxy_convention = "Standard"
+
+    custom_oidc_v2 {
+        name = "oidc"
+        client_id = var.oidc_client_id
+        openid_configuration_endpoint = var.oidc_well_known_url
+        name_claim_type = "name"
+        scopes = [ 
+            "openid",
+            "profile",
+            "email",
+            "groups",
+            "offline_access",
+        ]
     }
-  })
+
+    login {
+        token_store_enabled = true
+        token_refresh_extension_time = 72
+    }
+  }
 }
