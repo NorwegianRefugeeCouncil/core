@@ -73,7 +73,17 @@ variable "postgres_version" {
   description = "Postgres version"
 }
 
+variable "postgres_zone" {
+  type = string
+  description = "Postgres zone"
+}
+
 variable "postgres_storage_mb" {
   type = number
   description = "MB for postgres storage"
+}
+
+variable "app_service_plan_sku" {
+  type = string
+  description = "SKU for the app service plan"
 }
