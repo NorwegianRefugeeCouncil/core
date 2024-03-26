@@ -37,7 +37,7 @@ jobs:
           creds: ${{secrets.AZURE_CREDENTIALS}}
 
       - run: |
-          docker build -t "${{vars.ACR_LOGIN_SERVER}}/${{vars.APP_IMAGE_NAME}}:${{github.sha}}" -f app.Dockerfile .
+          docker build -t "${{vars.ACR_LOGIN_SERVER}}/${{vars.APP_IMAGE_NAME}}:${{github.sha}}" -f Dockerfile .
           docker push "${{vars.ACR_LOGIN_SERVER}}/${{vars.APP_IMAGE_NAME}}:${{github.sha}}"
 
   Deploy:
