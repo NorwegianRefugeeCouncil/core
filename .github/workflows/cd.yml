@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Select the environment to deploy"
+        description: 'Select the environment to deploy'
         type: choice
         options:
           - staging
@@ -37,7 +37,7 @@ jobs:
           creds: ${{secrets.AZURE_CREDENTIALS}}
 
       - run: |
-          docker build -t "${{vars.ACR_LOGIN_SERVER}}/${{vars.APP_IMAGE_NAME}}:${{github.sha}}" -f app.Dockerfile .
+          docker build -t "${{vars.ACR_LOGIN_SERVER}}/${{vars.APP_IMAGE_NAME}}:${{github.sha}}" -f Dockerfile .
           docker push "${{vars.ACR_LOGIN_SERVER}}/${{vars.APP_IMAGE_NAME}}:${{github.sha}}"
 
   Deploy:
@@ -48,18 +48,18 @@ jobs:
     defaults:
       run:
         shell: bash
-      
+
     env:
-      TF_VAR_location: ${{vars.LOCATION}} 
-      TF_VAR_subscription_id: ${{vars.SUBSCRIPTION_ID}} 
+      TF_VAR_location: ${{vars.LOCATION}}
+      TF_VAR_subscription_id: ${{vars.SUBSCRIPTION_ID}}
       TF_VAR_infra_subscription_id: ${{vars.INFRA_SUBSCRIPTION_ID}}
       TF_VAR_infra_resource_group_name: ${{vars.INFRA_RESOURCE_GROUP_NAME}}
       TF_VAR_infra_container_registry_name: ${{vars.INFRA_CONTAINER_REGISTRY_NAME}}
       TF_VAR_environment: ${{vars.ENVIRONMENT}}
-      TF_VAR_app_name: ${{vars.APP_NAME}} 
+      TF_VAR_app_name: ${{vars.APP_NAME}}
       TF_VAR_app_hostname: ${{vars.APP_HOSTNAME}}
-      TF_VAR_address_space: ${{vars.ADDRESS_SPACE}} 
-      TF_VAR_runtime_subnet_address_space: ${{vars.RUNTIME_SUBNET_ADDRESS_SPACE}} 
+      TF_VAR_address_space: ${{vars.ADDRESS_SPACE}}
+      TF_VAR_runtime_subnet_address_space: ${{vars.RUNTIME_SUBNET_ADDRESS_SPACE}}
       TF_VAR_postgres_subnet_address_space: ${{vars.POSTGRES_SUBNET_ADDRESS_SPACE}} #
       TF_VAR_postgres_database_name: ${{vars.POSTGRES_DATABASE_NAME}} #
       #TF_VAR_postgres_sku_name: ${{vars.POSTGRES_SKU_NAME}} #
@@ -73,20 +73,20 @@ jobs:
       #TF_VAR_postgres_iops: ${{vars.POSTGRES_IOPS}} #
       TF_VAR_postgres_auto_grow_enabled: ${{vars.POSTGRES_AUTO_GROW_ENABLED}} #
       # TF_VAR_uploads_storage_container_name: ${{vars.UPLOADS_STORAGE_CONTAINER_NAME}} #
-      TF_VAR_oidc_client_id: ${{vars.OIDC_CLIENT_ID}} 
-      TF_VAR_oidc_client_secret: ${{secrets.OIDC_CLIENT_SECRET}} 
+      TF_VAR_oidc_client_id: ${{vars.OIDC_CLIENT_ID}}
+      TF_VAR_oidc_client_secret: ${{secrets.OIDC_CLIENT_SECRET}}
       TF_VAR_oidc_issuer_url: ${{vars.OIDC_ISSUER_URL}}
-      TF_VAR_oidc_well_known_url: ${{vars.OIDC_WELL_KNOWN_URL}} 
+      TF_VAR_oidc_well_known_url: ${{vars.OIDC_WELL_KNOWN_URL}}
       TF_VAR_container_image: ${{vars.ACR_LOGIN_SERVER}}/${{vars.APP_IMAGE_NAME}}
       TF_VAR_container_image_tag: ${{github.sha}} #
       TF_VAR_container_port: ${{vars.CONTAINER_PORT}}
       TF_VAR_service_plan_sku_name: ${{vars.SERVICE_PLAN_SKU_NAME}}
       TF_VAR_app_encryption_key: ${{secrets.APP_ENCRYPTION_KEY}} #
-      
-      ARM_CLIENT_ID: ${{ vars.INFRA_AD_CLIENT_ID }} 
+
+      ARM_CLIENT_ID: ${{ vars.INFRA_AD_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ vars.INFRA_SUBSCRIPTION_ID }} 
-      ARM_TENANT_ID: ${{ vars.INFRA_AD_TENANT_ID }} 
+      ARM_SUBSCRIPTION_ID: ${{ vars.INFRA_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ vars.INFRA_AD_TENANT_ID }}
 
     steps:
       - name: Select Environment
@@ -100,7 +100,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{secrets.AZURE_CREDENTIALS}}
-        
+
       - name: Setup terraform
         uses: hashicorp/setup-terraform@v2
         with:
@@ -121,11 +121,9 @@ jobs:
           -backend-config="key=${{vars.ENVIRONMENT}}.tfstate" \
           -backend-config="resource_group_name=${{vars.INFRA_RESOURCE_GROUP_NAME}}" \
           -upgrade
-          
+
       - name: 'Terraform Plan'
         run: cd ${{GITHUB.workspace}}/deploy/terraform; terraform plan
 
-
-        
       - name: Terraform Apply
         run: cd ${{GITHUB.workspace}}/deploy/terraform; terraform apply -auto-approve -input=false
