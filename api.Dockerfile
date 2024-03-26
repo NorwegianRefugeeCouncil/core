@@ -1,9 +1,10 @@
-FROM node:16-alpine
+FROM node:18-alpine
 
-RUN npm install -g nodemon
-RUN npm install -g @nrwl/cli
+#RUN npm install -g nodemon
+#RUN npm install -g @nrwl/cli
+RUN yarn global add nx
 
-WORKDIR /core-api
+WORKDIR /build
 
 COPY package.json yarn.lock nx.json .
 
