@@ -3,13 +3,11 @@ FROM node:20-alpine as builder
 WORKDIR /build
  
 RUN yarn global add nx
-RUN yarn global add webpack-cli
  
 COPY package.json .
 COPY yarn.lock .
  
 RUN yarn install 
-#RUN yarn add webpack-cli
  
 COPY . .
  
