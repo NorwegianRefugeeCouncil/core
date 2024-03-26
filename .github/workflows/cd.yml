@@ -7,8 +7,7 @@ on:
         description: 'Select the environment to deploy'
         type: choice
         options:
-          - staging
-          - prod
+          - dev
         required: true
 
 jobs:
@@ -34,7 +33,7 @@ jobs:
       - name: Configure Azure credentials
         uses: azure/login@v1
         with:
-          creds: ${{secrets.AZURE_CREDENTIALS}}
+          creds: ${{secrets.AZURE_CREDENTIALS}} #
 
       - run: |
           docker build -t "${{vars.ACR_LOGIN_SERVER}}/${{vars.APP_IMAGE_NAME}}:${{github.sha}}" -f Dockerfile .
@@ -50,38 +49,27 @@ jobs:
         shell: bash
 
     env:
-      TF_VAR_location: ${{vars.LOCATION}}
-      TF_VAR_subscription_id: ${{vars.SUBSCRIPTION_ID}}
-      TF_VAR_infra_subscription_id: ${{vars.INFRA_SUBSCRIPTION_ID}}
-      TF_VAR_infra_resource_group_name: ${{vars.INFRA_RESOURCE_GROUP_NAME}}
-      TF_VAR_infra_container_registry_name: ${{vars.INFRA_CONTAINER_REGISTRY_NAME}}
-      TF_VAR_environment: ${{vars.ENVIRONMENT}}
-      TF_VAR_app_name: ${{vars.APP_NAME}}
-      TF_VAR_app_hostname: ${{vars.APP_HOSTNAME}}
       TF_VAR_address_space: ${{vars.ADDRESS_SPACE}}
-      TF_VAR_runtime_subnet_address_space: ${{vars.RUNTIME_SUBNET_ADDRESS_SPACE}}
-      TF_VAR_postgres_subnet_address_space: ${{vars.POSTGRES_SUBNET_ADDRESS_SPACE}} #
-      TF_VAR_postgres_database_name: ${{vars.POSTGRES_DATABASE_NAME}} #
-      #TF_VAR_postgres_sku_name: ${{vars.POSTGRES_SKU_NAME}} #
-      TF_VAR_postgres_geo_redundant_backup_enabled: ${{vars.POSTGRES_GEO_REDUNDANT_BACKUP_ENABLED}} #
-      TF_VAR_postgres_backup_retention_days: ${{vars.POSTGRES_BACKUP_RETENTION_DAYS}} #
-      TF_VAR_postgres_enable_high_availability: ${{vars.POSTGRES_ENABLE_HIGH_AVAILABILITY}} #
-      TF_VAR_postgres_availability_zone: ${{vars.POSTGRES_AVAILABILITY_ZONE}} #
-      TF_VAR_postgres_standby_availability_zone: ${{vars.POSTGRES_ZONE}} #
-      TF_VAR_postgres_version: ${{vars.POSTGRES_VERSION}} #
-      TF_VAR_postgres_storage_mb: ${{vars.POSTGRES_STORAGE_MB}} #
-      #TF_VAR_postgres_iops: ${{vars.POSTGRES_IOPS}} #
-      TF_VAR_postgres_auto_grow_enabled: ${{vars.POSTGRES_AUTO_GROW_ENABLED}} #
-      # TF_VAR_uploads_storage_container_name: ${{vars.UPLOADS_STORAGE_CONTAINER_NAME}} #
+      TF_VAR_app_name: ${{vars.APP_NAME}}
+      TF_VAR_container_image_tag: ${{github.sha}} #
+      TF_VAR_container_image: ${{vars.ACR_LOGIN_SERVER}}/${{vars.APP_IMAGE_NAME}}
+      TF_VAR_environment: ${{vars.ENVIRONMENT}}
+      TF_VAR_infra_container_registry_name: ${{vars.INFRA_CONTAINER_REGISTRY_NAME}}
+      TF_VAR_infra_resource_group_name: ${{vars.INFRA_RESOURCE_GROUP_NAME}}
+      TF_VAR_infra_subscription_id: ${{vars.INFRA_SUBSCRIPTION_ID}}
+      TF_VAR_location: ${{vars.LOCATION}}
       TF_VAR_oidc_client_id: ${{vars.OIDC_CLIENT_ID}}
       TF_VAR_oidc_client_secret: ${{secrets.OIDC_CLIENT_SECRET}}
-      TF_VAR_oidc_issuer_url: ${{vars.OIDC_ISSUER_URL}}
       TF_VAR_oidc_well_known_url: ${{vars.OIDC_WELL_KNOWN_URL}}
-      TF_VAR_container_image: ${{vars.ACR_LOGIN_SERVER}}/${{vars.APP_IMAGE_NAME}}
-      TF_VAR_container_image_tag: ${{github.sha}} #
-      TF_VAR_container_port: ${{vars.CONTAINER_PORT}}
+      TF_VAR_postgres_database_name: ${{vars.POSTGRES_DATABASE_NAME}} #
+      TF_VAR_postgres_sku_name: ${{vars.POSTGRES_SKU_NAME}} #
+      TF_VAR_postgres_standby_availability_zone: ${{vars.POSTGRES_ZONE}}
+      TF_VAR_postgres_storage_mb: ${{vars.POSTGRES_STORAGE_MB}}
+      TF_VAR_postgres_subnet_address_space: ${{vars.POSTGRES_SUBNET_ADDRESS_SPACE}} #
+      TF_VAR_postgres_version: ${{vars.POSTGRES_VERSION}}
+      TF_VAR_runtime_subnet_address_space: ${{vars.RUNTIME_SUBNET_ADDRESS_SPACE}}
       TF_VAR_service_plan_sku_name: ${{vars.SERVICE_PLAN_SKU_NAME}}
-      TF_VAR_app_encryption_key: ${{secrets.APP_ENCRYPTION_KEY}} #
+      TF_VAR_subscription_id: ${{vars.SUBSCRIPTION_ID}}
 
       ARM_CLIENT_ID: ${{ vars.INFRA_AD_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
@@ -118,7 +106,7 @@ jobs:
           -backend-config="subscription_id=${{vars.INFRA_SUBSCRIPTION_ID}}" \
           -backend-config="storage_account_name=${{vars.INFRA_STORAGE_ACCOUNT_NAME}}" \
           -backend-config="container_name=${{vars.INFRA_STORAGE_CONTAINER_NAME}}" \
-          -backend-config="key=${{vars.ENVIRONMENT}}.tfstate" \
+          -backend-config="key=${{vars.APP_NAME}}-${{vars.ENVIRONMENT}}.tfstate" \
           -backend-config="resource_group_name=${{vars.INFRA_RESOURCE_GROUP_NAME}}" \
           -upgrade
 
