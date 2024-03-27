@@ -74,3 +74,15 @@ services:
       - ./config/certs/tls.crt:/etc/envoy/certs/tls.crt
     extra_hosts:
       - 'host.docker.internal:host-gateway'
+  api:
+    build:
+      dockerfile: ./Dockerfile
+      context: .
+    ports: 
+      - '3333:3333'
+    environment:
+      PORT: 3333
+    depends_on:
+      - db
+      - oauth2-proxy
+      - oidc
