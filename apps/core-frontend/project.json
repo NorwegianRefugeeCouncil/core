@@ -36,8 +36,7 @@
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "core-frontend:build:development"
-      },
-      "configurations": {}
+      }
     }
   },
   "tags": []
