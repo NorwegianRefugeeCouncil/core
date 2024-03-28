@@ -13,9 +13,13 @@ import { welcomeRouter } from './controllers/welcome.controller';
 
 const app = express();
 
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
-
 app.use('/api', welcomeRouter);
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'static', 'index.html'));
+});
+
+app.use(express.static(path.join(__dirname, 'static')));
 
 const port = process.env.PORT || 3333;
 const server = app.listen(port, async () => {
