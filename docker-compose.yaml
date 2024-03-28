@@ -78,7 +78,7 @@ services:
     build:
       dockerfile: ./Dockerfile
       context: .
-    ports: 
+    ports:
       - '3333:3333'
     environment:
       PORT: 3333
