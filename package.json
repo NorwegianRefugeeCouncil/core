@@ -19,7 +19,8 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "6.11.2",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@nx/cypress": "18.1.2",
@@ -41,7 +42,6 @@
     "@swc/helpers": "~0.5.2",
     "@testing-library/react": "14.0.0",
     "@types/jest": "^29.4.0",
-    "@types/knex": "^0.16.1",
     "@types/node": "~18.16.9",
     "@types/react": "18.2.33",
     "@types/react-dom": "18.2.14",
