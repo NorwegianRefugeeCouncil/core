@@ -14,14 +14,14 @@ module.exports = async function () {
   console.log('Starting Docker Compose environment...');
   const composeFilePath = './';
   const composeFile = 'docker-compose.yaml';
-  global.__ENVIRONMENT__ = await new DockerComposeEnvironment(
+  (global as any).__ENVIRONMENT__ = await new DockerComposeEnvironment(
     composeFilePath,
     composeFile,
   ).up();
 
   // Start the server
   console.log('Starting the server...');
-  global.__SERVER__ = spawn('nx', ['run', 'core-api:serve'], {
+  (global as any).__SERVER__ = spawn('nx', ['run', 'core-api:serve'], {
     detached: true,
   });
   // Wait for the server to be ready
@@ -32,5 +32,5 @@ module.exports = async function () {
   });
 
   // Hint: Use `globalThis` to pass variables to global teardown.
-  globalThis.__TEARDOWN_MESSAGE__ = '\nTearing down...\n';
+  (globalThis as any).__TEARDOWN_MESSAGE__ = '\nTearing down...\n';
 };
