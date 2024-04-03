@@ -65,9 +65,9 @@ variable "postgres_sku_name" {
 }
 
 variable "postgres_storage_mb" {
-  type        = string
+  type        = number
   description = "MB for postgres storage"
-  default     = "32768"
+  default     = 32768
 }
 
 variable "postgres_subnet_address_space" {
