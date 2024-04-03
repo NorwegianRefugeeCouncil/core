@@ -30,13 +30,13 @@ jobs:
         uses: azure/docker-login@v1
         with:
           login-server: ${{vars.ACR_LOGIN_SERVER}}
-          username: ${{secrets.ACR_USER_NAME}} #
-          password: ${{secrets.ACR_PASSWORD}} #
+          username: ${{secrets.ACR_USER_NAME}}
+          password: ${{secrets.ACR_PASSWORD}}
 
       - name: Configure Azure credentials
         uses: azure/login@v1
         with:
-          creds: ${{secrets.AZURE_CREDENTIALS}} #
+          creds: ${{secrets.AZURE_CREDENTIALS}}
 
       - run: |
           docker build -t "${{vars.ACR_LOGIN_SERVER}}/${{vars.APP_IMAGE_NAME}}:${{github.sha}}" -f Dockerfile .

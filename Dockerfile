@@ -2,7 +2,7 @@ FROM node:20-alpine as builder
 
 WORKDIR /build
 
-RUN yarn global add nx
+# RUN yarn global add nx
 
 COPY package.json .
 
@@ -12,9 +12,9 @@ RUN yarn install --frozen-lockfile
 
 COPY . .
 
-RUN nx run core-api:build
+RUN ./node_modules/.bin/nx run core-api:build
 
-RUN nx run core-frontend:build
+RUN ./node_modules/.bin/nx run core-frontend:build
 
 
 
