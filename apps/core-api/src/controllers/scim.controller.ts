@@ -194,4 +194,4 @@ router.get('/Users', async (req, res, next) => {
   }
 });
 
-export { router as userRouter };
+export { router as scimRouter };

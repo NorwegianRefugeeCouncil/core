@@ -10,14 +10,14 @@ import express from 'express';
 import { db } from '@nrcno/db';
 
 import { welcomeRouter } from './controllers/welcome.controller';
-import { userRouter } from './controllers/user.controller';
+import { scimRouter } from './controllers/scim.controller';
 
 const app = express();
 
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 app.use('/api', welcomeRouter);
-app.use('/scim/v2', userRouter);
+app.use('/scim/v2', scimRouter);
 
 const port = process.env.PORT || 3333;
 const server = app.listen(port, async () => {
