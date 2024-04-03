@@ -7,5 +7,10 @@
     "types": ["node"]
   },
   "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"],
-  "include": ["src/**/*.ts", "knexfile.ts"]
+  "include": [
+    "src/**/*.ts",
+    "knexfile.ts",
+    "migrations/**/*.ts",
+    "seeds/**/*.ts"
+  ]
 }
