@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import { User } from '../models/user.model';
 import {
   createUser as createUserInDb,
@@ -32,6 +34,7 @@ const mapScimUserToUser = (scimUser: Partial<ScimUser>): Partial<User> => {
 
 export const createUser = async (scimUser: ScimUser): Promise<User> => {
   const user = mapScimUserToUser(scimUser);
+  user.id = uuidv4();
   return createUserInDb(user);
 };
 
