@@ -5,7 +5,11 @@ import { AlreadyExistsError } from '../errors';
 
 export const createUser = async (user: Partial<User>): Promise<User> => {
   try {
-    const rows = await db('users').insert(user).returning('*');
+    const userToInsert = {
+      ...user,
+      emails: user.emails ? JSON.stringify(user.emails) : undefined,
+    };
+    const rows = await db('users').insert(userToInsert).returning('*');
     return new User(rows[0]);
   } catch (error) {
     if ((error as PostgresError).code === PostgresErrorCode.UniqueViolation) {
@@ -24,8 +28,12 @@ export const updateUser = async (
   userId: string,
   updatedUser: Partial<User>,
 ): Promise<User | null> => {
+  const userToUpdate = {
+    ...updatedUser,
+    emails: updatedUser.emails ? JSON.stringify(updatedUser.emails) : undefined,
+  };
   const row = await db('users')
-    .update(updatedUser)
+    .update(userToUpdate)
     .where('id', userId)
     .returning('*');
   return row.length > 0 ? new User(row[0]) : null;
