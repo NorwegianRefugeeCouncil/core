@@ -13,6 +13,7 @@ import { welcomeRouter } from './controllers/welcome.controller';
 import { scimRouter } from './controllers/scim.controller';
 
 const app = express();
+app.use(express.json());
 
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
