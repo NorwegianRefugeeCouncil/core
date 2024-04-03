@@ -2,8 +2,6 @@ FROM node:20-alpine as builder
 
 WORKDIR /build
 
-# RUN yarn global add nx
-
 COPY package.json .
 
 COPY yarn.lock .
@@ -17,7 +15,15 @@ RUN ./node_modules/.bin/nx run core-api:build
 RUN ./node_modules/.bin/nx run core-frontend:build
 
 
+FROM node:20-alpine as node_modules
 
+WORKDIR /build
+
+COPY package.json .
+
+COPY yarn.lock .
+
+RUN yarn install --frozen-lockfile --production
 
 
 FROM node:20-alpine
@@ -32,11 +38,11 @@ COPY package.json .
 
 COPY yarn.lock .
 
+COPY --from=node_modules /build/node_modules ./node_modules
+
 COPY --from=builder /build/dist/apps/core-api .
 
 COPY --from=builder /build/dist/apps/core-frontend ./static
-
-RUN yarn install --frozen-lockfile --production
 
 ENV PORT=3333
 
