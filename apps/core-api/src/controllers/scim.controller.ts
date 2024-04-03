@@ -78,7 +78,7 @@ router.post('/Users', validateCreateUserRequest, async (req, res, next) => {
     const user = await createUser(req.body);
     // TODO: if user already exists, return 409 error according to SCIM spec
     const scimUser = mapUserToScimUser(user);
-    res.json(scimUser);
+    res.status(201).json(scimUser);
   } catch (error) {
     next(error);
   }
@@ -121,10 +121,18 @@ router.patch('/Users/:id', async (req, res, next) => {
     const update = {};
 
     for (const operation of patchOperations) {
-      // Only handle 'replace' operations for simplicity
-      if (operation.op === 'replace') {
-        Object.assign(update, operation.value); // TODO: validate inputs
+      // Our Okta integration should only send replace operations for the active field
+      if (operation.op === 'replace' && operation.value?.active !== undefined) {
+        Object.assign(update, { active: operation.value.active });
       }
+    }
+    if (Object.keys(update).length === 0) {
+      const errorResponse = createScimErrorResponse(
+        400,
+        'Only replace operation for active field is supported',
+      );
+      res.status(400).json(errorResponse);
+      return;
     }
 
     const user = await updateUser(req.params.id, update);
