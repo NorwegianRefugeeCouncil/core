@@ -1,21 +1,25 @@
-variable "location" {
+variable "address_space" {
   type        = string
-  description = "Azure Location for deploying resources"
+  description = "Address space for the virtual network"
+  default     = "10.8.0.0/21"
 }
 
-variable "subscription_id" {
+variable "app_name" {
   type        = string
-  description = "Runtime Subscription id"
+  description = "Name of the application. e.g. core"
+  default     = "core-v2"
 }
 
-variable "infra_subscription_id" {
+variable "app_service_plan_sku" {
   type        = string
-  description = "Infrastructure Subscription id"
+  description = "SKU for the app service plan"
+  default     = "P1v3"
 }
 
-variable "infra_resource_group_name" {
+variable "environment" {
   type        = string
-  description = "Infrastructure Resource Group name"
+  description = "Name of the environment. e.g. staging"
+  default     = "dev"
 }
 
 variable "infra_container_registry_name" {
@@ -23,34 +27,20 @@ variable "infra_container_registry_name" {
   description = "Name of the azure container registry"
 }
 
-variable "app_name" {
+variable "infra_resource_group_name" {
   type        = string
-  description = "Name of the application. e.g. core"
+  description = "Infrastructure Resource Group name"
 }
 
-variable "environment" {
+variable "infra_subscription_id" {
   type        = string
-  description = "Name of the environment. e.g. staging"
+  description = "Infrastructure Subscription id"
 }
 
-variable "address_space" {
+variable "location" {
   type        = string
-  description = "Address space for the virtual networgitk"
-}
-
-variable "runtime_subnet_address_space" {
-  type        = string
-  description = "Address space for the runtime environment"
-}
-
-variable "postgres_subnet_address_space" {
-  type        = string
-  description = "Address space for the postgres subnet"
-}
-
-variable "postgres_sku_name" {
-  type        = string
-  description = "Name of the postgres SKU"
+  description = "Azure Location for deploying resources"
+  default     = "westeurope"
 }
 
 variable "oidc_client_id" {
@@ -68,22 +58,44 @@ variable "oidc_well_known_url" {
   description = "OIDC Well Known URL"
 }
 
-variable "postgres_version" {
-  type = string
-  description = "Postgres version"
-}
-
-variable "postgres_zone" {
-  type = string
-  description = "Postgres zone"
+variable "postgres_sku_name" {
+  type        = string
+  description = "Name of the postgres SKU"
+  default     = "B_Standard_B2ms"
 }
 
 variable "postgres_storage_mb" {
-  type = number
+  type        = number
   description = "MB for postgres storage"
+  default     = 32768
 }
 
-variable "app_service_plan_sku" {
-  type = string
-  description = "SKU for the app service plan"
+variable "postgres_subnet_address_space" {
+  type        = string
+  description = "Address space for the postgres subnet"
+  default     = "10.8.0.64/27"
+}
+
+variable "postgres_version" {
+  type        = string
+  description = "Postgres version"
+  default     = "14"
+}
+
+variable "postgres_zone" {
+  type        = string
+  description = "Postgres zone"
+  default     = "1"
+}
+
+variable "runtime_subnet_address_space" {
+  type        = string
+  description = "Address space for the runtime environment"
+  default     = "10.8.0.0/26"
+}
+
+variable "subscription_id" {
+  type        = string
+  description = "Runtime Subscription id"
+  default     = "f7791b2f-bb9b-4f70-813d-d1d2bb9e508e"
 }
