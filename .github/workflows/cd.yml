@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - task/core24-160_cd
   workflow_dispatch:
     inputs:
       environment:
