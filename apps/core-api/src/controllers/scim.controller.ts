@@ -1,4 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
+import { validate as isUuid } from 'uuid';
 
 import {
   createUser,
@@ -32,7 +33,7 @@ const errorHandlerMiddleware = (
 ) => {
   // TODO: log error
   const scimError = createScimErrorResponse(500, 'Internal Server Error');
-  res.status(500).json(scimError);
+  res.status(scimError.status).json(scimError);
 };
 
 const validateCreateUserRequest = (
@@ -43,9 +44,23 @@ const validateCreateUserRequest = (
   const result = scimUserSchema.safeParse(req.body);
 
   if (!result.success) {
-    res.status(400).json(createScimErrorResponse(400, result.error.message));
+    const errorResponse = createScimErrorResponse(400, result.error.message);
+    res.status(errorResponse.status).json(errorResponse);
   } else {
     req.body = result.data;
+    next();
+  }
+};
+
+const validateUserIdParam = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (!isUuid(req.params.id)) {
+    const errorResponse = createScimErrorResponse(404, 'User not found');
+    res.status(errorResponse.status).json(errorResponse);
+  } else {
     next();
   }
 };
@@ -84,14 +99,14 @@ router.post('/Users', validateCreateUserRequest, async (req, res, next) => {
   } catch (error) {
     if (error instanceof AlreadyExistsError) {
       const errorResponse = createScimErrorResponse(409, error.message);
-      res.status(409).json(errorResponse);
+      res.status(errorResponse.status).json(errorResponse);
       return;
     }
     next(error);
   }
 });
 
-router.get('/Users/:id', async (req, res, next) => {
+router.get('/Users/:id', validateUserIdParam, async (req, res, next) => {
   try {
     const user = await getUser(req.params.id);
     if (user) {
@@ -99,29 +114,34 @@ router.get('/Users/:id', async (req, res, next) => {
       res.json(scimUser);
     } else {
       const errorResponse = createScimErrorResponse(404, 'User not found');
-      res.status(404).json(errorResponse);
+      res.status(errorResponse.status).json(errorResponse);
     }
   } catch (error) {
     next(error);
   }
 });
 
-router.put('/Users/:id', validateCreateUserRequest, async (req, res, next) => {
-  try {
-    const user = await updateUser(req.params.id, req.body);
-    if (user) {
-      const scimUser = mapUserToScimUser(user);
-      res.json(scimUser);
-    } else {
-      const errorResponse = createScimErrorResponse(404, 'User not found');
-      res.status(404).json(errorResponse);
+router.put(
+  '/Users/:id',
+  validateUserIdParam,
+  validateCreateUserRequest,
+  async (req, res, next) => {
+    try {
+      const user = await updateUser(req.params.id, req.body);
+      if (user) {
+        const scimUser = mapUserToScimUser(user);
+        res.json(scimUser);
+      } else {
+        const errorResponse = createScimErrorResponse(404, 'User not found');
+        res.status(errorResponse.status).json(errorResponse);
+      }
+    } catch (error) {
+      next(error);
     }
-  } catch (error) {
-    next(error);
-  }
-});
+  },
+);
 
-router.patch('/Users/:id', async (req, res, next) => {
+router.patch('/Users/:id', validateUserIdParam, async (req, res, next) => {
   try {
     const patchOperations = req.body.Operations;
 
@@ -138,7 +158,7 @@ router.patch('/Users/:id', async (req, res, next) => {
         400,
         'Only replace operation for active field is supported',
       );
-      res.status(400).json(errorResponse);
+      res.status(errorResponse.status).json(errorResponse);
       return;
     }
 
@@ -149,7 +169,7 @@ router.patch('/Users/:id', async (req, res, next) => {
       res.json(scimUser);
     } else {
       const errorResponse = createScimErrorResponse(404, 'User not found');
-      res.status(404).json(errorResponse);
+      res.status(errorResponse.status).json(errorResponse);
     }
   } catch (error) {
     next(error);
@@ -174,7 +194,7 @@ router.get('/Users', async (req, res, next) => {
           501,
           'Only eq operator is supported',
         );
-        res.status(501).json(errorResponse);
+        res.status(errorResponse.status).json(errorResponse);
         return;
       }
       const attributeResult = scimUserAttributeSchema.safeParse(attribute);
@@ -183,7 +203,7 @@ router.get('/Users', async (req, res, next) => {
           400,
           attributeResult.error.message,
         );
-        res.status(400).json(errorResponse);
+        res.status(errorResponse.status).json(errorResponse);
         return;
       }
 
