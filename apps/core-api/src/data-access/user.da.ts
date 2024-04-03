@@ -1,10 +1,18 @@
-import { db } from '@nrcno/db';
+import { db, PostgresError, PostgresErrorCode } from '@nrcno/db';
 
 import { User } from '../models/user.model';
+import { AlreadyExistsError } from '../errors';
 
 export const createUser = async (user: Partial<User>): Promise<User> => {
-  const rows = await db('users').insert(user).returning('*');
-  return new User(rows[0]);
+  try {
+    const rows = await db('users').insert(user).returning('*');
+    return new User(rows[0]);
+  } catch (error) {
+    if ((error as PostgresError).code === PostgresErrorCode.UniqueViolation) {
+      throw new AlreadyExistsError('User already exists');
+    }
+    throw error;
+  }
 };
 
 export const getUserById = async (userId: string): Promise<User | null> => {

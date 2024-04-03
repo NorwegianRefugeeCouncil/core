@@ -14,6 +14,7 @@ import {
   scimUserAttributeSchema,
 } from '../types/scim.types';
 import { User } from '../models/user.model';
+import { AlreadyExistsError } from '../errors';
 
 const createScimErrorResponse = (status: number, detail: string) => {
   return {
@@ -76,10 +77,14 @@ router.use(errorHandlerMiddleware);
 router.post('/Users', validateCreateUserRequest, async (req, res, next) => {
   try {
     const user = await createUser(req.body);
-    // TODO: if user already exists, return 409 error according to SCIM spec
     const scimUser = mapUserToScimUser(user);
     res.status(201).json(scimUser);
   } catch (error) {
+    if (error instanceof AlreadyExistsError) {
+      const errorResponse = createScimErrorResponse(409, error.message);
+      res.status(409).json(errorResponse);
+      return;
+    }
     next(error);
   }
 });
