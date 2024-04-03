@@ -18,7 +18,7 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     environment:
-      name: ${{github.event.inputs.environment}}
+      name: dev
     defaults:
       run:
         shell: bash
@@ -67,7 +67,7 @@ jobs:
       TF_VAR_oidc_well_known_url: ${{vars.OIDC_WELL_KNOWN_URL}}
       TF_VAR_postgres_sku_name: ${{vars.POSTGRES_SKU_NAME}}
       TF_VAR_postgres_standby_availability_zone: ${{vars.POSTGRES_ZONE}}
-      # TF_VAR_postgres_storage_mb: ${{vars.POSTGRES_STORAGE_MB}}
+      TF_VAR_postgres_storage_mb: ${{vars.POSTGRES_STORAGE_MB}}
       TF_VAR_postgres_subnet_address_space: ${{vars.POSTGRES_SUBNET_ADDRESS_SPACE}}
       TF_VAR_postgres_version: ${{vars.POSTGRES_VERSION}}
       TF_VAR_runtime_subnet_address_space: ${{vars.RUNTIME_SUBNET_ADDRESS_SPACE}}
