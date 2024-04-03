@@ -12,11 +12,12 @@ import {
 import { ScimUser } from '../types/scim.types';
 
 const mapScimUserToUser = (scimUser: Partial<ScimUser>): Partial<User> => {
-  const { id, userName, name, emails, active } = scimUser;
+  const { id, userName, displayName, name, emails, active } = scimUser;
 
   const user: Partial<User> = {
     id,
     userName,
+    displayName,
     active,
     emails,
   };

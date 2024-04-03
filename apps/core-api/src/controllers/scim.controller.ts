@@ -51,12 +51,14 @@ const validateCreateUserRequest = (
 };
 
 const mapUserToScimUser = (user: User): ScimUser => {
-  const { id, userName, firstName, lastName, emails, active } = user;
+  const { id, userName, firstName, lastName, displayName, emails, active } =
+    user;
 
   const scimUser: ScimUser = {
     schemas: ['urn:ietf:params:scim:schemas:core:2.0:User'],
     id,
     userName,
+    displayName,
     active,
     emails,
   };

@@ -19,8 +19,7 @@ export const scimUserSchema = z.object({
       }),
     )
     .optional(),
-  displayName: z.string().optional(), // TODO: decide whether to use this field
-  locale: z.string().optional(), // TODO: decide whether to use this field
+  displayName: z.string().optional(),
   active: z.boolean().optional(),
 });
 

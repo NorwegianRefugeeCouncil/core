@@ -28,6 +28,7 @@ describe('user service', () => {
           givenName: faker.person.firstName(),
           familyName: faker.person.lastName(),
         },
+        displayName: faker.person.firstName(),
         emails: [
           {
             value: faker.internet.email(),
@@ -43,6 +44,7 @@ describe('user service', () => {
         userName: scimUser.userName,
         firstName: scimUser.name.givenName,
         lastName: scimUser.name.familyName,
+        displayName: scimUser.displayName,
         emails: scimUser.emails,
         active: scimUser.active,
       };
@@ -83,6 +85,7 @@ describe('user service', () => {
         userName: faker.internet.userName(),
         firstName: scimUserUpdate.name.givenName,
         lastName: scimUserUpdate.name.familyName,
+        displayName: faker.person.firstName(),
         emails: [
           {
             value: faker.internet.email(),

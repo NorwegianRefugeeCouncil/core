@@ -9,6 +9,7 @@ export class User {
   userName: string;
   firstName?: string;
   lastName?: string;
+  displayName?: string;
   emails?: Array<Email>;
   active: boolean;
   createdAt: Date;
@@ -19,6 +20,7 @@ export class User {
     userName: string;
     firstName?: string;
     lastName?: string;
+    displayName?: string;
     emails?: Array<Email>;
     active: boolean;
     createdAt: Date;
@@ -28,6 +30,7 @@ export class User {
     this.userName = userData.userName;
     this.firstName = userData.firstName;
     this.lastName = userData.lastName;
+    this.displayName = userData.displayName;
     this.emails = userData.emails;
     this.active = userData.active;
     this.createdAt = userData.createdAt;

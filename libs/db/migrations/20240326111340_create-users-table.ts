@@ -6,6 +6,7 @@ export async function up(knex: Knex): Promise<void> {
     table.string('user_name').unique().notNullable();
     table.string('first_name');
     table.string('last_name');
+    table.string('display_name');
     table.jsonb('emails');
     table.boolean('active').defaultTo(true);
     table.timestamps(false, true);
