@@ -17,6 +17,8 @@ on:
 jobs:
   Plan:
     runs-on: ubuntu-latest
+    environment:
+      name: dev
     defaults:
       run:
         shell: bash
