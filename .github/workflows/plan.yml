@@ -14,7 +14,7 @@ on:
         required: true
 
 jobs:
-  Deploy:
+  Plan:
     runs-on: ubuntu-latest
     environment:
       name: ${{github.event.inputs.environment}}
