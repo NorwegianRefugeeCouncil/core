@@ -1,0 +1,88 @@
+name: Plan
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select the environment to plan'
+        type: choice
+        options:
+          - dev
+        required: true
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{github.event.inputs.environment}}
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      TF_VAR_address_space: ${{vars.ADDRESS_SPACE}}
+      TF_VAR_app_name: ${{vars.APP_NAME}}
+      TF_VAR_container_image_tag: ${{github.sha}}
+      TF_VAR_container_image: ${{vars.ACR_LOGIN_SERVER}}/${{vars.APP_IMAGE_NAME}}
+      TF_VAR_environment: ${{vars.ENVIRONMENT}}
+      TF_VAR_infra_container_registry_name: ${{vars.INFRA_CONTAINER_REGISTRY_NAME}}
+      TF_VAR_infra_resource_group_name: ${{vars.INFRA_RESOURCE_GROUP_NAME}}
+      TF_VAR_infra_subscription_id: ${{vars.INFRA_SUBSCRIPTION_ID}}
+      TF_VAR_location: ${{vars.LOCATION}}
+      TF_VAR_oidc_client_id: ${{vars.OIDC_CLIENT_ID}}
+      TF_VAR_oidc_client_secret: ${{secrets.OIDC_CLIENT_SECRET}}
+      TF_VAR_oidc_well_known_url: ${{vars.OIDC_WELL_KNOWN_URL}}
+      TF_VAR_postgres_sku_name: ${{vars.POSTGRES_SKU_NAME}}
+      TF_VAR_postgres_standby_availability_zone: ${{vars.POSTGRES_ZONE}}
+      TF_VAR_postgres_storage_mb: ${{vars.POSTGRES_STORAGE_MB}}
+      TF_VAR_postgres_subnet_address_space: ${{vars.POSTGRES_SUBNET_ADDRESS_SPACE}}
+      TF_VAR_postgres_version: ${{vars.POSTGRES_VERSION}}
+      TF_VAR_runtime_subnet_address_space: ${{vars.RUNTIME_SUBNET_ADDRESS_SPACE}}
+      TF_VAR_service_plan_sku_name: ${{vars.SERVICE_PLAN_SKU_NAME}}
+      TF_VAR_subscription_id: ${{vars.SUBSCRIPTION_ID}}
+      TF_VAR_backend_host_name: ${{vars.BACKEND_HOST_NAME}}
+      TF_VAR_frontdoor_sku_name: ${{vars.FRONTDOOR_SKU_NAME}}
+      TF_VAR_action_group_webhook_url: ${{secrets.ACTION_GROUP_WEBHOOK_URL}}
+      TF_VAR_prevent_deletion: ${{vars.PREVENT_DELETION}}
+
+      ARM_CLIENT_ID: ${{ vars.INFRA_AD_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ vars.INFRA_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ vars.INFRA_AD_TENANT_ID }}
+
+    steps:
+      - name: Select Environment
+        run: |
+          echo "Deploying to: ${{github.event.inputs.environment}}"
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Configure Azure Credentials
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{vars.TERRAFORM_VERSION}}
+
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt  -check
+
+      - name: Terraform Init
+        id: init
+        run: |
+          cd ${{GITHUB.workspace}}/deploy/terraform;
+          terraform init  -no-color \
+          -backend-config="subscription_id=${{vars.INFRA_SUBSCRIPTION_ID}}" \
+          -backend-config="storage_account_name=${{vars.INFRA_STORAGE_ACCOUNT_NAME}}" \
+          -backend-config="container_name=${{vars.INFRA_STORAGE_CONTAINER_NAME}}" \
+          -backend-config="key=${{vars.APP_NAME}}-${{env.TF_VAR_environment}}.tfstate" \
+          -backend-config="resource_group_name=${{vars.INFRA_RESOURCE_GROUP_NAME}}" \
+          -upgrade
+
+      - name: 'Terraform Plan'
+        run: cd ${{GITHUB.workspace}}/deploy/terraform; terraform plan
