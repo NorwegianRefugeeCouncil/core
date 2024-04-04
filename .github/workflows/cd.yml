@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - task/core24-160_cd
   workflow_dispatch:
     inputs:
       environment:
@@ -18,7 +17,7 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     environment:
-      name: dev
+      name: ${{github.event.inputs.environment}}
     defaults:
       run:
         shell: bash
@@ -47,7 +46,7 @@ jobs:
     needs: [Build]
     runs-on: ubuntu-latest
     environment:
-      name: dev
+      name: ${{github.event.inputs.environment}}
     defaults:
       run:
         shell: bash

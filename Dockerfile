@@ -30,6 +30,8 @@ FROM node:20-alpine
 
 ENV PROCESS_COUNT=max
 
+ENV PORT=3333
+
 WORKDIR /api
 
 RUN yarn global add pm2
@@ -44,6 +46,6 @@ COPY --from=builder /build/dist/apps/core-api .
 
 COPY --from=builder /build/dist/apps/core-frontend ./static
 
-ENV PORT=3333
+EXPOSE ${PORT}
 
 CMD pm2 start main.js --no-daemon -i ${PROCESS_COUNT}
