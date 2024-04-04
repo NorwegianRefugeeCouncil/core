@@ -52,9 +52,3 @@ resource "azurerm_monitor_action_group" "ag_teams" {
     use_common_alert_schema = true
   }
 }
-
-resource "azurerm_dns_zone" "dns" {
-  provider            = azurerm.runtime
-  name                = local.dns_zone_name
-  resource_group_name = azurerm_resource_group.rg.name
-}

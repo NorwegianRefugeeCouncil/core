@@ -13,7 +13,3 @@ output "ag" {
 output "law" {
   value = azurerm_log_analytics_workspace.law
 }
-
-output "dns" {
-  value = azurerm_dns_zone.dns
-}

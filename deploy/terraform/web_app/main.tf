@@ -155,7 +155,6 @@ resource "azurerm_cdn_frontdoor_custom_domain" "backend" {
   provider                 = azurerm.runtime
   name                     = "backend"
   cdn_frontdoor_profile_id = local.fd.id
-  dns_zone_id              = local.dns.id
   host_name                = local.backend_host_name
 
   tls {

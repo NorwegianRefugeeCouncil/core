@@ -73,9 +73,6 @@ variable "law" {
 variable "fd" { 
 }
 
-variable "dns" {
-}
-
 variable "db_user" {
  
 }
@@ -97,7 +94,6 @@ locals {
   ag = var.ag
   law = var.law
   fd = var.fd
-  dns = var.dns
   db_user = var.db_user
   postgres = var.postgres
   db = var.db

@@ -87,7 +87,6 @@ module "web_app" {
   ag = module.base.ag
   law = module.base.law
   fd = module.ingress.fd
-  dns = module.base.dns
   db_user = module.postgres.admin_user
   postgres = module.postgres.postgres
   db = module.postgres.db
