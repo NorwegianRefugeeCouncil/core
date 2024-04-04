@@ -98,7 +98,10 @@ router.post('/Users', validateCreateUserRequest, async (req, res, next) => {
     res.status(201).json(scimUser);
   } catch (error) {
     if (error instanceof AlreadyExistsError) {
-      const errorResponse = createScimErrorResponse(409, error.message);
+      const errorResponse = createScimErrorResponse(
+        409,
+        'User already exists in the database.',
+      );
       res.status(errorResponse.status).json(errorResponse);
       return;
     }
