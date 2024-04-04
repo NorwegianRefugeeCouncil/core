@@ -12,6 +12,7 @@ on:
         options:
           - dev
         required: true
+        default: dev
 
 jobs:
   Plan:
