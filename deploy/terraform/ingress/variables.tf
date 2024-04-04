@@ -17,11 +17,9 @@ variable "frontdoor_sku_name" {
 }
 
 variable rg {
-  type = azurerm_resource_group
 }
 
 variable "law" {
-  type = azurerm_log_analytics_workspace
 }
 
 locals {

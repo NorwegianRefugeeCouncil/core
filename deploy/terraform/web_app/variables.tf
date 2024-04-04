@@ -59,19 +59,15 @@ variable "infra_resource_group_name" {
 }
 
 variable rg {
-  type = azurerm_resource_group
 }
 
 variable "vnet" {
-  type = azurerm_virtual_network
 }
 
 variable "ag" {
-  type = azurerm_monitor_action_group
 }
 
 variable "law" {
-  type = azurerm_log_analytics_workspace
 }
 
 locals {
