@@ -1,3 +1,15 @@
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "3.97.1"
+      configuration_aliases = [runtime]
+    }
+  }
+  backend "azurerm" {
+  }
+}
+
 resource "random_id" "postgresql_id" {
   byte_length = 8
   keepers = {

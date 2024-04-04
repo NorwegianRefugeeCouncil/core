@@ -1,3 +1,15 @@
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "3.97.1"
+      configuration_aliases = [runtime]
+    }
+  }
+  backend "azurerm" {
+  }
+}
+
 resource "azurerm_resource_group" "rg" {
   provider = runtime
   location = local.location
