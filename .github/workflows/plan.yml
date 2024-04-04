@@ -1,6 +1,9 @@
 name: Plan
 
 on:
+  push:
+    branches:
+      - task/core24-116_terraform_manifests
   workflow_dispatch:
     inputs:
       environment:
