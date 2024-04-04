@@ -30,7 +30,7 @@ resource "random_password" "postgres_admin_password" {
 resource "azurerm_private_dns_zone" "postgres_dns" {
   provider            = azurerm.runtime
   name                = "${local.app_name}-${local.environment}.postgres.database.azure.com"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = local.rg.name
 }
 
 resource "azurerm_subnet" "postgres_subnet" {

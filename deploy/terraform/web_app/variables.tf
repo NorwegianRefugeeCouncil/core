@@ -70,6 +70,12 @@ variable "ag" {
 variable "law" {
 }
 
+variable "fd" { 
+}
+
+variable "dns" {
+}
+
 locals {
   app_name = var.app_name
   location = var.location
@@ -78,6 +84,8 @@ locals {
   vnet = var.vnet
   ag = var.ag
   law = var.law
+  fd = var.fd
+  dns = var.dns
   app_service_plan_sku = var.app_service_plan_sku
   oidc_client_id = var.oidc_client_id
   oidc_client_secret = var.oidc_client_secret

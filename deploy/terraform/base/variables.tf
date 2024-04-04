@@ -30,6 +30,10 @@ variable "action_group_webhook_url" {
   type        = string
 }
 
+variable "dns_zone_name" {
+  type        = string
+}
+
 locals {
   app_name = var.app_name
   environment = var.environment
@@ -37,4 +41,5 @@ locals {
   address_space = var.address_space
   prevent_deletion = var.prevent_deletion
   action_group_webhook_url = var.action_group_webhook_url
+  dns_zone_name = var.dns_zone_name
 }

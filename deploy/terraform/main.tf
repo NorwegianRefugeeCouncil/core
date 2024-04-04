@@ -35,6 +35,7 @@ module "base" {
   location = var.location
   prevent_deletion = var.prevent_deletion
   action_group_webhook_url = var.action_group_webhook_url
+  dns_zone_name = var.backend_host_name
 }
 
 module "postgres" {
@@ -85,6 +86,8 @@ module "web_app" {
   vnet = module.base.vnet
   ag = module.base.ag_teams
   law = module.base.law
+  fd = module.ingress.fd
+  dns = module.base.dns
 
   app_name = var.app_name
   environment = var.environment
