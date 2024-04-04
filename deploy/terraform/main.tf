@@ -27,7 +27,7 @@ module "base" {
   source = "./base"
 
   providers = {
-    "runtime" = azurerm.runtime
+    runtime = azurerm.runtime
   }
 
   app_name = var.app_name
@@ -41,7 +41,7 @@ module "postgres" {
   source = "./postgres"
 
   providers = {
-    "runtime" = azurerm.runtime
+    runtime = azurerm.runtime
   }
 
   rg = module.base.rg 
@@ -62,7 +62,7 @@ module ingress {
   source = "./ingress"
 
   providers = {
-    "runtime" = azurerm.runtime
+    runtime = azurerm.runtime
   }
 
   rg = module.base.rg
@@ -77,8 +77,8 @@ module "web_app" {
   source = "./web_app"
 
   providers = {
-    "runtime" = azurerm.runtime
-    "infra" = azurerm.infra
+    runtime = azurerm.runtime
+    infra = azurerm.infra
   }
 
   rg = module.base.rg
