@@ -105,8 +105,9 @@ describe('SCIM E2E', () => {
     });
 
     test('should return an error if the user does not exist', async () => {
+      const nonExistingUserId = faker.string.uuid();
       await expect(
-        axios.get('/scim/v2/Users/invalid-id'),
+        axios.get(`/scim/v2/Users/${nonExistingUserId}`),
       ).rejects.toMatchObject({
         response: {
           status: 404,
@@ -143,8 +144,9 @@ describe('SCIM E2E', () => {
     });
 
     test('should return an error if the user does not exist', async () => {
+      const nonExistingUserId = faker.string.uuid();
       await expect(
-        axios.put('/scim/v2/Users/invalid-id', createScimUser()),
+        axios.put(`/scim/v2/Users/${nonExistingUserId}`, createScimUser()),
       ).rejects.toMatchObject({
         response: {
           status: 404,
@@ -190,8 +192,19 @@ describe('SCIM E2E', () => {
     });
 
     test('should return an error if the user does not exist', async () => {
+      const nonExistingUserId = faker.string.uuid();
       await expect(
-        axios.patch('/scim/v2/Users/invalid-id', createScimUser()),
+        axios.patch(`/scim/v2/Users/${nonExistingUserId}`, {
+          schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
+          Operations: [
+            {
+              op: 'replace',
+              value: {
+                active: false,
+              },
+            },
+          ],
+        }),
       ).rejects.toMatchObject({
         response: {
           status: 404,
