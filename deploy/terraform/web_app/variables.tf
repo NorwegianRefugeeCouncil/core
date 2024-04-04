@@ -72,6 +72,7 @@ variable "law" {
 
 locals {
   app_name = var.app_name
+  location = var.location
   environment = var.environment
   rg = var.rg
   vnet = var.vnet
@@ -83,4 +84,6 @@ locals {
   oidc_well_known_url = var.oidc_well_known_url
   backend_host_name = var.backend_host_name
   runtime_subnet_address_space = var.runtime_subnet_address_space
+  infra_container_registry_name = var.infra_container_registry_name
+  infra_resource_group_name = var.infra_resource_group_name
 }
