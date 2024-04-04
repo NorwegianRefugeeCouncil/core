@@ -47,7 +47,7 @@ module "postgres" {
 
   rg = module.base.rg 
   vnet = module.base.vnet
-  ag = module.base.ag_teams
+  ag = module.base.ag
   law = module.base.law
 
   app_name = var.app_name
@@ -84,10 +84,13 @@ module "web_app" {
 
   rg = module.base.rg
   vnet = module.base.vnet
-  ag = module.base.ag_teams
+  ag = module.base.ag
   law = module.base.law
   fd = module.ingress.fd
   dns = module.base.dns
+  db_user = module.postgres.admin_user
+  postgres = module.postgres.postgres
+  db = module.postgres.db
 
   app_name = var.app_name
   environment = var.environment

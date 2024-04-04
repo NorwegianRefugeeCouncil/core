@@ -80,7 +80,7 @@ resource "azurerm_linux_web_app" "app" {
   connection_string {
     name  = "db"
     type  = "PostgreSQL"
-    value = "postgres://${random_pet.postgres_admin_username.id}:${random_password.postgres_admin_password.result}@${azurerm_postgresql_flexible_server.postgres.fqdn}/${azurerm_postgresql_flexible_server_database.db.name}?sslmode=require"
+    value = "postgres://${locals.db_user.username}:${locals.db_user.password}@${locals.postgres.fqdn}/${locals.db.name}?sslmode=require"
   }
 
   site_config {
@@ -154,7 +154,7 @@ resource "azurerm_cdn_frontdoor_custom_domain_association" "backend" {
 resource "azurerm_cdn_frontdoor_custom_domain" "backend" {
   provider                 = azurerm.runtime
   name                     = "backend"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
+  cdn_frontdoor_profile_id = local.fd.id
   dns_zone_id              = local.dns.id
   host_name                = local.backend_host_name
 
@@ -167,13 +167,13 @@ resource "azurerm_cdn_frontdoor_custom_domain" "backend" {
 resource "azurerm_cdn_frontdoor_endpoint" "backend" {
   provider                 = azurerm.runtime
   name                     = "backend-${random_id.app_id.hex}"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
+  cdn_frontdoor_profile_id = local.fd.id
 }
 
 resource "azurerm_cdn_frontdoor_origin_group" "backend" {
   provider                 = azurerm.runtime
   name                     = "backend"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
+  cdn_frontdoor_profile_id = local.fd.id
   session_affinity_enabled = false
   load_balancing {
     sample_size                 = 4
@@ -263,7 +263,7 @@ resource "azurerm_cdn_frontdoor_route" "backend" {
 
 resource "azurerm_cdn_frontdoor_rule_set" "backend" {
   provider                 = azurerm.runtime
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
+  cdn_frontdoor_profile_id = local.fd.id
   name                     = "backend"
 }
 

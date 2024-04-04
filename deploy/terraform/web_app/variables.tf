@@ -76,6 +76,18 @@ variable "fd" {
 variable "dns" {
 }
 
+variable "db_user" {
+ 
+}
+
+variable "postgres" {
+
+}
+
+variable "db" {
+
+}
+
 locals {
   app_name = var.app_name
   location = var.location
@@ -86,6 +98,9 @@ locals {
   law = var.law
   fd = var.fd
   dns = var.dns
+  db_user = var.db_user
+  postgres = var.postgres
+  db = var.db
   app_service_plan_sku = var.app_service_plan_sku
   oidc_client_id = var.oidc_client_id
   oidc_client_secret = var.oidc_client_secret
