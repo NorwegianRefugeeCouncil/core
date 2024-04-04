@@ -99,3 +99,28 @@ variable "subscription_id" {
   description = "Runtime Subscription id"
   default     = "f7791b2f-bb9b-4f70-813d-d1d2bb9e508e"
 }
+
+variable "backend_host_name" {
+  type        = string
+  description = "The hostname of the backend."
+}
+
+variable "frontdoor_sku_name" {
+  type        = string
+  description = "The sku name of the frontdoor."
+  default     = "Standard_AzureFrontDoor"
+}
+
+variable "action_group_webhook_url" {
+  type        = string
+  description = "The url of the webhook for the action group."
+}
+
+variable "prevent_deletion" {
+  type        = bool
+  default     = true
+  description = <<EOF
+Whether or not to prevent the deletion of the resource group.
+This is implemented using an Azure Management Lock.
+EOF
+}
