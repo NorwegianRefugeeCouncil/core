@@ -80,7 +80,7 @@ resource "azurerm_linux_web_app" "app" {
   connection_string {
     name  = "db"
     type  = "PostgreSQL"
-    value = "postgres://${locals.db_user.username}:${locals.db_user.password}@${locals.postgres.fqdn}/${locals.db.name}?sslmode=require"
+    value = "postgres://${local.db_user.username}:${local.db_user.password}@${local.postgres.fqdn}/${local.db.name}?sslmode=require"
   }
 
   site_config {
