@@ -3,7 +3,7 @@ terraform {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "3.97.1"
-      configuration_aliases = [runtime]
+      configuration_aliases = [azurerm.runtime]
     }
   }
   backend "azurerm" {
@@ -28,13 +28,13 @@ resource "random_password" "postgres_admin_password" {
 }
 
 resource "azurerm_private_dns_zone" "postgres_dns" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "${local.app_name}-${local.environment}.postgres.database.azure.com"
   resource_group_name = azurerm_resource_group.rg.name
 }
 
 resource "azurerm_subnet" "postgres_subnet" {
-  provider             = runtime
+  provider             = azurerm.runtime
   name                 = "postgres"
   resource_group_name  = local.rg.name
   virtual_network_name = local.vnet.name
@@ -51,7 +51,7 @@ resource "azurerm_subnet" "postgres_subnet" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "vnet_link" {
-  provider              = runtime
+  provider              = azurerm.runtime
   name                  = azurerm_private_dns_zone.postgres_dns.name
   private_dns_zone_name = azurerm_private_dns_zone.postgres_dns.name
   virtual_network_id    = local.vnet.id
@@ -59,7 +59,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "vnet_link" {
 }
 
 resource "azurerm_postgresql_flexible_server" "postgres" {
-  provider               = runtime
+  provider               = azurerm.runtime
   name                   = random_id.postgresql_id.hex
   resource_group_name    = local.rg.name
   location               = local.rg.location
@@ -75,7 +75,7 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
 }
 
 resource "azurerm_postgresql_flexible_server_database" "db" {
-  provider  = runtime
+  provider  = azurerm.runtime
   name      = "core"
   server_id = azurerm_postgresql_flexible_server.postgres.id
   charset   = "UTF8"
@@ -83,7 +83,7 @@ resource "azurerm_postgresql_flexible_server_database" "db" {
 }
 
 resource "azurerm_monitor_metric_alert" "postgres_cpu_over_threshold" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "postgres-cpu-over-threshold-${local.environment}"
   resource_group_name = local.rg.name
   scopes              = [azurerm_postgresql_flexible_server.postgres.id]
@@ -106,7 +106,7 @@ resource "azurerm_monitor_metric_alert" "postgres_cpu_over_threshold" {
 }
 
 resource "azurerm_monitor_metric_alert" "postgres_memory_usage" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "postgres-memory-usage-${local.environment}"
   resource_group_name = local.rg.name
   scopes              = [azurerm_postgresql_flexible_server.postgres.id]
@@ -129,7 +129,7 @@ resource "azurerm_monitor_metric_alert" "postgres_memory_usage" {
 }
 
 resource "azurerm_monitor_metric_alert" "postgres_storage_percent" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "postgres-storage-percent-${local.environment}"
   resource_group_name = local.rg.name
   scopes              = [azurerm_postgresql_flexible_server.postgres.id]
@@ -152,7 +152,7 @@ resource "azurerm_monitor_metric_alert" "postgres_storage_percent" {
 }
 
 resource "azurerm_monitor_activity_log_alert" "postgres_health" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "postgres-health-${local.environment}"
   resource_group_name = local.rg.name
   scopes              = [azurerm_postgresql_flexible_server.postgres.id]
@@ -170,7 +170,7 @@ resource "azurerm_monitor_activity_log_alert" "postgres_health" {
 }
 
 resource "azurerm_monitor_diagnostic_setting" "postgres" {
-  provider                   = runtime
+  provider                   = azurerm.runtime
   name                       = "diag-postgres-${azurerm_postgresql_flexible_server.postgres.name}"
   target_resource_id         = azurerm_postgresql_flexible_server.postgres.id
   log_analytics_workspace_id = local.law.id

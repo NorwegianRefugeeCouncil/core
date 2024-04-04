@@ -3,7 +3,7 @@ terraform {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "3.97.1"
-      configuration_aliases = [runtime, infra]
+      configuration_aliases = [azurerm.runtime, azurerm.infra]
     }
   }
   backend "azurerm" {
@@ -18,20 +18,20 @@ resource "random_id" "app_id" {
 }
 
 data "azurerm_container_registry" "acr" {
-  provider            = infra
+  provider            = azurerm.infra
   name                = local.infra_container_registry_name
   resource_group_name = local.infra_resource_group_name
 }
 
 resource "azurerm_user_assigned_identity" "app" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "id-${local.app_name}-${local.environment}"
   location            = local.location
   resource_group_name = local.rg.name
 }
 
 resource "azurerm_subnet" "runtime_subnet" {
-  provider             = runtime
+  provider             = azurerm.runtime
   name                 = "runtime"
   resource_group_name  = local.rg.name
   virtual_network_name = local.vnet.name
@@ -48,14 +48,14 @@ resource "azurerm_subnet" "runtime_subnet" {
 }
 
 resource "azurerm_role_assignment" "acr_pull" {
-  provider             = runtime
+  provider             = azurerm.runtime
   principal_id         = azurerm_user_assigned_identity.app.principal_id
   role_definition_name = "AcrPull"
   scope                = data.azurerm_container_registry.acr.id
 }
 
 resource "azurerm_service_plan" "plan" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "asp-${local.app_name}-${local.environment}"
   location            = local.location
   resource_group_name = local.rg.name
@@ -64,7 +64,7 @@ resource "azurerm_service_plan" "plan" {
 }
 
 resource "azurerm_linux_web_app" "app" {
-  provider                  = runtime
+  provider                  = azurerm.runtime
   location                  = local.location
   name                      = "${local.app_name}-${local.environment}-${random_id.app_id.hex}"
   resource_group_name       = local.rg.name
@@ -146,13 +146,13 @@ resource "azurerm_linux_web_app" "app" {
 }
 
 resource "azurerm_cdn_frontdoor_custom_domain_association" "backend" {
-  provider                       = runtime
+  provider                       = azurerm.runtime
   cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.backend.id
   cdn_frontdoor_route_ids        = [azurerm_cdn_frontdoor_route.backend.id]
 }
 
 resource "azurerm_cdn_frontdoor_custom_domain" "backend" {
-  provider                 = runtime
+  provider                 = azurerm.runtime
   name                     = "backend"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
   dns_zone_id              = azurerm_dns_zone.dns.id
@@ -165,13 +165,13 @@ resource "azurerm_cdn_frontdoor_custom_domain" "backend" {
 }
 
 resource "azurerm_cdn_frontdoor_endpoint" "backend" {
-  provider                 = runtime
+  provider                 = azurerm.runtime
   name                     = "backend-${random_id.app_id.hex}"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
 }
 
 resource "azurerm_cdn_frontdoor_origin_group" "backend" {
-  provider                 = runtime
+  provider                 = azurerm.runtime
   name                     = "backend"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
   session_affinity_enabled = false
@@ -182,7 +182,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "backend" {
 }
 
 resource "azurerm_cdn_frontdoor_origin" "backend" {
-  provider                       = runtime
+  provider                       = azurerm.runtime
   name                           = "backend"
   cdn_frontdoor_origin_group_id  = azurerm_cdn_frontdoor_origin_group.backend.id
   enabled                        = true
@@ -196,7 +196,7 @@ resource "azurerm_cdn_frontdoor_origin" "backend" {
 }
 
 resource "azurerm_cdn_frontdoor_route" "backend" {
-  provider                      = runtime
+  provider                      = azurerm.runtime
   name                          = "fdr-${random_id.app_id.hex}"
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.backend.id
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.backend.id
@@ -262,13 +262,13 @@ resource "azurerm_cdn_frontdoor_route" "backend" {
 }
 
 resource "azurerm_cdn_frontdoor_rule_set" "backend" {
-  provider                 = runtime
+  provider                 = azurerm.runtime
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd.id
   name                     = "backend"
 }
 
 resource "azurerm_cdn_frontdoor_rule" "backend_disable_auth_cache" {
-  provider = runtime
+  provider = azurerm.runtime
   # Required as per terraform documentation
   depends_on = [
     azurerm_cdn_frontdoor_origin_group.backend,
@@ -295,7 +295,7 @@ resource "azurerm_cdn_frontdoor_rule" "backend_disable_auth_cache" {
 }
 
 resource "azurerm_cdn_frontdoor_rule" "backend_disable_download_compression" {
-  provider = runtime
+  provider = azurerm.runtime
   # Required as per terraform documentation
   depends_on = [
     azurerm_cdn_frontdoor_origin_group.backend,
@@ -322,7 +322,7 @@ resource "azurerm_cdn_frontdoor_rule" "backend_disable_download_compression" {
 }
 
 resource "azurerm_monitor_diagnostic_setting" "backend" {
-  provider                   = runtime
+  provider                   = azurerm.runtime
   name                       = "diag-app-service-${azurerm_linux_web_app.app.name}"
   target_resource_id         = azurerm_linux_web_app.app.id
   log_analytics_workspace_id = local.law.id
@@ -357,7 +357,7 @@ resource "azurerm_monitor_diagnostic_setting" "backend" {
 }
 
 resource "azurerm_monitor_metric_alert" "app_health_check" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "health-check-${local.environment}"
   resource_group_name = local.rg.name
   scopes              = [azurerm_linux_web_app.app.id]
@@ -381,7 +381,7 @@ resource "azurerm_monitor_metric_alert" "app_health_check" {
 }
 
 resource "azurerm_monitor_metric_alert" "app_response_time" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "app-response-time-over-threshold-${local.environment}"
   resource_group_name = local.rg.name
   scopes              = [azurerm_linux_web_app.app.id]
@@ -404,7 +404,7 @@ resource "azurerm_monitor_metric_alert" "app_response_time" {
 }
 
 resource "azurerm_monitor_metric_alert" "app_4xx_status_codes" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "app-4xx-status-codes-${local.environment}"
   resource_group_name = local.rg.name
   scopes              = [azurerm_linux_web_app.app.id]
@@ -429,7 +429,7 @@ resource "azurerm_monitor_metric_alert" "app_4xx_status_codes" {
 }
 
 resource "azurerm_monitor_metric_alert" "app_5xx_status_codes" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "app-5xx-status-codes${local.environment}"
   resource_group_name = local.rg.name
   scopes              = [azurerm_linux_web_app.app.id]
@@ -453,7 +453,7 @@ resource "azurerm_monitor_metric_alert" "app_5xx_status_codes" {
 }
 
 resource "azurerm_monitor_metric_alert" "asp_cpu_over_threshold" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "asp-cpu-over-threshold-${local.environment}"
   resource_group_name = local.rg.name
   scopes              = [azurerm_service_plan.plan.id]
@@ -477,7 +477,7 @@ resource "azurerm_monitor_metric_alert" "asp_cpu_over_threshold" {
 }
 
 resource "azurerm_monitor_metric_alert" "asp_memory_over_threshold" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "asp-memory-over-threshold-${local.environment}"
   resource_group_name = local.rg.name
   scopes              = [azurerm_service_plan.plan.id]

@@ -3,7 +3,7 @@ terraform {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "3.97.1"
-      configuration_aliases = [runtime]
+      configuration_aliases = [azurerm.runtime]
     }
   }
   backend "azurerm" {
@@ -11,13 +11,13 @@ terraform {
 }
 
 resource "azurerm_resource_group" "rg" {
-  provider = runtime
+  provider = azurerm.runtime
   location = local.location
   name     = "rg-${local.app_name}-${local.environment}"
 }
 
 resource "azurerm_management_lock" "deletion_lock" {
-  provider   = runtime
+  provider   = azurerm.runtime
   count      = local.prevent_deletion ? 1 : 0
   name       = azurerm_resource_group.rg.name
   lock_level = "CanNotDelete"
@@ -25,7 +25,7 @@ resource "azurerm_management_lock" "deletion_lock" {
 }
 
 resource "azurerm_virtual_network" "vnet" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "vnet-${local.app_name}-${local.environment}"
   location            = local.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -33,7 +33,7 @@ resource "azurerm_virtual_network" "vnet" {
 }
 
 resource "azurerm_log_analytics_workspace" "law" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "law-${local.app_name}-${local.environment}"
   location            = local.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -42,7 +42,7 @@ resource "azurerm_log_analytics_workspace" "law" {
 
 resource "azurerm_monitor_action_group" "ag_teams" {
   name                = "send-notification-to-teams-${local.environment}"
-  provider            = runtime
+  provider            = azurerm.runtime
   resource_group_name = azurerm_resource_group.rg.name
   short_name          = "notify-teams"
 

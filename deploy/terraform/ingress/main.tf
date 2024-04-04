@@ -3,7 +3,7 @@ terraform {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "3.97.1"
-      configuration_aliases = [runtime]
+      configuration_aliases = [azurerm.runtime]
     }
   }
   backend "azurerm" {
@@ -18,14 +18,14 @@ resource "random_id" "waf_id" {
 }
 
 resource "azurerm_cdn_frontdoor_profile" "fd" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "fd-${local.app_name}-${local.environment}"
   resource_group_name = local.rg.name
   sku_name            = local.frontdoor_sku_name
 }
 
 resource "azurerm_web_application_firewall_policy" "backend" {
-  provider            = runtime
+  provider            = azurerm.runtime
   name                = "waf${random_id.waf_id.hex}"
   resource_group_name = local.rg.name
   location            = local.rg.location
@@ -44,7 +44,7 @@ resource "azurerm_web_application_firewall_policy" "backend" {
 }
 
 resource "azurerm_monitor_diagnostic_setting" "frontdoor" {
-  provider                   = runtime
+  provider                   = azurerm.runtime
   name                       = "diag-frontdoor-${azurerm_cdn_frontdoor_profile.fd.name}"
   target_resource_id         = azurerm_cdn_frontdoor_profile.fd.id
   log_analytics_workspace_id = local.law.id
