@@ -5,6 +5,7 @@
 
 import * as path from 'path';
 
+import { config as dotenvConfig } from 'dotenv';
 import express from 'express';
 import { rateLimit } from 'express-rate-limit';
 
@@ -12,6 +13,9 @@ import { db } from '@nrcno/db';
 
 import { welcomeRouter } from './controllers/welcome.controller';
 import { scimRouter } from './controllers/scim.controller';
+
+// Load environment variables from .env file
+dotenvConfig();
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,

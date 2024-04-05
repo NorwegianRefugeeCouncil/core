@@ -1,6 +1,12 @@
 import axios from 'axios';
 import { faker } from '@faker-js/faker';
 
+const axiosInstance = axios.create({
+  headers: {
+    Authorization: `Bearer ${process.env.OKTA_SCIM_API_TOKEN}`,
+  },
+});
+
 const createScimUser = () => {
   return {
     schemas: ['urn:ietf:params:scim:schemas:core:2.0:User'],
@@ -26,10 +32,44 @@ const createScimUser = () => {
  * @see {@link https://developer.okta.com/docs/reference/scim/scim-20/#scim-user-operations}
  */
 describe('SCIM E2E', () => {
+  describe('Authorization', () => {
+    test('should return an error if the Authorization header is missing', async () => {
+      await expect(axios.get('/scim/v2/Users')).rejects.toMatchObject({
+        response: {
+          status: 401,
+          data: {
+            schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
+            detail: 'Unauthorized',
+            status: 401,
+          },
+        },
+      });
+    });
+
+    test('should return an error if the Authorization header is invalid', async () => {
+      await expect(
+        axios.get('/scim/v2/Users', {
+          headers: {
+            Authorization: 'Bearer invalid-token',
+          },
+        }),
+      ).rejects.toMatchObject({
+        response: {
+          status: 401,
+          data: {
+            schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
+            detail: 'Unauthorized',
+            status: 401,
+          },
+        },
+      });
+    });
+  });
+
   describe('Create User', () => {
     test('should check that a user does not exist and then create it', async () => {
       const user = createScimUser();
-      const listResponse = await axios.get(
+      const listResponse = await axiosInstance.get(
         `/scim/v2/Users?filter=userName eq ${user.userName}&startIndex=1&count=100`,
       );
 
@@ -42,7 +82,10 @@ describe('SCIM E2E', () => {
         Resources: [],
       });
 
-      const createUserResponse = await axios.post('/scim/v2/Users', user);
+      const createUserResponse = await axiosInstance.post(
+        '/scim/v2/Users',
+        user,
+      );
       expect(createUserResponse.status).toBe(201);
       expect(createUserResponse.data).toEqual(
         expect.objectContaining({ ...user, id: expect.any(String) }),
@@ -51,10 +94,15 @@ describe('SCIM E2E', () => {
 
     test('should return an error if the user already exists', async () => {
       const user = createScimUser();
-      const createUserResponse = await axios.post('/scim/v2/Users', user);
+      const createUserResponse = await axiosInstance.post(
+        '/scim/v2/Users',
+        user,
+      );
       expect(createUserResponse.status).toBe(201);
 
-      await expect(axios.post('/scim/v2/Users', user)).rejects.toMatchObject({
+      await expect(
+        axiosInstance.post('/scim/v2/Users', user),
+      ).rejects.toMatchObject({
         response: {
           status: 409,
           data: {
@@ -69,11 +117,11 @@ describe('SCIM E2E', () => {
 
   describe('Retrieve list of users', () => {
     beforeAll(async () => {
-      await axios.post('/scim/v2/Users', createScimUser());
+      await axiosInstance.post('/scim/v2/Users', createScimUser());
     });
 
     test('should return a list of users', async () => {
-      const listResponse = await axios.get(
+      const listResponse = await axiosInstance.get(
         '/scim/v2/Users?startIndex=1&count=100',
       );
       expect(listResponse.status).toBe(200);
@@ -92,12 +140,15 @@ describe('SCIM E2E', () => {
 
     beforeAll(async () => {
       const user = createScimUser();
-      const createUserResponse = await axios.post('/scim/v2/Users', user);
+      const createUserResponse = await axiosInstance.post(
+        '/scim/v2/Users',
+        user,
+      );
       userId = createUserResponse.data.id;
     });
 
     test('should return a user', async () => {
-      const userResponse = await axios.get(`/scim/v2/Users/${userId}`);
+      const userResponse = await axiosInstance.get(`/scim/v2/Users/${userId}`);
       expect(userResponse.status).toBe(200);
       expect(userResponse.data).toEqual(
         expect.objectContaining({ id: userId }),
@@ -107,7 +158,7 @@ describe('SCIM E2E', () => {
     test('should return an error if the user does not exist', async () => {
       const nonExistingUserId = faker.string.uuid();
       await expect(
-        axios.get(`/scim/v2/Users/${nonExistingUserId}`),
+        axiosInstance.get(`/scim/v2/Users/${nonExistingUserId}`),
       ).rejects.toMatchObject({
         response: {
           status: 404,
@@ -126,16 +177,19 @@ describe('SCIM E2E', () => {
 
     beforeAll(async () => {
       const user = createScimUser();
-      const createUserResponse = await axios.post('/scim/v2/Users', user);
+      const createUserResponse = await axiosInstance.post(
+        '/scim/v2/Users',
+        user,
+      );
       userId = createUserResponse.data.id;
     });
 
     test('should update a user', async () => {
-      const userResponse = await axios.get(`/scim/v2/Users/${userId}`);
+      const userResponse = await axiosInstance.get(`/scim/v2/Users/${userId}`);
       expect(userResponse.status).toBe(200);
 
       userResponse.data.displayName = faker.internet.displayName();
-      const updateUserResponse = await axios.put(
+      const updateUserResponse = await axiosInstance.put(
         `/scim/v2/Users/${userId}`,
         userResponse.data,
       );
@@ -146,7 +200,10 @@ describe('SCIM E2E', () => {
     test('should return an error if the user does not exist', async () => {
       const nonExistingUserId = faker.string.uuid();
       await expect(
-        axios.put(`/scim/v2/Users/${nonExistingUserId}`, createScimUser()),
+        axiosInstance.put(
+          `/scim/v2/Users/${nonExistingUserId}`,
+          createScimUser(),
+        ),
       ).rejects.toMatchObject({
         response: {
           status: 404,
@@ -165,25 +222,31 @@ describe('SCIM E2E', () => {
 
     beforeAll(async () => {
       const user = createScimUser();
-      const createUserResponse = await axios.post('/scim/v2/Users', user);
+      const createUserResponse = await axiosInstance.post(
+        '/scim/v2/Users',
+        user,
+      );
       userId = createUserResponse.data.id;
     });
 
     test('should update a user', async () => {
-      const userResponse = await axios.get(`/scim/v2/Users/${userId}`);
+      const userResponse = await axiosInstance.get(`/scim/v2/Users/${userId}`);
       expect(userResponse.status).toBe(200);
 
-      const updateUserResponse = await axios.patch(`/scim/v2/Users/${userId}`, {
-        schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
-        Operations: [
-          {
-            op: 'replace',
-            value: {
-              active: false,
+      const updateUserResponse = await axiosInstance.patch(
+        `/scim/v2/Users/${userId}`,
+        {
+          schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
+          Operations: [
+            {
+              op: 'replace',
+              value: {
+                active: false,
+              },
             },
-          },
-        ],
-      });
+          ],
+        },
+      );
       expect(updateUserResponse.status).toBe(200);
       expect(updateUserResponse.data).toEqual({
         ...userResponse.data,
@@ -194,7 +257,7 @@ describe('SCIM E2E', () => {
     test('should return an error if the user does not exist', async () => {
       const nonExistingUserId = faker.string.uuid();
       await expect(
-        axios.patch(`/scim/v2/Users/${nonExistingUserId}`, {
+        axiosInstance.patch(`/scim/v2/Users/${nonExistingUserId}`, {
           schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
           Operations: [
             {

@@ -88,7 +88,26 @@ const mapUserToScimUser = (user: User): ScimUser => {
   return scimUser;
 };
 
+const authorise = (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    const errorResponse = createScimErrorResponse(401, 'Unauthorized');
+    res.status(errorResponse.status).json(errorResponse);
+    return;
+  }
+
+  const [bearer, token] = authHeader.split(' ');
+  if (bearer !== 'Bearer' || token !== process.env.OKTA_SCIM_API_TOKEN) {
+    const errorResponse = createScimErrorResponse(401, 'Unauthorized');
+    res.status(errorResponse.status).json(errorResponse);
+    return;
+  }
+
+  next();
+};
+
 const router = Router();
+router.use(authorise);
 router.use(errorHandlerMiddleware);
 
 router.post('/Users', validateCreateUserRequest, async (req, res, next) => {
