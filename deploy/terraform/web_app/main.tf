@@ -92,6 +92,15 @@ resource "azurerm_linux_web_app" "app" {
       docker_image     = "ealen/echo-server"
       docker_image_tag = "latest"
     }
+
+    ip_restriction {
+        name = "Allow Azure Front Door"
+        service_tag = "AzureFrontDoor.Backend"
+
+        headers {
+            x_azure_fdid = [azurerm_cdn_frontdoor_profile.fd.resource_guid]
+        }
+    }
   }
 
   app_settings = {
