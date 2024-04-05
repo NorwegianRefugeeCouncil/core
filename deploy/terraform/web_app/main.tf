@@ -89,8 +89,8 @@ resource "azurerm_linux_web_app" "app" {
     container_registry_managed_identity_client_id = azurerm_user_assigned_identity.app.client_id
 
     application_stack {
-      docker_image     = local.container_image
-      docker_image_tag = local.container_image_tag
+      docker_image_name = "${local.container_image}:${local.container_image_tag}"
+      docker_registry_url = azurerm_container_registry.acr.login_server 
     }
 
     ip_restriction {
@@ -335,30 +335,38 @@ resource "azurerm_monitor_diagnostic_setting" "backend" {
   target_resource_id         = azurerm_linux_web_app.app.id
   log_analytics_workspace_id = local.law.id
 
-  log {
+  enabled_log {
     category = "AppServiceAntivirusScanAuditLogs"
   }
-  log {
+
+  enabled_log {
     category = "AppServiceHTTPLogs"
   }
-  log {
+
+  enabled_log {
     category = "AppServiceConsoleLogs"
   }
-  log {
+
+  enabled_log {
     category = "AppServiceAppLogs"
   }
-  log {
+
+  enabled_log {
     category = "AppServiceFileAuditLogs"
   }
-  log {
+
+  enabled_log {
     category = "AppServiceAuditLogs"
   }
-  log {
+
+  enabled_log {
     category = "AppServiceIPSecAuditLogs"
   }
-  log {
+
+  enabled_log {
     category = "AppServicePlatformLogs"
   }
+
   metric {
     category = "AllMetrics"
   }

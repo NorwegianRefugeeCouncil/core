@@ -175,7 +175,7 @@ resource "azurerm_monitor_diagnostic_setting" "postgres" {
   target_resource_id         = azurerm_postgresql_flexible_server.postgres.id
   log_analytics_workspace_id = local.law.id
 
-  log {
+  enabled_log {
     category = "PostgreSQLLogs"
   }
   metric {

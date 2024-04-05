@@ -27,7 +27,7 @@ jobs:
       TF_VAR_address_space: ${{vars.ADDRESS_SPACE}}
       TF_VAR_app_name: ${{vars.APP_NAME}}
       TF_VAR_container_image_tag: ${{github.sha}}
-      TF_VAR_container_image: ${{vars.ACR_LOGIN_SERVER}}/${{vars.APP_IMAGE_NAME}}
+      TF_VAR_container_image: ${{vars.APP_IMAGE_NAME}}
       TF_VAR_environment: ${{vars.ENVIRONMENT}}
       TF_VAR_infra_container_registry_name: ${{vars.INFRA_CONTAINER_REGISTRY_NAME}}
       TF_VAR_infra_resource_group_name: ${{vars.INFRA_RESOURCE_GROUP_NAME}}
