@@ -90,7 +90,7 @@ resource "azurerm_linux_web_app" "app" {
 
     application_stack {
       docker_image_name = "${local.container_image}:${local.container_image_tag}"
-      docker_registry_url = data.azurerm_container_registry.acr.login_server 
+      docker_registry_url = "https://${data.azurerm_container_registry.acr.login_server}"
     }
 
     ip_restriction {
