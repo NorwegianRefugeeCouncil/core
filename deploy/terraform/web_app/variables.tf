@@ -58,6 +58,23 @@ variable "infra_resource_group_name" {
   description = "Infrastructure Resource Group name"
 }
 
+variable "container_image" {
+  type        = string
+  description = <<EOF
+The container image of the application.
+
+The container image must be located in the shared container registry, or
+in a public container registry.
+EOF
+}
+
+variable "container_image_tag" {
+  type        = string
+  description = <<EOF
+The tag of the container image of the application.
+EOF
+}
+
 variable rg {
 }
 
@@ -105,4 +122,6 @@ locals {
   runtime_subnet_address_space = var.runtime_subnet_address_space
   infra_container_registry_name = var.infra_container_registry_name
   infra_resource_group_name = var.infra_resource_group_name
+  container_image = var.container_image
+  container_image_tag = var.container_image_tag
 }

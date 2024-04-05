@@ -101,4 +101,6 @@ module "web_app" {
   runtime_subnet_address_space = var.runtime_subnet_address_space
   infra_container_registry_name = var.infra_container_registry_name
   infra_resource_group_name = var.infra_resource_group_name
+  container_image = var.container_image
+  container_image_tag = var.container_image_tag
 }

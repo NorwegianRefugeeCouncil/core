@@ -89,8 +89,8 @@ resource "azurerm_linux_web_app" "app" {
     container_registry_managed_identity_client_id = azurerm_user_assigned_identity.app.client_id
 
     application_stack {
-      docker_image     = "ealen/echo-server"
-      docker_image_tag = "latest"
+      docker_image     = local.container_image
+      docker_image_tag = local.container_image_tag
     }
 
     ip_restriction {

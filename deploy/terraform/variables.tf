@@ -124,3 +124,20 @@ Whether or not to prevent the deletion of the resource group.
 This is implemented using an Azure Management Lock.
 EOF
 }
+
+variable "container_image" {
+  type        = string
+  description = <<EOF
+The container image of the application.
+
+The container image must be located in the shared container registry, or
+in a public container registry.
+EOF
+}
+
+variable "container_image_tag" {
+  type        = string
+  description = <<EOF
+The tag of the container image of the application.
+EOF
+}
