@@ -104,12 +104,12 @@ resource "azurerm_linux_web_app" "app" {
   }
 
   app_settings = {
-    oidc_AUTHENTICATION_SECRET = local.oidc_client_secret
+    oidc_PROVIDER_AUTHENTICATION_SECRET = local.oidc_client_secret
   }
 
   sticky_settings {
     app_setting_names = [
-      "oidc_AUTHENTICATION_SECRET",
+      "oidc_PROVIDER_AUTHENTICATION_SECRET",
     ]
   }
 
@@ -145,6 +145,7 @@ resource "azurerm_linux_web_app" "app" {
             "groups",
             "offline_access",
         ]
+        client_secret_setting_name = "oidc_PROVIDER_AUTHENTICATION_SECRET"
     }
 
     login {
