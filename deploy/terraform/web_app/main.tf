@@ -145,7 +145,6 @@ resource "azurerm_linux_web_app" "app" {
             "groups",
             "offline_access",
         ]
-        client_secret_setting_name = "oidc_PROVIDER_AUTHENTICATION_SECRET"
     }
 
     login {
