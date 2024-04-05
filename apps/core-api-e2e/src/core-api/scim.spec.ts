@@ -34,34 +34,30 @@ const createScimUser = () => {
 describe('SCIM E2E', () => {
   describe('Authorization', () => {
     test('should return an error if the Authorization header is missing', async () => {
-      await expect(axios.get('/scim/v2/Users')).rejects.toMatchObject({
-        response: {
-          status: 401,
-          data: {
-            schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
-            detail: 'Unauthorized',
-            status: 401,
-          },
-        },
+      const error = await axios.get('/scim/v2/Users').catch((e) => e);
+
+      expect(error.response.status).toBe(401);
+      expect(error.response.data).toEqual({
+        schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
+        detail: 'Unauthorized',
+        status: 401,
       });
     });
 
     test('should return an error if the Authorization header is invalid', async () => {
-      await expect(
-        axios.get('/scim/v2/Users', {
+      const error = await axios
+        .get('/scim/v2/Users', {
           headers: {
             Authorization: 'Bearer invalid-token',
           },
-        }),
-      ).rejects.toMatchObject({
-        response: {
-          status: 401,
-          data: {
-            schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
-            detail: 'Unauthorized',
-            status: 401,
-          },
-        },
+        })
+        .catch((e) => e);
+
+      expect(error.response.status).toBe(401);
+      expect(error.response.data).toEqual({
+        schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
+        detail: 'Unauthorized',
+        status: 401,
       });
     });
   });
@@ -100,17 +96,15 @@ describe('SCIM E2E', () => {
       );
       expect(createUserResponse.status).toBe(201);
 
-      await expect(
-        axiosInstance.post('/scim/v2/Users', user),
-      ).rejects.toMatchObject({
-        response: {
-          status: 409,
-          data: {
-            schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
-            detail: 'User already exists in the database.',
-            status: 409,
-          },
-        },
+      const error = await axiosInstance
+        .post('/scim/v2/Users', user)
+        .catch((e) => e);
+
+      expect(error.response.status).toBe(409);
+      expect(error.response.data).toEqual({
+        schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
+        detail: 'User already exists in the database.',
+        status: 409,
       });
     });
   });
@@ -157,17 +151,15 @@ describe('SCIM E2E', () => {
 
     test('should return an error if the user does not exist', async () => {
       const nonExistingUserId = faker.string.uuid();
-      await expect(
-        axiosInstance.get(`/scim/v2/Users/${nonExistingUserId}`),
-      ).rejects.toMatchObject({
-        response: {
-          status: 404,
-          data: {
-            schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
-            detail: 'User not found',
-            status: 404,
-          },
-        },
+      const error = await axiosInstance
+        .get(`/scim/v2/Users/${nonExistingUserId}`)
+        .catch((e) => e);
+
+      expect(error.response.status).toBe(404);
+      expect(error.response.data).toEqual({
+        schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
+        detail: 'User not found',
+        status: 404,
       });
     });
   });
@@ -199,20 +191,15 @@ describe('SCIM E2E', () => {
 
     test('should return an error if the user does not exist', async () => {
       const nonExistingUserId = faker.string.uuid();
-      await expect(
-        axiosInstance.put(
-          `/scim/v2/Users/${nonExistingUserId}`,
-          createScimUser(),
-        ),
-      ).rejects.toMatchObject({
-        response: {
-          status: 404,
-          data: {
-            schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
-            detail: 'User not found',
-            status: 404,
-          },
-        },
+      const error = await axiosInstance
+        .put(`/scim/v2/Users/${nonExistingUserId}`, createScimUser())
+        .catch((e) => e);
+
+      expect(error.response.status).toBe(404);
+      expect(error.response.data).toEqual({
+        schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
+        detail: 'User not found',
+        status: 404,
       });
     });
   });
@@ -256,8 +243,8 @@ describe('SCIM E2E', () => {
 
     test('should return an error if the user does not exist', async () => {
       const nonExistingUserId = faker.string.uuid();
-      await expect(
-        axiosInstance.patch(`/scim/v2/Users/${nonExistingUserId}`, {
+      const error = await axiosInstance
+        .patch(`/scim/v2/Users/${nonExistingUserId}`, {
           schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
           Operations: [
             {
@@ -267,16 +254,14 @@ describe('SCIM E2E', () => {
               },
             },
           ],
-        }),
-      ).rejects.toMatchObject({
-        response: {
-          status: 404,
-          data: {
-            schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
-            detail: 'User not found',
-            status: 404,
-          },
-        },
+        })
+        .catch((e) => e);
+
+      expect(error.response.status).toBe(404);
+      expect(error.response.data).toEqual({
+        schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
+        detail: 'User not found',
+        status: 404,
       });
     });
   });
