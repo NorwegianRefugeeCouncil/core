@@ -26,7 +26,7 @@ const limiter = rateLimit({
 });
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ type: ['application/json', 'application/scim+json'] }));
 
 app.use(limiter);
 
