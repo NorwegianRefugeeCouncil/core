@@ -106,6 +106,10 @@ resource "azurerm_linux_web_app" "app" {
   app_settings = {
     oidc_PROVIDER_AUTHENTICATION_SECRET = local.oidc_client_secret
     OKTA_SCIM_API_TOKEN = local.okta_scim_api_token
+    DB_HOST = local.postgres.fqdn
+    DB_NAME = local.db.name
+    DB_USER = local.db_user.username
+    DB_PASSWORD = local.db_user.password
   }
 
   sticky_settings {
