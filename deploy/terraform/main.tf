@@ -45,7 +45,7 @@ module "postgres" {
     azurerm.runtime = azurerm.runtime
   }
 
-  rg = module.base.rg 
+  rg = module.base.rg
   vnet = module.base.vnet
   ag = module.base.ag
   law = module.base.law
@@ -103,4 +103,5 @@ module "web_app" {
   infra_resource_group_name = var.infra_resource_group_name
   container_image = var.container_image
   container_image_tag = var.container_image_tag
+  okta_scim_api_token = var.okta_scim_api_token
 }

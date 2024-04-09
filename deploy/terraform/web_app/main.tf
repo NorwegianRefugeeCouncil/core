@@ -105,6 +105,7 @@ resource "azurerm_linux_web_app" "app" {
 
   app_settings = {
     oidc_PROVIDER_AUTHENTICATION_SECRET = local.oidc_client_secret
+    OKTA_SCIM_API_TOKEN = local.okta_scim_api_token
   }
 
   sticky_settings {
@@ -137,7 +138,7 @@ resource "azurerm_linux_web_app" "app" {
         client_id = local.oidc_client_id
         openid_configuration_endpoint = local.oidc_well_known_url
         name_claim_type = "name"
-        scopes = [ 
+        scopes = [
             "openid",
             "profile",
             "email",

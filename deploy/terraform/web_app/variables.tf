@@ -75,6 +75,11 @@ The tag of the container image of the application.
 EOF
 }
 
+variable "okta_scim_api_token" {
+  type = string
+  description = "The API token Okta will use when calling the SCIM API"
+ }
+
 variable rg {
 }
 
@@ -87,11 +92,11 @@ variable "ag" {
 variable "law" {
 }
 
-variable "fd" { 
+variable "fd" {
 }
 
 variable "db_user" {
- 
+
 }
 
 variable "postgres" {
@@ -124,4 +129,5 @@ locals {
   infra_resource_group_name = var.infra_resource_group_name
   container_image = var.container_image
   container_image_tag = var.container_image_tag
+  okta_scim_api_token = var.okta_scim_api_token
 }

@@ -45,6 +45,7 @@ jobs:
       TF_VAR_frontdoor_sku_name: ${{vars.FRONTDOOR_SKU_NAME}}
       TF_VAR_action_group_webhook_url: ${{secrets.ACTION_GROUP_WEBHOOK_URL}}
       TF_VAR_prevent_deletion: ${{vars.PREVENT_DELETION}}
+      TF_VAR_okta_scim_api_token: ${{secrets.OKTA_SCIM_API_TOKEN}}
 
       ARM_CLIENT_ID: ${{ vars.INFRA_AD_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_AD_CLIENT_SECRET }}

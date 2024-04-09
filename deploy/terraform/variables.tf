@@ -141,3 +141,8 @@ variable "container_image_tag" {
 The tag of the container image of the application.
 EOF
 }
+
+variable "okta_scim_api_token" {
+  type = string
+  description = "The API token Okta will use when calling the SCIM API"
+ }
