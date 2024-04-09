@@ -31,7 +31,7 @@ const errorHandlerMiddleware = (
   res: Response,
   next: NextFunction,
 ) => {
-  // TODO: log error
+  console.error('SCIM controller', error);
   const scimError = createScimErrorResponse(500, 'Internal Server Error');
   res.status(scimError.status).json(scimError);
 };
