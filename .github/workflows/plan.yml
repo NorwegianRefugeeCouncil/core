@@ -1,13 +1,10 @@
-name: Build and Deploy
+name: Plan
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Select the environment to deploy'
+        description: 'Select the environment to plan'
         type: choice
         options:
           - dev
@@ -15,37 +12,10 @@ on:
         default: dev
 
 jobs:
-  Build:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Docker Login
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{vars.ACR_LOGIN_SERVER}}
-          username: ${{secrets.ACR_USER_NAME}}
-          password: ${{secrets.ACR_PASSWORD}}
-
-      - name: Configure Azure credentials
-        uses: azure/login@v1
-        with:
-          creds: ${{secrets.AZURE_CREDENTIALS}}
-
-      - run: |
-          docker build -t "${{vars.ACR_LOGIN_SERVER}}/${{vars.APP_IMAGE_NAME}}:${{github.sha}}" -f Dockerfile .
-          docker push "${{vars.ACR_LOGIN_SERVER}}/${{vars.APP_IMAGE_NAME}}:${{github.sha}}"
-
-  Deploy:
-    needs: [Build]
+  Plan:
     runs-on: ubuntu-latest
     environment:
-      name: ${{github.event.inputs.environment}}
+      name: dev
     defaults:
       run:
         shell: bash
@@ -117,6 +87,3 @@ jobs:
 
       - name: 'Terraform Plan'
         run: cd ${{GITHUB.workspace}}/deploy/terraform; terraform plan
-
-      - name: Terraform Apply
-        run: cd ${{GITHUB.workspace}}/deploy/terraform; terraform apply -auto-approve -input=false

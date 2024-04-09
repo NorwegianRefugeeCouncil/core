@@ -99,3 +99,45 @@ variable "subscription_id" {
   description = "Runtime Subscription id"
   default     = "f7791b2f-bb9b-4f70-813d-d1d2bb9e508e"
 }
+
+variable "backend_host_name" {
+  type        = string
+  description = "The hostname of the backend."
+}
+
+variable "frontdoor_sku_name" {
+  type        = string
+  description = "The sku name of the frontdoor."
+  default     = "Standard_AzureFrontDoor"
+}
+
+variable "action_group_webhook_url" {
+  type        = string
+  description = "The url of the webhook for the action group."
+}
+
+variable "prevent_deletion" {
+  type        = bool
+  default     = true
+  description = <<EOF
+Whether or not to prevent the deletion of the resource group.
+This is implemented using an Azure Management Lock.
+EOF
+}
+
+variable "container_image" {
+  type        = string
+  description = <<EOF
+The container image of the application.
+
+The container image must be located in the shared container registry, or
+in a public container registry.
+EOF
+}
+
+variable "container_image_tag" {
+  type        = string
+  description = <<EOF
+The tag of the container image of the application.
+EOF
+}
