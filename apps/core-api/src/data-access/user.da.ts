@@ -1,6 +1,6 @@
 import { db, PostgresError, PostgresErrorCode } from '@nrcno/db';
 
-import { User } from '../models/user.model';
+import { User, UserSchema } from '../models/user.model';
 import { AlreadyExistsError } from '../errors';
 
 export const createUser = async (
@@ -12,7 +12,7 @@ export const createUser = async (
       emails: user.emails ? JSON.stringify(user.emails) : undefined,
     };
     const rows = await db('users').insert(userToInsert).returning('*');
-    return new User(rows[0]);
+    return UserSchema.parse(rows[0]);
   } catch (error) {
     if ((error as PostgresError).code === PostgresErrorCode.UniqueViolation) {
       throw new AlreadyExistsError('User already exists');
@@ -23,7 +23,7 @@ export const createUser = async (
 
 export const getUserById = async (userId: string): Promise<User | null> => {
   const rows = await db('users').where('id', userId);
-  return rows.length > 0 ? new User(rows[0]) : null;
+  return rows.length > 0 ? UserSchema.parse(rows[0]) : null;
 };
 
 export const updateUser = async (
@@ -36,27 +36,11 @@ export const updateUser = async (
       ? JSON.stringify(updatedUser.emails)
       : updatedUser.emails,
   };
-  const row = await db('users')
+  const rows = await db('users')
     .update(userToUpdate)
     .where('id', userId)
     .returning('*');
-  return row.length > 0 ? new User(row[0]) : null;
-};
-
-export const listUsers = async (
-  startIndex: number,
-  count: number,
-): Promise<User[]> => {
-  const rows = await db('users').offset(startIndex).limit(count);
-  return rows.map((row) => new User(row));
-};
-
-export const searchUsers = async (
-  attribute: string,
-  value: string,
-): Promise<User[]> => {
-  const rows = await db('users').where(attribute, '=', value);
-  return rows.map((row) => new User(row));
+  return rows.length > 0 ? UserSchema.parse(rows[0]) : null;
 };
 
 export const getUsers = async (
@@ -80,7 +64,7 @@ export const getUsers = async (
   }
 
   const rows = await query;
-  return rows.map((row) => new User(row));
+  return rows.map((row) => UserSchema.parse(row));
 };
 
 export const countAllUsers = async (): Promise<number> => {

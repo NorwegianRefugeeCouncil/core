@@ -1,42 +1,22 @@
-interface Email {
-  primary?: boolean;
-  value: string;
-  type?: string;
-}
+import { z } from 'zod';
 
-export class User {
-  id: string;
-  oktaId?: string;
-  userName: string;
-  firstName?: string;
-  lastName?: string;
-  displayName?: string;
-  emails?: Array<Email>;
-  active: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+const EmailSchema = z.object({
+  primary: z.boolean().optional(),
+  value: z.string(),
+  type: z.string().optional(),
+});
 
-  constructor(userData: {
-    id: string;
-    oktaId?: string;
-    userName: string;
-    firstName?: string;
-    lastName?: string;
-    displayName?: string;
-    emails?: Array<Email>;
-    active: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-  }) {
-    this.id = userData.id;
-    this.oktaId = userData.oktaId;
-    this.userName = userData.userName;
-    this.firstName = userData.firstName;
-    this.lastName = userData.lastName;
-    this.displayName = userData.displayName;
-    this.emails = userData.emails;
-    this.active = userData.active;
-    this.createdAt = userData.createdAt;
-    this.updatedAt = userData.updatedAt;
-  }
-}
+export const UserSchema = z.object({
+  id: z.string(),
+  oktaId: z.string().optional(),
+  userName: z.string(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  displayName: z.string().optional(),
+  emails: z.array(EmailSchema).optional(),
+  active: z.boolean(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type User = z.infer<typeof UserSchema>;
