@@ -102,10 +102,7 @@ describe('user service', () => {
 
       const updatedUser = await updateUser(userId, scimUserUpdate);
 
-      expect(UserStore.update).toHaveBeenCalledWith(
-        userId,
-        mappedUserUpdate,
-      );
+      expect(UserStore.update).toHaveBeenCalledWith(userId, mappedUserUpdate);
       expect(updatedUser).toEqual(expectedUser);
     });
   });
