@@ -6,6 +6,7 @@ interface Email {
 
 export class User {
   id: string;
+  oktaId?: string;
   userName: string;
   firstName?: string;
   lastName?: string;
@@ -17,6 +18,7 @@ export class User {
 
   constructor(userData: {
     id: string;
+    oktaId?: string;
     userName: string;
     firstName?: string;
     lastName?: string;
@@ -27,6 +29,7 @@ export class User {
     updatedAt: Date;
   }) {
     this.id = userData.id;
+    this.oktaId = userData.oktaId;
     this.userName = userData.userName;
     this.firstName = userData.firstName;
     this.lastName = userData.lastName;

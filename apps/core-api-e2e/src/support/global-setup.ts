@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { spawn } from 'child_process';
 
+import { config as dotenvConfig } from 'dotenv';
 import waitOn from 'wait-on';
 import { DockerComposeEnvironment } from 'testcontainers';
 
@@ -9,6 +10,8 @@ var __TEARDOWN_MESSAGE__: string;
 module.exports = async function () {
   // Start services that the app needs to run (e.g. database, docker-compose, etc.).
   console.log('\nSetting up...\n');
+
+  dotenvConfig();
 
   // Start the Docker Compose environment with all the server dependencies
   console.log('Starting Docker Compose environment...');

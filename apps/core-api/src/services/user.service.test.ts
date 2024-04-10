@@ -23,6 +23,7 @@ describe('user service', () => {
 
       const scimUser = {
         schemas: ['urn:ietf:params:scim:schemas:core:2.0:User'],
+        externalId: faker.string.uuid(),
         userName: faker.internet.userName(),
         name: {
           givenName: faker.person.firstName(),
@@ -41,6 +42,7 @@ describe('user service', () => {
 
       const mappedUser = {
         id: userId,
+        oktaId: scimUser.externalId,
         userName: scimUser.userName,
         firstName: scimUser.name.givenName,
         lastName: scimUser.name.familyName,
@@ -82,6 +84,7 @@ describe('user service', () => {
 
       const expectedUser: User = {
         id: userId,
+        oktaId: faker.string.uuid(),
         userName: faker.internet.userName(),
         firstName: scimUserUpdate.name.givenName,
         lastName: scimUserUpdate.name.familyName,

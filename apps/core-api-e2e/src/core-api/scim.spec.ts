@@ -10,6 +10,7 @@ const axiosInstance = axios.create({
 const createScimUser = () => {
   return {
     schemas: ['urn:ietf:params:scim:schemas:core:2.0:User'],
+    externalId: faker.string.uuid(),
     userName: faker.internet.userName(),
     name: {
       givenName: faker.person.firstName(),

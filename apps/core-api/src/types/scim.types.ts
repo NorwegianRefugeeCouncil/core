@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const scimUserSchema = z.object({
   schemas: z.array(z.string()),
   id: z.string().optional(),
+  externalId: z.string().optional(),
   userName: z.string(),
   name: z
     .object({

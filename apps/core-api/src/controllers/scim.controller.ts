@@ -52,12 +52,21 @@ const validateUserIdParam = (
 };
 
 const mapUserToScimUser = (user: User): ScimUser => {
-  const { id, userName, firstName, lastName, displayName, emails, active } =
-    user;
+  const {
+    id,
+    oktaId,
+    userName,
+    firstName,
+    lastName,
+    displayName,
+    emails,
+    active,
+  } = user;
 
   const scimUser: ScimUser = {
     schemas: ['urn:ietf:params:scim:schemas:core:2.0:User'],
     id,
+    externalId: oktaId,
     userName,
     displayName,
     active,
