@@ -15,7 +15,9 @@ import { welcomeRouter } from './controllers/welcome.controller';
 import { scimRouter } from './controllers/scim.controller';
 
 // Load environment variables from .env file
-dotenvConfig();
+if (process.env.NODE_ENV !== 'production') {
+  dotenvConfig();
+}
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -26,7 +28,6 @@ const limiter = rateLimit({
 });
 
 const app = express();
-app.use(express.json({ type: ['application/json', 'application/scim+json'] }));
 
 app.use(limiter);
 

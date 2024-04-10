@@ -4,38 +4,31 @@ import { User } from '../models/user.model';
 import {
   createUser as createUserInDb,
   getUserById,
+  getUsers,
   countAllUsers,
-  listUsers as listUsersInDb,
   updateUser as updateUserInDb,
-  searchUsers as searchUsersInDb,
 } from '../data-access/user.da';
 import { ScimUser } from '../types/scim.types';
 
 const mapScimUserToUser = (scimUser: Partial<ScimUser>): Partial<User> => {
   const { id, userName, displayName, name, emails, active } = scimUser;
 
-  const user: Partial<User> = {
+  return {
     id,
     userName,
     displayName,
     active,
     emails,
+    firstName: name?.givenName,
+    lastName: name?.familyName,
   };
-
-  if (name?.givenName) {
-    user.firstName = name.givenName;
-  }
-
-  if (name?.familyName) {
-    user.lastName = name.familyName;
-  }
-
-  return user;
 };
 
 export const createUser = async (scimUser: ScimUser): Promise<User> => {
-  const user = mapScimUserToUser(scimUser);
-  user.id = uuidv4();
+  const user = {
+    ...mapScimUserToUser(scimUser),
+    id: uuidv4(),
+  };
   return createUserInDb(user);
 };
 
@@ -55,14 +48,14 @@ export const listUsers = async (
   startIndex: number,
   count: number,
 ): Promise<User[]> => {
-  return listUsersInDb(startIndex, count);
+  return getUsers(startIndex, count);
 };
 
 export const searchUsers = async (
   attribute: string,
   value: string,
 ): Promise<User[]> => {
-  return searchUsersInDb(attribute, value);
+  return getUsers(undefined, undefined, attribute, value);
 };
 
 export const getUserCount = async (): Promise<number> => {

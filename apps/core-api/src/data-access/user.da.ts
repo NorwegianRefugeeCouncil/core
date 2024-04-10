@@ -30,7 +30,9 @@ export const updateUser = async (
 ): Promise<User | null> => {
   const userToUpdate = {
     ...updatedUser,
-    emails: updatedUser.emails ? JSON.stringify(updatedUser.emails) : undefined,
+    emails: updatedUser.emails
+      ? JSON.stringify(updatedUser.emails)
+      : updatedUser.emails,
   };
   const row = await db('users')
     .update(userToUpdate)
@@ -52,6 +54,30 @@ export const searchUsers = async (
   value: string,
 ): Promise<User[]> => {
   const rows = await db('users').where(attribute, '=', value);
+  return rows.map((row) => new User(row));
+};
+
+export const getUsers = async (
+  startIndex?: number,
+  count?: number,
+  attribute?: string,
+  value?: string,
+): Promise<User[]> => {
+  let query = db('users');
+
+  if (startIndex !== undefined) {
+    query = query.offset(startIndex);
+  }
+
+  if (count !== undefined) {
+    query = query.limit(count);
+  }
+
+  if (attribute !== undefined && value !== undefined) {
+    query = query.where(attribute, '=', value);
+  }
+
+  const rows = await query;
   return rows.map((row) => new User(row));
 };
 

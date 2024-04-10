@@ -32,4 +32,16 @@ export const scimUserAttributeSchema = z
     },
   );
 
+export const scimUserPatchSchema = z.object({
+  schemas: z.array(z.string()),
+  Operations: z.array(
+    z.object({
+      op: z.literal('replace'),
+      value: z.object({
+        active: z.boolean(),
+      }),
+    }),
+  ),
+});
+
 export type ScimUser = z.infer<typeof scimUserSchema>;

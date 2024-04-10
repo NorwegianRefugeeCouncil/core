@@ -1,5 +1,6 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router, Request, Response, NextFunction, json } from 'express';
 import { validate as isUuid } from 'uuid';
+import { z } from 'zod';
 
 import {
   createUser,
@@ -13,6 +14,7 @@ import {
   ScimUser,
   scimUserSchema,
   scimUserAttributeSchema,
+  scimUserPatchSchema,
 } from '../types/scim.types';
 import { User } from '../models/user.model';
 import { AlreadyExistsError } from '../errors';
@@ -107,6 +109,7 @@ const authorise = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const router = Router();
+router.use(json({ type: ['application/json', 'application/scim+json'] }));
 router.use(authorise);
 router.use(errorHandlerMiddleware);
 
@@ -133,7 +136,7 @@ router.get('/Users/:id', validateUserIdParam, async (req, res, next) => {
     const user = await getUser(req.params.id);
     if (user) {
       const scimUser = mapUserToScimUser(user);
-      res.json(scimUser);
+      res.status(200).json(scimUser);
     } else {
       const errorResponse = createScimErrorResponse(404, 'User not found');
       res.status(errorResponse.status).json(errorResponse);
@@ -152,7 +155,7 @@ router.put(
       const user = await updateUser(req.params.id, req.body);
       if (user) {
         const scimUser = mapUserToScimUser(user);
-        res.json(scimUser);
+        res.status(200).json(scimUser);
       } else {
         const errorResponse = createScimErrorResponse(404, 'User not found');
         res.status(errorResponse.status).json(errorResponse);
@@ -165,24 +168,10 @@ router.put(
 
 router.patch('/Users/:id', validateUserIdParam, async (req, res, next) => {
   try {
-    const patchOperations = req.body.Operations;
+    const validatedBody = scimUserPatchSchema.parse(req.body);
 
-    const update = {};
-
-    for (const operation of patchOperations) {
-      // Our Okta integration should only send replace operations for the active field
-      if (operation.op === 'replace' && operation.value?.active !== undefined) {
-        Object.assign(update, { active: operation.value.active });
-      }
-    }
-    if (Object.keys(update).length === 0) {
-      const errorResponse = createScimErrorResponse(
-        400,
-        'Only replace operation for active field is supported',
-      );
-      res.status(errorResponse.status).json(errorResponse);
-      return;
-    }
+    // Our Okta integration should only send replace operations for the active field
+    const update = validatedBody.Operations[0].value;
 
     const user = await updateUser(req.params.id, update);
 
@@ -194,7 +183,12 @@ router.patch('/Users/:id', validateUserIdParam, async (req, res, next) => {
       res.status(errorResponse.status).json(errorResponse);
     }
   } catch (error) {
-    next(error);
+    if (error instanceof z.ZodError) {
+      const errorResponse = createScimErrorResponse(400, error.message);
+      res.status(errorResponse.status).json(errorResponse);
+    } else {
+      next(error);
+    }
   }
 });
 
