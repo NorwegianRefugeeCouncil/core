@@ -3,7 +3,7 @@ import { db, PostgresError, PostgresErrorCode } from '@nrcno/db';
 import { User, UserSchema } from '../models/user.model';
 import { AlreadyExistsError } from '../errors';
 
-export const createUser = async (
+export const create = async (
   user: Omit<User, 'createdAt' | 'updatedAt'>,
 ): Promise<User> => {
   try {
@@ -21,12 +21,12 @@ export const createUser = async (
   }
 };
 
-export const getUserById = async (userId: string): Promise<User | null> => {
+export const getById = async (userId: string): Promise<User | null> => {
   const rows = await db('users').where('id', userId);
   return rows.length > 0 ? UserSchema.parse(rows[0]) : null;
 };
 
-export const updateUser = async (
+export const update = async (
   userId: string,
   updatedUser: Partial<User>,
 ): Promise<User | null> => {
@@ -43,7 +43,7 @@ export const updateUser = async (
   return rows.length > 0 ? UserSchema.parse(rows[0]) : null;
 };
 
-export const getUsers = async (
+export const findAll = async (
   startIndex?: number,
   count?: number,
   attribute?: string,
@@ -67,7 +67,7 @@ export const getUsers = async (
   return rows.map((row) => UserSchema.parse(row));
 };
 
-export const countAllUsers = async (): Promise<number> => {
+export const countAll = async (): Promise<number> => {
   const rows = await db('users').count();
   return Number(rows[0].count);
 };

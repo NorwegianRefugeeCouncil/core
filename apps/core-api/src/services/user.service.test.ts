@@ -2,14 +2,11 @@ import { faker } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 
 import { User } from '../models/user.model';
-import {
-  createUser as createUserInDb,
-  updateUser as updateUserInDb,
-} from '../data-access/user.da';
+import * as UserStore from '../data-access/user.store';
 
 import { createUser, updateUser } from './user.service';
 
-jest.mock('../data-access/user.da');
+jest.mock('../data-access/user.store');
 
 jest.mock('uuid', () => ({
   v4: jest.fn(),
@@ -57,11 +54,11 @@ describe('user service', () => {
         updatedAt: faker.date.recent(),
       };
 
-      (createUserInDb as jest.Mock).mockResolvedValue(expectedUser);
+      (UserStore.create as jest.Mock).mockResolvedValue(expectedUser);
 
       const createdUser = await createUser(scimUser);
 
-      expect(createUserInDb).toHaveBeenCalledWith(mappedUser);
+      expect(UserStore.create).toHaveBeenCalledWith(mappedUser);
       expect(createdUser).toEqual(expectedUser);
     });
   });
@@ -101,11 +98,14 @@ describe('user service', () => {
         updatedAt: faker.date.recent(),
       };
 
-      (updateUserInDb as jest.Mock).mockResolvedValue(expectedUser);
+      (UserStore.update as jest.Mock).mockResolvedValue(expectedUser);
 
       const updatedUser = await updateUser(userId, scimUserUpdate);
 
-      expect(updateUserInDb).toHaveBeenCalledWith(userId, mappedUserUpdate);
+      expect(UserStore.update).toHaveBeenCalledWith(
+        userId,
+        mappedUserUpdate,
+      );
       expect(updatedUser).toEqual(expectedUser);
     });
   });

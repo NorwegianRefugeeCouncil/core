@@ -1,3 +1,3 @@
-import { getWelcome } from '../data-access/welcome.da';
+import * as WelcomeStore from '../data-access/welcome.store';
 
-export const getWelcomeMessage = () => getWelcome();
+export const getWelcomeMessage = () => WelcomeStore.getWelcome();

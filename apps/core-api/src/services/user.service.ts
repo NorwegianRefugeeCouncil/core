@@ -1,13 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { User } from '../models/user.model';
-import {
-  createUser as createUserInDb,
-  getUserById,
-  getUsers,
-  countAllUsers,
-  updateUser as updateUserInDb,
-} from '../data-access/user.da';
+import * as UserStore from '../data-access/user.store';
 import { ScimUser } from '../types/scim.types';
 
 const mapScimUserToUser = (scimUser: Partial<ScimUser>): Partial<User> => {
@@ -31,11 +25,11 @@ export const createUser = async (scimUser: ScimUser): Promise<User> => {
     ...mapScimUserToUser(scimUser),
     id: uuidv4(),
   };
-  return createUserInDb(user as Omit<User, 'createdAt' | 'updatedAt'>);
+  return UserStore.create(user as Omit<User, 'createdAt' | 'updatedAt'>);
 };
 
 export const getUser = async (userId: string): Promise<User | null> => {
-  return getUserById(userId);
+  return UserStore.getById(userId);
 };
 
 export const updateUser = async (
@@ -43,23 +37,23 @@ export const updateUser = async (
   scimUserUpdate: Partial<ScimUser>,
 ): Promise<User | null> => {
   const userUpdate = mapScimUserToUser(scimUserUpdate);
-  return updateUserInDb(userId, userUpdate);
+  return UserStore.update(userId, userUpdate);
 };
 
 export const listUsers = async (
   startIndex: number,
   count: number,
 ): Promise<User[]> => {
-  return getUsers(startIndex, count);
+  return UserStore.findAll(startIndex, count);
 };
 
 export const searchUsers = async (
   attribute: string,
   value: string,
 ): Promise<User[]> => {
-  return getUsers(undefined, undefined, attribute, value);
+  return UserStore.findAll(undefined, undefined, attribute, value);
 };
 
 export const getUserCount = async (): Promise<number> => {
-  return countAllUsers();
+  return UserStore.countAll();
 };
