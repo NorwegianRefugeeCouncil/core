@@ -1,5 +1,4 @@
 import { Router, Request, Response, NextFunction, json } from 'express';
-import { validate as isUuid } from 'uuid';
 import { z } from 'zod';
 
 import {
@@ -19,37 +18,12 @@ import {
 import { User } from '../models/user.model';
 import { AlreadyExistsError } from '../errors';
 
-const createScimErrorResponse = (status: number, detail: string) => {
-  return {
-    schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
-    status,
-    detail,
-  };
-};
-
-const errorHandlerMiddleware = (
-  error: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  console.error('SCIM controller', error);
-  const scimError = createScimErrorResponse(500, 'Internal Server Error');
-  res.status(scimError.status).json(scimError);
-};
-
-const validateUserIdParam = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  if (!isUuid(req.params.id)) {
-    const errorResponse = createScimErrorResponse(404, 'User not found');
-    res.status(errorResponse.status).json(errorResponse);
-  } else {
-    next();
-  }
-};
+import {
+  authorise,
+  errorHandlerMiddleware,
+  validateUserIdParam,
+  createScimErrorResponse,
+} from './scim.middleware';
 
 const mapUserToScimUser = (user: User): ScimUser => {
   const {
@@ -81,24 +55,6 @@ const mapUserToScimUser = (user: User): ScimUser => {
   }
 
   return scimUser;
-};
-
-const authorise = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    const errorResponse = createScimErrorResponse(401, 'Unauthorized');
-    res.status(errorResponse.status).json(errorResponse);
-    return;
-  }
-
-  const [bearer, token] = authHeader.split(' ');
-  if (bearer !== 'Bearer' || token !== process.env.OKTA_SCIM_API_TOKEN) {
-    const errorResponse = createScimErrorResponse(401, 'Unauthorized');
-    res.status(errorResponse.status).json(errorResponse);
-    return;
-  }
-
-  next();
 };
 
 const router = Router();
