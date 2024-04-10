@@ -1,0 +1,19 @@
+{
+  "name": "core-clients",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/core-clients/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/core-clients",
+        "main": "libs/core-clients/src/index.ts",
+        "tsConfig": "libs/core-clients/tsconfig.lib.json",
+        "assets": ["libs/core-clients/*.md"]
+      }
+    }
+  },
+  "tags": []
+}

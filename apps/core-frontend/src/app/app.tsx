@@ -1,6 +1,28 @@
 import { Route, Routes, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+
+import { User } from '@nrcno/core-models';
+
+import { UserInfo } from '../components';
+import { useApi } from '../hooks';
 
 export const App: React.FC = () => {
+  const [user, setUser] = useState<User | null>();
+  const api = useApi();
+
+  useEffect(() => {
+    (async () => {
+      if (api) {
+        const response = await api.scim.getUser({ id: 'test' });
+        if (response.data) {
+          setUser(response.data);
+        } else {
+          setUser(null);
+        }
+      }
+    })();
+  }, [api, api?.scim]);
+
   return (
     <div>
       <div>
@@ -9,14 +31,13 @@ export const App: React.FC = () => {
         </a>
       </div>
       <h1>CORE</h1>
-      <br />
       <div role="navigation">
         <ul>
           <li>
             <Link to="/">Home</Link>
           </li>
           <li>
-            <Link to="/page-2">Page 2</Link>
+            <Link to="/userinfo">User info</Link>
           </li>
         </ul>
       </div>
@@ -31,9 +52,11 @@ export const App: React.FC = () => {
           }
         />
         <Route
-          path="/page-2"
+          path="/userinfo"
           element={
             <div>
+              UserInfo
+              {user && <UserInfo {...user} />}
               <Link to="/">Click here to go back to root page.</Link>
             </div>
           }
