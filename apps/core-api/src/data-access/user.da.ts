@@ -3,7 +3,9 @@ import { db, PostgresError, PostgresErrorCode } from '@nrcno/db';
 import { User } from '../models/user.model';
 import { AlreadyExistsError } from '../errors';
 
-export const createUser = async (user: Partial<User>): Promise<User> => {
+export const createUser = async (
+  user: Omit<User, 'createdAt' | 'updatedAt'>,
+): Promise<User> => {
   try {
     const userToInsert = {
       ...user,

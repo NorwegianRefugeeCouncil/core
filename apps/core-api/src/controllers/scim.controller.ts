@@ -38,22 +38,6 @@ const errorHandlerMiddleware = (
   res.status(scimError.status).json(scimError);
 };
 
-const validateCreateUserRequest = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const result = scimUserSchema.safeParse(req.body);
-
-  if (!result.success) {
-    const errorResponse = createScimErrorResponse(400, result.error.message);
-    res.status(errorResponse.status).json(errorResponse);
-  } else {
-    req.body = result.data;
-    next();
-  }
-};
-
 const validateUserIdParam = (
   req: Request,
   res: Response,
@@ -113,12 +97,18 @@ router.use(json({ type: ['application/json', 'application/scim+json'] }));
 router.use(authorise);
 router.use(errorHandlerMiddleware);
 
-router.post('/Users', validateCreateUserRequest, async (req, res, next) => {
+router.post('/Users', async (req, res, next) => {
   try {
-    const user = await createUser(req.body);
+    const validatedBody = scimUserSchema.parse(req.body);
+    const user = await createUser(validatedBody);
     const scimUser = mapUserToScimUser(user);
     res.status(201).json(scimUser);
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      const errorResponse = createScimErrorResponse(400, error.message);
+      res.status(errorResponse.status).json(errorResponse);
+      return;
+    }
     if (error instanceof AlreadyExistsError) {
       const errorResponse = createScimErrorResponse(
         409,
@@ -146,25 +136,26 @@ router.get('/Users/:id', validateUserIdParam, async (req, res, next) => {
   }
 });
 
-router.put(
-  '/Users/:id',
-  validateUserIdParam,
-  validateCreateUserRequest,
-  async (req, res, next) => {
-    try {
-      const user = await updateUser(req.params.id, req.body);
-      if (user) {
-        const scimUser = mapUserToScimUser(user);
-        res.status(200).json(scimUser);
-      } else {
-        const errorResponse = createScimErrorResponse(404, 'User not found');
-        res.status(errorResponse.status).json(errorResponse);
-      }
-    } catch (error) {
-      next(error);
+router.put('/Users/:id', validateUserIdParam, async (req, res, next) => {
+  try {
+    const validatedBody = scimUserSchema.parse(req.body);
+    const user = await updateUser(req.params.id, validatedBody);
+    if (user) {
+      const scimUser = mapUserToScimUser(user);
+      res.status(200).json(scimUser);
+    } else {
+      const errorResponse = createScimErrorResponse(404, 'User not found');
+      res.status(errorResponse.status).json(errorResponse);
     }
-  },
-);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const errorResponse = createScimErrorResponse(400, error.message);
+      res.status(errorResponse.status).json(errorResponse);
+      return;
+    }
+    next(error);
+  }
+});
 
 router.patch('/Users/:id', validateUserIdParam, async (req, res, next) => {
   try {

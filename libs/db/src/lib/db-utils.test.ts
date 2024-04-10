@@ -29,6 +29,11 @@ describe('db utils', () => {
         },
       ]);
     });
+
+    test('should return the result if it is not an object or array', () => {
+      const result = postProcessResponse('string');
+      expect(result).toBe('string');
+    });
   });
 
   describe('wrapIdentifier', () => {

@@ -8,6 +8,9 @@ const toSnakeCase = (str: string): string => {
   return str.replace(/([A-Z])/g, '_$1').toLowerCase();
 };
 
+/**
+ * Knex post-processes the response from the database by converting the keys to camelCase
+ */
 export const postProcessResponse = (result: any) => {
   if (Array.isArray(result)) {
     return result.map((row) => {
@@ -23,11 +26,13 @@ export const postProcessResponse = (result: any) => {
       convertedResult[toCamelCase(key)] = result[key];
     }
     return convertedResult;
-  } else {
-    return result;
   }
+  return result;
 };
 
+/**
+ * Convert the keys to snake_case before sending the query to the database
+ */
 export const wrapIdentifier = (
   value: string,
   origImpl: (value: string) => string,

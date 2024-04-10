@@ -77,12 +77,6 @@ resource "azurerm_linux_web_app" "app" {
     identity_ids = [azurerm_user_assigned_identity.app.id]
   }
 
-  connection_string {
-    name  = "db"
-    type  = "PostgreSQL"
-    value = "postgres://${local.db_user.username}:${local.db_user.password}@${local.postgres.fqdn}/${local.db.name}?sslmode=require"
-  }
-
   site_config {
     ftps_state                                    = "Disabled"
     container_registry_use_managed_identity       = true

@@ -29,7 +29,7 @@ export const createUser = async (scimUser: ScimUser): Promise<User> => {
     ...mapScimUserToUser(scimUser),
     id: uuidv4(),
   };
-  return createUserInDb(user);
+  return createUserInDb(user as Omit<User, 'createdAt' | 'updatedAt'>);
 };
 
 export const getUser = async (userId: string): Promise<User | null> => {
