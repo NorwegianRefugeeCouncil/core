@@ -130,6 +130,7 @@ resource "azurerm_linux_web_app" "app" {
     unauthenticated_action = "RedirectToLoginPage"
     default_provider = "custom_oidc_v2"
     forward_proxy_convention = "Standard"
+    excluded_paths = ["/scim/v2"]
 
     custom_oidc_v2 {
         name = "oidc"
