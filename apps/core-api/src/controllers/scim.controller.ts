@@ -1,14 +1,7 @@
-import { Router, Request, Response, NextFunction, json } from 'express';
+import { Router, json } from 'express';
 import { z } from 'zod';
 
-import {
-  createUser,
-  getUser,
-  getUserCount,
-  updateUser,
-  listUsers,
-  searchUsers,
-} from '../services/user.service';
+import * as UserService from '../services/user.service';
 import {
   ScimUser,
   scimUserSchema,
@@ -65,7 +58,7 @@ router.use(errorHandlerMiddleware);
 router.post('/Users', async (req, res, next) => {
   try {
     const validatedBody = scimUserSchema.parse(req.body);
-    const user = await createUser(validatedBody);
+    const user = await UserService.create(validatedBody);
     const scimUser = mapUserToScimUser(user);
     res.status(201).json(scimUser);
   } catch (error) {
@@ -88,7 +81,7 @@ router.post('/Users', async (req, res, next) => {
 
 router.get('/Users/:id', validateUserIdParam, async (req, res, next) => {
   try {
-    const user = await getUser(req.params.id);
+    const user = await UserService.get(req.params.id);
     if (user) {
       const scimUser = mapUserToScimUser(user);
       res.status(200).json(scimUser);
@@ -104,7 +97,7 @@ router.get('/Users/:id', validateUserIdParam, async (req, res, next) => {
 router.put('/Users/:id', validateUserIdParam, async (req, res, next) => {
   try {
     const validatedBody = scimUserSchema.parse(req.body);
-    const user = await updateUser(req.params.id, validatedBody);
+    const user = await UserService.update(req.params.id, validatedBody);
     if (user) {
       const scimUser = mapUserToScimUser(user);
       res.status(200).json(scimUser);
@@ -129,7 +122,7 @@ router.patch('/Users/:id', validateUserIdParam, async (req, res, next) => {
     // Our Okta integration should only send replace operations for the active field
     const update = validatedBody.Operations[0].value;
 
-    const user = await updateUser(req.params.id, update);
+    const user = await UserService.update(req.params.id, update);
 
     if (user) {
       const scimUser = mapUserToScimUser(user);
@@ -179,11 +172,11 @@ router.get('/Users', async (req, res, next) => {
         return;
       }
 
-      users = await searchUsers(attribute, unquotedValue);
+      users = await UserService.search(attribute, unquotedValue);
       totalResults = users.length;
     } else {
-      users = await listUsers(startIndex - 1, count);
-      totalResults = await getUserCount();
+      users = await UserService.list(startIndex - 1, count);
+      totalResults = await UserService.getCount();
     }
 
     const scimUsers = users.map(mapUserToScimUser);

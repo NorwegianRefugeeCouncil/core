@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { User } from '../models/user.model';
 import * as UserStore from '../data-access/user.store';
 
-import { createUser, updateUser } from './user.service';
+import * as UserService from './user.service';
 
 jest.mock('../data-access/user.store');
 
@@ -56,7 +56,7 @@ describe('user service', () => {
 
       (UserStore.create as jest.Mock).mockResolvedValue(expectedUser);
 
-      const createdUser = await createUser(scimUser);
+      const createdUser = await UserService.create(scimUser);
 
       expect(UserStore.create).toHaveBeenCalledWith(mappedUser);
       expect(createdUser).toEqual(expectedUser);
@@ -100,7 +100,7 @@ describe('user service', () => {
 
       (UserStore.update as jest.Mock).mockResolvedValue(expectedUser);
 
-      const updatedUser = await updateUser(userId, scimUserUpdate);
+      const updatedUser = await UserService.update(userId, scimUserUpdate);
 
       expect(UserStore.update).toHaveBeenCalledWith(userId, mappedUserUpdate);
       expect(updatedUser).toEqual(expectedUser);
