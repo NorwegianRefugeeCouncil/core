@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 
-import { ScimClient } from '@nrcno/core-clients';
+import { UserClient } from '@nrcno/core-clients';
 
 import { ApiContextType } from '../types/contexts';
 
