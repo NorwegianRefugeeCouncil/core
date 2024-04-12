@@ -13,7 +13,7 @@ import { getDb } from '@nrcno/db';
 import { scimRouter } from './controllers/scim.controller';
 import { getServerConfig } from './config';
 import { limiter } from './middleware/rate-limiter.middleware';
-import { authorise } from './middleware/authorisation';
+import { apiRouter } from './controllers/api.controller';
 
 // Load environment variables from .env file
 if (process.env.NODE_ENV !== 'production') {
@@ -26,6 +26,7 @@ app.use(limiter);
 
 const config = getServerConfig();
 
+app.use('/api', apiRouter);
 app.use('/scim/v2', scimRouter);
 
 app.get('/', (req, res) => {

@@ -4,7 +4,7 @@ import { expressJwtSecret, GetVerificationKey } from 'jwks-rsa';
 
 import { UserSchema } from '@nrcno/core-models';
 
-import { ServerConfig } from '../../config';
+import { ServerConfig, getServerConfig } from '../../config';
 import * as UserService from '../../services/user.service';
 
 export const checkJwt = (config: ServerConfig) =>
@@ -38,14 +38,17 @@ export const preloadUser = async (
   next();
 };
 
-export const authorise = (config: ServerConfig) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    checkJwt(config)(req, res, (err) => {
-      if (err) {
-        next(err);
-      } else {
-        preloadUser(req, res, next);
-      }
-    });
-  };
+export const authorise = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const config = getServerConfig();
+  checkJwt(config)(req, res, (err) => {
+    if (err) {
+      next(err);
+    } else {
+      preloadUser(req, res, next);
+    }
+  });
 };
