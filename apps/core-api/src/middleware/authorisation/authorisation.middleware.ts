@@ -3,7 +3,7 @@ import { expressjwt } from 'express-jwt';
 import { expressJwtSecret, GetVerificationKey } from 'jwks-rsa';
 
 import { ServerConfig } from '../../config';
-import { UserSchema } from '../../models/user.model';
+import * as UserService from '../../services/user.service';
 
 export const checkJwt = (config: ServerConfig) =>
   expressjwt({
@@ -18,26 +18,14 @@ export const checkJwt = (config: ServerConfig) =>
     algorithms: ['RS256'],
   });
 
-// TODO: Load user from database once User store is implemented
-export const preloadUser = (
+export const preloadUser = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   if (req.auth) {
-    req.user = req.auth.sub;
-    const user = UserSchema.parse({
-      id: req.auth.sub,
-      oktaId: 'test',
-      userName: 'test',
-      firstName: 'test',
-      lastName: 'test',
-      displayName: 'test',
-      emails: [],
-      active: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    const user = await UserService.get(req.auth.sub);
+
     if (user) {
       req.user = user;
     } else {
@@ -49,14 +37,14 @@ export const preloadUser = (
   next();
 };
 
-export const authorise = (config: ServerConfig) =>
-  [checkJwt(config), preloadUser].reduce((previous, current) => {
-    return (req: Request, res: Response, next: NextFunction) => {
-      previous(req, res, (err: any) => {
-        if (err) {
-          return next(err);
-        }
-        current(req, res, next);
-      });
-    };
-  });
+export const authorise = (config: ServerConfig) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    checkJwt(config)(req, res, (err) => {
+      if (err) {
+        next(err);
+      } else {
+        preloadUser(req, res, next);
+      }
+    });
+  };
+};
