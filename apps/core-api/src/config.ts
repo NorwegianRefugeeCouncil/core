@@ -2,7 +2,8 @@ import { z } from 'zod';
 
 export const ServerConfigSchema = z.object({
   server: z.object({
-    port: z.number(),
+    port: z.coerce.number().int().positive().default(3333),
+  }),
   }),
   db: z.object({
     host: z.string(),
@@ -17,7 +18,8 @@ export type ServerConfig = z.infer<typeof ServerConfigSchema>;
 export const getServerConfig = (): ServerConfig =>
   ServerConfigSchema.parse({
     server: {
-      port: parseInt(process.env.PORT || '3333'),
+      port: process.env.PORT,
+    },
     },
     db: {
       host: process.env.DB_HOST,
