@@ -13,6 +13,7 @@ import { getDb } from '@nrcno/db';
 import { scimRouter } from './controllers/scim.controller';
 import { getServerConfig } from './config';
 import { limiter } from './middleware/rate-limiter.middleware';
+import { authorise } from './middleware/authorisation';
 
 // Load environment variables from .env file
 if (process.env.NODE_ENV !== 'production') {

@@ -4,6 +4,10 @@ export const ServerConfigSchema = z.object({
   server: z.object({
     port: z.coerce.number().int().positive().default(3333),
   }),
+  oidc: z.object({
+    jwksUri: z.string(),
+    issuer: z.string(),
+    audience: z.string(),
   }),
   db: z.object({
     host: z.string(),
@@ -20,6 +24,10 @@ export const getServerConfig = (): ServerConfig =>
     server: {
       port: process.env.PORT,
     },
+    oidc: {
+      jwksUri: process.env.OIDC_JWKS_URI,
+      issuer: process.env.OIDC_ISSUER,
+      audience: process.env.OIDC_AUDIENCE,
     },
     db: {
       host: process.env.DB_HOST,
@@ -27,4 +35,4 @@ export const getServerConfig = (): ServerConfig =>
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
     },
-});
+  });
