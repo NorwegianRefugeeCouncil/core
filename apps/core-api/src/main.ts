@@ -49,6 +49,8 @@ const server = app.listen(port, async () => {
     // For other environments migrations are run as part of the deployment process
     await db.migrate.latest({ loadExtensions: ['.js'] });
     console.log('Database migrations have been run');
+    await db.seed.run({ loadExtensions: ['.js'] });
+    console.log('Database seed data has been inserted');
   }
 });
 
