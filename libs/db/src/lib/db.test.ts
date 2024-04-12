@@ -1,7 +1,13 @@
-import { db } from './db';
+import { getDb } from './db';
 
 describe('db lib', () => {
-  test('db defined', () => {
+  test('db to be created', () => {
+    const db = getDb({
+      host: 'localhost',
+      user: 'test',
+      password: 'test',
+      database: 'test',
+    });
     expect(db).toBeDefined();
   });
 });

@@ -7,11 +7,11 @@ import * as path from 'path';
 
 import { config as dotenvConfig } from 'dotenv';
 import express from 'express';
-import { rateLimit } from 'express-rate-limit';
 
-import { db } from '@nrcno/db';
+import { getDb } from '@nrcno/db';
 
 import { scimRouter } from './controllers/scim.controller';
+import { getServerConfig } from './config';
 
 // Load environment variables from .env file
 if (process.env.NODE_ENV !== 'production') {
@@ -30,6 +30,8 @@ const app = express();
 
 app.use(limiter);
 
+const config = getServerConfig();
+
 app.use('/scim/v2', scimRouter);
 
 app.get('/', (req, res) => {
@@ -38,7 +40,8 @@ app.get('/', (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'static')));
 
-const port = process.env.PORT || 3333;
+const db = getDb(config.db);
+
 const server = app.listen(port, async () => {
   console.log(`Listening at http://localhost:${port}/api`);
 

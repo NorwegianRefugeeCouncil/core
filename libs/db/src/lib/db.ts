@@ -1,4 +1,4 @@
-import knex from 'knex';
+import knex, { Knex } from 'knex';
 
 import { config } from '../../knexfile';
 
@@ -7,7 +7,11 @@ import { postProcessResponse, wrapIdentifier } from './db-utils';
 config.postProcessResponse = postProcessResponse;
 config.wrapIdentifier = wrapIdentifier;
 
-export const db = knex(config);
+export const getDb = (connectionConfig: Knex.Config['connection']) =>
+  knex({
+    ...config,
+    connection: connectionConfig,
+  });
 
 export interface PostgresError extends Error {
   code?: string;
