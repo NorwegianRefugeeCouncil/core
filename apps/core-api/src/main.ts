@@ -12,19 +12,12 @@ import { getDb } from '@nrcno/db';
 
 import { scimRouter } from './controllers/scim.controller';
 import { getServerConfig } from './config';
+import { limiter } from './middleware/rate-limiter.middleware';
 
 // Load environment variables from .env file
 if (process.env.NODE_ENV !== 'production') {
   dotenvConfig();
 }
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 100,
-  standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-  legacyHeaders: false,
-  message: 'Too many requests',
-});
 
 const app = express();
 
