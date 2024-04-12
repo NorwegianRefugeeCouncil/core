@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { expressjwt } from 'express-jwt';
 import { expressJwtSecret, GetVerificationKey } from 'jwks-rsa';
 
+import { UserSchema } from '@nrcno/core-models';
+
 import { ServerConfig } from '../../config';
 import * as UserService from '../../services/user.service';
 
@@ -25,7 +27,6 @@ export const preloadUser = async (
 ) => {
   if (req.auth) {
     const user = await UserService.get(req.auth.sub);
-
     if (user) {
       req.user = user;
     } else {

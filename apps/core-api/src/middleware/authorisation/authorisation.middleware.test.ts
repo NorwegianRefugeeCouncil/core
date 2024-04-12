@@ -1,5 +1,3 @@
-import exp from 'constants';
-
 import { Request, Response, NextFunction } from 'express';
 import { expressjwt } from 'express-jwt';
 import { expressJwtSecret } from 'jwks-rsa';
