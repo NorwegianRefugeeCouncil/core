@@ -1,7 +1,10 @@
+import exp from 'constants';
+
 import { Request, Response, NextFunction } from 'express';
 import { expressjwt } from 'express-jwt';
 import { expressJwtSecret } from 'jwks-rsa';
 
+import * as UserService from '../../services/user.service';
 import { ServerConfig } from '../../config';
 import { UserSchema } from '../../models/user.model';
 
@@ -37,6 +40,7 @@ describe('Authorization Middleware', () => {
           jwksUri: 'test_uri',
           audience: 'test_audience',
           issuer: 'test_issuer',
+          scimApiToken: 'test_token',
         },
         server: {
           port: 3000,
@@ -64,28 +68,33 @@ describe('Authorization Middleware', () => {
   });
 
   describe('preloadUser', () => {
-    it('should set user if auth is present', () => {
+    it('should set user if auth is present', async () => {
+      const user = UserSchema.parse({
+        id: 'test_sub',
+        oktaId: 'test',
+        userName: 'test',
+        firstName: 'test',
+        lastName: 'test',
+        displayName: 'test',
+        emails: [],
+        active: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      jest.spyOn(UserService, 'get').mockResolvedValue(user);
+
       mockRequest.auth = { sub: 'test_sub' };
-      preloadUser(
+
+      await preloadUser(
         mockRequest as Request,
         mockResponse as Response,
         nextFunction,
       );
+
+      expect(UserService.get).toHaveBeenCalledWith('test_sub');
       expect(mockRequest.user).toBeDefined();
-      expect(mockRequest.user).toEqual(
-        UserSchema.parse({
-          id: 'test_sub',
-          oktaId: 'test',
-          userName: 'test',
-          firstName: 'test',
-          lastName: 'test',
-          displayName: 'test',
-          emails: [],
-          active: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }),
-      );
+      expect(mockRequest.user).toEqual(user);
       expect(mockResponse.sendStatus).not.toHaveBeenCalled();
       expect(nextFunction).toHaveBeenCalled();
     });
@@ -96,6 +105,24 @@ describe('Authorization Middleware', () => {
         mockResponse as Response,
         nextFunction,
       );
+
+      expect(mockRequest.user).toBeUndefined();
+      expect(mockResponse.sendStatus).toHaveBeenCalledWith(401);
+      expect(nextFunction).toHaveBeenCalled();
+    });
+
+    it('should send 401 if user is not found', async () => {
+      jest.spyOn(UserService, 'get').mockResolvedValue(null);
+
+      mockRequest.auth = { sub: 'test_sub' };
+
+      await preloadUser(
+        mockRequest as Request,
+        mockResponse as Response,
+        nextFunction,
+      );
+
+      expect(UserService.get).toHaveBeenCalledWith('test_sub');
       expect(mockRequest.user).toBeUndefined();
       expect(mockResponse.sendStatus).toHaveBeenCalledWith(401);
       expect(nextFunction).toHaveBeenCalled();
