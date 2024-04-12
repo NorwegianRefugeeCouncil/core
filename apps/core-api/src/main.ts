@@ -35,6 +35,8 @@ app.use(express.static(path.join(__dirname, 'static')));
 
 const db = getDb(config.db);
 
+const port = config.server.port;
+
 const server = app.listen(port, async () => {
   console.log(`Listening at http://localhost:${port}/api`);
 
