@@ -19,8 +19,11 @@ export const ServerConfigSchema = z.object({
 
 export type ServerConfig = z.infer<typeof ServerConfigSchema>;
 
-export const getServerConfig = (): ServerConfig =>
-  ServerConfigSchema.parse({
+let config: ServerConfig;
+
+export const getServerConfig = (): ServerConfig => {
+  if (!config) {
+    config = ServerConfigSchema.parse({
     server: {
       port: process.env.PORT,
     },
@@ -36,3 +39,6 @@ export const getServerConfig = (): ServerConfig =>
       database: process.env.DB_NAME,
     },
   });
+  }
+  return config;
+};
