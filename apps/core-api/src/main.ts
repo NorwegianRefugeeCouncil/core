@@ -7,7 +7,6 @@ import * as path from 'path';
 
 import { config as dotenvConfig } from 'dotenv';
 import express from 'express';
-
 import { getDb } from '@nrcno/db';
 
 import { scimRouter } from './controllers/scim.controller';
