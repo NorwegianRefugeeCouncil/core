@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 describe('GET /api/me', () => {
-  it('should return a message', async () => {
+  it('should return the authenticated user', async () => {
     const res = await axios.get(`/api/me`);
 
     expect(res.status).toBe(200);
