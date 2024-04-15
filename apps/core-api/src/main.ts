@@ -49,7 +49,8 @@ const server = app.listen(port, async () => {
 
   if (
     process.env.NODE_ENV === 'development' ||
-    process.env.NODE_ENV === 'test'
+    process.env.NODE_ENV === 'test' ||
+    process.env.NODE_ENV === 'production' // temporary for now
   ) {
     // For other environments migrations are run as part of the deployment process
     await db.migrate.latest({ loadExtensions: ['.js'] });
