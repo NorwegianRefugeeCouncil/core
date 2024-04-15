@@ -82,6 +82,13 @@ resource "azurerm_postgresql_flexible_server_database" "db" {
   collation = "en_US.utf8"
 }
 
+resource "azurerm_postgresql_flexible_server_configuration" "require_secure_transport" {
+  provider  = azurerm.runtime
+  name      = "require_secure_transport"
+  server_id = azurerm_postgresql_flexible_server.postgres.id
+  value     = "off"
+}
+
 resource "azurerm_monitor_metric_alert" "postgres_cpu_over_threshold" {
   provider            = azurerm.runtime
   name                = "postgres-cpu-over-threshold-${local.environment}"
