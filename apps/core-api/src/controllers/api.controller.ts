@@ -1,11 +1,9 @@
 import { Router, json } from 'express';
 
-import { meRouter } from './me.controller';
+import { userRouter } from './user.controller';
 
 const router = Router();
-
 router.use(json({ type: ['application/json'] }));
-
-router.use('/me', meRouter);
+router.use(userRouter);
 
 export { router as apiRouter };
