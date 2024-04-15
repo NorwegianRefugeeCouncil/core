@@ -11,13 +11,12 @@ import {
   scimUserPatchSchema,
 } from '../types/scim.types';
 import { AlreadyExistsError } from '../errors';
-
 import {
   authorise,
   errorHandlerMiddleware,
   validateUserIdParam,
   createScimErrorResponse,
-} from './scim.middleware';
+} from '../middleware/scim.middleware';
 
 const mapUserToScimUser = (user: User): ScimUser => {
   const {
