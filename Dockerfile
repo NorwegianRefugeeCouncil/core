@@ -46,6 +46,8 @@ COPY --from=builder /build/dist/apps/core-api .
 
 COPY --from=builder /build/dist/apps/core-frontend ./static
 
+COPY --from=builder /build/dist/libs .
+
 EXPOSE ${PORT}
 
 CMD pm2 start main.js --no-daemon -i ${PROCESS_COUNT}
