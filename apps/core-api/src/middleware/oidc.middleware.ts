@@ -1,8 +1,9 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import session from 'express-session';
 import passport from 'passport';
 import { Strategy as OidcStrategy } from 'passport-openidconnect';
 
+import * as UserService from '../services/user.service';
 import { getServerConfig } from '../config';
 
 export const oidc = () => {
@@ -71,4 +72,16 @@ export const oidc = () => {
   });
 
   return app;
+};
+
+export const requireAuthentication = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (req.isAuthenticated()) {
+    next();
+  } else {
+    res.redirect('/login');
+  }
 };
