@@ -47,8 +47,8 @@ export const authorise = (req: Request, res: Response, next: NextFunction) => {
     return;
   }
 
-  const [bearer, token] = authHeader.split(' ');
-  if (bearer !== 'Bearer' || token !== scimApiToken) {
+  // const [bearer, token] = authHeader.split(' ');
+  if (authHeader !== scimApiToken) {
     const errorResponse = createScimErrorResponse(401, 'Unauthorized');
     res.status(errorResponse.status).json(errorResponse);
     return;
