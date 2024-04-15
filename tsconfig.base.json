@@ -5,10 +5,14 @@
     "declaration": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
     "lib": ["es2020", "dom"],
     "module": "esnext",
     "moduleResolution": "node",
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
     "paths": {
       "@nrcno/db": ["libs/db/src/index.ts"],
       "@nrcno/core-models": ["libs/models/src/index.ts"]
