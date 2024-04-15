@@ -85,3 +85,15 @@ export const requireAuthentication = async (
     res.redirect('/login');
   }
 };
+
+export const requireAuthentication = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (req.isAuthenticated()) {
+    next();
+  } else {
+    res.redirect('/login');
+  }
+};
