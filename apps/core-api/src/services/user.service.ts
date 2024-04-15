@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { User } from '../models/user.model';
+import { User } from '@nrcno/models';
+
 import * as UserStore from '../data-access/user.store';
 import { ScimUser } from '../types/scim.types';
 

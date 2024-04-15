@@ -11,7 +11,6 @@ import { rateLimit } from 'express-rate-limit';
 
 import { db } from '@nrcno/db';
 
-import { welcomeRouter } from './controllers/welcome.controller';
 import { scimRouter } from './controllers/scim.controller';
 
 // Load environment variables from .env file
@@ -31,7 +30,6 @@ const app = express();
 
 app.use(limiter);
 
-app.use('/api', welcomeRouter);
 app.use('/scim/v2', scimRouter);
 
 app.get('/', (req, res) => {
