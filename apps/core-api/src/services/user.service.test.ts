@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 
-import { User } from '@nrcno/models';
+import { User } from '@nrcno/core-models';
 
 import * as UserStore from '../data-access/user.store';
 
