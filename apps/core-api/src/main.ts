@@ -27,7 +27,7 @@ const config = getServerConfig();
 
 const app = express();
 
-app.use(limiter);
+// app.use(limiter);
 app.use(oidc());
 
 app.use('/healthz', healthzRouter);
