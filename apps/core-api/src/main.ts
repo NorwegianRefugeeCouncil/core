@@ -15,8 +15,7 @@ import { getServerConfig } from './config';
 import { limiter } from './middleware/rate-limiter.middleware';
 import { apiRouter } from './controllers/api.controller';
 import { healthzRouter } from './controllers/healthz.controller';
-import { oidc } from './middleware/oidc.middleware';
-import { authenticate } from './middleware/authentication.middleware';
+import { oidc, requireAuthentication } from './middleware/oidc.middleware';
 
 // Load environment variables from .env file
 if (process.env.NODE_ENV !== 'production') {
@@ -32,9 +31,9 @@ app.use(oidc());
 
 app.use('/healthz', healthzRouter);
 app.use('/scim/v2', scimRouter);
-app.use('/api', authenticate, apiRouter);
+app.use('/api', requireAuthentication, apiRouter);
 
-app.get('/', authenticate, (req, res) => {
+app.get('/', requireAuthentication, (req, res) => {
   res.sendFile(path.join(__dirname, 'static', 'index.html'));
 });
 
