@@ -34,7 +34,7 @@ app.use('/healthz', healthzRouter);
 app.use('/scim/v2', scimRouter);
 app.use('/api', authenticate, apiRouter);
 
-app.get('/', (req, res) => {
+app.get('/', authenticate, (req, res) => {
   res.sendFile(path.join(__dirname, 'static', 'index.html'));
 });
 
