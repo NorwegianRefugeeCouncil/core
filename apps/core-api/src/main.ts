@@ -54,7 +54,8 @@ const server = app.listen(port, async () => {
 
   if (
     process.env.NODE_ENV === 'development' ||
-    process.env.NODE_ENV === 'test'
+    process.env.NODE_ENV === 'test' ||
+    process.env.NODE_ENV === 'production' // temporary for now
   ) {
     await db.seed.run({
       loadExtensions: ['.js'],
