@@ -91,17 +91,24 @@ module "web_app" {
   postgres = module.postgres.postgres
   db = module.postgres.db
 
+  port = var.port
+  oidc_issuer = var.oidc_issuer
+  oidc_authorization_url = var.oidc_authorization_url
+  oidc_token_url = var.oidc_token_url
+  oidc_user_info_url = var.oidc_user_info_url
+  oidc_callback_url = var.oidc_callback_url
+  oidc_scope = var.oidc_scope
+  oidc_client_id = var.oidc_client_id
+  oidc_client_secret = var.oidc_client_secret
+  okta_scim_api_token = var.okta_scim_api_token
+
   app_name = var.app_name
   environment = var.environment
   app_service_plan_sku = var.app_service_plan_sku
-  oidc_client_id = var.oidc_client_id
-  oidc_client_secret = var.oidc_client_secret
-  oidc_well_known_url = var.oidc_well_known_url
   backend_host_name = var.backend_host_name
   runtime_subnet_address_space = var.runtime_subnet_address_space
   infra_container_registry_name = var.infra_container_registry_name
   infra_resource_group_name = var.infra_resource_group_name
   container_image = var.container_image
   container_image_tag = var.container_image_tag
-  okta_scim_api_token = var.okta_scim_api_token
 }

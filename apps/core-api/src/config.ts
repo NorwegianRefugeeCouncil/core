@@ -4,10 +4,18 @@ export const ServerConfigSchema = z.object({
   server: z.object({
     port: z.coerce.number().int().positive().default(3333),
   }),
+  session: z.object({
+    secret: z.string(),
+  }),
   oidc: z.object({
-    jwksUri: z.string(),
     issuer: z.string(),
-    audience: z.string(),
+    authorizationURL: z.string(),
+    tokenURL: z.string(),
+    userInfoURL: z.string(),
+    callbackURL: z.string(),
+    clientId: z.string(),
+    clientSecret: z.string(),
+    scope: z.string().default('openid profile'),
     scimApiToken: z.string(),
   }),
   db: z.object({
@@ -28,10 +36,18 @@ export const getServerConfig = (): ServerConfig => {
       server: {
         port: process.env.PORT,
       },
+      session: {
+        secret: process.env.SESSION_SECRET,
+      },
       oidc: {
-        jwksUri: process.env.OIDC_JWKS_URI,
         issuer: process.env.OIDC_ISSUER,
-        audience: process.env.OIDC_AUDIENCE,
+        authorizationURL: process.env.OIDC_AUTHORIZATION_URL,
+        tokenURL: process.env.OIDC_TOKEN_URL,
+        userInfoURL: process.env.OIDC_USER_INFO_URL,
+        callbackURL: process.env.OIDC_CALLBACK_URL,
+        clientId: process.env.OIDC_CLIENT_ID,
+        clientSecret: process.env.OIDC_CLIENT_SECRET,
+        scope: process.env.OIDC_SCOPE,
         scimApiToken: process.env.OKTA_SCIM_API_TOKEN,
       },
       db: {

@@ -15,22 +15,24 @@ import { getServerConfig } from './config';
 import { limiter } from './middleware/rate-limiter.middleware';
 import { apiRouter } from './controllers/api.controller';
 import { healthzRouter } from './controllers/healthz.controller';
-import { authorise } from './middleware/authorisation';
+import { oidc } from './middleware/oidc.middleware';
+import { authenticate } from './middleware/authentication.middleware';
 
 // Load environment variables from .env file
 if (process.env.NODE_ENV !== 'production') {
   dotenvConfig();
 }
 
+const config = getServerConfig();
+
 const app = express();
 
 app.use(limiter);
-
-const config = getServerConfig();
+app.use(oidc());
 
 app.use('/healthz', healthzRouter);
-app.use('/api', authorise, apiRouter);
 app.use('/scim/v2', scimRouter);
+app.use('/api', authenticate, apiRouter);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'static', 'index.html'));
