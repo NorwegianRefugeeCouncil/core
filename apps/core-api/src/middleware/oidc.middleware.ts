@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import session from 'express-session';
 import passport from 'passport';
-import { Strategy } from 'passport-openidconnect';
+import { Strategy as OidcStrategy } from 'passport-openidconnect';
 
 import { getServerConfig } from '../config';
 
@@ -24,7 +24,7 @@ export const oidc = () => {
 
   passport.use(
     'oidc',
-    new Strategy(
+    new OidcStrategy(
       {
         issuer: config.oidc.issuer,
         authorizationURL: config.oidc.authorizationURL,
@@ -36,7 +36,8 @@ export const oidc = () => {
         scope: config.oidc.scope,
       },
       (issuer: any, profile: any, done: any) => {
-        return done(null, profile);
+        const user = UserService.getByOidcId(profile.id);
+        return done(null, user || profile);
       },
     ),
   );
