@@ -12,8 +12,10 @@
     }
   },
   "dependencies": {
+    "@types/cors": "^2.8.17",
     "antd": "^5.16.1",
     "axios": "^1.6.8",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-rate-limit": "^7.2.0",
@@ -23,6 +25,7 @@
     "passport-openidconnect": "^0.1.2",
     "pg": "^8.11.3",
     "react": "18.2.0",
+    "react-cookie": "^7.1.4",
     "react-dom": "18.2.0",
     "react-router-dom": "6.11.2",
     "tslib": "^2.3.0",

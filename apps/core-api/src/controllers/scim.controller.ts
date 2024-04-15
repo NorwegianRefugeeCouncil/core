@@ -1,6 +1,5 @@
 import { Router, json } from 'express';
 import { z } from 'zod';
-import { User } from '@nrcno/core-models';
 
 import { AlreadyExistsError } from '@nrcno/core-errors';
 import { User } from '@nrcno/core-models';

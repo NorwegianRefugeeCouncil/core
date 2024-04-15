@@ -1,5 +1,5 @@
-import { ScimClient } from '@nrcno/core-clients';
+import { UserClient } from '@nrcno/core-clients';
 
 export type ApiContextType = {
-  scim: ScimClient;
+  users: UserClient;
 };

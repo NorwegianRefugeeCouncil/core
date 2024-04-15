@@ -4,16 +4,18 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
 } from 'axios';
+import { redirect } from 'react-router-dom';
 
 export interface ClientConfig<Data> extends AxiosRequestConfig<Data> {
-  domain?: string;
+  cookie?: string;
+  loginURL: string;
 }
 
 type ClientRequest<Data> = (
   url: string,
   params?: Partial<Data>,
 ) => Promise<
-  AxiosResponse<ClientConfig<Data>, Data> | AxiosError<ClientConfig<Data>, Data>
+  AxiosResponse<Data, ClientConfig<Data>> | AxiosError<Data, ClientConfig<Data>>
 >;
 
 interface IClient<Data> {
@@ -26,13 +28,22 @@ interface IClient<Data> {
 
 export class BaseClient<Data> implements IClient<Data> {
   client: AxiosInstance;
+  loginURL: string;
 
-  constructor({ baseURL, ...options }: ClientConfig<Data>) {
+  constructor({ baseURL, cookie, loginURL, ...config }: ClientConfig<Data>) {
+    this.loginURL = loginURL;
     this.client = axios.create({
       baseURL,
-      headers: { 'Content-Type': 'application/json' },
-      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: cookie,
+      },
+      ...config,
     });
+  }
+
+  async login() {
+    return axios.get(`${this.loginURL}/login`, { method: 'GET' });
   }
 
   async get(url: string, params?: Partial<Data>) {

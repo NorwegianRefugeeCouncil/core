@@ -7,12 +7,12 @@ import * as path from 'path';
 
 import { config as dotenvConfig } from 'dotenv';
 import express from 'express';
+import cors from 'cors';
 
 import { getDb } from '@nrcno/core-db';
 
 import { scimRouter } from './controllers/scim.controller';
 import { getServerConfig } from './config';
-import { limiter } from './middleware/rate-limiter.middleware';
 import { apiRouter } from './controllers/api.controller';
 import { healthzRouter } from './controllers/healthz.controller';
 import { oidc, requireAuthentication } from './middleware/oidc.middleware';
@@ -31,7 +31,8 @@ if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 3);
 }
 
-app.use(limiter);
+app.use(cors());
+
 app.use(oidc());
 
 app.use('/healthz', healthzRouter);
