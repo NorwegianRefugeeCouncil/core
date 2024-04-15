@@ -122,6 +122,8 @@ resource "azurerm_linux_web_app" "app" {
     DB_NAME = local.db.name
     DB_USER = local.db_user.username
     DB_PASSWORD = local.db_user.password
+    DB_MIGRATIONS_DIR = "/api/libs/db/migrations"
+    DB_SEEDS_DIR = "/api/libs/db/seeds"
   }
 
   depends_on = [

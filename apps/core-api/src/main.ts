@@ -52,9 +52,15 @@ const server = app.listen(port, async () => {
   //   process.env.NODE_ENV === 'test'
   // ) {
   // For other environments migrations are run as part of the deployment process
-  await db.migrate.latest({ loadExtensions: ['.js'] });
+  await db.migrate.latest({
+    loadExtensions: ['.js'],
+    directory: config.db.migrationsDir,
+  });
   console.log('Database migrations have been run');
-  await db.seed.run({ loadExtensions: ['.js'] });
+  await db.seed.run({
+    loadExtensions: ['.js'],
+    directory: config.db.seedsDir,
+  });
   console.log('Database seed data has been inserted');
   // }
 });

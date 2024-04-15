@@ -46,7 +46,7 @@ COPY --from=builder /build/dist/apps/core-api .
 
 COPY --from=builder /build/dist/apps/core-frontend ./static
 
-COPY --from=builder /build/dist/libs .
+COPY --from=builder /build/dist/libs ./libs
 
 EXPOSE ${PORT}
 

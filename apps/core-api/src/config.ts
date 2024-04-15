@@ -23,6 +23,8 @@ export const ServerConfigSchema = z.object({
     user: z.string(),
     password: z.string(),
     database: z.string(),
+    migrationsDir: z.string().default('./dist/libs/db/migrations'),
+    seedsDir: z.string().default('./dist/libs/db/seeds'),
   }),
 });
 
@@ -55,6 +57,8 @@ export const getServerConfig = (): ServerConfig => {
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
+        migrationsDir: process.env.DB_MIGRATIONS_DIR,
+        seedsDir: process.env.DB_SEEDS_DIR,
       },
     });
   }
