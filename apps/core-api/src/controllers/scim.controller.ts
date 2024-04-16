@@ -62,7 +62,6 @@ router.post('/Users', async (req, res, next) => {
     const scimUser = mapUserToScimUser(user);
     res.status(201).json(scimUser);
   } catch (error) {
-    console.error('Error creating SCIM user', error);
     if (error instanceof z.ZodError) {
       const errorResponse = createScimErrorResponse(400, error.message);
       res.status(errorResponse.status).json(errorResponse);
@@ -91,7 +90,6 @@ router.get('/Users/:id', validateUserIdParam, async (req, res, next) => {
       res.status(errorResponse.status).json(errorResponse);
     }
   } catch (error) {
-    console.error('Error getting SCIM user', error);
     next(error);
   }
 });
@@ -108,7 +106,6 @@ router.put('/Users/:id', validateUserIdParam, async (req, res, next) => {
       res.status(errorResponse.status).json(errorResponse);
     }
   } catch (error) {
-    console.error('Error put updating SCIM user', error);
     if (error instanceof z.ZodError) {
       const errorResponse = createScimErrorResponse(400, error.message);
       res.status(errorResponse.status).json(errorResponse);
@@ -135,7 +132,6 @@ router.patch('/Users/:id', validateUserIdParam, async (req, res, next) => {
       res.status(errorResponse.status).json(errorResponse);
     }
   } catch (error) {
-    console.error('Error patch updating SCIM user', error);
     if (error instanceof z.ZodError) {
       const errorResponse = createScimErrorResponse(400, error.message);
       res.status(errorResponse.status).json(errorResponse);
@@ -194,7 +190,6 @@ router.get('/Users', async (req, res, next) => {
 
     res.json(listResponse);
   } catch (error) {
-    console.error('Error getting SCIM users', error);
     next(error);
   }
 });
