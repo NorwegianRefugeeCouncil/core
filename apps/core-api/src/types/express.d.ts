@@ -1,7 +1,5 @@
 import { User as CoreUser } from '@nrcno/core-models';
 
-export {};
-
 declare global {
   namespace Express {
     interface User extends CoreUser {
