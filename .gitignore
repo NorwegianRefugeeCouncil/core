@@ -40,7 +40,7 @@ Thumbs.db
 
 .nx/cache
 
-config/certs/*
-!config/certs/.gitkeep
+deploy/local/config/certs/*
+!deploy/local/config/certs/.gitkeep
 
 .env
