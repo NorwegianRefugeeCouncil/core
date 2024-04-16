@@ -82,6 +82,7 @@ resource "azurerm_postgresql_flexible_server_database" "db" {
   collation = "en_US.utf8"
 }
 
+// TODO: Review with DevOps team
 resource "azurerm_postgresql_flexible_server_configuration" "require_secure_transport" {
   provider  = azurerm.runtime
   name      = "require_secure_transport"
