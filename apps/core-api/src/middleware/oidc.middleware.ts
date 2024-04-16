@@ -9,9 +9,9 @@ import { getServerConfig } from '../config';
 export const oidc = () => {
   const config = getServerConfig();
 
-  const app = Router();
+  const router = Router();
 
-  app.use(
+  router.use(
     session({
       secret: config.session.secret,
       resave: false,
@@ -20,8 +20,8 @@ export const oidc = () => {
     }),
   );
 
-  app.use(passport.initialize());
-  app.use(passport.session());
+  router.use(passport.initialize());
+  router.use(passport.session());
 
   passport.use(
     'oidc',
@@ -51,7 +51,7 @@ export const oidc = () => {
     next(null, obj);
   });
 
-  app.use(
+  router.use(
     '/authorization-code/callback',
     passport.authenticate('oidc', { failureRedirect: '/authorization-error' }),
     (req, res, next) => {
@@ -59,19 +59,19 @@ export const oidc = () => {
     },
   );
 
-  app.use('/login', passport.authenticate('oidc'));
+  router.use('/login', passport.authenticate('oidc'));
 
-  app.get('/logout', (req: any, res) => {
+  router.get('/logout', (req: any, res) => {
     req.logout();
     req.session.destroy();
     res.redirect('/');
   });
 
-  app.get('/authorization-error', (req, res) => {
+  router.get('/authorization-error', (req, res) => {
     res.status(401).send('Authorization error');
   });
 
-  return app;
+  return router;
 };
 
 export const requireAuthentication = async (
