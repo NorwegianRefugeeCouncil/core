@@ -15,23 +15,25 @@ import { getServerConfig } from './config';
 import { limiter } from './middleware/rate-limiter.middleware';
 import { apiRouter } from './controllers/api.controller';
 import { healthzRouter } from './controllers/healthz.controller';
+import { oidc, requireAuthentication } from './middleware/oidc.middleware';
 
 // Load environment variables from .env file
 if (process.env.NODE_ENV !== 'production') {
   dotenvConfig();
 }
 
-const app = express();
-
-app.use(limiter);
-
 const config = getServerConfig();
 
-app.use('/healthz', healthzRouter);
-app.use('/api', apiRouter);
-app.use('/scim/v2', scimRouter);
+const app = express();
 
-app.get('/', (req, res) => {
+// app.use(limiter);
+app.use(oidc());
+
+app.use('/healthz', healthzRouter);
+app.use('/scim/v2', scimRouter);
+app.use('/api', requireAuthentication, apiRouter);
+
+app.get('/', requireAuthentication, (req, res) => {
   res.sendFile(path.join(__dirname, 'static', 'index.html'));
 });
 
@@ -44,14 +46,21 @@ const port = config.server.port;
 const server = app.listen(port, async () => {
   console.log(`Listening at http://localhost:${port}/api`);
 
+  // TODO: For other environments migrations are run as part of the deployment process
+  await db.migrate.latest({
+    loadExtensions: ['.js'],
+    directory: config.db.migrationsDir,
+  });
+  console.log('Database migrations have been run');
+
   if (
     process.env.NODE_ENV === 'development' ||
     process.env.NODE_ENV === 'test'
   ) {
-    // For other environments migrations are run as part of the deployment process
-    await db.migrate.latest({ loadExtensions: ['.js'] });
-    console.log('Database migrations have been run');
-    await db.seed.run({ loadExtensions: ['.js'] });
+    await db.seed.run({
+      loadExtensions: ['.js'],
+      directory: config.db.seedsDir,
+    });
     console.log('Database seed data has been inserted');
   }
 });

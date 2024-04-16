@@ -23,10 +23,10 @@
       "executor": "nx:run-commands",
       "configurations": {
         "up": {
-          "command": "docker compose up -d --build"
+          "command": "docker compose -f deploy/local/docker-compose.yaml up -d --build"
         },
         "down": {
-          "command": "docker compose down"
+          "command": "docker compose -f deploy/local/docker-compose.yaml down"
         }
       }
     },
