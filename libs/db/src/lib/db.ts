@@ -1,4 +1,4 @@
-import knex from 'knex';
+import knex, { Knex } from 'knex';
 
 import { config } from '../../knexfile';
 
@@ -7,7 +7,22 @@ import { postProcessResponse, wrapIdentifier } from './db-utils';
 config.postProcessResponse = postProcessResponse;
 config.wrapIdentifier = wrapIdentifier;
 
-export const db = knex(config);
+let db: Knex<any, unknown[]>;
+
+export const getDb = (connectionConfig?: Knex.Config['connection']) => {
+  if (!db) {
+    if (!connectionConfig)
+      throw new Error(
+        'Connection configuration is required to create a new database connection',
+      );
+    db = knex({
+      ...config,
+      connection: connectionConfig,
+    });
+  }
+
+  return db;
+};
 
 export interface PostgresError extends Error {
   code?: string;

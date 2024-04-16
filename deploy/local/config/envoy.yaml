@@ -44,6 +44,14 @@ static_resources:
                               x-forwarded-host: original-host-as-context
                       routes:
                         - match:
+                            prefix: /healthz
+                          route:
+                            cluster: web
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                        - match:
                             prefix: /certs
                           route:
                             cluster: oidc

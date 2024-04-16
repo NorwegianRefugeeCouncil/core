@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { validate as isUuid } from 'uuid';
 
+import { getServerConfig } from '../config';
+
 export const createScimErrorResponse = (status: number, detail: string) => {
   return {
     schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
@@ -34,6 +36,10 @@ export const validateUserIdParam = (
 };
 
 export const authorise = (req: Request, res: Response, next: NextFunction) => {
+  const {
+    oidc: { scimApiToken },
+  } = getServerConfig();
+
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     const errorResponse = createScimErrorResponse(401, 'Unauthorized');
@@ -41,8 +47,7 @@ export const authorise = (req: Request, res: Response, next: NextFunction) => {
     return;
   }
 
-  const [bearer, token] = authHeader.split(' ');
-  if (bearer !== 'Bearer' || token !== process.env.OKTA_SCIM_API_TOKEN) {
+  if (authHeader !== scimApiToken) {
     const errorResponse = createScimErrorResponse(401, 'Unauthorized');
     res.status(errorResponse.status).json(errorResponse);
     return;

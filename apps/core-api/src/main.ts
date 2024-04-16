@@ -7,48 +7,61 @@ import * as path from 'path';
 
 import { config as dotenvConfig } from 'dotenv';
 import express from 'express';
-import { rateLimit } from 'express-rate-limit';
 
-import { db } from '@nrcno/db';
+import { getDb } from '@nrcno/db';
 
 import { scimRouter } from './controllers/scim.controller';
+import { getServerConfig } from './config';
+import { limiter } from './middleware/rate-limiter.middleware';
+import { apiRouter } from './controllers/api.controller';
+import { healthzRouter } from './controllers/healthz.controller';
+import { oidc, requireAuthentication } from './middleware/oidc.middleware';
 
 // Load environment variables from .env file
 if (process.env.NODE_ENV !== 'production') {
   dotenvConfig();
 }
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 100,
-  standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-  legacyHeaders: false,
-  message: 'Too many requests',
-});
+const config = getServerConfig();
 
 const app = express();
 
-app.use(limiter);
+// app.use(limiter);
+app.use(oidc());
 
+app.use('/healthz', healthzRouter);
 app.use('/scim/v2', scimRouter);
+app.use('/api', requireAuthentication, apiRouter);
 
-app.get('/', (req, res) => {
+app.get('/', requireAuthentication, (req, res) => {
   res.sendFile(path.join(__dirname, 'static', 'index.html'));
 });
 
 app.use(express.static(path.join(__dirname, 'static')));
 
-const port = process.env.PORT || 3333;
+const db = getDb(config.db);
+
+const port = config.server.port;
+
 const server = app.listen(port, async () => {
   console.log(`Listening at http://localhost:${port}/api`);
+
+  // TODO: For other environments migrations are run as part of the deployment process
+  await db.migrate.latest({
+    loadExtensions: ['.js'],
+    directory: config.db.migrationsDir,
+  });
+  console.log('Database migrations have been run');
 
   if (
     process.env.NODE_ENV === 'development' ||
     process.env.NODE_ENV === 'test'
   ) {
-    // For other environments migrations are run as part of the deployment process
-    await db.migrate.latest({ loadExtensions: ['.js'] });
-    console.log('Database migrations have been run');
+    await db.seed.run({
+      loadExtensions: ['.js'],
+      directory: config.db.seedsDir,
+    });
+    console.log('Database seed data has been inserted');
   }
 });
 

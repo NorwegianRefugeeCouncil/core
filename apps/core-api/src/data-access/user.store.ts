@@ -1,4 +1,4 @@
-import { db, PostgresError, PostgresErrorCode } from '@nrcno/db';
+import { getDb, PostgresError, PostgresErrorCode } from '@nrcno/db';
 import { User, UserSchema } from '@nrcno/core-models';
 
 import { AlreadyExistsError } from '../errors';
@@ -7,6 +7,8 @@ export const create = async (
   user: Omit<User, 'createdAt' | 'updatedAt'>,
 ): Promise<User> => {
   try {
+    const db = getDb();
+
     const userToInsert = {
       ...user,
       emails: user.emails ? JSON.stringify(user.emails) : undefined,
@@ -22,7 +24,15 @@ export const create = async (
 };
 
 export const getById = async (userId: string): Promise<User | null> => {
+  const db = getDb();
+
   const rows = await db('users').where('id', userId);
+  return rows.length > 0 ? UserSchema.parse(rows[0]) : null;
+};
+
+export const getByOidcId = async (oidcId: string): Promise<User | null> => {
+  const db = getDb();
+  const rows = await db('users').where('oktaId', oidcId);
   return rows.length > 0 ? UserSchema.parse(rows[0]) : null;
 };
 
@@ -30,6 +40,8 @@ export const update = async (
   userId: string,
   updatedUser: Partial<User>,
 ): Promise<User | null> => {
+  const db = getDb();
+
   const userToUpdate = {
     ...updatedUser,
     emails: updatedUser.emails
@@ -49,6 +61,8 @@ export const findAll = async (
   attribute?: string,
   value?: string,
 ): Promise<User[]> => {
+  const db = getDb();
+
   let query = db('users');
 
   if (startIndex !== undefined) {
@@ -68,6 +82,8 @@ export const findAll = async (
 };
 
 export const countAll = async (): Promise<number> => {
+  const db = getDb();
+
   const rows = await db('users').count();
   return Number(rows[0].count);
 };
