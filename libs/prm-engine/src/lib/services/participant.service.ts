@@ -1,4 +1,4 @@
-import { Participant, ParticipantDefinition } from '../models';
+import { Participant, ParticipantDefinition } from '@nrcno/core-models';
 
 import { BasePrmService } from './base.service';
 
