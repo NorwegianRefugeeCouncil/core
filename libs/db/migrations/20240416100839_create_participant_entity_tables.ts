@@ -1,15 +1,4 @@
 import type { Knex } from 'knex';
-// import {
-//   EntityType,
-//   Sex,
-//   ContactMeans,
-//   ContactDetailType,
-//   IdentificationType,
-//   DisplacementStatus,
-//   EngagementContext,
-//   DisabilityLevel,
-//   YesNoUnknown,
-// } from '@nrcno/core-models';
 
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('entity', (table) => {
