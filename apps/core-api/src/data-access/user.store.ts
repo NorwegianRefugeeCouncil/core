@@ -32,7 +32,7 @@ export const getById = async (userId: string): Promise<User | null> => {
 
 export const getByOidcId = async (oidcId: string): Promise<User | null> => {
   const db = getDb();
-  const rows = await db('users').where('id', oidcId);
+  const rows = await db('users').where('oktaId', oidcId);
   return rows.length > 0 ? UserSchema.parse(rows[0]) : null;
 };
 
