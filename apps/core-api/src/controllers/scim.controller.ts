@@ -1,6 +1,8 @@
 import { Router, json } from 'express';
 import { z } from 'zod';
 
+import { User } from '@nrcno/core-models';
+
 import * as UserService from '../services/user.service';
 import {
   ScimUser,
@@ -8,7 +10,6 @@ import {
   scimUserAttributeSchema,
   scimUserPatchSchema,
 } from '../types/scim.types';
-import { User } from '../models/user.model';
 import { AlreadyExistsError } from '../errors';
 
 import {

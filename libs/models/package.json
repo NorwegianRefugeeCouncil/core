@@ -1,0 +1,11 @@
+{
+  "name": "@nrcno/core-models",
+  "version": "0.0.1",
+  "dependencies": {
+    "tslib": "^2.3.0",
+    "zod": "^3.22.4"
+  },
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "typings": "./src/index.d.ts"
+}

@@ -10,7 +10,8 @@
     "module": "esnext",
     "moduleResolution": "node",
     "paths": {
-      "@nrcno/db": ["libs/db/src/index.ts"]
+      "@nrcno/db": ["libs/db/src/index.ts"],
+      "@nrcno/core-models": ["libs/models/src/index.ts"]
     },
     "rootDir": ".",
     "skipDefaultLibCheck": true,
