@@ -8,6 +8,7 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
+        "packageJson": "libs/prm-engine/package.json",
         "outputPath": "dist/libs/prm-engine",
         "main": "libs/prm-engine/src/index.ts",
         "tsConfig": "libs/prm-engine/tsconfig.lib.json",

@@ -1,4 +1,4 @@
-import { getDb, PostgresError, PostgresErrorCode } from '@nrcno/db';
+import { getDb, PostgresError, PostgresErrorCode } from '@nrcno/core-db';
 import { User, UserSchema } from '@nrcno/core-models';
 
 import { AlreadyExistsError } from '../errors';
