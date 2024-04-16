@@ -1,11 +1,11 @@
 {
-  "idp_name": "https://localhost:10000",
+  "idp_name": "http://localhost:9000",
   "port": 9000,
   "client_config": [
     {
       "client_id": "foo",
-      "client_secret": "bar",
-      "redirect_uris": ["https://localhost:10000/oauth2/callback"]
+      "client_secret": "abcd1234",
+      "redirect_uris": ["http://localhost:3333/authorization-code/callback"]
     }
   ],
   "claim_mapping": {

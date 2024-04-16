@@ -33,6 +33,10 @@ export const get = async (userId: string): Promise<User | null> => {
   return UserStore.getById(userId);
 };
 
+export const getByOidcId = async (oidcId: string): Promise<User | null> => {
+  return UserStore.getByOidcId(oidcId);
+};
+
 export const update = async (
   userId: string,
   scimUserUpdate: Partial<ScimUser>,

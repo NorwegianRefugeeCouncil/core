@@ -15,7 +15,7 @@ module.exports = async function () {
 
   // Start the Docker Compose environment with all the server dependencies
   console.log('Starting Docker Compose environment...');
-  const composeFilePath = './';
+  const composeFilePath = '../../';
   const composeFile = 'docker-compose.yaml';
   (global as any).__ENVIRONMENT__ = await new DockerComposeEnvironment(
     composeFilePath,
@@ -30,7 +30,7 @@ module.exports = async function () {
   // Wait for the server to be ready
   console.log('Waiting for the server to be ready...');
   await waitOn({
-    resources: ['http-get://localhost:3333/api'],
+    resources: ['http-get://localhost:10000/healthz'],
     timeout: 30000,
   });
 
