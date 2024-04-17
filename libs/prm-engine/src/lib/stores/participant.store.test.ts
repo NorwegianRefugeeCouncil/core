@@ -1,5 +1,3 @@
-import { ulid } from 'ulidx';
-
 import { AlreadyExistsError } from '@nrcno/core-errors';
 import {
   ContactMeans,
@@ -11,7 +9,7 @@ import {
   YesNoUnknown,
 } from '@nrcno/core-models';
 
-import * as ParticipantStore from './participant.store';
+import { ParticipantStore } from './participant.store';
 
 jest.mock('ulidx', () => ({
   ulid: jest.fn().mockReturnValue('01HVNAT9GVADE1K8CS7S6Y7J2F'),
