@@ -9,7 +9,7 @@ export async function up(knex: Knex): Promise<void> {
     table.string('id', 26).primary().notNullable();
   });
 
-  await knex.schema.createTable('participants', (table) => {
+  await knex.schema.createTable('participant', (table) => {
     table.string('id', 26).primary().notNullable();
     table.string('person_id', 26).notNullable();
     table.string('entity_id', 26).notNullable();
@@ -132,7 +132,7 @@ export async function up(knex: Knex): Promise<void> {
       .onDelete('CASCADE');
   });
 
-  await knex.schema.createTable('contact_details', (table) => {
+  await knex.schema.createTable('participant_contact_detail', (table) => {
     table.uuid('id').primary().notNullable();
     table.string('participant_id', 26).notNullable();
     table.enum('contact_detail_type', ['email', 'phone_number', 'other'], {
@@ -194,7 +194,7 @@ export async function up(knex: Knex): Promise<void> {
       .onDelete('CASCADE');
   });
 
-  await knex.schema.createTable('comments', (table) => {
+  await knex.schema.createTable('comment', (table) => {
     table.uuid('id').primary().notNullable();
     table.string('entity_id', 26).notNullable();
     table.text('comment').notNullable();
@@ -206,10 +206,10 @@ export async function up(knex: Knex): Promise<void> {
 
 export async function down(knex: Knex): Promise<void> {
   await knex.schema
-    .table('comments', (table) => {
+    .table('comment', (table) => {
       table.dropForeign('entity_id');
     })
-    .dropTableIfExists('comments');
+    .dropTableIfExists('comment');
 
   await knex.schema
     .table('participant_languages', (table) => {
@@ -230,10 +230,10 @@ export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTableIfExists('nationality');
 
   await knex.schema
-    .table('contact_details', (table) => {
+    .table('participant_contact_detail', (table) => {
       table.dropForeign('participant_id');
     })
-    .dropTableIfExists('contact_details');
+    .dropTableIfExists('participant_contact_detail');
 
   await knex.schema
     .table('participant_identification', (table) => {
@@ -248,11 +248,11 @@ export async function down(knex: Knex): Promise<void> {
     .dropTableIfExists('participant_disability');
 
   await knex.schema
-    .table('participants', (table) => {
+    .table('participant', (table) => {
       table.dropForeign('person_id');
       table.dropForeign('entity_id');
     })
-    .dropTableIfExists('participants');
+    .dropTableIfExists('participant');
 
   await knex.schema.dropTableIfExists('person');
 
