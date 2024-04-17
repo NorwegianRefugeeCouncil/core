@@ -140,7 +140,7 @@ export async function up(knex: Knex): Promise<void> {
       enumName: 'contact_detail_type_type',
     });
     table.string('raw_value', 150);
-    table.string('clean_value', 100);
+    table.string('clean_value', 150);
 
     table
       .foreign('participant_id')
