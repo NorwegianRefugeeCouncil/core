@@ -27,7 +27,7 @@ const config = getServerConfig();
 const app = express();
 
 if (process.env.NODE_ENV === 'production') {
-  app.use('trust proxy', 3);
+  app.set('trust proxy', 3);
 }
 
 app.use(limiter);
