@@ -22,6 +22,8 @@ const create = async (
       disabilities,
       contactDetails,
       identification,
+      languages,
+      nationalities,
       ...participantDetails
     } = participantDefinition;
 
@@ -46,7 +48,7 @@ const create = async (
       })
       .returning('*');
 
-    const disabilitiesResult = await trx('disability')
+    const disabilitiesResult = await trx('participant_disability')
       .insert({
         participantId: participantDetailsResult[0].id,
         ...disabilities,
@@ -54,16 +56,48 @@ const create = async (
       .returning('*')
       .then((rows) => rows[0]);
 
-    const contactDetailsResult = await trx('contact')
+    const languagesResult = await trx('participant_languages')
+      .insert(
+        languages.map((lang) => ({
+          languageIsoCode: lang.isoCode,
+          participantId: participantDetailsResult[0].id,
+        })),
+      )
+      .returning('*');
+    const retrievedLanguages = await trx('languages')
+      .select('*')
+      .whereIn(
+        'iso_code',
+        languagesResult.map((lang) => lang.languageIsoCode),
+      );
+
+    const nationalitiesResult = await trx('participant_nationalities')
+      .insert(
+        nationalities.map((nat) => ({
+          nationalityIsoCode: nat.isoCode,
+          participantId: participantDetailsResult[0].id,
+        })),
+      )
+      .returning('*');
+    const retrievedNationalities = await trx('nationality')
+      .select('*')
+      .whereIn(
+        'iso_code',
+        nationalitiesResult.map((nat) => nat.nationalityIsoCode),
+      );
+
+    const contactDetailsResult = await trx('participant_contact_detail')
       .insert(contactDetails.map((contact) => ({ ...contact, id: uuidv4() })))
       .returning('*');
 
-    const identificationResult = await trx('identification')
+    const identificationResult = await trx('participant_nationalities')
       .insert(identification.map((id) => ({ ...id, id: uuidv4() })))
       .returning('*');
 
     const createdParticipant = ParticipantSchema.parse({
       ...participantDetailsResult[0],
+      languages: retrievedLanguages,
+      nationalities: retrievedNationalities,
       disabilities: disabilitiesResult,
       contactDetails: contactDetailsResult,
       identification: identificationResult,
