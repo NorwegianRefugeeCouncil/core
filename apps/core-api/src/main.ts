@@ -26,7 +26,11 @@ const config = getServerConfig();
 
 const app = express();
 
-// app.use(limiter);
+if (process.env.NODE_ENV === 'production') {
+  app.use('trust proxy', 3);
+}
+
+app.use(limiter);
 app.use(oidc());
 
 app.use('/healthz', healthzRouter);
