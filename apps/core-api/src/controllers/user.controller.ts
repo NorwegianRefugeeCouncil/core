@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { PaginationSchema } from '@nrcno/core-models';
+import { PaginationSchema, UserSchema } from '@nrcno/core-models';
 
 import * as UserService from '../services/user.service';
 
@@ -8,8 +8,8 @@ const router = Router();
 
 router.get('/me', async (req, res, next) => {
   try {
-    const user = req.user;
-    if (user) {
+    if (req.user) {
+      const user = UserSchema.parse(req.user);
       res.status(200).json(user);
     } else {
       res.sendStatus(401);
