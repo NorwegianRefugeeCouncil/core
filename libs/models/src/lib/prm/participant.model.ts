@@ -126,6 +126,16 @@ const IdentificationSchema = z.object({
 export const ParticipantDefinitionSchema = ParticipantDetailsSchema.merge(
   z.object({
     disabilities: ParticipantDisabilitySchema.optional(),
+    languages: z.array(
+      z.object({
+        isoCode: z.string().max(20),
+      }),
+    ),
+    nationalities: z.array(
+      z.object({
+        isoCode: z.string().max(20),
+      }),
+    ),
     contactDetails: z.array(ContactDetailsSchema),
     identification: z.array(IdentificationSchema),
   }),
@@ -137,6 +147,18 @@ export const ParticipantSchema = ParticipantDefinitionSchema.merge(
   z.object({
     id: z.string().ulid(),
     disabilities: ParticipantDisabilitySchema.optional(),
+    languages: z.array(
+      z.object({
+        isoCode: z.string().max(20),
+        translationKey: z.string().max(200),
+      }),
+    ),
+    nationalities: z.array(
+      z.object({
+        isoCode: z.string().max(20),
+        translationKey: z.string().max(200),
+      }),
+    ),
     contactDetails: z.array(
       ContactDetailsSchema.merge(
         z.object({
