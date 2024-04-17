@@ -1,4 +1,4 @@
-import { User as CoreUser } from '../models/user.model';
+import { User as CoreUser } from '@nrcno/core-models';
 
 export {};
 

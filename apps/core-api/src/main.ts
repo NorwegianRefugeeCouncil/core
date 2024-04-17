@@ -7,7 +7,6 @@ import * as path from 'path';
 
 import { config as dotenvConfig } from 'dotenv';
 import express from 'express';
-
 import { getDb } from '@nrcno/db';
 
 import { scimRouter } from './controllers/scim.controller';
@@ -46,7 +45,6 @@ const port = config.server.port;
 const server = app.listen(port, async () => {
   console.log(`Listening at http://localhost:${port}/api`);
 
-  // TODO: For other environments migrations are run as part of the deployment process
   await db.migrate.latest({
     loadExtensions: ['.js'],
     directory: config.db.migrationsDir,

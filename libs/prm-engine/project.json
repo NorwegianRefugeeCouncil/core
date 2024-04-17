@@ -1,0 +1,19 @@
+{
+  "name": "prm-engine",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/prm-engine/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/prm-engine",
+        "main": "libs/prm-engine/src/index.ts",
+        "tsConfig": "libs/prm-engine/tsconfig.lib.json",
+        "assets": ["libs/prm-engine/*.md"]
+      }
+    }
+  },
+  "tags": []
+}
