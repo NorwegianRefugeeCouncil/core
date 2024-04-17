@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { getDb } from '@nrcno/db';
+import { getDb } from '@nrcno/core-db';
 
 const router = Router();
 
