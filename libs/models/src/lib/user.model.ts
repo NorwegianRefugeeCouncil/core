@@ -7,7 +7,7 @@ const EmailSchema = z.object({
 });
 
 export const UserSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   oktaId: z.string().optional(),
   userName: z.string(),
   firstName: z.string().optional(),
