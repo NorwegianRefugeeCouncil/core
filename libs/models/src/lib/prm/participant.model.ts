@@ -67,22 +67,22 @@ export enum YesNoUnknown {
 export const YesNoUnknownSchema = z.nativeEnum(YesNoUnknown);
 
 const ParticipantDetailsSchema = z.object({
-  firstName: z.string().max(100),
-  middleName: z.string().max(100),
-  lastName: z.string().max(100),
-  nativeName: z.string().max(100),
-  motherName: z.string().max(100),
-  preferredName: z.string().max(100),
-  dateOfBirth: z.date(),
-  nrcId: z.string().max(40),
-  residence: z.string(),
-  contactMeansComment: z.string(),
+  firstName: z.string().max(100).optional(),
+  middleName: z.string().max(100).optional(),
+  lastName: z.string().max(100).optional(),
+  nativeName: z.string().max(100).optional(),
+  motherName: z.string().max(100).optional(),
+  preferredName: z.string().max(100).optional(),
+  dateOfBirth: z.date().optional(),
+  nrcId: z.string().max(40).optional(),
+  residence: z.string().optional(),
+  contactMeansComment: z.string().optional(),
   consentGdpr: z.boolean(),
   consentReferral: z.boolean(),
-  sex: SexSchema,
-  preferredContactMeans: ContactMeansSchema,
-  displacementStatus: DisplacementStatusSchema,
-  engagementContext: EngagementContextSchema,
+  sex: SexSchema.optional(),
+  preferredContactMeans: ContactMeansSchema.optional(),
+  displacementStatus: DisplacementStatusSchema.optional(),
+  engagementContext: EngagementContextSchema.optional(),
 });
 
 const ParticipantDisabilitySchema = z.object({
@@ -125,7 +125,7 @@ const IdentificationSchema = z.object({
 
 export const ParticipantDefinitionSchema = ParticipantDetailsSchema.merge(
   z.object({
-    disabilities: ParticipantDisabilitySchema,
+    disabilities: ParticipantDisabilitySchema.optional(),
     contactDetails: z.array(ContactDetailsSchema),
     identification: z.array(IdentificationSchema),
   }),
@@ -136,7 +136,7 @@ export type ParticipantDefinition = z.infer<typeof ParticipantDefinitionSchema>;
 export const ParticipantSchema = ParticipantDefinitionSchema.merge(
   z.object({
     id: z.string().ulid(),
-    disabilities: ParticipantDisabilitySchema,
+    disabilities: ParticipantDisabilitySchema.optional(),
     contactDetails: z.array(
       ContactDetailsSchema.merge(
         z.object({
