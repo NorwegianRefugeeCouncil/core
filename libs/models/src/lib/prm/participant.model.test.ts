@@ -16,6 +16,8 @@ describe('ParticipantSchema', () => {
       sex: 'male',
       consentGdpr: true,
       consentReferral: true,
+      languages: [],
+      nationalities: [],
       contactDetails: [
         {
           id: faker.string.uuid(),
@@ -52,6 +54,8 @@ describe('ParticipantSchema', () => {
       sex: 'male',
       consentGdpr: true,
       consentReferral: true,
+      languages: [],
+      nationalities: [],
       contactDetails: [
         {
           contactDetailType: 'email',
@@ -86,6 +90,8 @@ describe('ParticipantDefinitionSchema', () => {
       sex: 'male',
       consentGdpr: true,
       consentReferral: true,
+      languages: [],
+      nationalities: [],
       contactDetails: [
         {
           contactDetailType: 'email',
@@ -118,6 +124,8 @@ describe('ParticipantDefinitionSchema', () => {
       sex: 'invalid_sex',
       consentGdpr: true,
       consentReferral: true,
+      languages: [],
+      nationalities: [],
       contactDetails: [
         {
           contactDetailType: 'email',
