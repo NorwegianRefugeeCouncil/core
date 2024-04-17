@@ -1,6 +1,8 @@
 import { Route, Routes, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Layout, Menu, Flex, Typography, Image, App as AntApp } from 'antd';
+import { UnauthorisedError } from '@nrcno/core-clients';
+import { ZodError } from 'zod';
 
 import { User } from '@nrcno/core-models';
 
@@ -18,13 +20,16 @@ export const App: React.FC = () => {
   useEffect(() => {
     (async () => {
       if (api) {
-        const response = await api.users.getMe();
-        console.log('RESPONSE, APP tsx', response);
-        // if (response.data) {
-        //   setUser(response.data);
-        // } else {
-        //   setUser(null);
-        // }
+        try {
+          const me = await api.users.getMe();
+        } catch (e: any) {
+          if (e instanceof UnauthorisedError) {
+            window.location.href = '/login';
+          }
+          if (e instanceof ZodError) {
+            console.log('Unexpected user schema');
+          }
+        }
       }
     })();
   }, [api, api?.users]);
