@@ -66,10 +66,92 @@ export enum YesNoUnknown {
 }
 export const YesNoUnknownSchema = z.nativeEnum(YesNoUnknown);
 
-export const ParticipantDefinitionSchema = z.object({});
+const ParticipantDetailsSchema = z.object({
+  firstName: z.string().max(100),
+  middleName: z.string().max(100),
+  lastName: z.string().max(100),
+  nativeName: z.string().max(100),
+  motherName: z.string().max(100),
+  preferredName: z.string().max(100),
+  dateOfBirth: z.date(),
+  nrcId: z.string().max(40),
+  residence: z.string(),
+  contactMeansComment: z.string(),
+  consentGdpr: z.boolean(),
+  consentReferral: z.boolean(),
+  sex: SexSchema,
+  preferredContactMeans: ContactMeansSchema,
+  displacementStatus: DisplacementStatusSchema,
+  engagementContext: EngagementContextSchema,
+});
+
+const ParticipantDisabilitySchema = z.object({
+  hasDisabilityPwd: z.boolean(),
+  disabilityPwdComment: z.string(),
+  hasDisabilityVision: z.boolean(),
+  disabilityVisionLevel: DisabilityLevelSchema,
+  hasDisabilityHearing: z.boolean(),
+  disabilityHearingLevel: DisabilityLevelSchema,
+  hasDisabilityMobility: z.boolean(),
+  disabilityMobilityLevel: DisabilityLevelSchema,
+  hasDisabilityCognition: z.boolean(),
+  disabilityCognitionLevel: DisabilityLevelSchema,
+  hasDisabilitySelfcare: z.boolean(),
+  disabilitySelfcareLevel: DisabilityLevelSchema,
+  hasDisabilityCommunication: z.boolean(),
+  disabilityCommunicationLevel: DisabilityLevelSchema,
+  isChildAtRisk: YesNoUnknownSchema,
+  isElderAtRisk: YesNoUnknownSchema,
+  isWomanAtRisk: YesNoUnknownSchema,
+  isSingleParent: YesNoUnknownSchema,
+  isSeparatedChild: YesNoUnknownSchema,
+  isPregnant: YesNoUnknownSchema,
+  isLactating: YesNoUnknownSchema,
+  hasMedicalCondition: YesNoUnknownSchema,
+  needsLegalPhysicalProtection: YesNoUnknownSchema,
+  vulnerabilityComments: z.string(),
+});
+
+const ContactDetailsSchema = z.object({
+  contactDetailType: ContactDetailTypeSchema,
+  value: z.string(),
+});
+
+const IdentificationSchema = z.object({
+  identificationType: IdentificationTypeSchema,
+  identificationNumber: z.string(),
+  isPrimary: z.boolean(),
+});
+
+export const ParticipantDefinitionSchema = ParticipantDetailsSchema.merge(
+  z.object({
+    disabilities: ParticipantDisabilitySchema,
+    contactDetails: z.array(ContactDetailsSchema),
+    identification: z.array(IdentificationSchema),
+  }),
+);
 
 export type ParticipantDefinition = z.infer<typeof ParticipantDefinitionSchema>;
 
-export const ParticipantSchema = z.object({});
+export const ParticipantSchema = ParticipantDefinitionSchema.merge(
+  z.object({
+    id: z.string().ulid(),
+    disabilities: ParticipantDisabilitySchema,
+    contactDetails: z.array(
+      ContactDetailsSchema.merge(
+        z.object({
+          id: z.string().uuid(),
+        }),
+      ),
+    ),
+    identification: z.array(
+      IdentificationSchema.merge(
+        z.object({
+          id: z.string().uuid(),
+        }),
+      ),
+    ),
+  }),
+);
 
 export type Participant = z.infer<typeof ParticipantSchema>;
