@@ -1,0 +1,31 @@
+{
+  "idp_name": "http://localhost:9000",
+  "port": 9000,
+  "client_config": [
+    {
+      "client_id": "foo",
+      "client_secret": "abcd1234",
+      "redirect_uris": ["http://localhost:3333/authorization-code/callback"]
+    }
+  ],
+  "claim_mapping": {
+    "openid": ["sub"],
+    "email": ["email", "email_verified"],
+    "profile": ["name", "nickname"],
+    "groups": ["groups"]
+  },
+  "cookies": {
+    "keys": ["5298099a779da67d6c46855e6400799a"]
+  },
+  "jwks": [
+    {
+      "use": "sig",
+      "kty": "EC",
+      "kid": "zasEIDAu-yurYBO20Oi1L40BQRI2M1pFBMNswz9UHl0",
+      "crv": "P-256",
+      "alg": "ES256",
+      "x": "GoP0tL-RzlxMYFFNFalFnpaiSdODRqrmQ6Vc6Pv4lLg",
+      "y": "yIwUO7qnLsBSKxNNJ34SIcbgPjcfISxf4kJuBNBNOXA"
+    }
+  ]
+}

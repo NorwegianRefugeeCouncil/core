@@ -1,3 +1,59 @@
+
+# START App environment variables
+
+variable "port" {
+  type        = number
+  description = "The port the application will listen on"
+  default     = 3333
+}
+
+variable "oidc_issuer" {
+  type = string
+  description = "The OIDC issuer URL"
+}
+
+variable "oidc_authorization_url" {
+  type = string
+  description = "The OIDC authorization URL"
+}
+
+variable "oidc_token_url" {
+  type = string
+  description = "The OIDC token URL"
+}
+
+variable "oidc_user_info_url" {
+  type = string
+  description = "The OIDC user info URL"
+}
+
+variable "oidc_callback_url" {
+  type = string
+  description = "The OIDC callback URL"
+}
+
+variable "oidc_scope" {
+  type = string
+  description = "The OIDC scope"
+}
+
+variable "oidc_client_id" {
+  type        = string
+  description = "OIDC Client ID"
+}
+
+variable "oidc_client_secret" {
+  type        = string
+  description = "OIDC Client Secret"
+}
+
+variable "okta_scim_api_token" {
+  type = string
+  description = "The API token Okta will use when calling the SCIM API"
+}
+
+#  END App environment variables
+
 variable "app_name" {
   type        = string
   description = "Name of the application. e.g. core"
@@ -20,21 +76,6 @@ variable "app_service_plan_sku" {
   type        = string
   description = "SKU for the app service plan"
   default     = "P1v3"
-}
-
-variable "oidc_client_id" {
-  type        = string
-  description = "OIDC Client ID"
-}
-
-variable "oidc_client_secret" {
-  type        = string
-  description = "OIDC Client Secret"
-}
-
-variable "oidc_well_known_url" {
-  type        = string
-  description = "OIDC Well Known URL"
 }
 
 variable "backend_host_name" {
@@ -87,11 +128,11 @@ variable "ag" {
 variable "law" {
 }
 
-variable "fd" { 
+variable "fd" {
 }
 
 variable "db_user" {
- 
+
 }
 
 variable "postgres" {
@@ -103,6 +144,18 @@ variable "db" {
 }
 
 locals {
+  # START App environment variables
+  port = var.port
+  oidc_issuer = var.oidc_issuer
+  oidc_authorization_url = var.oidc_authorization_url
+  oidc_token_url = var.oidc_token_url
+  oidc_user_info_url = var.oidc_user_info_url
+  oidc_callback_url = var.oidc_callback_url
+  oidc_scope = var.oidc_scope
+  oidc_client_id = var.oidc_client_id
+  oidc_client_secret = var.oidc_client_secret
+  okta_scim_api_token = var.okta_scim_api_token
+  # END App environment variables
   app_name = var.app_name
   location = var.location
   environment = var.environment
@@ -115,9 +168,6 @@ locals {
   postgres = var.postgres
   db = var.db
   app_service_plan_sku = var.app_service_plan_sku
-  oidc_client_id = var.oidc_client_id
-  oidc_client_secret = var.oidc_client_secret
-  oidc_well_known_url = var.oidc_well_known_url
   backend_host_name = var.backend_host_name
   runtime_subnet_address_space = var.runtime_subnet_address_space
   infra_container_registry_name = var.infra_container_registry_name

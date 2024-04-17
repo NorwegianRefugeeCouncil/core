@@ -51,6 +51,17 @@ jobs:
         shell: bash
 
     env:
+      TF_VAR_port: ${{vars.PORT}}
+      TF_VAR_oidc_issuer: ${{vars.OIDC_ISSUER}}
+      TF_VAR_oidc_authorization_url: ${{vars.OIDC_AUTHORIZATION_URL}}
+      TF_VAR_oidc_token_url: ${{vars.OIDC_TOKEN_URL}}
+      TF_VAR_oidc_user_info_url: ${{vars.OIDC_USER_INFO_URL}}
+      TF_VAR_oidc_callback_url: ${{vars.OIDC_CALLBACK_URL}}
+      TF_VAR_oidc_scope: '${{vars.OIDC_SCOPE}}'
+      TF_VAR_oidc_client_id: ${{vars.OIDC_CLIENT_ID}}
+      TF_VAR_oidc_client_secret: ${{secrets.OIDC_CLIENT_SECRET}}
+      TF_VAR_okta_scim_api_token: ${{secrets.OKTA_SCIM_API_TOKEN}}
+
       TF_VAR_address_space: ${{vars.ADDRESS_SPACE}}
       TF_VAR_app_name: ${{vars.APP_NAME}}
       TF_VAR_container_image_tag: ${{github.sha}}
@@ -60,9 +71,6 @@ jobs:
       TF_VAR_infra_resource_group_name: ${{vars.INFRA_RESOURCE_GROUP_NAME}}
       TF_VAR_infra_subscription_id: ${{vars.INFRA_SUBSCRIPTION_ID}}
       TF_VAR_location: ${{vars.LOCATION}}
-      TF_VAR_oidc_client_id: ${{vars.OIDC_CLIENT_ID}}
-      TF_VAR_oidc_client_secret: ${{secrets.OIDC_CLIENT_SECRET}}
-      TF_VAR_oidc_well_known_url: ${{vars.OIDC_WELL_KNOWN_URL}}
       TF_VAR_postgres_sku_name: ${{vars.POSTGRES_SKU_NAME}}
       TF_VAR_postgres_standby_availability_zone: ${{vars.POSTGRES_ZONE}}
       TF_VAR_postgres_storage_mb: ${{vars.POSTGRES_STORAGE_MB}}

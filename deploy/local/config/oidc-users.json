@@ -1,0 +1,10 @@
+[
+  {
+    "id": "887063c7-7937-40bc-a7a5-4a92a88501a8",
+    "email": "admin@not.nrc.no",
+    "email_verified": true,
+    "name": "Admin",
+    "password": "123",
+    "groups": []
+  }
+]

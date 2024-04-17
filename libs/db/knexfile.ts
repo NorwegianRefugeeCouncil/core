@@ -9,9 +9,9 @@ export const config: Knex.Config = {
     database: process.env.DB_NAME || 'core',
   },
   migrations: {
-    directory: './libs/db/migrations',
+    directory: './dist/libs/db/migrations',
   },
   seeds: {
-    directory: './libs/db/seeds',
+    directory: './dist/libs/db/seeds',
   },
 };

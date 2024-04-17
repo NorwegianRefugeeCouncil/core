@@ -1,0 +1,258 @@
+admin:
+  access_log_path: /dev/stdout
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 9010
+
+static_resources:
+  listeners:
+    - name: listener_0
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 10000
+      filter_chains:
+        - transport_socket:
+            name: envoy.transport_sockets.tls
+            typed_config:
+              '@type': type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+              common_tls_context:
+                tls_certificates:
+                  - certificate_chain:
+                      filename: /etc/envoy/certs/tls.crt
+                    private_key:
+                      filename: /etc/envoy/certs/tls.key
+          filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                '@type': type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: ingress_http
+                codec_type: AUTO
+                route_config:
+                  name: local_route
+                  virtual_hosts:
+                    - name: local_web
+                      domains:
+                        - '*'
+                      typed_per_filter_config:
+                        envoy.filters.http.ext_authz:
+                          '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                          check_settings:
+                            context_extensions:
+                              virtual_host: local_web
+                              x-forwarded-host: original-host-as-context
+                      routes:
+                        - match:
+                            prefix: /healthz
+                          route:
+                            cluster: web
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                        - match:
+                            prefix: /certs
+                          route:
+                            cluster: oidc
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                        - match:
+                            prefix: /.well-known
+                          route:
+                            cluster: oidc
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                        - match:
+                            prefix: /auth
+                          route:
+                            cluster: oidc
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                        - match:
+                            prefix: /token
+                          route:
+                            cluster: oidc
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                        - match:
+                            prefix: /me
+                          route:
+                            cluster: oidc
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                        - match:
+                            prefix: /session
+                          route:
+                            cluster: oidc
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                        - match:
+                            prefix: /interaction
+                          route:
+                            cluster: oidc
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                        - match:
+                            prefix: /oauth2
+                          route:
+                            cluster: oauth2_proxy
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                        - match:
+                            prefix: '/static'
+                          route:
+                            cluster: web
+                          typed_per_filter_config:
+                            envoy.filters.http.ext_authz:
+                              '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                              disabled: true
+                        - match:
+                            prefix: ''
+                          route:
+                            cluster: web
+                            timeout: 600s
+                http_filters:
+                  - name: envoy.filters.http.ext_authz
+                    typed_config:
+                      '@type': type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
+                      http_service:
+                        server_uri:
+                          uri: 127.0.0.1:4180
+                          cluster: oauth2_proxy
+                          timeout: 0.250s
+                        path_prefix: ''
+                        authorization_request:
+                          allowed_headers:
+                            patterns:
+                              - exact: cookie
+                                ignore_case: true
+                              - exact: authorization
+                                ignore_case: true
+                        authorization_response:
+                          allowed_client_headers:
+                            patterns:
+                              - exact: set-cookie
+                                ignore_case: true
+                              - exact: content-type
+                                ignore_case: true
+                          allowed_upstream_headers_to_append:
+                            patterns:
+                              - exact: set-cookie
+                          allowed_upstream_headers:
+                            patterns:
+                              - exact: authorization
+                                ignore_case: true
+                              - exact: path
+                                ignore_case: true
+                              - exact: x-auth-request-user
+                                ignore_case: true
+                              - exact: x-auth-request-email
+                                ignore_case: true
+                              - exact: x-auth-request-groups
+                                ignore_case: true
+                              - exact: x-auth-request-preferred-username
+                                ignore_case: true
+                              - exact: x-auth-request-access-token
+                                ignore_case: true
+                              - exact: x-auth-request-id-token
+                                ignore_case: true
+                  - name: envoy.filters.http.jwt_authn
+                    typed_config:
+                      '@type': type.googleapis.com/envoy.extensions.filters.http.jwt_authn.v3.JwtAuthentication
+                      providers:
+                        origins-0:
+                          issuer: https://localhost:10000
+                          audiences:
+                            - foo
+                          forward: true
+                          forward_payload_header: x-jwt-payload
+                          remote_jwks:
+                            http_uri:
+                              uri: http://localhost:4080/certs
+                              cluster: oidc
+                              timeout: 5s
+                            cache_duration:
+                              seconds: 300
+                          payload_in_metadata: https://localhost:10000
+                      rules:
+                        - match:
+                            prefix: /certs
+                        - match:
+                            prefix: /auth
+                        - match:
+                            prefix: /token
+                        - match:
+                            prefix: /me
+                        - match:
+                            prefix: /interaction
+                        - match:
+                            prefix: /oauth
+                        - match:
+                            prefix: /static
+                        - match:
+                            prefix: /
+                          requires:
+                            requires_any:
+                              requirements:
+                                - provider_name: origins-0
+                                - allow_missing: {}
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      '@type': type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+  clusters:
+    - name: web
+      connect_timeout: 0.25s
+      type: LOGICAL_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: web
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: host.docker.internal
+                      port_value: 3333
+    - name: oidc
+      connect_timeout: 0.25s
+      type: LOGICAL_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: oidc
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: oidc
+                      port_value: 9000
+    - name: oauth2_proxy
+      connect_timeout: 0.25s
+      type: LOGICAL_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: oauth2_proxy
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: oauth2-proxy
+                      port_value: 4180

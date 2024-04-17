@@ -22,7 +22,7 @@
     "comma-dangle": ["error", "always-multiline"],
     "no-param-reassign": [
       "error",
-      { "props": true, "ignorePropertyModificationsFor": ["state"] }
+      { "props": true, "ignorePropertyModificationsFor": ["state", "req"] }
     ],
     "prefer-arrow-callback": "error",
     "import/order": [

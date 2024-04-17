@@ -17,6 +17,12 @@ resource "random_id" "app_id" {
   }
 }
 
+resource "random_password" "session_secret" {
+  length           = 32
+  special          = true
+  override_special = "_%@"
+}
+
 data "azurerm_container_registry" "acr" {
   provider            = azurerm.infra
   name                = local.infra_container_registry_name
@@ -77,12 +83,6 @@ resource "azurerm_linux_web_app" "app" {
     identity_ids = [azurerm_user_assigned_identity.app.id]
   }
 
-  connection_string {
-    name  = "db"
-    type  = "PostgreSQL"
-    value = "postgres://${local.db_user.username}:${local.db_user.password}@${local.postgres.fqdn}/${local.db.name}?sslmode=require"
-  }
-
   site_config {
     ftps_state                                    = "Disabled"
     container_registry_use_managed_identity       = true
@@ -104,53 +104,31 @@ resource "azurerm_linux_web_app" "app" {
   }
 
   app_settings = {
-    oidc_PROVIDER_AUTHENTICATION_SECRET = local.oidc_client_secret
-  }
+    PORT = local.port
 
-  sticky_settings {
-    app_setting_names = [
-      "oidc_PROVIDER_AUTHENTICATION_SECRET",
-    ]
-  }
+    SESSION_SECRET = random_password.session_secret.result
 
-  lifecycle {
-    ignore_changes = [
-      site_config.0.application_stack.0.docker_image_name,
-      app_settings["DOCKER_CUSTOM_IMAGE_NAME"],
-    ]
+    OIDC_ISSUER = local.oidc_issuer
+    OIDC_AUTHORIZATION_URL = local.oidc_authorization_url
+    OIDC_TOKEN_URL = local.oidc_token_url
+    OIDC_USER_INFO_URL = local.oidc_user_info_url
+    OIDC_CALLBACK_URL = local.oidc_callback_url
+    OIDC_SCOPE = local.oidc_scope
+    OIDC_CLIENT_ID = local.oidc_client_id
+    OIDC_CLIENT_SECRET = local.oidc_client_secret
+    OKTA_SCIM_API_TOKEN = local.okta_scim_api_token
+
+    DB_HOST = local.postgres.fqdn
+    DB_NAME = local.db.name
+    DB_USER = local.db_user.username
+    DB_PASSWORD = local.db_user.password
+    DB_MIGRATIONS_DIR = "/api/libs/db/migrations"
+    DB_SEEDS_DIR = "/api/libs/db/seeds"
   }
 
   depends_on = [
     azurerm_role_assignment.acr_pull
   ]
-
-  auth_settings_v2 {
-    auth_enabled = true
-    require_authentication = true
-    require_https = true
-    unauthenticated_action = "RedirectToLoginPage"
-    default_provider = "custom_oidc_v2"
-    forward_proxy_convention = "Standard"
-
-    custom_oidc_v2 {
-        name = "oidc"
-        client_id = local.oidc_client_id
-        openid_configuration_endpoint = local.oidc_well_known_url
-        name_claim_type = "name"
-        scopes = [ 
-            "openid",
-            "profile",
-            "email",
-            "groups",
-            "offline_access",
-        ]
-    }
-
-    login {
-        token_store_enabled = true
-        token_refresh_extension_time = 72
-    }
-  }
 }
 
 resource "azurerm_cdn_frontdoor_custom_domain_association" "backend" {
@@ -296,7 +274,7 @@ resource "azurerm_cdn_frontdoor_rule" "backend_disable_auth_cache" {
   conditions {
     request_uri_condition {
       operator     = "BeginsWith"
-      match_values = ["/.auth"]
+      match_values = ["/authorization-code", "/scim"]
     }
   }
 }
