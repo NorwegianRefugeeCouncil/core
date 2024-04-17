@@ -23,9 +23,6 @@ export const App: React.FC = () => {
         try {
           const me = await api.users.getMe();
         } catch (e: any) {
-          if (e instanceof UnauthorisedError) {
-            window.location.href = '/login';
-          }
           if (e instanceof ZodError) {
             console.log('Unexpected user schema');
           }

@@ -44,18 +44,6 @@ export class BaseClient<Data> implements IClient<Data> {
       withCredentials: true,
       ...config,
     });
-
-    this.client.interceptors.response.use(
-      (response) => {
-        return response;
-      },
-      (error) => {
-        if (error.response.status === 401) {
-          throw new UnauthorisedError();
-        }
-        return error;
-      },
-    );
   }
 
   async get(url: string, params?: Partial<Data>) {
