@@ -1,6 +1,7 @@
 import { Router, json } from 'express';
 import { z } from 'zod';
 
+import { AlreadyExistsError } from '@nrcno/core-errors';
 import { User } from '@nrcno/core-models';
 
 import * as UserService from '../services/user.service';
@@ -10,7 +11,6 @@ import {
   scimUserAttributeSchema,
   scimUserPatchSchema,
 } from '../types/scim.types';
-import { AlreadyExistsError } from '../errors';
 import {
   authorise,
   errorHandlerMiddleware,
