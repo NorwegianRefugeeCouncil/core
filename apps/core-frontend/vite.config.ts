@@ -13,6 +13,23 @@ export default defineConfig({
     watch: {
       persistent: true,
     },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3333',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/login': {
+        target: 'http://localhost:3333',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/authorization-code/callback': {
+        target: 'http://localhost:3333',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 
   preview: {
