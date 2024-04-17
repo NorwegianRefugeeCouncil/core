@@ -1,5 +1,1 @@
-import { ParticipantStore } from './participant.store';
-
-export const PrmStore = {
-  Participant: new ParticipantStore(),
-};
+export { ParticipantStore } from './participant.store';
