@@ -6,10 +6,7 @@ import axios, {
 } from 'axios';
 import { redirect } from 'react-router-dom';
 
-export interface ClientConfig<Data> extends AxiosRequestConfig<Data> {
-  cookie?: string;
-  loginURL: string;
-}
+export type ClientConfig<Data> = AxiosRequestConfig<Data>;
 
 type ClientRequest<Data> = (
   url: string,
@@ -26,24 +23,39 @@ interface IClient<Data> {
   delete: ClientRequest<Data>;
 }
 
+// TODO: In another pr errors have been moved to a separate lib, we should do the same here
+export class UnauthorisedError extends Error {
+  constructor(message?: string) {
+    super(message);
+    this.name = 'UnauthorisedError';
+    Object.setPrototypeOf(this, new.target.prototype); // maintain proper stack trace
+  }
+}
+
 export class BaseClient<Data> implements IClient<Data> {
   client: AxiosInstance;
-  loginURL: string;
 
-  constructor({ baseURL, cookie, loginURL, ...config }: ClientConfig<Data>) {
-    this.loginURL = loginURL;
+  constructor({ baseURL, ...config }: ClientConfig<Data>) {
     this.client = axios.create({
       baseURL,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: cookie,
       },
+      withCredentials: true,
       ...config,
     });
-  }
 
-  async login() {
-    return axios.get(`${this.loginURL}/login`, { method: 'GET' });
+    this.client.interceptors.response.use(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        if (error.response.status === 401) {
+          throw new UnauthorisedError();
+        }
+        return error;
+      },
+    );
   }
 
   async get(url: string, params?: Partial<Data>) {

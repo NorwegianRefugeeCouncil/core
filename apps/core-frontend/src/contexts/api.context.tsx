@@ -13,12 +13,8 @@ export const ApiContext = createContext<ApiContextType | null>(null);
 export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [cookies] = useCookies([authCookieName]);
-
   const users = new UserClient({
-    baseURL: API_URL,
-    loginURL: BASE_URL,
-    cookie: cookies[authCookieName],
+    baseURL: '/api',
   });
   const clients = { users };
 
