@@ -7859,6 +7859,11 @@ launch-editor@^2.6.0:
     picocolors "^1.0.0"
     shell-quote "^1.8.1"
 
+layerr@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/layerr/-/layerr-2.0.1.tgz#0c98e6f599de4f76b75c7a6522c54b8c6c591ff0"
+  integrity sha512-z0730CwG/JO24evdORnyDkwG1Q7b7mF2Tp1qRQ0YvrMMARbt1DFG694SOv439Gm7hYKolyZyaB49YIrYIfZBdg==
+
 lazy-ass@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/lazy-ass/-/lazy-ass-1.6.0.tgz#7999655e8646c17f089fdd187d150d3324d54513"
@@ -11010,6 +11015,13 @@ uid-safe@~2.1.5:
   integrity sha512-KPHm4VL5dDXKz01UuEd88Df+KzynaohSL9fBh096KWAxSKZQDI2uBrVqtvRM4rwrIrRRKsdLNML/lnaaVSRioA==
   dependencies:
     random-bytes "~1.0.0"
+
+ulidx@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/ulidx/-/ulidx-2.3.0.tgz#0ed0360b40b7f5ddb88f636d470c51ffebdbee58"
+  integrity sha512-36piWNqcdp9hKlQewyeehCaALy4lyx3FodsCxHuV6i0YdexSkjDOubwxEVr2yi4kh62L/0MgyrxqG4K+qtovnw==
+  dependencies:
+    layerr "^2.0.1"
 
 unbox-primitive@^1.0.2:
   version "1.0.2"

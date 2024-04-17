@@ -1,3 +1,6 @@
+import { ulid } from 'ulidx';
+import { faker } from '@faker-js/faker';
+
 import {
   ParticipantSchema,
   ParticipantDefinitionSchema,
@@ -6,23 +9,28 @@ import {
 describe('ParticipantSchema', () => {
   it('should validate a valid participant object', () => {
     const participant = {
-      id: '1234567890abcdef',
+      id: ulid(),
       firstName: 'John',
       lastName: 'Doe',
       dateOfBirth: new Date('1990-01-01'),
       sex: 'male',
+      consentGdpr: true,
+      consentReferral: true,
       contactDetails: [
         {
+          id: faker.string.uuid(),
           contactDetailType: 'email',
           value: 'john.doe@example.com',
         },
         {
+          id: faker.string.uuid(),
           contactDetailType: 'phone_number',
           value: '1234567890',
         },
       ],
       identification: [
         {
+          id: faker.string.uuid(),
           identificationType: 'unhcr_id',
           identificationNumber: '1234567890',
           isPrimary: true,
@@ -30,9 +38,9 @@ describe('ParticipantSchema', () => {
       ],
     };
 
-    const result = ParticipantSchema.safeParse(participant);
+    const result = ParticipantSchema.parse(participant);
 
-    expect(result.success).toBe(true);
+    expect(result).toEqual(participant);
   });
 
   it('should not validate an invalid participant object', () => {
@@ -41,7 +49,9 @@ describe('ParticipantSchema', () => {
       firstName: 'John',
       lastName: 'Doe',
       dateOfBirth: new Date('1990-01-01'),
-      sex: 'invalid_sex',
+      sex: 'male',
+      consentGdpr: true,
+      consentReferral: true,
       contactDetails: [
         {
           contactDetailType: 'email',
@@ -74,6 +84,8 @@ describe('ParticipantDefinitionSchema', () => {
       lastName: 'Doe',
       dateOfBirth: new Date('1990-01-01'),
       sex: 'male',
+      consentGdpr: true,
+      consentReferral: true,
       contactDetails: [
         {
           contactDetailType: 'email',
@@ -93,9 +105,9 @@ describe('ParticipantDefinitionSchema', () => {
       ],
     };
 
-    const result = ParticipantDefinitionSchema.safeParse(participantDefinition);
+    const result = ParticipantDefinitionSchema.parse(participantDefinition);
 
-    expect(result.success).toBe(true);
+    expect(result).toEqual(participantDefinition);
   });
 
   it('should not validate an invalid participant definition object', () => {
@@ -104,6 +116,8 @@ describe('ParticipantDefinitionSchema', () => {
       lastName: 'Doe',
       dateOfBirth: new Date('1990-01-01'),
       sex: 'invalid_sex',
+      consentGdpr: true,
+      consentReferral: true,
       contactDetails: [
         {
           contactDetailType: 'email',
