@@ -81,9 +81,27 @@ const makeParticipantDefinition = (
     },
     ...(overrides.nationalities || []),
   ],
-  contactDetails: [...(overrides.contactDetails || [])],
-  identification: [...(overrides.identification || [])],
+  contactDetails: [
+    ...(overrides.contactDetails || [
+      {
+        contactDetailType: 'email',
+        value: 'Doe',
+      },
+    ]),
+  ],
+  identification: [
+    ...(overrides.identification || [
+      {
+        identificationType: 'national_id',
+        identificationNumber: 'Doe',
+        isPrimary: false,
+      },
+    ]),
+  ],
 });
+
+const ulidID = '01HVNAT9GVADE1K8CS7S6Y7J2F';
+const uuidID = '29d1a13a-7c46-4bc8-956e-ca1c4b55b74e';
 
 describe('Participant store', () => {
   beforeAll(async () => {
@@ -96,178 +114,186 @@ describe('Participant store', () => {
     mockDb.mock(db);
   });
 
-  describe.skip('create', () => {
-    it('should create a participant', async () => {
+  describe('create', () => {
+    it.only('should create a participant', async () => {
       const tracker = mockDb.getTracker();
       tracker.install();
 
-      tracker.on('query', (query, step) => [
-        // person
-        () => {
-          expect(query.sql).toEqual(
-            `insert into "person" ("id") values ('01HVNAT9GVADE1K8CS7S6Y7J2F') returning *`,
-          );
-          query.response([
-            {
-              id: '01HVNAT9GVADE1K8CS7S6Y7J2F',
-            },
-          ]);
-        },
-        // entity
-        () => {
-          expect(query.sql).toEqual(
-            `insert into "entity" ("id") values ('01HVNAT9GVADE1K8CS7S6Y7J2F') returning *`,
-          );
-          query.response([
-            {
-              id: '01HVNAT9GVADE1K8CS7S6Y7J2F',
-            },
-          ]);
-        },
-        // participant
-        () => {
-          expect(query.sql).toEqual(
-            `insert into "participant" ("firstName", "middleName", "lastName", "nativeName", "motherName", "preferredName", "dateOfBirth", "nrcId", "residence", "contactMeansComment", "consentGdpr", "consentReferral", "sex", "preferredContactMeans", "displacementStatus", "engagementContext") values ('John', 'Doe', 'Doe', 'Doe', 'Doe', 'Doe', '1990-01-01T00:00:00.000Z', '123456789', 'Doe', 'Doe', true, true, 'other', 'email', 'idp', 'house_visit') returning *`,
-          );
-          query.response([
-            {
-              id: '01HVNAT9GVADE1K8CS7S6Y7J2F',
-              firstName: 'John',
-              middleName: 'Doe',
-              lastName: 'Doe',
-              nativeName: 'Doe',
-              motherName: 'Doe',
-              preferredName: 'Doe',
-              dateOfBirth: new Date('1990.01.01'),
-              nrcId: '123456789',
-              residence: 'Doe',
-              contactMeansComment: 'Doe',
-              consentGdpr: true,
-              consentReferral: true,
-              sex: 'other',
-              preferredContactMeans: 'email',
-              displacementStatus: 'idp',
-              engagementContext: 'house_visit',
-            },
-          ]);
-        },
-        // participant_disability
-        () => {
-          expect(query.sql).toEqual(
-            `insert into "disability" ("participantId", "hasDisabilityPwd", "disabilityPwdComment", "hasDisabilityVision", "disabilityVisionLevel", "hasDisabilityHearing", "disabilityHearingLevel", "hasDisabilityMobility", "disabilityMobilityLevel", "hasDisabilityCognition", "disabilityCognitionLevel", "hasDisabilitySelfcare", "disabilitySelfcareLevel", "hasDisabilityCommunication", "disabilityCommunicationLevel", "isChildAtRisk", "isElderAtRisk", "isWomanAtRisk", "isSingleParent", "isSeparatedChild", "isPregnant", "isLactating", "hasMedicalCondition", "needsLegalPhysicalProtection", "vulnerabilityComments") values ('01HVNAT9GVADE1K8CS7S6Y7J2F', true, 'Doe', true, '3', true, '3', true, '3', true, '3', true, '3', true, '3', 'yes', 'yes', 'yes', 'yes', 'yes', 'yes', 'yes', 'yes', 'yes', 'Doe') returning *`,
-          );
-          query.response([
-            {
-              participantId: '01HVNAT9GVADE1K8CS7S6Y7J2F',
-              hasDisabilityPwd: true,
-              disabilityPwdComment: 'Doe',
-              hasDisabilityVision: true,
-              disabilityVisionLevel: '3',
-              hasDisabilityHearing: true,
-              disabilityHearingLevel: '3',
-              hasDisabilityMobility: true,
-              disabilityMobilityLevel: '3',
-              hasDisabilityCognition: true,
-              disabilityCognitionLevel: '3',
-              hasDisabilitySelfcare: true,
-              disabilitySelfcareLevel: '3',
-              hasDisabilityCommunication: true,
-              disabilityCommunicationLevel: '3',
-              isChildAtRisk: 'yes',
-              isElderAtRisk: 'yes',
-              isWomanAtRisk: 'yes',
-              isSingleParent: 'yes',
-              isSeparatedChild: 'yes',
-              isPregnant: 'yes',
-              isLactating: 'yes',
-              hasMedicalCondition: 'yes',
-              needsLegalPhysicalProtection: 'yes',
-              vulnerabilityComments: 'Doe',
-            },
-          ]);
-        },
-        // languages
-        () => {
-          expect(query.sql).toEqual(
-            `insert into "participant_languages" ("language_iso_code", "participant_id") values ('en', '01HVNAT9GVADE1K8CS7S6Y7J2F') returning *`,
-          );
-          query.response([
-            {
-              isoCode: 'en',
-              participantId: '01HVNAT9GVADE1K8CS7S6Y7J2F',
-            },
-          ]);
-        },
-        // languages retrieval
-        () => {
-          expect(query.sql).toEqual(
-            `select * from "languages" where "iso_code" in ('en')`,
-          );
-          query.response([
-            {
-              isoCode: 'en',
-              translationKey: 'en',
-            },
-          ]);
-        },
-        // nationalities
-        () => {
-          expect(query.sql).toEqual(
-            `insert into "participant_nationalities" ("nationality_iso_code", "participant_id") values ('en', '01HVNAT9GVADE1K8CS7S6Y7J2F') returning *`,
-          );
-          query.response([
-            {
-              isoCode: 'en',
-              participantId: '01HVNAT9GVADE1K8CS7S6Y7J2F',
-            },
-          ]);
-        },
-        // nationalities retrieval
-        () => {
-          expect(query.sql).toEqual(
-            `select * from "nationality" where "iso_code" in ('en')`,
-          );
-          query.response([
-            {
-              isoCode: 'en',
-              translationKey: 'en',
-            },
-          ]);
-        },
-        // contact details
-        () => {
-          expect(query.sql).toEqual(
-            `insert into "participant_contact_detail" ("id", "participant_id", "contact_detail_type", "raw_value", "clean_value") values ('29d1a13a-7c46-4bc8-956e-ca1c4b55b74e', '01HVNAT9GVADE1K8CS7S6Y7J2F', 'email', 'Doe', 'Doe') returning *`,
-          );
-          query.response([
-            {
-              id: '29d1a13a-7c46-4bc8-956e-ca1c4b55b74e',
-              participantId: '01HVNAT9GVADE1K8CS7S6Y7J2F',
-              contactDetailType: 'email',
-              rawValue: 'Doe',
-              cleanValue: 'Doe',
-            },
-          ]);
-        },
-        // identification
-        () => {
-          expect(query.sql).toEqual(
-            `insert into "participant_identification" ("id", "participant_id", "identification_type", "identification_number", "is_primary") values ('29d1a13a-7c46-4bc8-956e-ca1c4b55b74e', '01HVNAT9GVADE1K8CS7S6Y7J2F', 'national_id', 'Doe', false) returning *`,
-          );
-          query.response([
-            {
-              id: '29d1a13a-7c46-4bc8-956e-ca1c4b55b74e',
-              participantId: '01HVNAT9GVADE1K8CS7S6Y7J2F',
-              identificationType: 'national_id',
-              identificationNumber: 'Doe',
-              isPrimary: false,
-            },
-          ]);
-        },
-      ]);
-
       const participantDefinition: ParticipantDefinition =
         makeParticipantDefinition();
+
+      tracker.on('query', (query, step) => {
+        [
+          // Begin transaction
+          () => {
+            expect(query.sql).toEqual('BEGIN;');
+            query.response([]);
+          },
+          // person
+          () => {
+            expect(query.sql).toEqual(
+              `insert into "person" ("id") values ($1) returning *`,
+            );
+            query.response([
+              {
+                id: ulidID,
+              },
+            ]);
+          },
+          // entity
+          () => {
+            expect(query.sql).toEqual(
+              `insert into "entity" ("id") values ($1) returning *`,
+            );
+            query.response([
+              {
+                id: ulidID,
+              },
+            ]);
+          },
+          // participant
+          () => {
+            expect(query.sql).toEqual(
+              `insert into "participant" ("consent_gdpr", "consent_referral", "contact_means_comment", "date_of_birth", "displacement_status", "engagement_context", "entity_id", "first_name", "id", "last_name", "middle_name", "mother_name", "native_name", "nrc_id", "person_id", "preferred_contact_means", "preferred_name", "residence", "sex") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19) returning *`,
+            );
+            query.response([
+              {
+                id: ulidID,
+                firstName: participantDefinition.firstName,
+                middleName: participantDefinition.middleName,
+                lastName: participantDefinition.lastName,
+                nativeName: participantDefinition.nativeName,
+                motherName: participantDefinition.motherName,
+                preferredName: participantDefinition.preferredName,
+                dateOfBirth: participantDefinition.dateOfBirth?.toISOString(),
+                nrcId: participantDefinition.nrcId,
+                residence: participantDefinition.residence,
+                contactMeansComment: participantDefinition.contactMeansComment,
+                consentGdpr: participantDefinition.consentGdpr,
+                consentReferral: participantDefinition.consentReferral,
+                sex: participantDefinition.sex,
+                preferredContactMeans:
+                  participantDefinition.preferredContactMeans,
+                displacementStatus: participantDefinition.displacementStatus,
+                engagementContext: participantDefinition.engagementContext,
+              },
+            ]);
+          },
+          // participant_disability
+          () => {
+            expect(query.sql).toEqual(
+              `insert into "participant_disability" ("disability_cognition_level", "disability_communication_level", "disability_hearing_level", "disability_mobility_level", "disability_pwd_comment", "disability_selfcare_level", "disability_vision_level", "has_disability_cognition", "has_disability_communication", "has_disability_hearing", "has_disability_mobility", "has_disability_pwd", "has_disability_selfcare", "has_disability_vision", "has_medical_condition", "is_child_at_risk", "is_elder_at_risk", "is_lactating", "is_pregnant", "is_separated_child", "is_single_parent", "is_woman_at_risk", "needs_legal_physical_protection", "participant_id", "vulnerability_comments") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25) returning *`,
+            );
+            query.response([
+              {
+                participantId: '01HVNAT9GVADE1K8CS7S6Y7J2F',
+                hasDisabilityPwd: true,
+                disabilityPwdComment: 'Doe',
+                hasDisabilityVision: true,
+                disabilityVisionLevel: '3',
+                hasDisabilityHearing: true,
+                disabilityHearingLevel: '3',
+                hasDisabilityMobility: true,
+                disabilityMobilityLevel: '3',
+                hasDisabilityCognition: true,
+                disabilityCognitionLevel: '3',
+                hasDisabilitySelfcare: true,
+                disabilitySelfcareLevel: '3',
+                hasDisabilityCommunication: true,
+                disabilityCommunicationLevel: '3',
+                isChildAtRisk: 'yes',
+                isElderAtRisk: 'yes',
+                isWomanAtRisk: 'yes',
+                isSingleParent: 'yes',
+                isSeparatedChild: 'yes',
+                isPregnant: 'yes',
+                isLactating: 'yes',
+                hasMedicalCondition: 'yes',
+                needsLegalPhysicalProtection: 'yes',
+                vulnerabilityComments: 'Doe',
+              },
+            ]);
+          },
+          // languages
+          () => {
+            expect(query.sql).toEqual(
+              `insert into "participant_languages" ("language_iso_code", "participant_id") values ($1, $2) returning *`,
+            );
+            query.response([
+              {
+                languageIsoCode: 'en',
+                participantId: '01HVNAT9GVADE1K8CS7S6Y7J2F',
+              },
+            ]);
+          },
+          // languages retrieval
+          () => {
+            expect(query.sql).toEqual(
+              `select * from "languages" where "iso_code" in ($1)`,
+            );
+            query.response([
+              {
+                isoCode: 'en',
+                translationKey: 'en',
+              },
+            ]);
+          },
+          // nationalities
+          () => {
+            expect(query.sql).toEqual(
+              `insert into "participant_nationalities" ("nationality_iso_code", "participant_id") values ($1, $2) returning *`,
+            );
+            query.response([
+              {
+                nationalityIsoCode: 'en',
+                participantId: '01HVNAT9GVADE1K8CS7S6Y7J2F',
+              },
+            ]);
+          },
+          // nationalities retrieval
+          () => {
+            expect(query.sql).toEqual(
+              `select * from "nationality" where "iso_code" in ($1)`,
+            );
+            query.response([
+              {
+                isoCode: 'en',
+                translationKey: 'en',
+              },
+            ]);
+          },
+          // contact details
+          () => {
+            expect(query.sql).toEqual(
+              `insert into "participant_contact_detail" ("clean_value", "contact_detail_type", "id", "participant_id", "raw_value") values ($1, $2, $3, $4, $5) returning *`,
+            );
+            query.response([
+              {
+                id: '29d1a13a-7c46-4bc8-956e-ca1c4b55b74e',
+                participantId: '01HVNAT9GVADE1K8CS7S6Y7J2F',
+                contactDetailType: 'email',
+                rawValue: 'Doe',
+                cleanValue: 'Doe',
+              },
+            ]);
+          },
+          // identification
+          () => {
+            expect(query.sql).toEqual(
+              `insert into "participant_identification" ("id", "identification_number", "identification_type", "is_primary", "participant_id") values ($1, $2, $3, $4, $5) returning *`,
+            );
+            query.response([
+              {
+                id: '29d1a13a-7c46-4bc8-956e-ca1c4b55b74e',
+                participantId: '01HVNAT9GVADE1K8CS7S6Y7J2F',
+                identificationType: 'national_id',
+                identificationNumber: 'Doe',
+                isPrimary: false,
+              },
+            ]);
+          },
+        ][step - 1]();
+      });
 
       const createdParticipant = await ParticipantStore.create(
         participantDefinition,
