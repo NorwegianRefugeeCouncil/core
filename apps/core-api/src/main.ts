@@ -17,6 +17,7 @@ import { apiRouter } from './controllers/api.controller';
 import { healthzRouter } from './controllers/healthz.controller';
 import { oidc, requireAuthentication } from './middleware/oidc.middleware';
 import { errorHandler } from './middleware/error-handler.middleware';
+import { limiter } from './middleware/rate-limiter.middleware';
 
 // Load environment variables from .env file
 if (process.env.NODE_ENV !== 'production') {
@@ -31,8 +32,8 @@ if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 3);
 }
 
+app.use(limiter);
 app.use(cors());
-
 app.use(oidc());
 
 app.use('/healthz', healthzRouter);

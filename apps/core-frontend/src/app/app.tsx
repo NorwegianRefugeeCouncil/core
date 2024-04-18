@@ -10,9 +10,9 @@ import { useApi } from '../hooks';
 
 import appStyle from './app.module.scss';
 
-export const App: React.FC = () => {
-  const { Header, Sider, Content } = Layout;
+const { Header, Sider, Content } = Layout;
 
+export const App: React.FC = () => {
   const [user, setUser] = useState<User | null>();
   const api = useApi();
 
@@ -39,7 +39,7 @@ export const App: React.FC = () => {
             paddingInline: '2rem',
           }}
         >
-          <Flex>
+          <Flex align="center">
             <Flex justify="flex-start" align="center" flex={'1rem 1'}>
               <Image
                 src="/nrcLogo.svg"
@@ -72,10 +72,7 @@ export const App: React.FC = () => {
                 />
               </Sider>
               <Routes>
-                <Route
-                  path="/participants"
-                  element={<div className="test">Participants </div>}
-                />
+                <Route path="/participants" element={<div>Participants</div>} />
                 <Route path="/user" element={<div>Users</div>} />
               </Routes>
             </Flex>

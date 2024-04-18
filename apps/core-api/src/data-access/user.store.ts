@@ -1,6 +1,5 @@
 import { AlreadyExistsError } from '@nrcno/core-errors';
 import { getDb, PostgresError, PostgresErrorCode } from '@nrcno/core-db';
-
 import { User, UserSchema } from '@nrcno/core-models';
 
 export const create = async (

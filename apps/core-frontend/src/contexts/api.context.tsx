@@ -1,12 +1,8 @@
-import { createContext, useEffect } from 'react';
-import { useCookies } from 'react-cookie';
+import { createContext } from 'react';
+
 import { UserClient } from '@nrcno/core-clients';
 
 import { ApiContextType } from '../types/contexts';
-
-const API_URL = import.meta.env.VITE_API_URL;
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-const authCookieName = 'connect.sid';
 
 export const ApiContext = createContext<ApiContextType | null>(null);
 
