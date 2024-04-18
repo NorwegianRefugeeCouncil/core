@@ -36,8 +36,8 @@ export const oidc = () => {
         clientSecret: config.oidc.clientSecret,
         scope: config.oidc.scope,
       },
-      (issuer: any, profile: any, done: any) => {
-        const user = UserService.getByOidcId(profile.id);
+      async (issuer: any, profile: any, done: any) => {
+        const user = await UserService.getByOidcId(profile.id);
         return done(null, user || profile);
       },
     ),
