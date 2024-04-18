@@ -1,5 +1,7 @@
+import { EntityType } from '@nrcno/core-models';
+
 import { ParticipantService } from './participant.service';
 
 export const PrmService = {
-  participant: new ParticipantService(),
+  [EntityType.Participant]: ParticipantService,
 };
