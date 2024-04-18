@@ -1,7 +1,11 @@
 import { ZodError } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 
-export const zodErrorHandler = (
+const hasStatusCode = (err: any): err is { statusCode: number } => {
+  return typeof err.statusCode === 'number';
+};
+
+export const errorHandler = (
   err: Error,
   req: Request,
   res: Response,
@@ -16,28 +20,15 @@ export const zodErrorHandler = (
       })),
     });
   } else {
-    next(err);
+    const errStatus = hasStatusCode(err)
+      ? err.statusCode
+      : (err as any).status || 500;
+    const errMsg = err.message || 'Something went wrong';
+    res.status(errStatus).json({
+      success: false,
+      status: errStatus,
+      message: errMsg,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : {},
+    });
   }
-};
-
-const hasStatusCode = (err: any): err is { statusCode: number } => {
-  return typeof err.statusCode === 'number';
-};
-
-export const errorHandler = (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const errStatus = hasStatusCode(err)
-    ? err.statusCode
-    : (err as any).status || 500;
-  const errMsg = err.message || 'Something went wrong';
-  res.status(errStatus).json({
-    success: false,
-    status: errStatus,
-    message: errMsg,
-    stack: process.env.NODE_ENV === 'development' ? err.stack : {},
-  });
 };
