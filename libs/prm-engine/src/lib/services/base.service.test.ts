@@ -1,5 +1,7 @@
 import { EntityType, ParticipantDefinition } from '@nrcno/core-models';
 
+import { PrmStore } from '../stores';
+
 import { getPrmService } from './base.service';
 
 jest.mock('../stores', () => ({
@@ -46,6 +48,9 @@ describe('Base PRM service', () => {
 
         const result = await service.create(participantDefinition);
 
+        expect(PrmStore[entityType].create).toHaveBeenCalledWith(
+          participantDefinition,
+        );
         expect(result).toEqual(participantDefinition);
       });
 
@@ -64,11 +69,14 @@ describe('Base PRM service', () => {
         };
 
         jest
-          .spyOn(service, 'create')
+          .spyOn(PrmStore[entityType], 'create')
           .mockRejectedValue(new Error('Failed to create participant'));
 
         await expect(service.create(participantDefinition)).rejects.toThrow(
           'Failed to create participant',
+        );
+        expect(PrmStore[entityType].create).toHaveBeenCalledWith(
+          participantDefinition,
         );
       });
     });
