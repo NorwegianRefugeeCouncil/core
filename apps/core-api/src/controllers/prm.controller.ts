@@ -3,7 +3,8 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { PrmService } from '@nrcno/core-prm-engine';
 import { EntityTypeSchema } from '@nrcno/core-models';
 
-const createEntity = async (
+// This is exported for testing purposes (not great)
+export const createEntity = async (
   req: Request,
   res: Response,
   next: NextFunction,
