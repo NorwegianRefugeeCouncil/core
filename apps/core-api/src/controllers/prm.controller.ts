@@ -1,13 +1,17 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 
 import { PrmService } from '@nrcno/core-prm-engine';
 import { EntityTypeSchema } from '@nrcno/core-models';
 
-const router = Router();
-
-router.post('/prm/:entityType', async (req, res, next) => {
+const createEntity = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
+    // TODO: Error handling of failed validation
     const entityType = EntityTypeSchema.parse(req.params.entityType);
+
     const prmService = PrmService[entityType];
 
     if (!prmService) {
@@ -22,6 +26,9 @@ router.post('/prm/:entityType', async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-});
+};
+
+const router = Router();
+router.post('/prm/:entityType', createEntity);
 
 export { router as prmRouter };
