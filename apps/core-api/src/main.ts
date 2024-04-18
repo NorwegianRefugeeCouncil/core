@@ -16,6 +16,10 @@ import { limiter } from './middleware/rate-limiter.middleware';
 import { apiRouter } from './controllers/api.controller';
 import { healthzRouter } from './controllers/healthz.controller';
 import { oidc, requireAuthentication } from './middleware/oidc.middleware';
+import {
+  zodErrorHandler,
+  errorHandler,
+} from './middleware/error-handler.middleware';
 
 // Load environment variables from .env file
 if (process.env.NODE_ENV !== 'production') {
@@ -42,6 +46,9 @@ app.get('/', requireAuthentication, (req, res) => {
 });
 
 app.use(express.static(path.join(__dirname, 'static')));
+
+app.use(zodErrorHandler);
+app.use(errorHandler);
 
 const db = getDb(config.db);
 
