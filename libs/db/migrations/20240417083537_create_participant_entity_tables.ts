@@ -108,7 +108,7 @@ export async function up(knex: Knex): Promise<void> {
 
     table
       .foreign('participant_id')
-      .references('participants.id')
+      .references('participant.id')
       .onDelete('CASCADE');
   });
 
@@ -128,7 +128,7 @@ export async function up(knex: Knex): Promise<void> {
 
     table
       .foreign('participant_id')
-      .references('participants.id')
+      .references('participant.id')
       .onDelete('CASCADE');
   });
 
@@ -144,7 +144,7 @@ export async function up(knex: Knex): Promise<void> {
 
     table
       .foreign('participant_id')
-      .references('participants.id')
+      .references('participant.id')
       .onDelete('CASCADE');
   });
 
@@ -162,7 +162,7 @@ export async function up(knex: Knex): Promise<void> {
 
     table
       .foreign('participant_id')
-      .references('participants.id')
+      .references('participant.id')
       .onDelete('CASCADE');
 
     table
@@ -185,7 +185,7 @@ export async function up(knex: Knex): Promise<void> {
 
     table
       .foreign('participant_id')
-      .references('participants.id')
+      .references('participant.id')
       .onDelete('CASCADE');
 
     table
