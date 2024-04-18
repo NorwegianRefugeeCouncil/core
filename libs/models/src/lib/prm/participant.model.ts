@@ -73,7 +73,7 @@ const ParticipantDetailsSchema = z.object({
   nativeName: z.string().max(100).optional(),
   motherName: z.string().max(100).optional(),
   preferredName: z.string().max(100).optional(),
-  dateOfBirth: z.date().optional(),
+  dateOfBirth: z.coerce.date().optional(),
   nrcId: z.string().max(40).optional(),
   residence: z.string().optional(),
   contactMeansComment: z.string().optional(),
