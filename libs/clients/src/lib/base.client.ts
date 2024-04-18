@@ -4,7 +4,6 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
 } from 'axios';
-import { redirect } from 'react-router-dom';
 
 export type ClientConfig<Data> = AxiosRequestConfig<Data>;
 

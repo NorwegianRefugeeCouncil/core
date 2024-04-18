@@ -5,5 +5,6 @@ export const theme: ThemeConfig = {
     borderRadius: 2,
     colorBgContainer: '#EAE7DD',
     colorPrimary: '#FF7602',
+    colorBgLayout: 'white',
   },
 };

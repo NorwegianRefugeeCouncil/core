@@ -16,7 +16,7 @@ root.render(
   <StrictMode>
     <BrowserRouter>
       <ApiProvider>
-        <ConfigProvider theme={theme}>
+        <ConfigProvider theme={{ ...theme, hashed: false }}>
           <CookiesProvider
             defaultSetOptions={{
               path: '/',

@@ -1,7 +1,6 @@
 import { Route, Routes, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Layout, Menu, Flex, Typography, Image, App as AntApp } from 'antd';
-import { UnauthorisedError } from '@nrcno/core-clients';
 import { ZodError } from 'zod';
 
 import { User } from '@nrcno/core-models';
@@ -22,6 +21,7 @@ export const App: React.FC = () => {
       if (api) {
         try {
           const me = await api.users.getMe();
+          setUser(me);
         } catch (e: any) {
           if (e instanceof ZodError) {
             console.log('Unexpected user schema');
@@ -39,24 +39,29 @@ export const App: React.FC = () => {
             paddingInline: '2rem',
           }}
         >
-          <Flex justify="flex-start" align="center" flex={'1rem 1'}>
-            <Image
-              src="/nrcLogo.svg"
-              alt="NRC Logo"
-              preview={false}
-              width="2rem"
-            />
-            <Typography.Title style={{ color: 'white', margin: '0 0 0 1rem' }}>
-              CORE
-            </Typography.Title>
-            <div className="test">sdfjlds</div>
+          <Flex>
+            <Flex justify="flex-start" align="center" flex={'1rem 1'}>
+              <Image
+                src="/nrcLogo.svg"
+                alt="NRC Logo"
+                preview={false}
+                width="2rem"
+              />
+              <Typography.Title
+                style={{ color: 'white', margin: '0 0 0 1rem' }}
+              >
+                CORE
+              </Typography.Title>
+            </Flex>
+            {user && <UserInfo {...user} />}
           </Flex>
         </Header>
-        <Layout style={{ height: '100%' }}>
-          <Content style={{ height: '100%' }}>
-            <Flex style={{ height: '100%' }}>
-              <Sider width="10rem" style={{ height: '100%' }}>
+        <Layout>
+          <Content>
+            <Flex>
+              <Sider width="10rem">
                 <Menu
+                  rootClassName="test"
                   items={[
                     {
                       key: 'participants',
@@ -68,19 +73,10 @@ export const App: React.FC = () => {
               </Sider>
               <Routes>
                 <Route
-                  path="/"
-                  element={<div>This is the generated root route. </div>}
+                  path="/participants"
+                  element={<div className="test">Participants </div>}
                 />
-                <Route
-                  path="/user"
-                  element={
-                    <div>
-                      UserInfo
-                      <br />
-                      {user && <UserInfo {...user} />}
-                    </div>
-                  }
-                />
+                <Route path="/user" element={<div>Users</div>} />
               </Routes>
             </Flex>
           </Content>
