@@ -31,93 +31,117 @@ const create = async (
 
   const result = await db.transaction(async (trx) => {
     try {
-      await trx('person').insert({ id: personId });
+      const personResult = await trx('person')
+        .insert({ id: personId })
+        .returning('*');
 
-      await trx('entity').insert({ id: entityId });
+      const entityResult = await trx('entity')
+        .insert({ id: entityId })
+        .returning('*');
 
-      await trx('participant').insert({
-        ...participantDetails,
-        id: participantId,
-        personId,
-        entityId,
-      });
+      const participantDetailsResult = await trx('participant')
+        .insert({
+          ...participantDetails,
+          id: participantId,
+          personId: personResult[0].id,
+          entityId: entityResult[0].id,
+        })
+        .returning('*');
 
-      if (disabilities) {
-        await trx('participant_disability').insert({
-          participantId,
-          ...disabilities,
-        });
-      }
+      const disabilitiesResult = disabilities
+        ? await trx('participant_disability')
+            .insert({
+              participantId: participantDetailsResult[0].id,
+              ...disabilities,
+            })
+            .returning('*')
+            .then((rows) => rows[0])
+        : undefined;
 
-      let languagesResult: Participant['languages'] = [];
-      if (languages && languages.length > 0) {
-        await trx('participant_languages').insert(
-          languages.map((lang) => ({
-            languageIsoCode: lang.isoCode,
-            participantId,
-          })),
-        );
-        languagesResult = await trx('language').whereIn(
-          'isoCode',
-          languages.map((lang) => lang.isoCode),
-        );
-      }
+      const languagesResult =
+        languages && languages.length > 0
+          ? await trx('participant_languages')
+              .insert(
+                languages.map((lang) => ({
+                  languageIsoCode: lang.isoCode,
+                  participantId: participantDetailsResult[0].id,
+                })),
+              )
+              .returning('*')
+          : [];
+      const retrievedLanguages =
+        languagesResult.length > 0
+          ? await trx('languages')
+              .select('*')
+              .whereIn(
+                'iso_code',
+                languagesResult.map((lang) => lang.languageIsoCode),
+              )
+          : [];
 
-      let nationalitiesResult: Participant['nationalities'] = [];
-      if (nationalities && nationalities.length > 0) {
-        await trx('participant_nationalities').insert(
-          nationalities.map((nat) => ({
-            nationalityIsoCode: nat.isoCode,
-            participantId,
-          })),
-        );
-        nationalitiesResult = await trx('nationality').whereIn(
-          'isoCode',
-          nationalities.map((nat) => nat.isoCode),
-        );
-      }
+      const nationalitiesResult =
+        nationalities && nationalities.length > 0
+          ? await trx('participant_nationalities')
+              .insert(
+                nationalities.map((nat) => ({
+                  nationalityIsoCode: nat.isoCode,
+                  participantId: participantDetailsResult[0].id,
+                })),
+              )
+              .returning('*')
+          : [];
+      const retrievedNationalities =
+        nationalitiesResult.length > 0
+          ? await trx('nationality')
+              .select('*')
+              .whereIn(
+                'iso_code',
+                nationalitiesResult.map((nat) => nat.nationalityIsoCode),
+              )
+          : [];
 
-      const contactDetailsForDb =
+      const contactDetailsResult =
         contactDetails && contactDetails.length > 0
-          ? contactDetails.map((contact) => ({
-              id: uuidv4(),
-              contactDetailType: contact.contactDetailType,
-              rawValue: contact.value,
-              cleanValue: contact.value, // TODO: Clean string for searching
-              participantId,
-            }))
+          ? await trx('participant_contact_detail')
+              .insert(
+                contactDetails.map((contact) => ({
+                  id: uuidv4(),
+                  contactDetailType: contact.contactDetailType,
+                  rawValue: contact.value,
+                  cleanValue: contact.value, // TODO: Clean string for searching
+                  participantId: participantDetailsResult[0].id,
+                })),
+              )
+              .returning('*')
           : [];
-      if (contactDetailsForDb.length > 0) {
-        await trx('participant_contact_detail').insert(contactDetailsForDb);
-      }
 
-      const identificationForDb =
+      const identificationResult =
         identification && identification.length > 0
-          ? identification.map((id) => ({
-              id: uuidv4(),
-              participantId,
-              ...id,
-            }))
+          ? await trx('participant_identification')
+              .insert(
+                identification.map((id) => ({
+                  ...id,
+                  id: uuidv4(),
+                  participantId: participantDetailsResult[0].id,
+                })),
+              )
+              .returning('*')
           : [];
-      if (identificationForDb.length > 0) {
-        await trx('participant_identification').insert(identificationForDb);
-      }
 
       const createdParticipant = ParticipantSchema.parse({
-        id: participantId,
-        personId,
-        entityId,
-        ...participantDetails,
-        languages: languagesResult,
-        nationalities: nationalitiesResult,
-        disabilities,
-        contactDetails: contactDetailsForDb.map((contact) => ({
+        ...participantDetailsResult[0],
+        languages: retrievedLanguages,
+        nationalities: retrievedNationalities,
+        disabilities: disabilitiesResult,
+        contactDetails: contactDetailsResult.map((contact) => ({
           id: contact.id,
           contactDetailType: contact.contactDetailType,
           value: contact.rawValue,
         })),
-        identification: identificationForDb,
+        identification: identificationResult,
       });
+
+      trx.commit();
 
       return createdParticipant;
     } catch (error) {
