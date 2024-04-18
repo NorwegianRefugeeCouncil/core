@@ -20,14 +20,24 @@ export const zodErrorHandler = (
   }
 };
 
+const hasStatusCode = (err: any): err is { statusCode: number } => {
+  return typeof err.statusCode === 'number';
+};
+
 export const errorHandler = (
   err: Error,
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  console.error(err);
-  res.status(500).json({
-    message: 'Internal Server Error',
+  const errStatus = hasStatusCode(err)
+    ? err.statusCode
+    : (err as any).status || 500;
+  const errMsg = err.message || 'Something went wrong';
+  res.status(errStatus).json({
+    success: false,
+    status: errStatus,
+    message: errMsg,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : {},
   });
 };
