@@ -16,6 +16,10 @@ export function getPrmService(
 export function getPrmService(entityType: EntityType): PrmService<any, any> {
   const Store = PrmStore[entityType];
 
+  if (!Store) {
+    throw new Error(`Entity type "${entityType}" is not supported`);
+  }
+
   const create = async (entity: any) => {
     return Store.create(entity);
   };
