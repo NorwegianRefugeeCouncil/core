@@ -25,6 +25,8 @@ if (process.env.NODE_ENV !== 'production') {
   dotenvConfig();
 }
 
+console.log('NODE ENV', process.env.NODE_ENV);
+
 const config = getServerConfig();
 
 if (config.server.bypassAuthentication) {
@@ -35,9 +37,9 @@ if (config.server.bypassAuthentication) {
 
 const app = express();
 
-if (process.env.NODE_ENV === 'production') {
-  app.set('trust proxy', 3);
-}
+// if (process.env.NODE_ENV === 'production') {
+app.set('trust proxy', 3);
+// }
 
 // app.use(limiter);
 app.use(cors());
