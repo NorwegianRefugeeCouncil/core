@@ -15,10 +15,16 @@ export const oidc = () => {
     session({
       secret: config.session.secret,
       resave: false,
+      proxy: process.env.NODE_ENV === 'production',
+      name:
+        process.env.NODE_ENV === 'production'
+          ? 'testing__core-session-dev'
+          : 'testing__core-session-local',
       saveUninitialized: true,
       cookie: {
         secure: process.env.NODE_ENV === 'production',
-        httpOnly: false,
+        httpOnly: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
       },
     }),
   );
