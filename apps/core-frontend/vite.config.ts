@@ -10,6 +10,26 @@ export default defineConfig({
   server: {
     port: 4200,
     host: 'localhost',
+    watch: {
+      persistent: true,
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3333',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/login': {
+        target: 'http://localhost:3333',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/authorization-code/callback': {
+        target: 'http://localhost:3333',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 
   preview: {
@@ -18,11 +38,6 @@ export default defineConfig({
   },
 
   plugins: [react(), nxViteTsPaths()],
-
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
 
   build: {
     outDir: './dist/apps/core-frontend',

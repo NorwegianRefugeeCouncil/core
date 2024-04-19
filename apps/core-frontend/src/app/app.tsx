@@ -1,44 +1,84 @@
 import { Route, Routes, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Layout, Menu, Flex, Typography, Image, App as AntApp } from 'antd';
+import { ZodError } from 'zod';
+
+import { User } from '@nrcno/core-models';
+
+import { UserInfo } from '../components';
+import { useApi } from '../hooks';
+
+import appStyle from './app.module.scss';
+
+const { Header, Sider, Content } = Layout;
 
 export const App: React.FC = () => {
+  const [user, setUser] = useState<User | null>();
+  const api = useApi();
+
+  useEffect(() => {
+    (async () => {
+      if (api) {
+        try {
+          const me = await api.users.getMe();
+          setUser(me);
+        } catch (e: any) {
+          if (e instanceof ZodError) {
+            console.log('Unexpected user schema');
+          }
+        }
+      }
+    })();
+  }, [api, api?.users]);
+
   return (
-    <div>
-      <div>
-        <a href="https://www.nrc.no" target="_blank" rel="noreferrer">
-          <img height="80px" src="/nrcLogo.svg" alt="NRC Logo" />
-        </a>
-      </div>
-      <h1>CORE</h1>
-      <br />
-      <div role="navigation">
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/page-2">Page 2</Link>
-          </li>
-        </ul>
-      </div>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <div>
-              This is the generated root route.{' '}
-              <Link to="/page-2">Click here for page 2.</Link>
-            </div>
-          }
-        />
-        <Route
-          path="/page-2"
-          element={
-            <div>
-              <Link to="/">Click here to go back to root page.</Link>
-            </div>
-          }
-        />
-      </Routes>
-    </div>
+    <AntApp>
+      <Layout style={appStyle}>
+        <Header
+          style={{
+            paddingInline: '2rem',
+          }}
+        >
+          <Flex align="center">
+            <Flex justify="flex-start" align="center" flex={'1rem 1'}>
+              <Image
+                src="/nrcLogo.svg"
+                alt="NRC Logo"
+                preview={false}
+                width="2rem"
+              />
+              <Typography.Title
+                style={{ color: 'white', margin: '0 0 0 1rem' }}
+              >
+                CORE
+              </Typography.Title>
+            </Flex>
+            {user && <UserInfo {...user} />}
+          </Flex>
+        </Header>
+        <Layout>
+          <Content>
+            <Flex>
+              <Sider width="10rem">
+                <Menu
+                  rootClassName="test"
+                  items={[
+                    {
+                      key: 'participants',
+                      label: <Link to="/participants">Participants</Link>,
+                    },
+                    { key: 'user', label: <Link to="/user">Users</Link> },
+                  ]}
+                />
+              </Sider>
+              <Routes>
+                <Route path="/participants" element={<div>Participants</div>} />
+                <Route path="/user" element={<div>Users</div>} />
+              </Routes>
+            </Flex>
+          </Content>
+        </Layout>
+      </Layout>
+    </AntApp>
   );
 };

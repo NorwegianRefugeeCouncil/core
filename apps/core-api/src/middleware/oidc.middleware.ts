@@ -16,7 +16,7 @@ export const oidc = () => {
       secret: config.session.secret,
       resave: false,
       saveUninitialized: true,
-      cookie: { secure: false },
+      cookie: { secure: false, httpOnly: false },
     }),
   );
 
@@ -82,6 +82,6 @@ export const requireAuthentication = async (
   if (req.isAuthenticated()) {
     next();
   } else {
-    res.redirect('/login');
+    res.sendStatus(401);
   }
 };
