@@ -31,7 +31,7 @@ if (process.env.NODE_ENV !== NodeEnv.Production) {
 const config = getServerConfig();
 
 if (config.server.bypassAuthentication) {
-  console.error(
+  logger.error(
     'DANGER: Bypassing authentication. This should only be used in development or test environments.',
   );
 }
