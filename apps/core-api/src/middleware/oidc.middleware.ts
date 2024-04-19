@@ -16,7 +16,10 @@ export const oidc = () => {
       secret: config.session.secret,
       resave: false,
       saveUninitialized: true,
-      cookie: { secure: false, httpOnly: false },
+      cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: false,
+      },
     }),
   );
 
