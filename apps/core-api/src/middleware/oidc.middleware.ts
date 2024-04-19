@@ -15,13 +15,13 @@ export const oidc = () => {
     session({
       secret: config.session.secret,
       resave: false,
-      proxy: true,
-      name: 'testing__core-session-dev',
+      proxy: config.isDeployed ? true : false,
+      name: `core-session-${config.environment}`,
       saveUninitialized: true,
       cookie: {
-        secure: true,
-        httpOnly: true,
-        sameSite: 'none',
+        secure: config.isDeployed,
+        httpOnly: config.isDeployed,
+        sameSite: config.isDeployed ? 'none' : 'lax',
       },
     }),
   );

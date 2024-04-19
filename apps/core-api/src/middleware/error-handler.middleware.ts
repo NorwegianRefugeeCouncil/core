@@ -1,6 +1,8 @@
 import { ZodError } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 
+import { getServerConfig } from '../config';
+
 const hasStatusCode = (err: any): err is { statusCode: number } => {
   return typeof err.statusCode === 'number';
 };
@@ -11,6 +13,8 @@ export const errorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
+  const config = getServerConfig();
+
   if (err instanceof ZodError) {
     res.status(400).json({
       message: 'Validation Failed',
@@ -28,7 +32,7 @@ export const errorHandler = (
       success: false,
       status: errStatus,
       message: errMsg,
-      stack: process.env.NODE_ENV === 'development' ? err.stack : {},
+      stack: config.environment === 'local' ? err.stack : {},
     });
   }
 };
