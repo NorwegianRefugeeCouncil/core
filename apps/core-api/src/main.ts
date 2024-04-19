@@ -101,7 +101,7 @@ const server = app.listen(port, async () => {
     directory: path.join(config.db.seedsDir, config.environment),
   });
 
-  console.log('Database seeds have been run');
+  logger.info('Database seeds have been run');
 });
 
 server.on('error', console.error);
