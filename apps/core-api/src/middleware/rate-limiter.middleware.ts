@@ -1,5 +1,9 @@
 import { rateLimit } from 'express-rate-limit';
 
+import { getLogger } from '@nrcno/core-logger';
+
+const logger = getLogger();
+
 export const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 100,
@@ -8,7 +12,7 @@ export const limiter = rateLimit({
   message: 'Too many requests',
   keyGenerator: (req, res): string => {
     if (!req.ip) {
-      console.error('Warning: request.ip is missing!');
+      logger.error('Warning: request.ip is missing!');
       return req.socket.remoteAddress ?? '';
     }
 

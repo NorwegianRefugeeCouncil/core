@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { validate as isUuid } from 'uuid';
 
+import { getLogger } from '@nrcno/core-logger';
+
 import { getServerConfig } from '../config';
+
+const logger = getLogger();
 
 export const createScimErrorResponse = (status: number, detail: string) => {
   return {
@@ -17,7 +21,7 @@ export const errorHandlerMiddleware = (
   res: Response,
   next: NextFunction, // eslint-disable-line @typescript-eslint/no-unused-vars
 ) => {
-  console.error('SCIM controller', error);
+  logger.error('SCIM error:', error);
   const scimError = createScimErrorResponse(500, 'Internal Server Error');
   res.status(scimError.status).json(scimError);
 };

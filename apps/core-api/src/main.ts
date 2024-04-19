@@ -32,6 +32,8 @@ if (process.env.NODE_ENV !== NodeEnv.Production) {
 // Initialise and get config
 const config = getServerConfig();
 
+const logger = getLogger();
+
 if (config.server.bypassAuthentication) {
   logger.error(
     'DANGER: Bypassing authentication. This should only be used in development or test environments.',
@@ -44,8 +46,7 @@ const db = getDb(config.db);
 // Create Express server
 const app = express();
 
-// Configure logger
-const logger = getLogger();
+// Configure http logger
 app.use(pinoHttp({ logger }));
 
 // Resolve ip when behind load balancer
@@ -88,14 +89,14 @@ app.use(errorHandler);
 // Start server
 const port = config.server.port;
 const server = app.listen(port, async () => {
-  console.log(`Listening at http://localhost:${port}/api`);
+  logger.info(`Listening at http://localhost:${port}/api`);
 
   await db.migrate.latest({
     loadExtensions: ['.js'],
     directory: config.db.migrationsDir,
   });
 
-  console.log('Database migrations have been run');
+  logger.info('Database migrations have been run');
 
   await db.seed.run({
     loadExtensions: ['.js'],
@@ -107,25 +108,25 @@ const server = app.listen(port, async () => {
     directory: path.join(config.db.seedsDir, config.environment),
   });
 
-  logger.info('Database seeds have been run');
+  logger.info('Database seed data has been inserted');
 });
 
-server.on('error', console.error);
+server.on('error', logger.error);
 
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
 
 async function shutdown() {
-  console.log('Shutting down server...');
+  logger.info('Shutting down server...');
 
   try {
     await db.destroy();
-    console.log('Database connection closed');
+    logger.info('Database connection closed');
   } catch (err) {
-    console.error('Error while closing database connection:', err);
+    logger.error('Error while closing database connection:', err);
   }
 
   server.close(() => {
-    console.log('Server stopped');
+    logger.info('Server stopped');
   });
 }
