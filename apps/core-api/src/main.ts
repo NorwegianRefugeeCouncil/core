@@ -8,6 +8,7 @@ import * as path from 'path';
 import { config as dotenvConfig } from 'dotenv';
 import express from 'express';
 import cors from 'cors';
+import nocache from 'nocache';
 
 import { getDb } from '@nrcno/core-db';
 
@@ -36,9 +37,9 @@ app.use(limiter);
 app.use(cors());
 app.use(oidc());
 
-app.use('/healthz', healthzRouter);
-app.use('/scim/v2', scimRouter);
-app.use('/api', requireAuthentication, apiRouter);
+app.use('/healthz', nocache(), healthzRouter);
+app.use('/scim/v2', nocache(), scimRouter);
+app.use('/api', [nocache(), requireAuthentication], apiRouter);
 
 app.get('/', requireAuthentication, (req, res) => {
   res.sendFile(path.join(__dirname, 'static', 'index.html'));
