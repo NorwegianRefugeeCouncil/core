@@ -44,3 +44,4 @@ deploy/local/config/certs/*
 !deploy/local/config/certs/.gitkeep
 
 .env
+.env*

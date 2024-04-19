@@ -1,6 +1,5 @@
 import * as mockDb from 'mock-knex';
 
-import { AlreadyExistsError } from '@nrcno/core-errors';
 import {
   ContactMeans,
   DisabilityLevel,
