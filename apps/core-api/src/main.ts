@@ -39,7 +39,7 @@ if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 3);
 }
 
-app.use(limiter);
+// app.use(limiter);
 app.use(cors());
 app.use(oidc());
 
