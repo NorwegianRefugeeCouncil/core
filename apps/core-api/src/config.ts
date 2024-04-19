@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const ServerConfigSchema = z.object({
   isDeployed: z.boolean().default(false),
   environment: z
-    .enum(['local', 'development', 'staging', 'production'])
+    .enum(['local', 'dev', 'staging', 'production'])
     .default('local'),
   server: z.object({
     port: z.coerce.number().int().positive().default(3333),
