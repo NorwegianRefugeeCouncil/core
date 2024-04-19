@@ -45,7 +45,7 @@ app.use(oidc());
 
 app.use('/healthz', nocache(), healthzRouter);
 app.use('/scim/v2', nocache(), scimRouter);
-app.use('/api', requireAuthentication, apiRouter);
+app.use('/api', [nocache(), requireAuthentication], apiRouter);
 
 app.use(express.static(path.join(__dirname, 'static')));
 
