@@ -289,7 +289,7 @@ resource "azurerm_cdn_frontdoor_rule" "backend_disable_api_cache" {
 
   name                      = "disableApiCache"
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.backend.id
-  order                     = 1
+  order                     = 2
   behavior_on_match         = "Continue"
 
   actions {
