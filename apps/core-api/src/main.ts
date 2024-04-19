@@ -10,6 +10,8 @@ import express from 'express';
 import cors from 'cors';
 import nocache from 'nocache';
 import helmet from 'helmet';
+import pinoHttp from 'pino-http';
+import { getLogger } from '@nrcno/core-logger';
 
 import { getDb } from '@nrcno/core-db';
 
@@ -41,6 +43,10 @@ const db = getDb(config.db);
 
 // Create Express server
 const app = express();
+
+// Configure logger
+const logger = getLogger();
+app.use(pinoHttp({ logger }));
 
 // Resolve ip when behind load balancer
 if (config.isDeployed) {
