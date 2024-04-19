@@ -41,7 +41,7 @@ app.use('/healthz', nocache(), healthzRouter);
 app.use('/scim/v2', nocache(), scimRouter);
 app.use('/api', [nocache(), requireAuthentication], apiRouter);
 
-app.get('/', requireAuthentication, (req, res) => {
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'static', 'index.html'));
 });
 
