@@ -274,34 +274,7 @@ resource "azurerm_cdn_frontdoor_rule" "backend_disable_auth_cache" {
   conditions {
     request_uri_condition {
       operator     = "BeginsWith"
-      match_values = ["/authorization-code", "/scim"]
-    }
-  }
-}
-
-resource "azurerm_cdn_frontdoor_rule" "backend_disable_api_cache" {
-  provider = azurerm.runtime
-  # Required as per terraform documentation
-  depends_on = [
-    azurerm_cdn_frontdoor_origin_group.backend,
-    azurerm_cdn_frontdoor_origin.backend,
-  ]
-
-  name                      = "disableApiCache"
-  cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.backend.id
-  order                     = 2
-  behavior_on_match         = "Continue"
-
-  actions {
-    route_configuration_override_action {
-      cache_behavior = "Disabled"
-    }
-  }
-
-  conditions {
-    request_uri_condition {
-      operator     = "BeginsWith"
-      match_values = ["/api", "/healthz"]
+      match_values = ["/authorization-code", "/scim", "/api", "/healthz"]
     }
   }
 }
