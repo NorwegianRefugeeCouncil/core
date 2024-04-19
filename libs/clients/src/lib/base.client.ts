@@ -22,15 +22,6 @@ interface IClient<Data> {
   delete: ClientRequest<Data>;
 }
 
-// TODO: In another pr errors have been moved to a separate lib, we should do the same here
-export class UnauthorisedError extends Error {
-  constructor(message?: string) {
-    super(message);
-    this.name = 'UnauthorisedError';
-    Object.setPrototypeOf(this, new.target.prototype); // maintain proper stack trace
-  }
-}
-
 export class BaseClient<Data> implements IClient<Data> {
   client: AxiosInstance;
 
