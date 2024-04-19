@@ -19,6 +19,7 @@ import { healthzRouter } from './controllers/healthz.controller';
 import { oidc, requireAuthentication } from './middleware/oidc.middleware';
 import { errorHandler } from './middleware/error-handler.middleware';
 import { limiter } from './middleware/rate-limiter.middleware';
+import { session } from './middleware/session.middleware';
 
 // Load environment variables from .env file
 if (process.env.NODE_ENV !== 'production') {
@@ -41,6 +42,9 @@ if (config.isDeployed) {
 
 // app.use(limiter);
 app.use(cors());
+
+// Session
+app.use(session());
 app.use(oidc());
 
 app.use('/healthz', nocache(), healthzRouter);
