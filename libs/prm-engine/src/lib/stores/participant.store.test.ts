@@ -1,5 +1,4 @@
 import * as mockDb from 'mock-knex';
-import { ulid } from 'ulidx';
 
 import {
   ContactMeans,
