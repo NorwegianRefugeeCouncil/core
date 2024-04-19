@@ -9,6 +9,7 @@ import { config as dotenvConfig } from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import nocache from 'nocache';
+import helmet from 'helmet';
 
 import { getDb } from '@nrcno/core-db';
 
@@ -26,6 +27,7 @@ if (process.env.NODE_ENV !== 'production') {
   dotenvConfig();
 }
 
+// Initialise and get config
 const config = getServerConfig();
 
 if (config.server.bypassAuthentication) {
@@ -34,35 +36,51 @@ if (config.server.bypassAuthentication) {
   );
 }
 
+// Initialise and get database connection
+const db = getDb(config.db);
+
+// Create Express server
 const app = express();
 
+// Resolve ip when behind load balancer
 if (config.isDeployed) {
   app.set('trust proxy', 3);
 }
 
+// Configure headers
+app.use(helmet());
+app.disable('x-powered-by');
+
+// Rate limiter
 // app.use(limiter);
+
+// CORS
 app.use(cors());
 
 // Session
 app.use(session());
+
+// Authentication
 app.use(oidc());
 
+// Routes
 app.use('/healthz', nocache(), healthzRouter);
 app.use('/scim/v2', nocache(), scimRouter);
 app.use('/api', [nocache(), requireAuthentication], apiRouter);
 
+// Serve static files
 app.use(express.static(path.join(__dirname, 'static')));
 
+// Serve index.html for all other routes, to support client-side routing
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'static', 'index.html'));
 });
 
+// Handle errors after everything else
 app.use(errorHandler);
 
-const db = getDb(config.db);
-
+// Start server
 const port = config.server.port;
-
 const server = app.listen(port, async () => {
   console.log(`Listening at http://localhost:${port}/api`);
 
