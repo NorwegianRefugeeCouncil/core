@@ -24,9 +24,13 @@ module.exports = async function () {
 
   // Start the server
   console.log('Starting the server...');
-  (global as any).__SERVER__ = spawn('nx', ['run', 'core-api:serve'], {
+  const server = spawn('nx', ['run', 'core-api:serve'], {
     detached: true,
   });
+  server.stdout.pipe(process.stdout);
+  server.stderr.pipe(process.stderr);
+
+  (global as any).__SERVER__ = server;
   // Wait for the server to be ready
   console.log('Waiting for the server to be ready...');
   await waitOn({
