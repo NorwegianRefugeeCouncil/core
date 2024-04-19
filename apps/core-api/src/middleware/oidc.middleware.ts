@@ -1,5 +1,4 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import session from 'express-session';
 import passport from 'passport';
 import { Strategy as OidcStrategy } from 'passport-openidconnect';
 
@@ -10,21 +9,6 @@ export const oidc = () => {
   const config = getServerConfig();
 
   const router = Router();
-
-  router.use(
-    session({
-      secret: config.session.secret,
-      resave: false,
-      proxy: config.isDeployed ? true : false,
-      name: `core-session-${config.environment}`,
-      saveUninitialized: true,
-      cookie: {
-        secure: config.isDeployed,
-        httpOnly: config.isDeployed,
-        sameSite: config.isDeployed ? 'none' : 'lax',
-      },
-    }),
-  );
 
   router.use(passport.initialize());
   router.use(passport.session());
