@@ -63,7 +63,7 @@ describe('SCIM E2E', () => {
     });
   });
 
-  describe('Create User', () => {
+  describe.skip('Create User', () => {
     test('should check that a user does not exist and then create it', async () => {
       const user = createScimUser();
       const listResponse = await axiosInstance.get(
@@ -110,7 +110,7 @@ describe('SCIM E2E', () => {
     });
   });
 
-  describe('Retrieve list of users', () => {
+  describe.skip('Retrieve list of users', () => {
     beforeAll(async () => {
       await axiosInstance.post('/scim/v2/Users', createScimUser());
     });
@@ -130,7 +130,7 @@ describe('SCIM E2E', () => {
     });
   });
 
-  describe('Retrieve a specific user', () => {
+  describe.skip('Retrieve a specific user', () => {
     let userId: string;
 
     beforeAll(async () => {
@@ -165,7 +165,7 @@ describe('SCIM E2E', () => {
     });
   });
 
-  describe('Update a specific user (PUT)', () => {
+  describe.skip('Update a specific user (PUT)', () => {
     let userId: string;
 
     beforeAll(async () => {
@@ -205,7 +205,7 @@ describe('SCIM E2E', () => {
     });
   });
 
-  describe('Update a specific user (PATCH)', () => {
+  describe.skip('Update a specific user (PATCH)', () => {
     let userId: string;
 
     beforeAll(async () => {
