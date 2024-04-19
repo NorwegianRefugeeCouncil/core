@@ -24,7 +24,7 @@ export const session = () => {
     cookie: {
       secure: config.isDeployed,
       httpOnly: config.isDeployed,
-      sameSite: config.isDeployed ? 'strict' : undefined,
+      sameSite: config.isDeployed ? 'none' : undefined,
     },
   });
 };
