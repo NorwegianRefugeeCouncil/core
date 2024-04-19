@@ -274,7 +274,7 @@ resource "azurerm_cdn_frontdoor_rule" "backend_disable_auth_cache" {
   conditions {
     request_uri_condition {
       operator     = "BeginsWith"
-      match_values = ["/authorization-code", "/scim"]
+      match_values = ["/authorization-code", "/scim", "/api", "/healthz"]
     }
   }
 }
