@@ -162,6 +162,7 @@ router.get('/Users', async (req, res, next) => {
         res.status(errorResponse.status).json(errorResponse);
         return;
       }
+
       const attributeResult = scimUserAttributeSchema.safeParse(attribute);
       if (!attributeResult.success) {
         const errorResponse = createScimErrorResponse(
@@ -180,6 +181,7 @@ router.get('/Users', async (req, res, next) => {
     }
 
     const scimUsers = users.map(mapUserToScimUser);
+
     const listResponse = {
       schemas: ['urn:ietf:params:scim:api:messages:2.0:ListResponse'],
       totalResults,
@@ -188,7 +190,7 @@ router.get('/Users', async (req, res, next) => {
       itemsPerPage: count,
     };
 
-    res.json(listResponse);
+    res.status(200).json(listResponse);
   } catch (error) {
     next(error);
   }
