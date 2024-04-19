@@ -15,7 +15,7 @@ module.exports = async function () {
 
   // Start the Docker Compose environment with all the server dependencies
   console.log('Starting Docker Compose environment...');
-  const composeFilePath = '../../deploy/local/';
+  const composeFilePath = './deploy/local/';
   const composeFile = 'docker-compose.yaml';
   (global as any).__ENVIRONMENT__ = await new DockerComposeEnvironment(
     composeFilePath,
