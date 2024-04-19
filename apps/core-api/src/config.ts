@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
 export const ServerConfigSchema = z.object({
+  isDeployed: z.boolean().default(false),
+  environment: z
+    .enum(['local', 'development', 'staging', 'production'])
+    .default('local'),
   server: z.object({
     port: z.coerce.number().int().positive().default(3333),
     bypassAuthentication: z.coerce.boolean().default(false),
@@ -36,6 +40,8 @@ let config: ServerConfig;
 export const getServerConfig = (): ServerConfig => {
   if (!config) {
     config = ServerConfigSchema.parse({
+      isDeployed: process.env.NODE_ENV === 'production',
+      environment: process.env.ENVIRONMENT,
       server: {
         port: process.env.PORT,
         bypassAuthentication: process.env.BYPASS_AUTHENTICATION,
