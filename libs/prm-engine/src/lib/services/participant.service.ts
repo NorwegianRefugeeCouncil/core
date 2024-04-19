@@ -1,18 +1,24 @@
-import { Participant, ParticipantDefinition } from '@nrcno/core-models';
-
-import { BasePrmService } from './base.service';
-
-export class ParticipantService extends BasePrmService<
+import {
+  EntityType,
   Participant,
-  ParticipantDefinition
-> {
-  constructor() {
-    super('participant');
-  }
+  ParticipantDefinition,
+} from '@nrcno/core-models';
 
-  override create(
-    participantDefinition: ParticipantDefinition,
-  ): Promise<Participant> {
-    throw new Error('Not implemented');
-  }
-}
+import { PrmService, getPrmService } from './base.service';
+
+export const ParticipantService: PrmService<
+  ParticipantDefinition,
+  Participant
+> = (() => {
+  const prmService = getPrmService(EntityType.Participant);
+
+  // This isn't really needed, but it's here to show how you can add custom logic
+  const create = async (participant: ParticipantDefinition) => {
+    // Add custom logic here
+    return prmService.create(participant);
+  };
+
+  return {
+    create,
+  };
+})();

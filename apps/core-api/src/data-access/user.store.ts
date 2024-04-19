@@ -1,7 +1,6 @@
+import { AlreadyExistsError } from '@nrcno/core-errors';
 import { getDb, PostgresError, PostgresErrorCode } from '@nrcno/core-db';
 import { User, UserSchema } from '@nrcno/core-models';
-
-import { AlreadyExistsError } from '../errors';
 
 export const create = async (
   user: Omit<User, 'createdAt' | 'updatedAt'>,

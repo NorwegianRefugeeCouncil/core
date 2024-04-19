@@ -73,7 +73,7 @@ const ParticipantDetailsSchema = z.object({
   nativeName: z.string().max(100).optional(),
   motherName: z.string().max(100).optional(),
   preferredName: z.string().max(100).optional(),
-  dateOfBirth: z.date().optional(),
+  dateOfBirth: z.coerce.date().optional(),
   nrcId: z.string().max(40).optional(),
   residence: z.string().optional(),
   contactMeansComment: z.string().optional(),
@@ -126,6 +126,16 @@ const IdentificationSchema = z.object({
 export const ParticipantDefinitionSchema = ParticipantDetailsSchema.merge(
   z.object({
     disabilities: ParticipantDisabilitySchema.optional(),
+    languages: z.array(
+      z.object({
+        isoCode: z.string().max(20),
+      }),
+    ),
+    nationalities: z.array(
+      z.object({
+        isoCode: z.string().max(20),
+      }),
+    ),
     contactDetails: z.array(ContactDetailsSchema),
     identification: z.array(IdentificationSchema),
   }),
@@ -137,6 +147,18 @@ export const ParticipantSchema = ParticipantDefinitionSchema.merge(
   z.object({
     id: z.string().ulid(),
     disabilities: ParticipantDisabilitySchema.optional(),
+    languages: z.array(
+      z.object({
+        isoCode: z.string().max(20),
+        translationKey: z.string().max(200),
+      }),
+    ),
+    nationalities: z.array(
+      z.object({
+        isoCode: z.string().max(20),
+        translationKey: z.string().max(200),
+      }),
+    ),
     contactDetails: z.array(
       ContactDetailsSchema.merge(
         z.object({
