@@ -44,8 +44,8 @@ const create = async (
 
       if (disabilities) {
         await trx('participant_disability').insert({
-          participantId,
           ...disabilities,
+          participantId,
         });
       }
 
@@ -94,9 +94,9 @@ const create = async (
       const identificationForDb =
         identification && identification.length > 0
           ? identification.map((id) => ({
+              ...id,
               id: uuidv4(),
               participantId,
-              ...id,
             }))
           : [];
       if (identificationForDb.length > 0) {
@@ -104,10 +104,10 @@ const create = async (
       }
 
       const createdParticipant = ParticipantSchema.parse({
+        ...participantDetails,
         id: participantId,
         personId,
         entityId,
-        ...participantDetails,
         languages: languagesResult,
         nationalities: nationalitiesResult,
         disabilities,
