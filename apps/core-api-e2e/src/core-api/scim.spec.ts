@@ -3,7 +3,7 @@ import { faker } from '@faker-js/faker';
 
 const axiosInstance = axios.create({
   headers: {
-    Authorization: `Bearer ${process.env.OKTA_SCIM_API_TOKEN}`,
+    Authorization: process.env.OKTA_SCIM_API_TOKEN,
   },
 });
 
