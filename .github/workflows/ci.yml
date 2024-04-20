@@ -17,8 +17,23 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
-      OKTA_SCIM_API_TOKEN: test-token
       BYPASS_AUTHENTICATION: true
+      PORT: 3333
+      SESSION_SECRET: supersecret
+      OIDC_ISSUER: xxx
+      OIDC_AUTHORIZATION_URL: xxx
+      OIDC_TOKEN_URL: xxx
+      OIDC_USER_INFO_URL: xxx
+      OIDC_CALLBACK_URL: xxx
+      OIDC_SCOPE: xxx
+      OIDC_CLIENT_ID: xxx
+      OIDC_CLIENT_SECRET: xxx
+      OKTA_SCIM_API_TOKEN: xxx
+      DB_HOST: localhost
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: core
+
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
