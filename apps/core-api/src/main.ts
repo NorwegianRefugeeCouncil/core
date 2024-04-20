@@ -66,18 +66,21 @@ const server = app.listen(port, async () => {
     loadExtensions: ['.js'],
     directory: config.db.migrationsDir,
   });
+
   console.log('Database migrations have been run');
 
-  if (
-    process.env.NODE_ENV === 'development' ||
-    process.env.NODE_ENV === 'test'
-  ) {
-    await db.seed.run({
-      loadExtensions: ['.js'],
-      directory: config.db.seedsDir,
-    });
-    console.log('Database seed data has been inserted');
-  }
+  await db.seed.run({
+    loadExtensions: ['.js'],
+    directory: path.join(config.db.seedsDir, 'common'),
+  });
+
+  await db.seed.run({
+    loadExtensions: ['.js'],
+    // directory: path.join(config.db.seedsDir, config.environment),
+    directory: path.join(config.db.seedsDir, 'local'),
+  });
+
+  console.log('Database seeds have been run');
 });
 
 server.on('error', console.error);
