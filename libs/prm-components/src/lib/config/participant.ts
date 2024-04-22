@@ -130,6 +130,7 @@ export const participantConfig: EntityUIConfig = {
           },
           {
             path: ['nationalities'],
+            component: Components.List,
             label: 'Nationalities',
             children: [
               {
@@ -154,6 +155,7 @@ export const participantConfig: EntityUIConfig = {
           },
           {
             path: ['languages'],
+            component: Components.List,
             label: 'Languages',
             children: [
               {
@@ -183,7 +185,7 @@ export const participantConfig: EntityUIConfig = {
         fields: [
           {
             path: ['contactDetails'],
-            dataType: DataTypes.String,
+            component: Components.List,
             label: 'Email addresses',
             filter: (value: Participant['contactDetails'][0]) =>
               value.contactDetailType === ContactDetailType.Email,
@@ -208,6 +210,7 @@ export const participantConfig: EntityUIConfig = {
           },
           {
             path: ['contactDetails'],
+            component: Components.List,
             label: 'Phone numbers',
             filter: (value: Participant['contactDetails'][0]) =>
               value.contactDetailType === ContactDetailType.PhoneNumber,
@@ -237,6 +240,7 @@ export const participantConfig: EntityUIConfig = {
         fields: [
           {
             path: ['identification'],
+            component: Components.List,
             label: 'Identification',
             children: [
               {

@@ -1,6 +1,7 @@
 import { EntityType } from '@nrcno/core-models';
 
 export enum Components {
+  List = 'list',
   Hidden = 'hidden',
   ReadOnly = 'read-only',
   TextInput = 'text-input',
@@ -29,6 +30,7 @@ export enum DataTypes {
 
 export type ListField = {
   path: string[];
+  component: Components.List;
   label: string;
   children: Field[];
   filter?: (value: any) => boolean;
@@ -37,7 +39,7 @@ export type ListField = {
 export type Field = {
   path: string[];
   dataType: DataTypes;
-  component: Components;
+  component: Exclude<Components, Components.List>;
   label?: string;
   placeholder?: string;
   description?: string;
