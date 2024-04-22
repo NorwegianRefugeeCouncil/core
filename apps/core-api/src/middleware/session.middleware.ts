@@ -22,6 +22,7 @@ export const session = () => {
     name: `core-session-${config.environment}`,
     saveUninitialized: true,
     cookie: {
+      maxAge: 1000 * 60 * 60 * 24 * 2,
       secure: config.isRunningInProductionEnvironment,
       httpOnly: config.isRunningInProductionEnvironment,
       sameSite: config.isRunningInProductionEnvironment ? 'none' : undefined,
