@@ -1,7 +1,7 @@
 import { ZodError } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 
-import { getServerConfig } from '../config';
+import { Environment, getServerConfig } from '../config';
 
 const hasStatusCode = (err: any): err is { statusCode: number } => {
   return typeof err.statusCode === 'number';
@@ -32,7 +32,7 @@ export const errorHandler = (
       success: false,
       status: errStatus,
       message: errMsg,
-      stack: config.environment === 'local' ? err.stack : {},
+      stack: config.environment === Environment.Local ? err.stack : {},
     });
   }
 };
