@@ -43,7 +43,7 @@ const db = getDb(config.db);
 const app = express();
 
 // Resolve ip when behind load balancer
-if (config.isDeployed) {
+if (config.isRunningInProductionEnvironment) {
   app.set('trust proxy', 3);
 }
 

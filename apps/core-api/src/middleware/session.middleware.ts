@@ -18,13 +18,13 @@ export const session = () => {
     store,
     secret: config.session.secret,
     resave: false,
-    proxy: config.isDeployed ? true : false,
+    proxy: config.isRunningInProductionEnvironment ? true : false,
     name: `core-session-${config.environment}`,
     saveUninitialized: true,
     cookie: {
-      secure: config.isDeployed,
-      httpOnly: config.isDeployed,
-      sameSite: config.isDeployed ? 'none' : undefined,
+      secure: config.isRunningInProductionEnvironment,
+      httpOnly: config.isRunningInProductionEnvironment,
+      sameSite: config.isRunningInProductionEnvironment ? 'none' : undefined,
     },
   });
 };

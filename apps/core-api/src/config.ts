@@ -14,7 +14,7 @@ export enum Environment {
 }
 
 export const ServerConfigSchema = z.object({
-  isDeployed: z.boolean().default(false),
+  isRunningInProductionEnvironment: z.boolean().default(false),
   environment: z.nativeEnum(Environment).default(Environment.Local),
   server: z.object({
     port: z.coerce.number().int().positive().default(3333),
@@ -51,7 +51,8 @@ let config: ServerConfig;
 export const getServerConfig = (): ServerConfig => {
   if (!config) {
     config = ServerConfigSchema.parse({
-      isDeployed: process.env.NODE_ENV === NodeEnv.Production,
+      isRunningInProductionEnvironment:
+        process.env.NODE_ENV === NodeEnv.Production,
       environment: process.env.ENVIRONMENT,
       server: {
         port: process.env.PORT,
