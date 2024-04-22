@@ -1,12 +1,10 @@
 import { ZodError } from 'zod';
 import { Request, Response, NextFunction } from 'express';
-
 import { getLogger } from '@nrcno/core-logger';
+
 import { formatHttpError, formatZodError } from '@nrcno/core-errors';
 
 import { Environment, getServerConfig } from '../config';
-
-const logger = getLogger();
 
 export const errorHandler = (
   err: Error,
@@ -15,6 +13,7 @@ export const errorHandler = (
   next: NextFunction,
 ) => {
   const config = getServerConfig();
+  const logger = getLogger();
 
   if (err instanceof ZodError) {
     res.status(400).json(formatZodError(err));
