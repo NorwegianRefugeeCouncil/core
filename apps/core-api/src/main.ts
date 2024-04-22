@@ -10,6 +10,8 @@ import express from 'express';
 import cors from 'cors';
 import nocache from 'nocache';
 import helmet from 'helmet';
+import pinoHttp from 'pino-http';
+import { getLogger } from '@nrcno/core-logger';
 
 import { getDb } from '@nrcno/core-db';
 
@@ -30,8 +32,10 @@ if (process.env.NODE_ENV !== NodeEnv.Production) {
 // Initialise and get config
 const config = getServerConfig();
 
+const logger = getLogger(config.server.logLevel);
+
 if (config.server.bypassAuthentication) {
-  console.error(
+  logger.error(
     'DANGER: Bypassing authentication. This should only be used in development or test environments.',
   );
 }
@@ -41,6 +45,9 @@ const db = getDb(config.db);
 
 // Create Express server
 const app = express();
+
+// Configure http logger
+app.use(pinoHttp({ logger, useLevel: config.server.requestLogLevel }));
 
 // Resolve ip when behind load balancer
 if (config.isRunningInProductionEnvironment) {
@@ -52,7 +59,7 @@ app.use(helmet());
 app.disable('x-powered-by');
 
 // Rate limiter
-// app.use(limiter);
+// app.use(limiter());
 
 // CORS
 app.use(cors());
@@ -82,14 +89,14 @@ app.use(errorHandler);
 // Start server
 const port = config.server.port;
 const server = app.listen(port, async () => {
-  console.log(`Listening at http://localhost:${port}/api`);
+  logger.info(`Listening at http://localhost:${port}/api`);
 
   await db.migrate.latest({
     loadExtensions: ['.js'],
     directory: config.db.migrationsDir,
   });
 
-  console.log('Database migrations have been run');
+  logger.info('Database migrations have been run');
 
   await db.seed.run({
     loadExtensions: ['.js'],
@@ -101,25 +108,25 @@ const server = app.listen(port, async () => {
     directory: path.join(config.db.seedsDir, config.environment),
   });
 
-  console.log('Database seeds have been run');
+  logger.info('Database seed data has been inserted');
 });
 
-server.on('error', console.error);
+server.on('error', logger.error);
 
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
 
 async function shutdown() {
-  console.log('Shutting down server...');
+  logger.info('Shutting down server...');
 
   try {
     await db.destroy();
-    console.log('Database connection closed');
+    logger.info('Database connection closed');
   } catch (err) {
-    console.error('Error while closing database connection:', err);
+    logger.error('Error while closing database connection:', err);
   }
 
   server.close(() => {
-    console.log('Server stopped');
+    logger.info('Server stopped');
   });
 }
