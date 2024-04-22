@@ -6,16 +6,15 @@ export enum Components {
   ReadOnly = 'read-only',
   TextInput = 'text-input',
   TextArea = 'text-area',
-  NumberInput = 'number-input',
-  Range = 'range',
+  // NumberInput = 'number-input',
+  // Range = 'range',
   Select = 'select',
   Checkbox = 'checkbox',
-  Radio = 'radio',
-  Button = 'button',
+  // Radio = 'radio',
   Date = 'date',
-  Time = 'time',
-  DateTime = 'datetime',
-  File = 'file',
+  // Time = 'time',
+  // DateTime = 'datetime',
+  // File = 'file',
 }
 
 export enum DataTypes {
