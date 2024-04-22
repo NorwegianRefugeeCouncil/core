@@ -14,7 +14,7 @@ import helmet from 'helmet';
 import { getDb } from '@nrcno/core-db';
 
 import { scimRouter } from './controllers/scim.controller';
-import { getServerConfig } from './config';
+import { Environment, NodeEnv, getServerConfig } from './config';
 import { apiRouter } from './controllers/api.controller';
 import { healthzRouter } from './controllers/healthz.controller';
 import { oidc, requireAuthentication } from './middleware/oidc.middleware';
@@ -23,7 +23,7 @@ import { limiter } from './middleware/rate-limiter.middleware';
 import { session } from './middleware/session.middleware';
 
 // Load environment variables from .env file
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== NodeEnv.Production) {
   dotenvConfig();
 }
 
@@ -98,8 +98,7 @@ const server = app.listen(port, async () => {
 
   await db.seed.run({
     loadExtensions: ['.js'],
-    // directory: path.join(config.db.seedsDir, config.environment),
-    directory: path.join(config.db.seedsDir, 'local'),
+    directory: path.join(config.db.seedsDir, config.environment),
   });
 
   console.log('Database seeds have been run');
