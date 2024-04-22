@@ -79,7 +79,20 @@ export const requireAuthentication = async (
   res: Response,
   next: NextFunction,
 ) => {
-  if (req.isAuthenticated()) {
+  const config = getServerConfig();
+  // DANGER
+  // TODO: Figure out authentication for e2e tests and local dev
+  if (config.server.bypassAuthentication) {
+    console.error(
+      'DANGER: Bypassing authentication. This should only be used in development or test environments.',
+    );
+    const userList = await UserService.list(0, 1);
+    if (userList.length === 0) {
+      throw new Error('No users found in the database');
+    }
+    req.user = userList[0];
+    next();
+  } else if (req.isAuthenticated()) {
     next();
   } else {
     res.sendStatus(401);

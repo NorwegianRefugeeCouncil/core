@@ -10,15 +10,9 @@ export const createEntity = async (
   next: NextFunction,
 ) => {
   try {
-    // TODO: Error handling of failed validation
     const entityType = EntityTypeSchema.parse(req.params.entityType);
 
     const prmService = PrmService[entityType];
-
-    if (!prmService) {
-      res.sendStatus(404);
-      return;
-    }
 
     const entityDefinition = req.body; // TODO: Validate entity definition
     const createdEntity = await prmService.create(entityDefinition);

@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const ServerConfigSchema = z.object({
   server: z.object({
     port: z.coerce.number().int().positive().default(3333),
+    bypassAuthentication: z.coerce.boolean().default(false),
   }),
   session: z.object({
     secret: z.string(),
@@ -37,6 +38,7 @@ export const getServerConfig = (): ServerConfig => {
     config = ServerConfigSchema.parse({
       server: {
         port: process.env.PORT,
+        bypassAuthentication: process.env.BYPASS_AUTHENTICATION,
       },
       session: {
         secret: process.env.SESSION_SECRET,

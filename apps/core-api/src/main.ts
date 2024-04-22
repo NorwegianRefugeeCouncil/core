@@ -27,6 +27,12 @@ if (process.env.NODE_ENV !== 'production') {
 
 const config = getServerConfig();
 
+if (config.server.bypassAuthentication) {
+  console.error(
+    'DANGER: Bypassing authentication. This should only be used in development or test environments.',
+  );
+}
+
 const app = express();
 
 if (process.env.NODE_ENV === 'production') {
@@ -60,18 +66,21 @@ const server = app.listen(port, async () => {
     loadExtensions: ['.js'],
     directory: config.db.migrationsDir,
   });
+
   console.log('Database migrations have been run');
 
-  if (
-    process.env.NODE_ENV === 'development' ||
-    process.env.NODE_ENV === 'test'
-  ) {
-    await db.seed.run({
-      loadExtensions: ['.js'],
-      directory: config.db.seedsDir,
-    });
-    console.log('Database seed data has been inserted');
-  }
+  await db.seed.run({
+    loadExtensions: ['.js'],
+    directory: path.join(config.db.seedsDir, 'common'),
+  });
+
+  await db.seed.run({
+    loadExtensions: ['.js'],
+    // directory: path.join(config.db.seedsDir, config.environment),
+    directory: path.join(config.db.seedsDir, 'local'),
+  });
+
+  console.log('Database seeds have been run');
 });
 
 server.on('error', console.error);
