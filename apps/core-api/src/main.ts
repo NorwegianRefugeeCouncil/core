@@ -32,7 +32,7 @@ if (process.env.NODE_ENV !== NodeEnv.Production) {
 // Initialise and get config
 const config = getServerConfig();
 
-const logger = getLogger();
+const logger = getLogger(config.server.logLevel);
 
 if (config.server.bypassAuthentication) {
   logger.error(

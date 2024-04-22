@@ -18,6 +18,9 @@ export const ServerConfigSchema = z.object({
   environment: z.nativeEnum(Environment).default(Environment.Local),
   server: z.object({
     port: z.coerce.number().int().positive().default(3333),
+    logLevel: z
+      .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
+      .default('info'),
     bypassAuthentication: z.coerce.boolean().default(false),
   }),
   session: z.object({
@@ -55,6 +58,7 @@ export const getServerConfig = (): ServerConfig => {
       environment: process.env.ENVIRONMENT,
       server: {
         port: process.env.PORT,
+        logLevel: process.env.LOG_LEVEL,
         bypassAuthentication: process.env.BYPASS_AUTHENTICATION,
       },
       session: {
