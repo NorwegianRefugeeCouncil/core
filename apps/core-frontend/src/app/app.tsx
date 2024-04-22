@@ -1,4 +1,4 @@
-import { Route, Routes, Link } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Layout, Menu, Flex, Typography, Image, App as AntApp } from 'antd';
 import { ZodError } from 'zod';
@@ -65,16 +65,13 @@ export const App: React.FC = () => {
                   items={[
                     {
                       key: 'participants',
-                      label: <Link to="/participants">Participants</Link>,
+                      label: <Link to="/prm/participant">Participants</Link>,
                     },
                     { key: 'user', label: <Link to="/user">Users</Link> },
                   ]}
                 />
               </Sider>
-              <Routes>
-                <Route path="/participants" element={<div>Participants</div>} />
-                <Route path="/user" element={<div>Users</div>} />
-              </Routes>
+              <Outlet />
             </Flex>
           </Content>
         </Layout>
