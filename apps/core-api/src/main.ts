@@ -11,8 +11,8 @@ import cors from 'cors';
 import nocache from 'nocache';
 import helmet from 'helmet';
 import pinoHttp from 'pino-http';
-
 import { getLogger } from '@nrcno/core-logger';
+
 import { getDb } from '@nrcno/core-db';
 
 import { scimRouter } from './controllers/scim.controller';
@@ -47,7 +47,7 @@ const db = getDb(config.db);
 const app = express();
 
 // Configure http logger
-app.use(pinoHttp({ logger }));
+app.use(pinoHttp({ logger, useLevel: config.server.requestLogLevel }));
 
 // Resolve ip when behind load balancer
 if (config.isDeployed) {
@@ -59,7 +59,7 @@ app.use(helmet());
 app.disable('x-powered-by');
 
 // Rate limiter
-// app.use(limiter);
+// app.use(limiter());
 
 // CORS
 app.use(cors());
