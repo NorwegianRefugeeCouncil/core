@@ -104,6 +104,9 @@ resource "azurerm_linux_web_app" "app" {
   }
 
   app_settings = {
+    NODE_ENV = "production"
+    ENVIRONMENT = local.environment 
+
     PORT = local.port
 
     SESSION_SECRET = random_password.session_secret.result

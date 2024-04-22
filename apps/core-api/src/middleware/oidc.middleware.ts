@@ -1,7 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import session from 'express-session';
 import passport from 'passport';
 import { Strategy as OidcStrategy } from 'passport-openidconnect';
+
+import { getLogger } from '@nrcno/core-logger';
 
 import * as UserService from '../services/user.service';
 import { getServerConfig } from '../config';
@@ -10,15 +11,6 @@ export const oidc = () => {
   const config = getServerConfig();
 
   const router = Router();
-
-  router.use(
-    session({
-      secret: config.session.secret,
-      resave: false,
-      saveUninitialized: true,
-      cookie: { secure: false, httpOnly: false },
-    }),
-  );
 
   router.use(passport.initialize());
   router.use(passport.session());
@@ -80,10 +72,11 @@ export const requireAuthentication = async (
   next: NextFunction,
 ) => {
   const config = getServerConfig();
+  const logger = getLogger();
   // DANGER
   // TODO: Figure out authentication for e2e tests and local dev
   if (config.server.bypassAuthentication) {
-    console.error(
+    logger.error(
       'DANGER: Bypassing authentication. This should only be used in development or test environments.',
     );
     const userList = await UserService.list(0, 1);

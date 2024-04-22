@@ -1,9 +1,10 @@
 import { ZodError } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 
-const hasStatusCode = (err: any): err is { statusCode: number } => {
-  return typeof err.statusCode === 'number';
-};
+import { getLogger } from '@nrcno/core-logger';
+import { formatHttpError, formatZodError } from '@nrcno/core-errors';
+
+import { Environment, getServerConfig } from '../config';
 
 export const errorHandler = (
   err: Error,
@@ -11,24 +12,15 @@ export const errorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
+  const config = getServerConfig();
+  const logger = getLogger();
+
   if (err instanceof ZodError) {
-    res.status(400).json({
-      message: 'Validation Failed',
-      errors: err.errors.map((e) => ({
-        path: e.path.join('.'),
-        message: e.message,
-      })),
-    });
+    res.status(400).json(formatZodError(err));
   } else {
-    const errStatus = hasStatusCode(err)
-      ? err.statusCode
-      : (err as any).status || 500;
-    const errMsg = err.message || 'Something went wrong';
-    res.status(errStatus).json({
-      success: false,
-      status: errStatus,
-      message: errMsg,
-      stack: process.env.NODE_ENV === 'development' ? err.stack : {},
-    });
+    logger.error(err);
+    res
+      .status(500)
+      .json(formatHttpError(err, config.environment === Environment.Local));
   }
 };

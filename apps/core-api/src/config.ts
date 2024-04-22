@@ -1,8 +1,35 @@
 import { z } from 'zod';
 
+export enum NodeEnv {
+  Production = 'production',
+  Development = 'development',
+  Test = 'test',
+}
+
+export enum Environment {
+  Local = 'local',
+  Dev = 'dev',
+  Staging = 'staging',
+  Production = 'production',
+}
+
+enum LogLevel {
+  Fatal = 'fatal',
+  Error = 'error',
+  Warn = 'warn',
+  Info = 'info',
+  Debug = 'debug',
+  Trace = 'trace',
+  Silent = 'silent',
+}
+
 export const ServerConfigSchema = z.object({
+  isRunningInProductionEnvironment: z.boolean().default(false),
+  environment: z.nativeEnum(Environment).default(Environment.Local),
   server: z.object({
     port: z.coerce.number().int().positive().default(3333),
+    logLevel: z.nativeEnum(LogLevel).default(LogLevel.Info),
+    requestLogLevel: z.nativeEnum(LogLevel).default(LogLevel.Info),
     bypassAuthentication: z.coerce.boolean().default(false),
   }),
   session: z.object({
@@ -36,8 +63,13 @@ let config: ServerConfig;
 export const getServerConfig = (): ServerConfig => {
   if (!config) {
     config = ServerConfigSchema.parse({
+      isRunningInProductionEnvironment:
+        process.env.NODE_ENV === NodeEnv.Production,
+      environment: process.env.ENVIRONMENT,
       server: {
         port: process.env.PORT,
+        logLevel: process.env.LOG_LEVEL,
+        requestLogLevel: process.env.REQUEST_LOG_LEVEL,
         bypassAuthentication: process.env.BYPASS_AUTHENTICATION,
       },
       session: {
