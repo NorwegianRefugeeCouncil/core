@@ -45,3 +45,6 @@ deploy/local/config/certs/*
 
 .env
 .env*
+
+
+storybook-static
