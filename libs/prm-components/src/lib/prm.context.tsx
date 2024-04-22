@@ -1,6 +1,8 @@
 import * as React from 'react';
 
-export const PrmContext = React.createContext<{}>({});
+type PrmContextData = unknown;
+
+export const PrmContext = React.createContext<PrmContextData>({});
 
 export const usePrm = () => React.useContext(PrmContext);
 
