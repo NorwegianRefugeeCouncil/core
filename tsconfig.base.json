@@ -18,6 +18,7 @@
       "@nrcno/core-db": ["libs/db/src/index.ts"],
       "@nrcno/core-errors": ["libs/errors/src/index.ts"],
       "@nrcno/core-models": ["libs/models/src/index.ts"],
+      "@nrcno/core-prm-components": ["libs/prm-components/src/index.ts"],
       "@nrcno/core-prm-engine": ["libs/prm-engine/src/index.ts"]
     },
     "rootDir": ".",

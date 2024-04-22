@@ -1,11 +1,11 @@
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import { RouterProvider } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 
 import { ApiProvider } from './contexts';
-import { App } from './app/app';
 import { theme } from './assets/styles/theme';
+import { router } from './routes';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
@@ -13,12 +13,10 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <StrictMode>
-    <BrowserRouter>
-      <ApiProvider>
-        <ConfigProvider theme={{ ...theme, hashed: false }}>
-          <App />
-        </ConfigProvider>
-      </ApiProvider>
-    </BrowserRouter>
+    <ApiProvider>
+      <ConfigProvider theme={{ ...theme, hashed: false }}>
+        <RouterProvider router={router} />
+      </ConfigProvider>
+    </ApiProvider>
   </StrictMode>,
 );
