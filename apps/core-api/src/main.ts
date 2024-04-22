@@ -11,8 +11,8 @@ import cors from 'cors';
 import nocache from 'nocache';
 import helmet from 'helmet';
 import pinoHttp from 'pino-http';
-import { getLogger } from '@nrcno/core-logger';
 
+import { getLogger } from '@nrcno/core-logger';
 import { getDb } from '@nrcno/core-db';
 
 import { scimRouter } from './controllers/scim.controller';

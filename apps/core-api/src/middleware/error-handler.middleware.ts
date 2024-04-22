@@ -1,7 +1,7 @@
 import { ZodError } from 'zod';
 import { Request, Response, NextFunction } from 'express';
-import { getLogger } from '@nrcno/core-logger';
 
+import { getLogger } from '@nrcno/core-logger';
 import { formatHttpError, formatZodError } from '@nrcno/core-errors';
 
 import { Environment, getServerConfig } from '../config';
