@@ -1,10 +1,35 @@
 import { render } from '@testing-library/react';
 
-import PrmComponents from './prm-components';
+import { EntityDetailPage } from './EntityDetailPage.component';
+import {
+  createEntityLoader,
+  editEntityLoader,
+  readEntityLoader,
+} from './EntityDetailPage.loader';
 
-describe('PrmComponents', () => {
+describe('EntityDetailPage', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(<PrmComponents />);
+    const { baseElement } = render(<EntityDetailPage />);
     expect(baseElement).toBeTruthy();
+  });
+});
+
+describe('loaders', () => {
+  describe('createEntityLoader', () => {
+    it('should be truthy', () => {
+      expect(createEntityLoader).toBeTruthy();
+    });
+  });
+
+  describe('editEntityLoader', () => {
+    it('should be truthy', () => {
+      expect(editEntityLoader).toBeTruthy();
+    });
+  });
+
+  describe('readEntityLoader', () => {
+    it('should be truthy', () => {
+      expect(readEntityLoader).toBeTruthy();
+    });
   });
 });
