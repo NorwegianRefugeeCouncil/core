@@ -1,20 +1,4 @@
 import axios from 'axios';
-import { faker } from '@faker-js/faker';
-import { ulid } from 'ulidx';
-
-import {
-  ParticipantSchema,
-  ParticipantDefinition,
-  Participant,
-  Sex,
-  ContactMeans,
-  DisplacementStatus,
-  EngagementContext,
-  DisabilityLevel,
-  YesNoUnknown,
-  ContactDetailType,
-  IdentificationType,
-} from '@nrcno/core-models';
 
 const axiosInstance = axios.create({
   validateStatus: () => true,

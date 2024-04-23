@@ -153,11 +153,21 @@ const get = async (id: string): Promise<Participant | null> => {
     disabilities,
   ] = await Promise.all([
     db('participant_languages')
+      .join(
+        'languages',
+        'languages.isoCode',
+        'participant_languages.languageIsoCode',
+      )
       .where('participantId', id)
-      .select('languageIsoCode'),
+      .select('isoCode', 'translationKey'),
     db('participant_nationalities')
+      .join(
+        'nationalities',
+        'nationalities.isoCode',
+        'participant_nationalities.nationalityIsoCode',
+      )
       .where('participantId', id)
-      .select('nationalityIsoCode'),
+      .select('isoCode', 'translationKey'),
     db('participant_contact_details')
       .where('participantId', id)
       .select('id', 'contactDetailType', 'rawValue'),
@@ -169,14 +179,8 @@ const get = async (id: string): Promise<Participant | null> => {
 
   const participantResult = ParticipantSchema.parse({
     ...participant,
-    languages: languages.map((language) => ({
-      isoCode: language.languageIsoCode,
-      translationKey: language.languageIsoCode,
-    })),
-    nationalities: nationalities.map((nationality) => ({
-      isoCode: nationality.nationalityIsoCode,
-      translationKey: nationality.nationalityIsoCode,
-    })),
+    languages,
+    nationalities,
     contactDetails: contactDetails.map((contactDetail) => ({
       id: contactDetail.id,
       contactDetailType: contactDetail.contactDetailType,
