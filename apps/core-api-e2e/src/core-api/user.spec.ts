@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-describe('GET /api/me', () => {
+describe('GET /api/users/me', () => {
   it('should return the authenticated user', async () => {
-    const res = await axios.get(`/api/me`);
+    const res = await axios.get(`/api/users/me`);
 
     expect(res.status).toBe(200);
 

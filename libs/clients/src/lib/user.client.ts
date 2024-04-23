@@ -8,7 +8,7 @@ export class UserClient extends BaseClient<User> {
   }
 
   async getMe(): Promise<User> {
-    const res = await super.get('/me');
+    const res = await super.get('/users/me');
     return UserSchema.parse(res.data);
   }
 }

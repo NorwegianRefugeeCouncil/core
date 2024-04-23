@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
 export enum EntityType {
-  Participant = 'participant',
+  Participant = 'participants',
 }
 export const EntityTypeSchema = z.nativeEnum(EntityType);

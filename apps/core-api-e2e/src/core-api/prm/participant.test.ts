@@ -168,10 +168,10 @@ const participantDefinitionWithIds = {
   ),
 };
 
-describe('POST /api/prm/participant', () => {
+describe('POST /api/prm/participants', () => {
   it('should create a participant with every field', async () => {
     const res = await axiosInstance.post(
-      `/api/prm/participant`,
+      `/api/prm/participants`,
       participantDefinitionWithEveryField,
     );
 
@@ -183,7 +183,7 @@ describe('POST /api/prm/participant', () => {
 
   it('should create a participant with some fields', async () => {
     const res = await axiosInstance.post(
-      `/api/prm/participant`,
+      `/api/prm/participants`,
       participantDefinitionWithSomeFields,
     );
 
@@ -196,7 +196,7 @@ describe('POST /api/prm/participant', () => {
   // Enable with validation ticket
   it.skip('should return an error when creating a participant with missing required fields', async () => {
     const res = await axiosInstance.post(
-      `/api/prm/participant`,
+      `/api/prm/participants`,
       participantDefinitionWithMissingRequiredFields,
     );
 
@@ -215,7 +215,7 @@ describe('POST /api/prm/participant', () => {
   // Enable with validation ticket
   it.skip('should return an error when creating a participant with invalid fields', async () => {
     const res = await axiosInstance.post(
-      `/api/prm/participant`,
+      `/api/prm/participants`,
       participantDefinitionWithInvalidFields,
     );
     expect(res.status).toBe(400);
@@ -227,7 +227,7 @@ describe('POST /api/prm/participant', () => {
 
   // Enable with validation ticket
   it.skip('should strip unknown fields when creating a participant', async () => {
-    const res = await axiosInstance.post(`/api/prm/participant`, {
+    const res = await axiosInstance.post(`/api/prm/participants`, {
       ...participantDefinitionWithEveryField,
       unknownField: faker.word.noun(),
     });
@@ -239,7 +239,7 @@ describe('POST /api/prm/participant', () => {
   // Currently it doesn't strip ids, instead overwriting them in the db layer
   it('should strip ids when sent in the request body', async () => {
     const res = await axiosInstance.post(
-      `/api/prm/participant`,
+      `/api/prm/participants`,
       participantDefinitionWithIds,
     );
 

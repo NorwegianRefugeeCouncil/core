@@ -42,7 +42,7 @@ export const router = createBrowserRouter([
         loader: editEntityLoader,
       },
       {
-        path: '/user',
+        path: '/users',
         element: <div>User</div>,
       },
     ],
