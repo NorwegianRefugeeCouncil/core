@@ -6,7 +6,7 @@ import * as UserService from '../services/user.service';
 
 const router = Router();
 
-router.get('/me', async (req, res, next) => {
+router.get('/users/me', async (req, res, next) => {
   try {
     if (req.user) {
       const user = UserSchema.parse(req.user);
@@ -19,7 +19,7 @@ router.get('/me', async (req, res, next) => {
   }
 });
 
-router.get('/user', async (req, res, next) => {
+router.get('/users', async (req, res, next) => {
   try {
     const { startIndex, limit } = PaginationSchema.parse(req.query);
     const users = await UserService.list(startIndex, limit);
