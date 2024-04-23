@@ -2,8 +2,8 @@ import { Participant, ParticipantDefinition } from '@nrcno/core-models';
 
 import { BaseClient, ClientConfig } from '../base.client';
 
-export class ParticipantClient extends BaseClient<Participant> {
-  constructor({ baseURL }: ClientConfig<Participant>) {
+export class ParticipantClient extends BaseClient {
+  constructor({ baseURL }: ClientConfig) {
     super({ baseURL });
   }
 

@@ -2,8 +2,8 @@ import { User, UserSchema } from '@nrcno/core-models';
 
 import { BaseClient, ClientConfig } from './base.client';
 
-export class UserClient extends BaseClient<User> {
-  constructor({ baseURL }: ClientConfig<User>) {
+export class UserClient extends BaseClient {
+  constructor({ baseURL }: ClientConfig) {
     super({ baseURL });
   }
 
