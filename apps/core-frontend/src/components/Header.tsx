@@ -1,6 +1,6 @@
 import { Flex, Heading } from '@chakra-ui/react';
-
 import { NRCLogo } from '@nrcno/core-theme';
+
 import { User } from '@nrcno/core-models';
 
 import { UserInfo } from './UserInfo';
