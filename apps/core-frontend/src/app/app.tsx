@@ -1,19 +1,15 @@
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { Layout, Menu, Flex, Typography, Image, App as AntApp } from 'antd';
 import { ZodError } from 'zod';
+import { Grid, GridItem } from '@chakra-ui/react';
 
 import { User } from '@nrcno/core-models';
 
-import { UserInfo } from '../components';
+import { Navigation, Header } from '../components';
 import { useApi } from '../hooks';
 
-import appStyle from './app.module.scss';
-
-const { Header, Sider, Content } = Layout;
-
 export const App: React.FC = () => {
-  const [user, setUser] = useState<User | null>();
+  const [user, setUser] = useState<User>();
   const api = useApi();
 
   useEffect(() => {
@@ -32,50 +28,24 @@ export const App: React.FC = () => {
   }, [api, api?.users]);
 
   return (
-    <AntApp>
-      <Layout style={appStyle}>
-        <Header
-          style={{
-            paddingInline: '2rem',
-          }}
-        >
-          <Flex align="center">
-            <Flex justify="flex-start" align="center" flex={'1rem 1'}>
-              <Image
-                src="/nrcLogo.svg"
-                alt="NRC Logo"
-                preview={false}
-                width="2rem"
-              />
-              <Typography.Title
-                style={{ color: 'white', margin: '0 0 0 1rem' }}
-              >
-                CORE
-              </Typography.Title>
-            </Flex>
-            {user && <UserInfo {...user} />}
-          </Flex>
-        </Header>
-        <Layout>
-          <Content>
-            <Flex>
-              <Sider width="10rem">
-                <Menu
-                  rootClassName="test"
-                  items={[
-                    {
-                      key: 'participants',
-                      label: <Link to="/prm/participant">Participants</Link>,
-                    },
-                    { key: 'user', label: <Link to="/user">Users</Link> },
-                  ]}
-                />
-              </Sider>
-              <Outlet />
-            </Flex>
-          </Content>
-        </Layout>
-      </Layout>
-    </AntApp>
+    <Grid
+      templateAreas={`"header header"
+                  "nav main"`}
+      gridTemplateRows="50px 1fr"
+      gridTemplateColumns="150px 1fr"
+      h="100vh"
+      color="neutrals.500"
+      fontWeight="bold"
+    >
+      <GridItem pl="2" bg="secondary.500" area="header" color="white">
+        <Header user={user} />
+      </GridItem>
+      <GridItem pl="2" bg="bgLight" area="nav">
+        <Navigation />
+      </GridItem>
+      <GridItem pl="2" area="main">
+        <Outlet />
+      </GridItem>
+    </Grid>
   );
 };
