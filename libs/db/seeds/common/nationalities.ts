@@ -10,13 +10,13 @@ export async function seed(knex: Knex): Promise<void> {
   ];
 
   // Upsert all rows in nationalities
-  await knex('nationality')
+  await knex('nationalities')
     .insert(nationalities)
     .onConflict('iso_code')
     .merge();
 
   // Disable any rows not in nationalities
-  await knex('nationality')
+  await knex('nationalities')
     .whereNotIn(
       'iso_code',
       nationalities.map((lang) => lang.isoCode),
