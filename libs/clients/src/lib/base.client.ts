@@ -27,7 +27,7 @@ interface IClient {
 }
 
 export class BaseClient implements IClient {
-  client: AxiosInstance;
+  private client: AxiosInstance;
 
   constructor(instance?: AxiosInstance, config?: ClientConfig) {
     if (instance) {
