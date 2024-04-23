@@ -1,4 +1,4 @@
-import { Components, Field as FieldType, ListField } from '../../config';
+import { Component, Field as FieldType, ListField } from '../../config';
 
 import { Checkbox } from './Checkbox.component';
 import { Date } from './Date.component';
@@ -15,21 +15,21 @@ type FieldProps = {
 
 export const Field: React.FC<FieldProps> = ({ field }) => {
   switch (field.component) {
-    case Components.Hidden:
+    case Component.Hidden:
       return <Hidden field={field} />;
-    case Components.ReadOnly:
+    case Component.ReadOnly:
       return <ReadOnly field={field} />;
-    case Components.TextInput:
+    case Component.TextInput:
       return <TextInput field={field} />;
-    case Components.TextArea:
+    case Component.TextArea:
       return <TextArea field={field} />;
-    case Components.Select:
+    case Component.Select:
       return <Select field={field} />;
-    case Components.Checkbox:
+    case Component.Checkbox:
       return <Checkbox field={field} />;
-    case Components.Date:
+    case Component.Date:
       return <Date field={field} />;
-    case Components.List:
+    case Component.List:
       return <List field={field} />;
     default:
       throw new Error(`Unsupported field component`);
