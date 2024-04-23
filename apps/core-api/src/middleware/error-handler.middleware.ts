@@ -10,7 +10,7 @@ export const errorHandler = (
   err: Error,
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction, // eslint-disable-line @typescript-eslint/no-unused-vars
 ) => {
   const config = getServerConfig();
   const logger = getLogger();

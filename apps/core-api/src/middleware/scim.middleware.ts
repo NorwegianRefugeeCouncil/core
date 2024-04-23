@@ -44,13 +44,7 @@ export const authorise = (req: Request, res: Response, next: NextFunction) => {
   } = getServerConfig();
 
   const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    const errorResponse = createScimErrorResponse(401, 'Unauthorized');
-    res.status(errorResponse.status).json(errorResponse);
-    return;
-  }
-
-  if (authHeader !== scimApiToken) {
+  if (!authHeader || authHeader !== scimApiToken) {
     const errorResponse = createScimErrorResponse(401, 'Unauthorized');
     res.status(errorResponse.status).json(errorResponse);
     return;

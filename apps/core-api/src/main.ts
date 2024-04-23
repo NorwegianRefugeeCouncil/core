@@ -16,7 +16,7 @@ import { getLogger } from '@nrcno/core-logger';
 import { getDb } from '@nrcno/core-db';
 
 import { scimRouter } from './controllers/scim.controller';
-import { Environment, NodeEnv, getServerConfig } from './config';
+import { NodeEnv, getServerConfig } from './config';
 import { apiRouter } from './controllers/api.controller';
 import { healthzRouter } from './controllers/healthz.controller';
 import { oidc, requireAuthentication } from './middleware/oidc.middleware';

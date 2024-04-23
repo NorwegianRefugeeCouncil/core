@@ -53,7 +53,6 @@ const mapUserToScimUser = (user: User): ScimUser => {
 const router = Router();
 router.use(json({ type: ['application/json', 'application/scim+json'] }));
 router.use(authorise);
-router.use(errorHandlerMiddleware);
 
 router.post('/Users', async (req, res, next) => {
   try {
@@ -195,5 +194,7 @@ router.get('/Users', async (req, res, next) => {
     next(error);
   }
 });
+
+router.use(errorHandlerMiddleware);
 
 export { router as scimRouter };
