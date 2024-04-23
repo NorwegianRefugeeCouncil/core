@@ -1,14 +1,17 @@
-import { Flex, Typography } from 'antd';
+import { Flex, Text } from '@chakra-ui/react';
 
 import { User } from '@nrcno/core-models';
 
 export const UserInfo: React.FC<User> = ({ displayName, userName }) => {
   return (
-    <Flex vertical align="flex-end">
-      <Typography.Text style={{ color: 'white' }}>
-        {displayName}
-      </Typography.Text>
-      <Typography.Text style={{ color: 'white' }}>{userName}</Typography.Text>
+    <Flex
+      align={'flex-end'}
+      flexDirection="column"
+      fontSize="sm"
+      fontWeight={'normal'}
+    >
+      <Text>{displayName}</Text>
+      <Text>{userName}</Text>
     </Flex>
   );
 };

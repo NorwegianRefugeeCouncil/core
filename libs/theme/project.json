@@ -1,0 +1,8 @@
+{
+  "name": "theme",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/theme/src",
+  "projectType": "library",
+  "targets": {},
+  "tags": []
+}

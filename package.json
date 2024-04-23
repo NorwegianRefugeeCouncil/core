@@ -12,7 +12,9 @@
     }
   },
   "dependencies": {
-    "antd": "^5.16.1",
+    "@chakra-ui/react": "^2.8.2",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
     "axios": "^1.6.8",
     "connect-session-knex": "^4.0.0",
     "cors": "^2.8.5",
@@ -20,6 +22,7 @@
     "express": "^4.19.2",
     "express-rate-limit": "^7.2.0",
     "express-session": "^1.18.0",
+    "framer-motion": "^11.1.7",
     "helmet": "^7.1.0",
     "knex": "^3.1.0",
     "nocache": "^4.0.0",
@@ -40,6 +43,7 @@
   "devDependencies": {
     "@babel/core": "^7.14.5",
     "@babel/preset-react": "^7.14.5",
+    "@chakra-ui/storybook-addon": "^5.1.0",
     "@faker-js/faker": "^8.4.1",
     "@nx/cypress": "18.1.2",
     "@nx/eslint": "18.1.2",

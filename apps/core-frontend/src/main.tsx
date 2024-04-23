@@ -1,10 +1,11 @@
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
+import { ChakraProvider } from '@chakra-ui/react';
+
+import { theme } from '@nrcno/core-theme';
 
 import { ApiProvider } from './contexts';
-import { theme } from './assets/styles/theme';
 import { router } from './routes';
 
 const root = ReactDOM.createRoot(
@@ -14,9 +15,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <StrictMode>
     <ApiProvider>
-      <ConfigProvider theme={{ ...theme, hashed: false }}>
+      <ChakraProvider theme={theme}>
         <RouterProvider router={router} />
-      </ConfigProvider>
+      </ChakraProvider>
     </ApiProvider>
   </StrictMode>,
 );
