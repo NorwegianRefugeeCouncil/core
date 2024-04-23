@@ -2,9 +2,9 @@
 
 This library was generated with [Nx](https://nx.dev).
 
-## Building
+It exports the NRC-customized [chakra-ui](https://v2.chakra-ui.com/) theme and custom icons.
 
-Run `nx build theme` to build the library.
+Usage by importing theme or singular icons from @nrcno/core-theme.
 
 ## Running unit tests
 
