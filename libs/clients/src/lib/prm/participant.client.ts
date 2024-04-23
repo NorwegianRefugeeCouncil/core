@@ -1,3 +1,5 @@
+import { AxiosInstance } from 'axios';
+
 import {
   Participant,
   ParticipantDefinition,
@@ -8,8 +10,8 @@ import {
 import { BaseClient, ClientConfig } from '../base.client';
 
 export class ParticipantClient extends BaseClient {
-  constructor({ baseURL }: ClientConfig) {
-    super({ baseURL });
+  constructor(instance?: AxiosInstance, config?: ClientConfig) {
+    super(instance, config);
   }
 
   create = async (
