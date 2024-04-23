@@ -136,6 +136,65 @@ const create = async (
   return result;
 };
 
+const get = async (id: string): Promise<Participant | null> => {
+  const db = getDb();
+
+  const participant = await db('participants').where('id', id).first();
+
+  if (!participant) {
+    return null;
+  }
+
+  const [
+    languages,
+    nationalities,
+    contactDetails,
+    identifications,
+    disabilities,
+  ] = await Promise.all([
+    db('participant_languages')
+      .where('participantId', id)
+      .select('languageIsoCode'),
+    db('participant_nationalities')
+      .where('participantId', id)
+      .select('nationalityIsoCode'),
+    db('participant_contact_details')
+      .where('participantId', id)
+      .select('id', 'contactDetailType', 'rawValue'),
+    db('participant_identifications')
+      .where('participantId', id)
+      .select('id', 'identificationType', 'identificationNumber', 'isPrimary'),
+    db('participant_disabilities').where('participantId', id).first(),
+  ]);
+
+  const participantResult = ParticipantSchema.parse({
+    ...participant,
+    languages: languages.map((language) => ({
+      isoCode: language.languageIsoCode,
+      translationKey: language.languageIsoCode,
+    })),
+    nationalities: nationalities.map((nationality) => ({
+      isoCode: nationality.nationalityIsoCode,
+      translationKey: nationality.nationalityIsoCode,
+    })),
+    contactDetails: contactDetails.map((contactDetail) => ({
+      id: contactDetail.id,
+      contactDetailType: contactDetail.contactDetailType,
+      value: contactDetail.rawValue,
+    })),
+    identification: identifications.map((identification) => ({
+      id: identification.id,
+      identificationType: identification.identificationType,
+      identificationNumber: identification.identificationNumber,
+      isPrimary: identification.isPrimary,
+    })),
+    disabilities,
+  });
+
+  return participantResult;
+};
+
 export const ParticipantStore: BaseStore<ParticipantDefinition, Participant> = {
   create,
+  get,
 };

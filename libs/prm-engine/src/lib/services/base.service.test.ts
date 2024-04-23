@@ -22,16 +22,17 @@ describe('Base PRM service', () => {
   });
 
   describe('Participant', () => {
+    it('should create a participant service', () => {
+      const entityType = EntityType.Participant;
+
+      const service = getPrmService(entityType);
+
+      expect(service).toBeDefined();
+      expect(service.create).toBeDefined();
+      expect(service.get).toBeDefined();
+    });
+
     describe('create', () => {
-      it('should create a participant service', () => {
-        const entityType = EntityType.Participant;
-
-        const service = getPrmService(entityType);
-
-        expect(service).toBeDefined();
-        expect(service.create).toBeDefined();
-      });
-
       it('should call the store create method', async () => {
         const entityType = EntityType.Participant;
 

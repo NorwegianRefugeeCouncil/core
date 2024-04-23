@@ -8,6 +8,7 @@ import { PrmStore } from '../stores';
 
 export type PrmService<T, U> = {
   create: (entity: T) => Promise<U>;
+  get: (id: string) => Promise<U>;
 };
 
 export function getPrmService(
@@ -24,5 +25,9 @@ export function getPrmService(entityType: EntityType): PrmService<any, any> {
     return Store.create(entity);
   };
 
-  return { create };
+  const get = async (id: string) => {
+    return Store.get(id);
+  };
+
+  return { create, get };
 }
