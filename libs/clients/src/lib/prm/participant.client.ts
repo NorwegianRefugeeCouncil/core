@@ -1,4 +1,9 @@
-import { Participant, ParticipantDefinition } from '@nrcno/core-models';
+import {
+  Participant,
+  ParticipantDefinition,
+  ParticipantDefinitionSchema,
+  ParticipantSchema,
+} from '@nrcno/core-models';
 
 import { BaseClient, ClientConfig } from '../base.client';
 
@@ -10,6 +15,13 @@ export class ParticipantClient extends BaseClient {
   create = async (
     participantDefinition: ParticipantDefinition,
   ): Promise<Participant> => {
-    throw new Error('Not implemented');
+    const validatedParticipantDefinition = ParticipantDefinitionSchema.parse(
+      participantDefinition,
+    );
+    const response = await this.post(
+      '/participants',
+      validatedParticipantDefinition,
+    );
+    return ParticipantSchema.parse(response.data);
   };
 }
