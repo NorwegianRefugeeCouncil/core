@@ -111,27 +111,27 @@ const buildQueries =
         expect(query.sql).toEqual('BEGIN;');
         query.response([]);
       },
-      // person
+      // persons
       () => {
-        expect(query.sql).toEqual(`insert into "person" ("id") values ($1)`);
+        expect(query.sql).toEqual(`insert into "persons" ("id") values ($1)`);
         query.response([]);
       },
-      // entity
+      // entities
       () => {
-        expect(query.sql).toEqual(`insert into "entity" ("id") values ($1)`);
+        expect(query.sql).toEqual(`insert into "entities" ("id") values ($1)`);
         query.response([]);
       },
-      // participant
+      // participants
       () => {
         expect(query.sql).toEqual(
-          `insert into "participant" ("consent_gdpr", "consent_referral", "contact_means_comment", "date_of_birth", "displacement_status", "engagement_context", "entity_id", "first_name", "id", "last_name", "middle_name", "mother_name", "native_name", "nrc_id", "person_id", "preferred_contact_means", "preferred_name", "residence", "sex") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
+          `insert into "participants" ("consent_gdpr", "consent_referral", "contact_means_comment", "date_of_birth", "displacement_status", "engagement_context", "entity_id", "first_name", "id", "last_name", "middle_name", "mother_name", "native_name", "nrc_id", "person_id", "preferred_contact_means", "preferred_name", "residence", "sex") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
         );
         query.response([]);
       },
-      // participant_disability
+      // participant_disabilities
       () => {
         expect(query.sql).toEqual(
-          `insert into "participant_disability" ("disability_cognition_level", "disability_communication_level", "disability_hearing_level", "disability_mobility_level", "disability_pwd_comment", "disability_selfcare_level", "disability_vision_level", "has_disability_cognition", "has_disability_communication", "has_disability_hearing", "has_disability_mobility", "has_disability_pwd", "has_disability_selfcare", "has_disability_vision", "has_medical_condition", "is_child_at_risk", "is_elder_at_risk", "is_lactating", "is_pregnant", "is_separated_child", "is_single_parent", "is_woman_at_risk", "needs_legal_physical_protection", "participant_id", "vulnerability_comments") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)`,
+          `insert into "participant_disabilities" ("disability_cognition_level", "disability_communication_level", "disability_hearing_level", "disability_mobility_level", "disability_pwd_comment", "disability_selfcare_level", "disability_vision_level", "has_disability_cognition", "has_disability_communication", "has_disability_hearing", "has_disability_mobility", "has_disability_pwd", "has_disability_selfcare", "has_disability_vision", "has_medical_condition", "is_child_at_risk", "is_elder_at_risk", "is_lactating", "is_pregnant", "is_separated_child", "is_single_parent", "is_woman_at_risk", "needs_legal_physical_protection", "participant_id", "vulnerability_comments") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)`,
         );
         query.response([]);
       },
@@ -145,7 +145,7 @@ const buildQueries =
       // languages retrieval
       () => {
         expect(query.sql).toEqual(
-          `select * from "language" where "iso_code" in ($1)`,
+          `select * from "languages" where "iso_code" in ($1)`,
         );
         query.response([
           {
@@ -164,7 +164,7 @@ const buildQueries =
       // nationalities retrieval
       () => {
         expect(query.sql).toEqual(
-          `select * from "nationality" where "iso_code" in ($1)`,
+          `select * from "nationalities" where "iso_code" in ($1)`,
         );
         query.response([
           {
@@ -176,14 +176,14 @@ const buildQueries =
       // contact details
       () => {
         expect(query.sql).toEqual(
-          `insert into "participant_contact_detail" ("clean_value", "contact_detail_type", "id", "participant_id", "raw_value") values ($1, $2, $3, $4, $5)`,
+          `insert into "participant_contact_details" ("clean_value", "contact_detail_type", "id", "participant_id", "raw_value") values ($1, $2, $3, $4, $5)`,
         );
         query.response([]);
       },
-      // identification
+      // identifications
       () => {
         expect(query.sql).toEqual(
-          `insert into "participant_identification" ("id", "identification_number", "identification_type", "is_primary", "participant_id") values ($1, $2, $3, $4, $5)`,
+          `insert into "participant_identifications" ("id", "identification_number", "identification_type", "is_primary", "participant_id") values ($1, $2, $3, $4, $5)`,
         );
         query.response([]);
       },

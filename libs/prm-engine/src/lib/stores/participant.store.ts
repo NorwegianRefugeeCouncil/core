@@ -31,11 +31,11 @@ const create = async (
 
   const result = await db.transaction(async (trx) => {
     try {
-      await trx('person').insert({ id: personId });
+      await trx('persons').insert({ id: personId });
 
-      await trx('entity').insert({ id: entityId });
+      await trx('entities').insert({ id: entityId });
 
-      await trx('participant').insert({
+      await trx('participants').insert({
         ...participantDetails,
         id: participantId,
         personId,
@@ -43,7 +43,7 @@ const create = async (
       });
 
       if (disabilities) {
-        await trx('participant_disability').insert({
+        await trx('participant_disabilities').insert({
           ...disabilities,
           participantId,
         });
@@ -57,7 +57,7 @@ const create = async (
             participantId,
           })),
         );
-        languagesResult = await trx('language').whereIn(
+        languagesResult = await trx('languages').whereIn(
           'isoCode',
           languages.map((lang) => lang.isoCode),
         );
@@ -71,7 +71,7 @@ const create = async (
             participantId,
           })),
         );
-        nationalitiesResult = await trx('nationality').whereIn(
+        nationalitiesResult = await trx('nationalities').whereIn(
           'isoCode',
           nationalities.map((nat) => nat.isoCode),
         );
@@ -88,7 +88,7 @@ const create = async (
             }))
           : [];
       if (contactDetailsForDb.length > 0) {
-        await trx('participant_contact_detail').insert(contactDetailsForDb);
+        await trx('participant_contact_details').insert(contactDetailsForDb);
       }
 
       const identificationForDb =
@@ -100,7 +100,7 @@ const create = async (
             }))
           : [];
       if (identificationForDb.length > 0) {
-        await trx('participant_identification').insert(identificationForDb);
+        await trx('participant_identifications').insert(identificationForDb);
       }
 
       const createdParticipant = ParticipantSchema.parse({
