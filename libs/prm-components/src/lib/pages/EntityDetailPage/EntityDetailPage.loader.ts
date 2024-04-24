@@ -1,11 +1,9 @@
 import { EntityType, EntityTypeSchema } from '@nrcno/core-models';
 import { LoaderFunctionArgs } from 'react-router-dom';
 
-import { EntityUIConfig, config } from '../../config';
-
 export type CreateEntityLoaderData = {
+  mode: 'create';
   entityType: EntityType;
-  config: EntityUIConfig['detail'];
 };
 
 export const createEntityLoader = ({
@@ -20,11 +18,9 @@ export const createEntityLoader = ({
     });
   }
 
-  const entityUIConfig = config[entityType.data].detail;
-
   return {
+    mode: 'create',
     entityType: entityType.data,
-    config: entityUIConfig,
   };
 };
 
