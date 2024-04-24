@@ -13,6 +13,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
+    errorElement: <div>Placeholder error page</div>,
     children: [
       {
         path: '/',
