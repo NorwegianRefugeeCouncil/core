@@ -186,12 +186,7 @@ const get = async (id: string): Promise<Participant | null> => {
       contactDetailType: contactDetail.contactDetailType,
       value: contactDetail.rawValue,
     })),
-    identification: identifications.map((identification) => ({
-      id: identification.id,
-      identificationType: identification.identificationType,
-      identificationNumber: identification.identificationNumber,
-      isPrimary: identification.isPrimary,
-    })),
+    identification: identifications,
     disabilities,
   });
 

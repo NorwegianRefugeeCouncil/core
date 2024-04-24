@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { ulid } from 'ulidx';
 
 import {
   ParticipantDefinition,
@@ -10,11 +11,12 @@ import {
   YesNoUnknown,
   ContactDetailType,
   IdentificationType,
+  Participant,
 } from '@nrcno/core-models';
 
 import { BaseTestEntityGenerator } from '../base-test-entity-generator';
 
-const generate = (
+const generateDefinition = (
   overrides?: Partial<ParticipantDefinition>,
 ): ParticipantDefinition => {
   const pastDate = faker.date.past();
@@ -94,7 +96,35 @@ const generate = (
   };
 };
 
-export const ParticipantGenerator: BaseTestEntityGenerator<ParticipantDefinition> =
-  {
-    generate,
+const generateEntity = (overrides?: Partial<Participant>): Participant => {
+  const definition = generateDefinition(overrides);
+
+  return {
+    ...definition,
+    id: overrides?.id || ulid(),
+    contactDetails: definition.contactDetails.map((contactDetail, index) => ({
+      ...contactDetail,
+      id: overrides?.contactDetails?.[index]?.id || faker.string.uuid(),
+    })),
+    identification: definition.identification.map((identification, index) => ({
+      ...identification,
+      id: overrides?.identification?.[index]?.id || faker.string.uuid(),
+    })),
+    languages: definition.languages.map((language) => ({
+      ...language,
+      translationKey: `language__${language.isoCode}`,
+    })),
+    nationalities: definition.nationalities.map((nationality) => ({
+      ...nationality,
+      translationKey: `nationality__${nationality.isoCode}`,
+    })),
   };
+};
+
+export const ParticipantGenerator: BaseTestEntityGenerator<
+  ParticipantDefinition,
+  Participant
+> = {
+  generateDefinition,
+  generateEntity,
+};

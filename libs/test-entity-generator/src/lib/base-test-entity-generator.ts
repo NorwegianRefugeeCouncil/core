@@ -1,3 +1,4 @@
-export interface BaseTestEntityGenerator<T> {
-  generate: (overrides?: Partial<T>) => T;
+export interface BaseTestEntityGenerator<T, U> {
+  generateDefinition: (overrides?: Partial<T>) => T;
+  generateEntity: (overrides?: Partial<U>) => U;
 }

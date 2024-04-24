@@ -13,7 +13,8 @@ const axiosInstance = axios.create({
   validateStatus: () => true,
 });
 
-const participantDefinitionWithEveryField = ParticipantGenerator.generate();
+const participantDefinitionWithEveryField =
+  ParticipantGenerator.generateDefinition();
 
 const participantWithEveryField: Participant = {
   ...participantDefinitionWithEveryField,
