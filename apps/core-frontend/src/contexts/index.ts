@@ -1,1 +1,1 @@
-export { ApiProvider, ApiContext } from './api.context';
+export { useUsers, UserContext } from './user.context';
