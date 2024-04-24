@@ -3,6 +3,14 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/prm-engine/src",
   "projectType": "library",
-  "targets": {},
+  "targets": {
+    "integration-test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/prm-engine/jest.integration.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  },
   "tags": []
 }
