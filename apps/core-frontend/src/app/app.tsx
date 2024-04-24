@@ -3,10 +3,10 @@ import { useEffect } from 'react';
 import { Grid, GridItem } from '@chakra-ui/react';
 
 import { Navigation, Header } from '../components';
-import { useUsers } from '../contexts';
+import { useUserContext } from '../contexts';
 
 export const App: React.FC = () => {
-  const { me } = useUsers();
+  const { me } = useUserContext();
 
   useEffect(() => {
     (async () => {

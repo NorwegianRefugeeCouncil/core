@@ -26,7 +26,7 @@ export const UserProvider: React.FC<Props> = ({ axiosInstance, children }) => {
   return <UserContext.Provider value={{ me }}>{children}</UserContext.Provider>;
 };
 
-export const useUsers = () => {
+export const useUserContext = () => {
   const userContext = React.useContext(UserContext);
   return userContext;
 };

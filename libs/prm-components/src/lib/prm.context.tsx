@@ -22,13 +22,9 @@ export const PrmContext = React.createContext<PrmContextData>({
   create: defaultCreateEntityState,
 });
 
-export const usePrm = () => React.useContext(PrmContext);
+export const usePrmContext = () => React.useContext(PrmContext);
 
-export const PrmProvider = PrmContext.Provider;
-
-export const PrmConsumer = PrmContext.Consumer;
-
-export const Prm: React.FC<Props> = ({ axiosInstance, children }) => {
+export const PrmProvider: React.FC<Props> = ({ axiosInstance, children }) => {
   const entityType = EntityType.Participant;
 
   const prmClient = React.useMemo(
@@ -43,5 +39,7 @@ export const Prm: React.FC<Props> = ({ axiosInstance, children }) => {
 
   const create = useCreateEntity(client);
 
-  return <PrmProvider value={{ create }}>{children}</PrmProvider>;
+  return (
+    <PrmContext.Provider value={{ create }}>{children}</PrmContext.Provider>
+  );
 };

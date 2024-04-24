@@ -1,1 +1,1 @@
-export { useUsers, UserContext } from './user.context';
+export * from './user.context';
