@@ -1,1 +1,1 @@
-export * from './lib/prm/participant';
+export * from './lib/prm/participant.generator';
