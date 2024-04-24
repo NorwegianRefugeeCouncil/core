@@ -2,8 +2,8 @@
 export default {
   displayName: 'prm-engine',
   preset: '../../jest.preset.js',
-  globalSetup: '<rootDir>/src/lib/stores/integration-setup.ts',
-  globalTeardown: '<rootDir>/src/lib/stores/integration-teardown.ts',
+  globalSetup: '../../shared/jest.integration-tests-setup.ts',
+  globalTeardown: '../../shared/jest.integration-tests-teardown.ts',
   testEnvironment: 'node',
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],

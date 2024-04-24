@@ -8,7 +8,6 @@ const cleanupRegisteredPaths = registerTsProject('./tsconfig.base.json');
 import { getDb } from '@nrcno/core-db';
 
 export default async function () {
-  console.log(__dirname);
   // Start services that the app needs to run (e.g. database, docker-compose, etc.).
   console.log('\nSetting up...\n');
 
