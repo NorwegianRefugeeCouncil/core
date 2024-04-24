@@ -14,6 +14,8 @@ export type CreateEntityState = {
 export const defaultCreateEntityState: CreateEntityState = {
   onCreateEntity: async () => Promise.resolve(),
   status: SubmitStatus.IDLE,
+  data: undefined,
+  error: undefined,
 };
 
 // WARNING: This may break as we add more entity types
