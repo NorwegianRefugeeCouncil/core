@@ -20,6 +20,13 @@ const axiosInstance = axios.create({
   validateStatus: () => true,
 });
 
+const pastDate = faker.date.past();
+const pastDateWithoutTime = new Date(
+  pastDate.getFullYear(),
+  pastDate.getMonth(),
+  pastDate.getDate(),
+);
+
 const participantDefinitionWithEveryField: ParticipantDefinition = {
   firstName: faker.person.firstName(),
   middleName: faker.person.firstName(),
@@ -27,7 +34,7 @@ const participantDefinitionWithEveryField: ParticipantDefinition = {
   nativeName: faker.person.firstName(),
   motherName: faker.person.lastName(),
   preferredName: faker.person.firstName(),
-  dateOfBirth: faker.date.past(),
+  dateOfBirth: pastDateWithoutTime,
   nrcId: faker.string.alphanumeric(),
   residence: faker.location.streetAddress(),
   contactMeansComment: faker.lorem.sentence(),
