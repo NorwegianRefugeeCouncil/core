@@ -40,10 +40,6 @@ export default async function () {
     loadExtensions: ['.js'],
     directory: path.join(db.client.config.seeds.directory, 'common'),
   });
-  await db.seed.run({
-    loadExtensions: ['.js'],
-    directory: path.join(db.client.config.seeds.directory, 'local'),
-  });
   (global as any).db = db;
 
   // Pass the environment to global teardown
