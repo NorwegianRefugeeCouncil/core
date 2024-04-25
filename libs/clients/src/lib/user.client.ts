@@ -2,11 +2,11 @@ import { AxiosInstance } from 'axios';
 
 import { User, UserSchema } from '@nrcno/core-models';
 
-import { BaseClient, ClientConfig } from './base.client';
+import { BaseClient } from './base.client';
 
 export class UserClient extends BaseClient {
-  constructor(instance?: AxiosInstance, config?: ClientConfig) {
-    super(instance, config);
+  constructor(instance: AxiosInstance) {
+    super(instance);
   }
 
   async getMe(): Promise<User> {
