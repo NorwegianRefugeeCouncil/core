@@ -15,18 +15,20 @@ export const EntityDetailPage: React.FC<Props> = () => {
     isError,
     isSuccess,
     error,
+    handleSubmit,
   } = useEntityDetailPage();
 
   return (
     <>
       {isError && <div>{error?.message}</div>}
       {isSuccess && <div>Success</div>}
-      <Heading>New {entityType}</Heading>
-      {config.sections.map((section) => (
-        <Section key={section.title} section={section} />
-      ))}
-      <button type="submit">Save</button>
-    </form>
+      <form className={styles['container']} onSubmit={handleSubmit}>
+        <Heading>New {entityType}</Heading>
+        {config.sections.map((section) => (
+          <Section key={section.title} section={section} />
+        ))}
+        <button type="submit">Save</button>
+      </form>
     </>
   );
 };

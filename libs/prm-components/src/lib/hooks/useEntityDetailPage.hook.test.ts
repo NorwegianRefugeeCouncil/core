@@ -17,11 +17,6 @@ vi.mock('../prm.context', () => ({
   usePrmContext: vi.fn(),
 }));
 
-const loaderData = {
-  mode: 'create',
-  entityType: EntityType.Participant,
-};
-
 const prmContextData = {
   create: {
     onCreateEntity: vi.fn(),
@@ -32,74 +27,117 @@ const prmContextData = {
 };
 
 describe('useEntityDetailPage', () => {
+  const loaderData = {
+    mode: 'create',
+    entityType: EntityType.Participant,
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should call useLoaderData with the correct arguments', () => {
-    (useLoaderData as Mock).mockReturnValue(loaderData);
-    (usePrmContext as Mock).mockReturnValue(prmContextData);
+  describe('create', () => {
+    it('should call useLoaderData with the correct arguments', () => {
+      (useLoaderData as Mock).mockReturnValue(loaderData);
+      (usePrmContext as Mock).mockReturnValue(prmContextData);
 
-    renderHook(() => useEntityDetailPage());
+      renderHook(() => useEntityDetailPage());
 
-    expect(useLoaderData).toHaveBeenCalledWith();
-  });
-
-  it('should return the correct values', () => {
-    (useLoaderData as Mock).mockReturnValue(loaderData);
-    (usePrmContext as Mock).mockReturnValue(prmContextData);
-
-    const { result } = renderHook(() => useEntityDetailPage());
-
-    expect(result.current).toEqual({
-      entityType: EntityType.Participant,
-      config: config[EntityType.Participant].detail,
-      isLoading: false,
-      isError: false,
-      isSuccess: false,
-      error: undefined,
-    });
-  });
-
-  it('should set isLoading to true when status is SUBMITTING', () => {
-    (useLoaderData as Mock).mockReturnValue(loaderData);
-    (usePrmContext as Mock).mockReturnValue({
-      create: {
-        ...prmContextData.create,
-        status: SubmitStatus.SUBMITTING,
-      },
+      expect(useLoaderData).toHaveBeenCalledWith();
     });
 
-    const { result } = renderHook(() => useEntityDetailPage());
+    it('should return the correct values', () => {
+      (useLoaderData as Mock).mockReturnValue(loaderData);
+      (usePrmContext as Mock).mockReturnValue(prmContextData);
 
-    expect(result.current.isLoading).toBe(true);
-  });
+      const { result } = renderHook(() => useEntityDetailPage());
 
-  it('should set isError to true when status is ERROR', () => {
-    (useLoaderData as Mock).mockReturnValue(loaderData);
-    (usePrmContext as Mock).mockReturnValue({
-      create: {
-        ...prmContextData.create,
-        status: SubmitStatus.ERROR,
-      },
+      expect(result.current).toEqual({
+        handleSubmit: expect.any(Function),
+        entityType: EntityType.Participant,
+        config: config[EntityType.Participant].detail,
+        isLoading: false,
+        isError: false,
+        isSuccess: false,
+        error: undefined,
+      });
     });
 
-    const { result } = renderHook(() => useEntityDetailPage());
+    it('should set isLoading to true when status is SUBMITTING', () => {
+      (useLoaderData as Mock).mockReturnValue(loaderData);
+      (usePrmContext as Mock).mockReturnValue({
+        create: {
+          ...prmContextData.create,
+          status: SubmitStatus.SUBMITTING,
+        },
+      });
 
-    expect(result.current.isError).toBe(true);
-  });
+      const { result } = renderHook(() => useEntityDetailPage());
 
-  it('should set isSuccess to true when status is SUCCESS', () => {
-    (useLoaderData as Mock).mockReturnValue(loaderData);
-    (usePrmContext as Mock).mockReturnValue({
-      create: {
-        ...prmContextData.create,
-        status: SubmitStatus.SUCCESS,
-      },
+      expect(result.current.isLoading).toBe(true);
     });
 
-    const { result } = renderHook(() => useEntityDetailPage());
+    it('should set isError to true when status is ERROR', () => {
+      (useLoaderData as Mock).mockReturnValue(loaderData);
+      (usePrmContext as Mock).mockReturnValue({
+        create: {
+          ...prmContextData.create,
+          status: SubmitStatus.ERROR,
+        },
+      });
 
-    expect(result.current.isSuccess).toBe(true);
+      const { result } = renderHook(() => useEntityDetailPage());
+
+      expect(result.current.isError).toBe(true);
+    });
+
+    it('should set isSuccess to true when status is SUCCESS', () => {
+      (useLoaderData as Mock).mockReturnValue(loaderData);
+      (usePrmContext as Mock).mockReturnValue({
+        create: {
+          ...prmContextData.create,
+          status: SubmitStatus.SUCCESS,
+        },
+      });
+
+      const { result } = renderHook(() => useEntityDetailPage());
+
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    it('should parse the form data and call onCreateEntity when handleSubmit is called', () => {
+      (useLoaderData as Mock).mockReturnValue(loaderData);
+      (usePrmContext as Mock).mockReturnValue(prmContextData);
+
+      const { result } = renderHook(() => useEntityDetailPage());
+
+      const event = {
+        preventDefault: vi.fn(),
+        target: {
+          firstName: { value: 'John' },
+          lastName: { value: 'Doe' },
+          'disability.disabilityPwdComment': { value: 'Comment' },
+          'contactDetails.0.contactDetailType': { value: 'Email' },
+        },
+      } as any;
+
+      result.current.handleSubmit(event);
+
+      expect(event.preventDefault).toHaveBeenCalled();
+      expect(prmContextData.create.onCreateEntity).toHaveBeenCalledWith({
+        participant: {
+          firstName: 'John',
+          lastName: 'Doe',
+          disability: {
+            disabilityPwdComment: 'Comment',
+          },
+          contactDetails: [
+            {
+              contactDetailType: 'Email',
+            },
+          ],
+        },
+      });
+    });
   });
 });
