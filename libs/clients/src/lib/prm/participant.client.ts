@@ -1,15 +1,29 @@
-import { Participant, ParticipantDefinition } from '@nrcno/core-models';
+import { AxiosInstance } from 'axios';
+
+import {
+  Participant,
+  ParticipantDefinition,
+  ParticipantDefinitionSchema,
+  ParticipantSchema,
+} from '@nrcno/core-models';
 
 import { BaseClient, ClientConfig } from '../base.client';
 
-export class ParticipantClient extends BaseClient<Participant> {
-  constructor({ baseURL }: ClientConfig<Participant>) {
-    super({ baseURL });
+export class ParticipantClient extends BaseClient {
+  constructor(instance?: AxiosInstance, config?: ClientConfig) {
+    super(instance, config);
   }
 
   create = async (
     participantDefinition: ParticipantDefinition,
   ): Promise<Participant> => {
-    throw new Error('Not implemented');
+    const validatedParticipantDefinition = ParticipantDefinitionSchema.parse(
+      participantDefinition,
+    );
+    const response = await this.post(
+      '/participants',
+      validatedParticipantDefinition,
+    );
+    return ParticipantSchema.parse(response.data);
   };
 }

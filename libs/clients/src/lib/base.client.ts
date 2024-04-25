@@ -1,58 +1,85 @@
 import axios, {
-  AxiosError,
+  CreateAxiosDefaults,
   AxiosInstance,
-  AxiosRequestConfig,
   AxiosResponse,
 } from 'axios';
 
-export type ClientConfig<Data> = AxiosRequestConfig<Data>;
+export type ClientConfig = CreateAxiosDefaults;
 
-type ClientRequest<Data> = (
-  url: string,
-  params?: Partial<Data>,
-) => Promise<
-  AxiosResponse<Data, ClientConfig<Data>> | AxiosError<Data, ClientConfig<Data>>
->;
-
-interface IClient<Data> {
-  get: ClientRequest<Data>;
-  post: ClientRequest<Data>;
-  put: ClientRequest<Data>;
-  patch: ClientRequest<Data>;
-  delete: ClientRequest<Data>;
+interface IClient {
+  get: (url: string, params?: any) => Promise<AxiosResponse<unknown>>;
+  post: (
+    url: string,
+    data?: any,
+    params?: any,
+  ) => Promise<AxiosResponse<unknown>>;
+  put: (
+    url: string,
+    data?: any,
+    params?: any,
+  ) => Promise<AxiosResponse<unknown>>;
+  patch: (
+    url: string,
+    data?: any,
+    params?: any,
+  ) => Promise<AxiosResponse<unknown>>;
+  delete: (url: string, params?: any) => Promise<AxiosResponse<unknown>>;
 }
 
-export class BaseClient<Data> implements IClient<Data> {
-  client: AxiosInstance;
+export class BaseClient implements IClient {
+  private client: AxiosInstance;
 
-  constructor({ baseURL, ...config }: ClientConfig<Data>) {
-    this.client = axios.create({
-      baseURL,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true,
-      ...config,
-    });
+  constructor(instance?: AxiosInstance, config?: ClientConfig) {
+    if (instance) {
+      this.client = instance;
+      return;
+    }
+
+    if (config) {
+      const { baseURL, ...otherConfig } = config;
+      this.client = axios.create({
+        baseURL,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+        ...otherConfig,
+      });
+      return;
+    }
+
+    throw new Error('No instance or config provided');
   }
 
-  async get(url: string, params?: Partial<Data>) {
+  async get(url: string, params?: any): Promise<AxiosResponse<unknown>> {
     return this.client.get(url, params);
   }
 
-  async post(url: string, params?: Partial<Data>) {
-    return this.client.post(url, params);
+  async post(
+    url: string,
+    data?: any,
+    params?: any,
+  ): Promise<AxiosResponse<unknown>> {
+    return this.client.post(url, data, params);
   }
 
-  async put(url: string, params?: Partial<Data>) {
-    return this.client.put(url, params);
+  async put(
+    url: string,
+    data?: any,
+    params?: any,
+  ): Promise<AxiosResponse<unknown>> {
+    return this.client.put(url, data, params);
   }
 
-  async patch(url: string, params?: Partial<Data>) {
-    return this.client.patch(url, params);
+  async patch(
+    url: string,
+    data?: any,
+    params?: any,
+  ): Promise<AxiosResponse<unknown>> {
+    return this.client.patch(url, data, params);
   }
 
-  async delete(url: string, params?: Partial<Data>) {
+  async delete(url: string, params?: any): Promise<AxiosResponse<unknown>> {
     return this.client.delete(url, params);
   }
 }
