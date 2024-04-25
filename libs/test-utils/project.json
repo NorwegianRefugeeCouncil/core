@@ -1,15 +1,14 @@
 {
-  "name": "test-entity-generator",
+  "name": "test-utils",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/test-entity-generator/src",
+  "sourceRoot": "libs/test-utils/src",
   "projectType": "library",
   "tags": [],
-  "// targets": "to see all targets run: nx show project test-entity-generator --web",
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/test-entity-generator/jest.config.ts",
+        "jestConfig": "libs/test-utils/jest.config.ts",
         "passWithNoTests": true
       }
     }

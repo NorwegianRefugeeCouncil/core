@@ -2,7 +2,7 @@ import { ulid } from 'ulidx';
 import { v4 } from 'uuid';
 import { faker } from '@faker-js/faker';
 
-import { ParticipantGenerator } from '@nrcno/core-test-entity-generator';
+import { ParticipantGenerator } from '@nrcno/core-test-utils';
 import { getDb } from '@nrcno/core-db';
 
 import { ParticipantStore } from './participant.store';
