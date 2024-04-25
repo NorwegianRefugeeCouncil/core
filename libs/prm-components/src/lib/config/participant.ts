@@ -10,9 +10,7 @@ import {
   YesNoUnknown,
 } from '@nrcno/core-models';
 
-import { Component } from '../config';
-
-import { DataType, EntityUIConfig } from './config.types';
+import { Component, DataType, EntityUIConfig } from './config.types';
 import { optionsFromEnum } from './utils';
 
 export const participantConfig: EntityUIConfig = {
