@@ -140,14 +140,12 @@ export const participantConfig: EntityUIConfig = {
                 path: ['translationKey'],
                 dataType: DataType.String,
                 component: Component.Select,
-                options: {
-                  options: [
-                    { value: 'en', label: 'English' },
-                    { value: 'es', label: 'Spanish' },
-                    { value: 'fr', label: 'French' },
-                    { value: 'ar', label: 'Arabic' },
-                  ],
-                },
+                options: [
+                  { value: 'en', label: 'English' },
+                  { value: 'es', label: 'Spanish' },
+                  { value: 'fr', label: 'French' },
+                  { value: 'ar', label: 'Arabic' },
+                ],
               },
             ],
           },
@@ -165,14 +163,12 @@ export const participantConfig: EntityUIConfig = {
                 path: ['translationKey'],
                 dataType: DataType.String,
                 component: Component.Select,
-                options: {
-                  options: [
-                    { value: 'en', label: 'English' },
-                    { value: 'es', label: 'Spanish' },
-                    { value: 'fr', label: 'French' },
-                    { value: 'ar', label: 'Arabic' },
-                  ],
-                },
+                options: [
+                  { value: 'en', label: 'English' },
+                  { value: 'es', label: 'Spanish' },
+                  { value: 'fr', label: 'French' },
+                  { value: 'ar', label: 'Arabic' },
+                ],
               },
             ],
           },
@@ -185,17 +181,17 @@ export const participantConfig: EntityUIConfig = {
             path: ['contactDetails'],
             component: Component.List,
             label: 'Email addresses',
-            filter: (value: Participant['contactDetails'][0]) =>
-              value.contactDetailType === ContactDetailType.Email,
+            filter: (contactDetail) =>
+              contactDetail.contactDetailType === ContactDetailType.Email,
             children: [
               {
                 path: ['id'],
-                dataType: DataType.String,
+                dataType: DataType.Hidden,
                 component: Component.Hidden,
               },
               {
                 path: ['type'],
-                dataType: DataType.String,
+                dataType: DataType.Hidden,
                 component: Component.Hidden,
               },
               {
@@ -210,17 +206,17 @@ export const participantConfig: EntityUIConfig = {
             path: ['contactDetails'],
             component: Component.List,
             label: 'Phone numbers',
-            filter: (value: Participant['contactDetails'][0]) =>
-              value.contactDetailType === ContactDetailType.PhoneNumber,
+            filter: (contactDetail) =>
+              contactDetail.contactDetailType === ContactDetailType.PhoneNumber,
             children: [
               {
                 path: ['id'],
-                dataType: DataType.String,
+                dataType: DataType.Hidden,
                 component: Component.Hidden,
               },
               {
                 path: ['type'],
-                dataType: DataType.String,
+                dataType: DataType.Hidden,
                 component: Component.Hidden,
               },
               {

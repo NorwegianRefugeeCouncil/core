@@ -25,30 +25,36 @@ export enum DataType {
   Time = 'time',
   DateTime = 'datetime',
   File = 'file',
+  Hidden = 'hidden',
 }
 
-export type ListField = {
+export type ListFieldConfig = {
   path: string[];
   component: Component.List;
   label: string;
-  children: Field[];
+  children: FieldConfig[];
   filter?: (value: any) => boolean;
 };
 
-export type Field = {
-  path: string[];
-  dataType: DataType;
+type Option = {
+  value: string;
+  label: string;
+};
+
+export type FieldConfig = {
   component: Exclude<Component, Component.List>;
-  label?: string;
-  placeholder?: string;
+  dataType: DataType;
   description?: string;
+  label?: string;
+  options?: Option[];
+  path: string[];
+  placeholder?: string;
   required?: boolean;
-  options?: Record<string, any>;
 };
 
 export type Section = {
   title: string;
-  fields: (Field | ListField)[];
+  fields: (FieldConfig | ListFieldConfig)[];
 };
 
 export type EntityUIConfig = {

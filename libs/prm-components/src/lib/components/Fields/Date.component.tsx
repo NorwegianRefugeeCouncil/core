@@ -1,7 +1,14 @@
-import { Field as FieldType } from '../../config';
+import { UseControllerProps } from 'react-hook-form';
+
+import { FieldConfig } from '../../config';
+
+import { TextInput } from './TextInput.component';
 
 type Props = {
-  field: FieldType;
+  config: FieldConfig;
+  name: string;
 };
 
-export const Date: React.FC<Props> = ({ field }) => <div>Date</div>;
+export const Date: React.FC<Props & UseControllerProps> = (props) => (
+  <TextInput {...props} />
+);

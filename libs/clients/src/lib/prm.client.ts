@@ -27,6 +27,7 @@ const getPrmClient = (axiosInstance: AxiosInstance) => {
   function _getPrmClient(
     entityType: EntityType.Participant,
   ): PrmEntityClient<ParticipantDefinition, Participant>;
+
   function _getPrmClient(entityType: EntityType): PrmEntityClient<any, any> {
     const baseClient = new BaseClient(axiosInstance);
 
@@ -53,6 +54,7 @@ const getPrmClient = (axiosInstance: AxiosInstance) => {
 
     return { create, read, update };
   }
+
   return _getPrmClient;
 };
 
