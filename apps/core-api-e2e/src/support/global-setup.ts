@@ -3,9 +3,7 @@ import { spawn } from 'child_process';
 
 import { config as dotenvConfig } from 'dotenv';
 import waitOn from 'wait-on';
-import { DockerComposeEnvironment } from 'testcontainers';
-
-var __TEARDOWN_MESSAGE__: string;
+import { DockerComposeEnvironment, Wait } from 'testcontainers';
 
 module.exports = async function () {
   // Start services that the app needs to run (e.g. database, docker-compose, etc.).
@@ -20,9 +18,11 @@ module.exports = async function () {
   (global as any).__ENVIRONMENT__ = await new DockerComposeEnvironment(
     composeFilePath,
     composeFile,
-  ).up();
+  )
+    .withWaitStrategy('db', Wait.forHealthCheck())
+    .withStartupTimeout(120 * 1000)
+    .up();
 
-  // Start the server
   console.log('Starting the server...');
   const server = spawn('nx', ['run', 'core-api:serve'], {
     detached: true,
@@ -31,7 +31,7 @@ module.exports = async function () {
   server.stderr.pipe(process.stderr);
 
   (global as any).__SERVER__ = server;
-  // Wait for the server to be ready
+
   console.log('Waiting for the server to be ready...');
   await waitOn({
     resources: ['http-get://localhost:3333/healthz'],
