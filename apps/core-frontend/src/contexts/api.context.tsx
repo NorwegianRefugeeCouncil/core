@@ -1,4 +1,5 @@
 import { createContext } from 'react';
+import axios from 'axios';
 
 import { UserClient } from '@nrcno/core-clients';
 
@@ -9,10 +10,14 @@ export const ApiContext = createContext<ApiContextType | null>(null);
 export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const users = new UserClient({
+  const axiosInstance = axios.create({
     baseURL: '/api',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    withCredentials: true,
   });
-  users.client.interceptors.response.use(
+  axiosInstance.interceptors.response.use(
     (response) => {
       return response;
     },
@@ -23,6 +28,7 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({
       return error;
     },
   );
+  const users = new UserClient(axiosInstance);
   const clients = { users };
 
   return <ApiContext.Provider value={clients}>{children}</ApiContext.Provider>;
