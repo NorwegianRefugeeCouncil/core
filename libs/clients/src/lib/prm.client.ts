@@ -12,6 +12,7 @@ import { BaseClient } from './base.client';
 
 type PrmEntityClient<T, U> = {
   create: (entity: T) => Promise<U>;
+  read: (id: string) => Promise<U>;
 };
 
 const validators = {
@@ -38,7 +39,12 @@ const getPrmClient = (axiosInstance: AxiosInstance) => {
       return validators[entityType].entity.parse(response.data);
     };
 
-    return { create };
+    const read = async (id: string) => {
+      const response = await baseClient.get(`/prm/${entityType}/${id}`);
+      return validators[entityType].entity.parse(response.data);
+    };
+
+    return { create, read };
   }
   return _getPrmClient;
 };

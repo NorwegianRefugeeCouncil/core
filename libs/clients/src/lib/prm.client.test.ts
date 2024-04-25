@@ -98,5 +98,47 @@ describe('PRM client', () => {
         );
       });
     });
+
+    describe('read', () => {
+      it('should read a participant', async () => {
+        const participantId = ulid();
+        const participant = {
+          id: participantId,
+          consentGdpr: faker.datatype.boolean(),
+          consentReferral: faker.datatype.boolean(),
+          languages: [],
+          nationalities: [],
+          contactDetails: [],
+          identification: [],
+        };
+        mock
+          .onGet(`/prm/participants/${participantId}`)
+          .reply(200, participant);
+        const res = await client.read(participantId);
+        expect(res).toEqual(participant);
+        expect(mock.history.get.length).toBe(1);
+        expect(mock.history.get[0].url).toBe(
+          `/prm/participants/${participantId}`,
+        );
+      });
+
+      it('should fail when receiving an invalid response from the api', () => {
+        const participantId = ulid();
+        mock.onGet(`/prm/participants/${participantId}`).reply(200, {
+          foo: 'bar',
+        });
+        expect(client.read(participantId)).rejects.toThrow(
+          expect.any(ZodError),
+        );
+      });
+
+      it('should fail if the api returns an error', () => {
+        const participantId = ulid();
+        mock.onGet(`/prm/participants/${participantId}`).reply(400);
+        expect(client.read(participantId)).rejects.toThrow(
+          'Request failed with status code 400',
+        );
+      });
+    });
   });
 });
