@@ -10,8 +10,8 @@ config.wrapIdentifier = wrapIdentifier;
 let db: Knex<any, unknown[]>;
 
 export const getDb = (
-  existingConnection?: Knex,
   connectionConfig?: Knex.Config['connection'],
+  existingConnection?: Knex,
 ) => {
   if (existingConnection) {
     db = existingConnection;

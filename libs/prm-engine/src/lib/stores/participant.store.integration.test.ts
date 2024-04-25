@@ -26,7 +26,7 @@ function generateMockUlid() {
 
 describe('Participant store', () => {
   beforeAll(async () => {
-    getDb((global as any).db);
+    getDb(undefined, (global as any).db);
   });
 
   describe('create', () => {

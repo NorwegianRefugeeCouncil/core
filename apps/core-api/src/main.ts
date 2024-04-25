@@ -43,7 +43,7 @@ if (config.server.bypassAuthentication) {
 }
 
 // Initialise and get database connection
-const db = getDb(undefined, config.db);
+const db = getDb(config.db);
 
 // Create Express server
 const app = express();

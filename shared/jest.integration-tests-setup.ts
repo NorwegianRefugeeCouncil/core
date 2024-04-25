@@ -32,7 +32,7 @@ export default async function () {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
   };
-  const db = getDb(undefined, config);
+  const db = getDb(config);
   await db.migrate.latest({
     loadExtensions: ['.js'],
   });
