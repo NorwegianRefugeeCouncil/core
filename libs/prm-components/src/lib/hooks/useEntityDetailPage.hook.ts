@@ -41,13 +41,24 @@ const parseEntityFromForm = (
       const keys = (Array.from(data.keys()) as string[]).filter((key) =>
         key.startsWith(field.path.join('.')),
       );
+
+      if (keys.length === 0) {
+        return acc;
+      }
+
       const list = keys.reduce((listAcc, key) => {
         const [_, index, path] = key.split('.');
         const value = data.get(key);
         return applyValue([index, path], value, listAcc);
       }, []);
+
       return applyValue(field.path, list, acc);
     }
+
+    if (!data.has(field.path.join('.'))) {
+      return acc;
+    }
+
     const value = data.get(field.path.join('.'));
     return applyValue(field.path, value, acc);
   }, {});
