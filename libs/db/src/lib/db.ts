@@ -9,8 +9,13 @@ config.wrapIdentifier = wrapIdentifier;
 
 let db: Knex<any, unknown[]>;
 
-export const getDb = (connectionConfig?: Knex.Config['connection']) => {
-  if (!db) {
+export const getDb = (
+  existingConnection?: Knex,
+  connectionConfig?: Knex.Config['connection'],
+) => {
+  if (existingConnection) {
+    db = existingConnection;
+  } else if (!db) {
     if (!connectionConfig) {
       throw new Error(
         'Connection configuration is required to create a new database connection',

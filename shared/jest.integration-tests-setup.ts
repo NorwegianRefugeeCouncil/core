@@ -32,7 +32,7 @@ export default async function () {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
   };
-  const db = getDb(config);
+  const db = getDb(undefined, config);
   await db.migrate.latest({
     loadExtensions: ['.js'],
   });
@@ -44,6 +44,7 @@ export default async function () {
     loadExtensions: ['.js'],
     directory: path.join(db.client.config.seeds.directory, 'local'),
   });
+  (global as any).db = db;
 
   // Pass the environment to global teardown
   (global as any).__ENVIRONMENT__ = environment;
