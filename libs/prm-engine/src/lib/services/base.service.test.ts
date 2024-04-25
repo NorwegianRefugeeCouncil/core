@@ -10,6 +10,7 @@ jest.mock('../stores', () => ({
       create: jest
         .fn()
         .mockImplementation((entity: ParticipantDefinition) => entity),
+      get: jest.fn().mockImplementation((id: string) => ({ id })),
     },
   },
 }));
@@ -22,21 +23,20 @@ describe('Base PRM service', () => {
   });
 
   describe('Participant', () => {
+    it('should create a participant service', () => {
+      const entityType = EntityType.Participant;
+
+      const service = getPrmService(entityType);
+
+      expect(service).toBeDefined();
+      expect(service.create).toBeDefined();
+      expect(service.get).toBeDefined();
+    });
+
     describe('create', () => {
-      it('should create a participant service', () => {
-        const entityType = EntityType.Participant;
-
-        const service = getPrmService(entityType);
-
-        expect(service).toBeDefined();
-        expect(service.create).toBeDefined();
-      });
-
       it('should call the store create method', async () => {
         const entityType = EntityType.Participant;
-
         const service = getPrmService(entityType);
-
         const participantDefinition: ParticipantDefinition = {
           consentGdpr: true,
           consentReferral: true,
@@ -56,9 +56,7 @@ describe('Base PRM service', () => {
 
       it('should throw an error if the store create method fails', async () => {
         const entityType = EntityType.Participant;
-
         const service = getPrmService(entityType);
-
         const participantDefinition: ParticipantDefinition = {
           consentGdpr: true,
           consentReferral: true,
@@ -78,6 +76,34 @@ describe('Base PRM service', () => {
         expect(PrmStore[entityType].create).toHaveBeenCalledWith(
           participantDefinition,
         );
+      });
+    });
+
+    describe('get', () => {
+      it('should call the store get method', async () => {
+        const entityType = EntityType.Participant;
+        const service = getPrmService(entityType);
+        const participantId = '123';
+
+        const result = await service.get(participantId);
+
+        expect(PrmStore[entityType].get).toHaveBeenCalledWith(participantId);
+        expect(result).toEqual({ id: participantId });
+      });
+
+      it('should throw an error if the store get method fails', async () => {
+        const entityType = EntityType.Participant;
+        const service = getPrmService(entityType);
+        const participantId = '123';
+
+        jest
+          .spyOn(PrmStore[entityType], 'get')
+          .mockRejectedValue(new Error('Failed to get participant'));
+
+        await expect(service.get(participantId)).rejects.toThrow(
+          'Failed to get participant',
+        );
+        expect(PrmStore[entityType].get).toHaveBeenCalledWith(participantId);
       });
     });
   });

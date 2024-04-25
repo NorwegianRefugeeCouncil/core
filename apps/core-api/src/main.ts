@@ -28,6 +28,8 @@ import { session } from './middleware/session.middleware';
 if (process.env.NODE_ENV !== NodeEnv.Production) {
   dotenvConfig();
 }
+// Set timezone to UTC
+process.env.TZ = 'UTC';
 
 // Initialise and get config
 const config = getServerConfig();

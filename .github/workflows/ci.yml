@@ -33,6 +33,7 @@ jobs:
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: core
+      TZ: UTC
 
     timeout-minutes: 10
     steps:

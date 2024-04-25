@@ -67,22 +67,22 @@ export enum YesNoUnknown {
 export const YesNoUnknownSchema = z.nativeEnum(YesNoUnknown);
 
 const ParticipantDetailsSchema = z.object({
-  firstName: z.string().max(100).optional(),
-  middleName: z.string().max(100).optional(),
-  lastName: z.string().max(100).optional(),
-  nativeName: z.string().max(100).optional(),
-  motherName: z.string().max(100).optional(),
-  preferredName: z.string().max(100).optional(),
-  dateOfBirth: z.coerce.date().optional(),
-  nrcId: z.string().max(40).optional(),
-  residence: z.string().optional(),
-  contactMeansComment: z.string().optional(),
+  firstName: z.string().max(100).optional().nullable(),
+  middleName: z.string().max(100).optional().nullable(),
+  lastName: z.string().max(100).optional().nullable(),
+  nativeName: z.string().max(100).optional().nullable(),
+  motherName: z.string().max(100).optional().nullable(),
+  preferredName: z.string().max(100).optional().nullable(),
+  dateOfBirth: z.coerce.date().optional().nullable(),
+  nrcId: z.string().max(40).optional().nullable(),
+  residence: z.string().optional().nullable(),
+  contactMeansComment: z.string().optional().nullable(),
   consentGdpr: z.boolean(),
   consentReferral: z.boolean(),
-  sex: SexSchema.optional(),
-  preferredContactMeans: ContactMeansSchema.optional(),
-  displacementStatus: DisplacementStatusSchema.optional(),
-  engagementContext: EngagementContextSchema.optional(),
+  sex: SexSchema.optional().nullable(),
+  preferredContactMeans: ContactMeansSchema.optional().nullable(),
+  displacementStatus: DisplacementStatusSchema.optional().nullable(),
+  engagementContext: EngagementContextSchema.optional().nullable(),
 });
 
 const ParticipantDisabilitySchema = z.object({
