@@ -21,6 +21,7 @@
       "@nrcno/core-models": ["libs/models/src/index.ts"],
       "@nrcno/core-prm-components": ["libs/prm-components/src/index.ts"],
       "@nrcno/core-prm-engine": ["libs/prm-engine/src/index.ts"],
+      "@nrcno/core-test-utils": ["libs/test-utils/src/index.ts"],
       "@nrcno/core-theme": ["libs/theme/src/index.ts"]
     },
     "rootDir": ".",

@@ -146,7 +146,6 @@ export type ParticipantDefinition = z.infer<typeof ParticipantDefinitionSchema>;
 export const ParticipantSchema = ParticipantDefinitionSchema.merge(
   z.object({
     id: z.string().ulid(),
-    disabilities: ParticipantDisabilitySchema.optional(),
     languages: z.array(
       z.object({
         isoCode: z.string().max(20),

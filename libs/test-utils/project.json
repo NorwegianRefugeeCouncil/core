@@ -1,16 +1,16 @@
 {
-  "name": "prm-engine",
+  "name": "test-utils",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/prm-engine/src",
+  "sourceRoot": "libs/test-utils/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
-    "integration-test": {
+    "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/prm-engine/jest.integration.config.ts",
+        "jestConfig": "libs/test-utils/jest.config.ts",
         "passWithNoTests": true
       }
     }
-  },
-  "tags": []
+  }
 }
