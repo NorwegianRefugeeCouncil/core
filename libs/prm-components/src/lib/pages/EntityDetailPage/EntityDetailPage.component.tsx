@@ -14,7 +14,7 @@ export const EntityDetailPage: React.FC<Props> = () => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const target = event.target as HTMLFormElement;
-    onSubmit(target);
+    if (onSubmit) onSubmit(target);
   };
 
   return (

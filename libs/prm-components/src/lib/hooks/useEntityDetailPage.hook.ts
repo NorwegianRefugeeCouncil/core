@@ -1,7 +1,8 @@
+import * as React from 'react';
 import { useLoaderData } from 'react-router-dom';
 import { z } from 'zod';
 
-import { CreateEntityLoaderData } from '../pages';
+import { EntityLoaderData } from '../pages';
 import { usePrmContext } from '../prm.context';
 import { Component, EntityUIConfig, config } from '../config';
 import { SubmitStatus } from '../types';
@@ -68,11 +69,19 @@ const parseEntityFromForm = (
 
 // TODO: Refactor after react-hook-form is integrated
 export const useEntityDetailPage = () => {
-  const { mode, entityType } = useLoaderData() as CreateEntityLoaderData;
+  const { mode, entityType, entityId } = useLoaderData() as EntityLoaderData;
 
   const prmContext = usePrmContext();
 
   const detailConfig = config[entityType].detail;
+
+  const { loadEntity } = prmContext.read;
+
+  React.useEffect(() => {
+    if (mode === 'read' && entityId) {
+      loadEntity(entityId);
+    }
+  }, [mode, entityId, loadEntity]);
 
   switch (mode) {
     case 'create': {
@@ -83,12 +92,25 @@ export const useEntityDetailPage = () => {
 
       return {
         onSubmit,
-        entityType,
+        mode: mode,
+        entityType: entityType,
         config: detailConfig,
         isLoading: prmContext.create.status === SubmitStatus.SUBMITTING,
         isError: prmContext.create.status === SubmitStatus.ERROR,
         isSuccess: prmContext.create.status === SubmitStatus.SUCCESS,
         error: prmContext.create.error,
+      };
+    }
+    case 'read': {
+      return {
+        mode: mode,
+        entityType: entityType,
+        config: detailConfig,
+        isLoading: prmContext.read.status === SubmitStatus.SUBMITTING,
+        isError: prmContext.read.status === SubmitStatus.ERROR,
+        isSuccess: prmContext.read.status === SubmitStatus.SUCCESS,
+        error: prmContext.read.error,
+        data: prmContext.read.data,
       };
     }
     default:
