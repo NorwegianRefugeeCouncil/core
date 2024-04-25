@@ -26,7 +26,7 @@ const applyValue = (path: string[], value: any, obj: any): any => {
   }
   return {
     ...obj,
-    [path[0]]: applyValue(path.slice(1), value, obj[path[0]]),
+    [path[0]]: applyValue(path.slice(1), value, obj[path[0]] || {}),
   };
 };
 
