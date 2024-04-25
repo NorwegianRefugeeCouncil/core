@@ -7,7 +7,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-export const FeatureProvider: React.FC<Props> = ({ children }) => {
+export const ApiProvider: React.FC<Props> = ({ children }) => {
   const axiosInstance = useAxiosInstance();
 
   return (
