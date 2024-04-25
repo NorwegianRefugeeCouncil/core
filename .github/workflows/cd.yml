@@ -45,7 +45,7 @@ jobs:
     needs: [Build]
     runs-on: ubuntu-latest
     environment:
-      name: ${{github.event.inputs.environment}}
+      name: ${{ github.event.inputs.environment || 'dev' }}
     defaults:
       run:
         shell: bash
@@ -92,7 +92,7 @@ jobs:
     steps:
       - name: Select Environment
         run: |
-          echo "Deploying to: ${{github.event.inputs.environment}}"
+          echo "Deploying to: ${{ github.event.inputs.environment || 'dev' }}"
 
       - name: Checkout Code
         uses: actions/checkout@v3
