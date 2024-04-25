@@ -22,7 +22,7 @@ export const defaultCreateEntityState: CreateEntityState = {
 type Data = Awaited<ReturnType<PrmClient[EntityType]['create']>>;
 
 export const useCreateEntity = (
-  client: PrmClient[EntityType],
+  client: PrmClient[EntityType] | undefined,
 ): CreateEntityState => {
   const [state, dispatch] = React.useReducer(
     (state: State<Data>, action: Action<Data>) => {
@@ -53,6 +53,9 @@ export const useCreateEntity = (
   );
 
   const onCreateEntity = async (entityDefinition: any) => {
+    if (!client) {
+      throw new Error('Client is not defined');
+    }
     try {
       dispatch({ type: SubmitStatus.SUBMITTING });
       const entity = await client.create(entityDefinition);

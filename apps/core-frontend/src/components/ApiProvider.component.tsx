@@ -1,18 +1,24 @@
+import { Outlet, useParams } from 'react-router-dom';
+
 import { PrmProvider } from '@nrcno/core-prm-components';
 
 import { useAxiosInstance } from '../hooks/useAxiosInstance.hook';
 import { UserProvider } from '../contexts/user.context';
 
-type Props = {
-  children: React.ReactNode;
-};
+export const ApiProvider: React.FC = () => {
+  const { entityType, entityId } = useParams();
 
-export const ApiProvider: React.FC<Props> = ({ children }) => {
   const axiosInstance = useAxiosInstance();
 
   return (
     <UserProvider axiosInstance={axiosInstance}>
-      <PrmProvider axiosInstance={axiosInstance}>{children}</PrmProvider>
+      <PrmProvider
+        axiosInstance={axiosInstance}
+        entityType={entityType}
+        entityId={entityId}
+      >
+        <Outlet />
+      </PrmProvider>
     </UserProvider>
   );
 };

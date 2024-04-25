@@ -22,7 +22,7 @@ export const defaultReadEntityState: ReadEntityState = {
 type Data = Awaited<ReturnType<PrmClient[EntityType]['read']>>;
 
 export const useReadEntity = (
-  client: PrmClient[EntityType],
+  client: PrmClient[EntityType] | undefined,
 ): ReadEntityState => {
   const [state, dispatch] = React.useReducer(
     (state: State<Data>, action: Action<Data>) => {
@@ -53,6 +53,9 @@ export const useReadEntity = (
   );
 
   const loadEntity = async (entityId: string) => {
+    if (!client) {
+      throw new Error('Client is not defined');
+    }
     try {
       dispatch({ type: SubmitStatus.SUBMITTING });
       const entity = await client.read(entityId);

@@ -68,26 +68,30 @@ const parseEntityFromForm = (
 };
 
 // TODO: Refactor after react-hook-form is integrated
-export const useEntityDetailPage = () => {
-  const { mode, entityType, entityId } = useLoaderData() as EntityLoaderData;
-
-  const prmContext = usePrmContext();
-
-  const detailConfig = config[entityType].detail;
-
-  const { loadEntity } = prmContext.read;
+export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
+  const { entityType, entityId, create, read } = usePrmContext();
 
   React.useEffect(() => {
     if (mode === 'read' && entityId) {
-      loadEntity(entityId);
+      read.loadEntity(entityId);
     }
-  }, [mode, entityId, loadEntity]);
+  }, [mode, entityId]);
+
+  if (!entityType) {
+    throw new Error('Entity type is required');
+  }
+
+  if (mode === 'read' && !entityId) {
+    throw new Error('Entity ID is required');
+  }
+
+  const detailConfig = config[entityType].detail;
 
   switch (mode) {
     case 'create': {
       const onSubmit = (target: HTMLFormElement) => {
         const entityDefinition = parseEntityFromForm(detailConfig, target);
-        prmContext.create.onCreateEntity(entityDefinition);
+        create.onCreateEntity(entityDefinition);
       };
 
       return {
@@ -95,10 +99,10 @@ export const useEntityDetailPage = () => {
         mode: mode,
         entityType: entityType,
         config: detailConfig,
-        isLoading: prmContext.create.status === SubmitStatus.SUBMITTING,
-        isError: prmContext.create.status === SubmitStatus.ERROR,
-        isSuccess: prmContext.create.status === SubmitStatus.SUCCESS,
-        error: prmContext.create.error,
+        isLoading: create.status === SubmitStatus.SUBMITTING,
+        isError: create.status === SubmitStatus.ERROR,
+        isSuccess: create.status === SubmitStatus.SUCCESS,
+        error: create.error,
       };
     }
     case 'read': {
@@ -106,11 +110,11 @@ export const useEntityDetailPage = () => {
         mode: mode,
         entityType: entityType,
         config: detailConfig,
-        isLoading: prmContext.read.status === SubmitStatus.SUBMITTING,
-        isError: prmContext.read.status === SubmitStatus.ERROR,
-        isSuccess: prmContext.read.status === SubmitStatus.SUCCESS,
-        error: prmContext.read.error,
-        data: prmContext.read.data,
+        isLoading: read.status === SubmitStatus.SUBMITTING,
+        isError: read.status === SubmitStatus.ERROR,
+        isSuccess: read.status === SubmitStatus.SUCCESS,
+        error: read.error,
+        data: read.data,
       };
     }
     default:

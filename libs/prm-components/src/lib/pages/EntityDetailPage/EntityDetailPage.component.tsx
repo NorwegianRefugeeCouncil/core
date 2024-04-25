@@ -5,11 +5,13 @@ import { useEntityDetailPage } from '../../hooks/useEntityDetailPage.hook';
 
 import styles from './EntityDetailPage.module.scss';
 
-type Props = unknown;
+type Props = {
+  mode: 'create' | 'read' | 'edit';
+};
 
-export const EntityDetailPage: React.FC<Props> = () => {
+export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
   const { entityType, config, isLoading, isError, isSuccess, error, onSubmit } =
-    useEntityDetailPage();
+    useEntityDetailPage(mode);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
