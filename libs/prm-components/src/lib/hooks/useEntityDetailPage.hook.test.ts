@@ -53,7 +53,7 @@ describe('useEntityDetailPage', () => {
       const { result } = renderHook(() => useEntityDetailPage());
 
       expect(result.current).toEqual({
-        handleSubmit: expect.any(Function),
+        onSubmit: expect.any(Function),
         entityType: EntityType.Participant,
         config: config[EntityType.Participant].detail,
         isLoading: false,
@@ -111,32 +111,35 @@ describe('useEntityDetailPage', () => {
 
       const { result } = renderHook(() => useEntityDetailPage());
 
-      const event = {
-        preventDefault: vi.fn(),
-        target: {
-          firstName: { value: 'John' },
-          lastName: { value: 'Doe' },
-          'disability.disabilityPwdComment': { value: 'Comment' },
-          'contactDetails.0.contactDetailType': { value: 'Email' },
-        },
-      } as any;
+      const form = document.createElement('form');
+      const createInputElement = (name: string, value: string) => {
+        const input = document.createElement('input');
+        input.name = name;
+        input.value = value;
+        return input;
+      };
+      form.appendChild(createInputElement('firstName', 'John'));
+      form.appendChild(createInputElement('lastName', 'Doe'));
+      form.appendChild(
+        createInputElement('disabilities.disabilityPwdComment', 'Comment'),
+      );
+      form.appendChild(
+        createInputElement('contactDetails.0.contactDetailType', 'Email'),
+      );
 
-      result.current.handleSubmit(event);
+      result.current.onSubmit(form);
 
-      expect(event.preventDefault).toHaveBeenCalled();
       expect(prmContextData.create.onCreateEntity).toHaveBeenCalledWith({
-        participant: {
-          firstName: 'John',
-          lastName: 'Doe',
-          disability: {
-            disabilityPwdComment: 'Comment',
-          },
-          contactDetails: [
-            {
-              contactDetailType: 'Email',
-            },
-          ],
+        firstName: 'John',
+        lastName: 'Doe',
+        disabilities: {
+          disabilityPwdComment: 'Comment',
         },
+        contactDetails: [
+          {
+            contactDetailType: 'Email',
+          },
+        ],
       });
     });
   });
