@@ -8,6 +8,11 @@ import {
   defaultCreateEntityState,
   useCreateEntity,
 } from './hooks';
+import {
+  ReadEntityState,
+  defaultReadEntityState,
+  useReadEntity,
+} from './hooks/useReadEntity.hook';
 
 type Props = {
   axiosInstance: AxiosInstance;
@@ -16,10 +21,12 @@ type Props = {
 
 type PrmContextData = {
   create: CreateEntityState;
+  read: ReadEntityState;
 };
 
 export const PrmContext = React.createContext<PrmContextData>({
   create: defaultCreateEntityState,
+  read: defaultReadEntityState,
 });
 
 export const usePrmContext = () => React.useContext(PrmContext);
@@ -38,8 +45,11 @@ export const PrmProvider: React.FC<Props> = ({ axiosInstance, children }) => {
   );
 
   const create = useCreateEntity(client);
+  const read = useReadEntity(client);
 
   return (
-    <PrmContext.Provider value={{ create }}>{children}</PrmContext.Provider>
+    <PrmContext.Provider value={{ create, read }}>
+      {children}
+    </PrmContext.Provider>
   );
 };
