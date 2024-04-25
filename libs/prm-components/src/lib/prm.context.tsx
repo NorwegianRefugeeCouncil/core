@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { AxiosInstance } from 'axios';
 import { PrmClient } from '@nrcno/core-clients';
-import { EntityType } from '@nrcno/core-models';
+import { useLoaderData } from 'react-router-dom';
 
 import {
   CreateEntityState,
@@ -13,6 +13,7 @@ import {
   defaultReadEntityState,
   useReadEntity,
 } from './hooks/useReadEntity.hook';
+import { EntityLoaderData } from './pages';
 
 type Props = {
   axiosInstance: AxiosInstance;
@@ -32,7 +33,7 @@ export const PrmContext = React.createContext<PrmContextData>({
 export const usePrmContext = () => React.useContext(PrmContext);
 
 export const PrmProvider: React.FC<Props> = ({ axiosInstance, children }) => {
-  const entityType = EntityType.Participant;
+  const { entityType } = useLoaderData() as EntityLoaderData;
 
   const prmClient = React.useMemo(
     () => new PrmClient(axiosInstance),
