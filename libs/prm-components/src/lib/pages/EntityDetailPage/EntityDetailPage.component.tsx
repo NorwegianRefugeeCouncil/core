@@ -8,15 +8,14 @@ import styles from './EntityDetailPage.module.scss';
 type Props = unknown;
 
 export const EntityDetailPage: React.FC<Props> = () => {
-  const {
-    entityType,
-    config,
-    isLoading,
-    isError,
-    isSuccess,
-    error,
-    handleSubmit,
-  } = useEntityDetailPage();
+  const { entityType, config, isLoading, isError, isSuccess, error, onSubmit } =
+    useEntityDetailPage();
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const target = event.target as HTMLFormElement;
+    onSubmit(target);
+  };
 
   return (
     <>

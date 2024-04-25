@@ -32,10 +32,10 @@ const applyValue = (path: string[], value: any, obj: any): any => {
 
 const parseEntityFromForm = (
   config: EntityUIConfig['detail'],
-  event: React.FormEvent<HTMLFormElement>,
+  target: HTMLFormElement,
 ) => {
   const fields = config.sections.flatMap((section) => section.fields);
-  const data: any = new FormData(event.target as HTMLFormElement);
+  const data: any = new FormData(target);
   const entity = fields.reduce((acc, field) => {
     if (field.component === Component.List) {
       const keys = (Array.from(data.keys()) as string[]).filter((key) =>
@@ -60,6 +60,7 @@ const parseEntityFromForm = (
     }
 
     const value = data.get(field.path.join('.'));
+
     return applyValue(field.path, value, acc);
   }, {});
   return entity;
@@ -75,14 +76,13 @@ export const useEntityDetailPage = () => {
 
   switch (mode) {
     case 'create': {
-      const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const entityDefinition = parseEntityFromForm(detailConfig, event);
+      const onSubmit = (target: HTMLFormElement) => {
+        const entityDefinition = parseEntityFromForm(detailConfig, target);
         prmContext.create.onCreateEntity(entityDefinition);
       };
 
       return {
-        handleSubmit,
+        onSubmit,
         entityType,
         config: detailConfig,
         isLoading: prmContext.create.status === SubmitStatus.SUBMITTING,
