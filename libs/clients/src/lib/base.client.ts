@@ -1,10 +1,4 @@
-import axios, {
-  CreateAxiosDefaults,
-  AxiosInstance,
-  AxiosResponse,
-} from 'axios';
-
-export type ClientConfig = CreateAxiosDefaults;
+import { AxiosInstance, AxiosResponse } from 'axios';
 
 interface IClient {
   get: (url: string, params?: any) => Promise<AxiosResponse<unknown>>;
@@ -29,26 +23,8 @@ interface IClient {
 export class BaseClient implements IClient {
   private client: AxiosInstance;
 
-  constructor(instance?: AxiosInstance, config?: ClientConfig) {
-    if (instance) {
-      this.client = instance;
-      return;
-    }
-
-    if (config) {
-      const { baseURL, ...otherConfig } = config;
-      this.client = axios.create({
-        baseURL,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        withCredentials: true,
-        ...otherConfig,
-      });
-      return;
-    }
-
-    throw new Error('No instance or config provided');
+  constructor(instance: AxiosInstance) {
+    this.client = instance;
   }
 
   async get(url: string, params?: any): Promise<AxiosResponse<unknown>> {

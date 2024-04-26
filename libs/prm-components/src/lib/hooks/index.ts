@@ -1,1 +1,1 @@
-export * from './useCreateEntity.hook';
+export * from './useApiReducer.hook';

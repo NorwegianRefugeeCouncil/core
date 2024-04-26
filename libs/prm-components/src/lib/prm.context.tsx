@@ -1,31 +1,49 @@
 import * as React from 'react';
 import { AxiosInstance } from 'axios';
 import { PrmClient } from '@nrcno/core-clients';
-import { EntityType } from '@nrcno/core-models';
+import { EntityType, EntityTypeSchema } from '@nrcno/core-models';
 
 import {
   CreateEntityState,
   defaultCreateEntityState,
   useCreateEntity,
-} from './hooks';
+} from './hooks/useCreateEntity.hook';
+import {
+  ReadEntityState,
+  defaultReadEntityState,
+  useReadEntity,
+} from './hooks/useReadEntity.hook';
 
 type Props = {
   axiosInstance: AxiosInstance;
+  entityType: string | undefined;
+  entityId: string | undefined;
   children: React.ReactNode;
 };
 
-type PrmContextData = {
+export type PrmContextData = {
+  entityType: EntityType | undefined;
+  entityId: string | undefined;
   create: CreateEntityState;
+  read: ReadEntityState;
 };
 
 export const PrmContext = React.createContext<PrmContextData>({
+  entityType: undefined,
+  entityId: undefined,
   create: defaultCreateEntityState,
+  read: defaultReadEntityState,
 });
 
 export const usePrmContext = () => React.useContext(PrmContext);
 
-export const PrmProvider: React.FC<Props> = ({ axiosInstance, children }) => {
-  const entityType = EntityType.Participant;
+export const PrmProvider: React.FC<Props> = ({
+  axiosInstance,
+  entityType,
+  entityId,
+  children,
+}) => {
+  const validEntityType = EntityTypeSchema.optional().parse(entityType);
 
   const prmClient = React.useMemo(
     () => new PrmClient(axiosInstance),
@@ -33,13 +51,23 @@ export const PrmProvider: React.FC<Props> = ({ axiosInstance, children }) => {
   );
 
   const client = React.useMemo(
-    () => prmClient[entityType],
-    [prmClient, entityType],
+    () => (validEntityType ? prmClient[validEntityType] : undefined),
+    [prmClient, validEntityType],
   );
 
   const create = useCreateEntity(client);
+  const read = useReadEntity(client);
 
   return (
-    <PrmContext.Provider value={{ create }}>{children}</PrmContext.Provider>
+    <PrmContext.Provider
+      value={{
+        entityType: validEntityType,
+        entityId,
+        create,
+        read,
+      }}
+    >
+      {children}
+    </PrmContext.Provider>
   );
 };

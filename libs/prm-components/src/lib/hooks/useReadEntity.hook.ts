@@ -1,34 +1,34 @@
 import { PrmClient } from '@nrcno/core-clients';
-import { Entity, EntityType } from '@nrcno/core-models';
+import { EntityType, Entity } from '@nrcno/core-models';
 
 import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
 
-export type CreateEntityState = {
-  onCreateEntity: (entityDefinition: any) => Promise<any>;
+export type ReadEntityState = {
+  loadEntity: (entityId: string) => Promise<void>;
   status: SubmitStatus;
   data?: Entity;
   error?: Error;
 };
 
-export const defaultCreateEntityState: CreateEntityState = {
-  onCreateEntity: async () => Promise.resolve(),
+export const defaultReadEntityState: ReadEntityState = {
+  loadEntity: async (entityId: string) => Promise.resolve(),
   status: SubmitStatus.IDLE,
   data: undefined,
   error: undefined,
 };
 
-export const useCreateEntity = (
+export const useReadEntity = (
   client: PrmClient[EntityType] | undefined,
-): CreateEntityState => {
+): ReadEntityState => {
   const [state, actions] = useApiReducer<Entity>();
 
-  const onCreateEntity = async (entityDefinition: any) => {
+  const loadEntity = async (entityId: string) => {
     if (!client) {
       throw new Error('Client is not defined');
     }
     try {
       actions.submitting();
-      const entity = await client.create(entityDefinition);
+      const entity = await client.read(entityId);
       actions.success(entity);
     } catch (error) {
       const err =
@@ -38,7 +38,7 @@ export const useCreateEntity = (
   };
 
   return {
-    onCreateEntity,
+    loadEntity,
     status: state.status,
     data: state.data,
     error: state.error,

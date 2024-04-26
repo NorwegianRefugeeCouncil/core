@@ -10,9 +10,14 @@ export const createEntity = async (
   next: NextFunction,
 ) => {
   try {
-    const entityType = EntityTypeSchema.parse(req.params.entityType);
+    const entityType = EntityTypeSchema.safeParse(req.params.entityType);
 
-    const prmService = PrmService[entityType];
+    if (entityType.success === false) {
+      res.sendStatus(404);
+      return;
+    }
+
+    const prmService = PrmService[entityType.data];
 
     const entityDefinition = req.body; // TODO: Validate entity definition
     const createdEntity = await prmService.create(entityDefinition);
@@ -29,12 +34,17 @@ export const getEntity = async (
   next: NextFunction,
 ) => {
   try {
-    const entityType = EntityTypeSchema.parse(req.params.entityType);
-    const entityId = EntityIdSchema.parse(req.params.entityId);
+    const entityType = EntityTypeSchema.safeParse(req.params.entityType);
+    const entityId = EntityIdSchema.safeParse(req.params.entityId);
 
-    const prmService = PrmService[entityType];
+    if (entityType.success === false || entityId.success === false) {
+      res.sendStatus(404);
+      return;
+    }
 
-    const entity = await prmService.get(entityId);
+    const prmService = PrmService[entityType.data];
+
+    const entity = await prmService.get(entityId.data);
 
     if (!entity) {
       res.sendStatus(404);

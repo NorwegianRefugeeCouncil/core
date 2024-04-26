@@ -1,10 +1,10 @@
-import { useLoaderData } from 'react-router-dom';
+import * as React from 'react';
 import { z } from 'zod';
 
-import { CreateEntityLoaderData } from '../pages';
 import { usePrmContext } from '../prm.context';
 import { Component, EntityUIConfig, config } from '../config';
-import { SubmitStatus } from '../types';
+
+import { SubmitStatus } from './useApiReducer.hook';
 
 const applyValue = (path: string[], value: any, obj: any): any => {
   // This works for our current use case, but it's not a general solution
@@ -67,10 +67,22 @@ const parseEntityFromForm = (
 };
 
 // TODO: Refactor after react-hook-form is integrated
-export const useEntityDetailPage = () => {
-  const { mode, entityType } = useLoaderData() as CreateEntityLoaderData;
+export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
+  const { entityType, entityId, create, read } = usePrmContext();
 
-  const prmContext = usePrmContext();
+  React.useEffect(() => {
+    if (mode === 'read' && entityId) {
+      read.loadEntity(entityId);
+    }
+  }, [mode, entityId]);
+
+  if (!entityType) {
+    throw new Error('Entity type is required');
+  }
+
+  if (mode === 'read' && !entityId) {
+    throw new Error('Entity ID is required');
+  }
 
   const detailConfig = config[entityType].detail;
 
@@ -78,17 +90,30 @@ export const useEntityDetailPage = () => {
     case 'create': {
       const onSubmit = (target: HTMLFormElement) => {
         const entityDefinition = parseEntityFromForm(detailConfig, target);
-        prmContext.create.onCreateEntity(entityDefinition);
+        create.onCreateEntity(entityDefinition);
       };
 
       return {
         onSubmit,
-        entityType,
+        mode: mode,
+        entityType: entityType,
         config: detailConfig,
-        isLoading: prmContext.create.status === SubmitStatus.SUBMITTING,
-        isError: prmContext.create.status === SubmitStatus.ERROR,
-        isSuccess: prmContext.create.status === SubmitStatus.SUCCESS,
-        error: prmContext.create.error,
+        isLoading: create.status === SubmitStatus.SUBMITTING,
+        isError: create.status === SubmitStatus.ERROR,
+        isSuccess: create.status === SubmitStatus.SUCCESS,
+        error: create.error,
+      };
+    }
+    case 'read': {
+      return {
+        mode: mode,
+        entityType: entityType,
+        config: detailConfig,
+        isLoading: read.status === SubmitStatus.SUBMITTING,
+        isError: read.status === SubmitStatus.ERROR,
+        isSuccess: read.status === SubmitStatus.SUCCESS,
+        error: read.error,
+        data: read.data,
       };
     }
     default:

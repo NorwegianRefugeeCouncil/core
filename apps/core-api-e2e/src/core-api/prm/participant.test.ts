@@ -220,5 +220,11 @@ describe('Participants', () => {
 
       expect(response.status).toBe(404);
     });
+
+    it('should return 404 if the participant id is invalid', async () => {
+      const response = await axiosInstance.get(`/api/prm/participants/invalid`);
+
+      expect(response.status).toBe(404);
+    });
   });
 });

@@ -3,8 +3,7 @@ import { PrmClient } from '@nrcno/core-clients';
 import { EntityType } from '@nrcno/core-models';
 import { vi, Mock } from 'vitest';
 
-import { SubmitStatus } from '../types';
-
+import { SubmitStatus } from './useApiReducer.hook';
 import { useCreateEntity } from './useCreateEntity.hook';
 
 describe('useCreateEntity', () => {

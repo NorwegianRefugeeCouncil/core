@@ -6,7 +6,6 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { theme } from '@nrcno/core-theme';
 
 import { router } from './routes';
-import { ApiProvider } from './components/ApiProvider.component';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
@@ -14,10 +13,8 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <StrictMode>
-    <ApiProvider>
-      <ChakraProvider theme={theme}>
-        <RouterProvider router={router} />
-      </ChakraProvider>
-    </ApiProvider>
+    <ChakraProvider theme={theme}>
+      <RouterProvider router={router} />
+    </ChakraProvider>
   </StrictMode>,
 );
