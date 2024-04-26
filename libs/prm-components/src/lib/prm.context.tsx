@@ -52,7 +52,7 @@ export const PrmProvider: React.FC<Props> = ({
 
   const client = React.useMemo(
     () => (validEntityType ? prmClient[validEntityType] : undefined),
-    [prmClient, entityType],
+    [prmClient, validEntityType],
   );
 
   const create = useCreateEntity(client);
