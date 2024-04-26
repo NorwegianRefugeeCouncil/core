@@ -8,11 +8,11 @@ import { ApiProvider } from './components/ApiProvider.component';
 export const router = createBrowserRouter([
   {
     element: <ApiProvider />,
+    errorElement: <div>Placeholder error page</div>,
     children: [
       {
         path: '/',
         element: <App />,
-        errorElement: <div>Placeholder error page</div>,
         children: [
           {
             path: '/',
