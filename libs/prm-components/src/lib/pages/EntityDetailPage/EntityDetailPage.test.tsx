@@ -16,7 +16,7 @@ describe('EntityDetailPage', () => {
         entityType={EntityType.Participant}
         entityId={undefined}
       >
-        <EntityDetailPage mode="create" />?
+        <EntityDetailPage mode="create" />
       </PrmProvider>,
     );
     expect(baseElement).toBeTruthy();

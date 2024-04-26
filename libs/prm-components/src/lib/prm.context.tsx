@@ -21,7 +21,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-type PrmContextData = {
+export type PrmContextData = {
   entityType: EntityType | undefined;
   entityId: string | undefined;
   create: CreateEntityState;
