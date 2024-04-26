@@ -1,5 +1,5 @@
 import { Box, FormLabel } from '@chakra-ui/react';
-import { UseControllerProps, ControllerRenderProps } from 'react-hook-form';
+import { ControllerRenderProps } from 'react-hook-form';
 
 import { FieldConfig, ListFieldConfig } from '../../config';
 
@@ -8,18 +8,19 @@ import { Field } from '.';
 type Props = {
   config: ListFieldConfig;
   name: string;
-};
+} & Omit<ControllerRenderProps, 'ref'>;
 
-// TODO figure out Props
-export const List: React.FC<
-  Props & UseControllerProps & Omit<ControllerRenderProps, 'ref'>
-> = ({ config: { label, children, filter }, name, ...props }) => {
-  const filtered = filter ? props.value.map(filter) : children;
+export const List: React.FC<Props> = ({
+  config: { label, children, map },
+  name,
+  value,
+}) => {
+  const mapped = map ? value.map(map) : children;
   return (
     <Box>
       <FormLabel>{label}</FormLabel>
-      {filtered.map((v: object, i: number) => {
-        if (!v) return;
+      {mapped.map((v: boolean, i: number) => {
+        if (!v) return null;
         return children.map((childConfig: FieldConfig) => {
           const innerConfig = {
             ...childConfig,

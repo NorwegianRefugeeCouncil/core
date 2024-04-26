@@ -33,7 +33,7 @@ export type ListFieldConfig = {
   component: Component.List;
   label: string;
   children: FieldConfig[];
-  filter?: (value: any) => boolean;
+  map?: (value: any) => boolean;
 };
 
 type Option = {

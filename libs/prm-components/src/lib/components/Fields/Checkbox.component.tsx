@@ -5,15 +5,15 @@ import {
   FormHelperText,
   FormLabel,
 } from '@chakra-ui/react';
-import { UseControllerProps, useFormContext } from 'react-hook-form';
+import { ControllerRenderProps, useFormContext } from 'react-hook-form';
 
 import { FieldConfig } from '../../config';
 
 type Props = {
   config: FieldConfig;
-};
+} & Omit<ControllerRenderProps, 'ref'>;
 
-export const Checkbox: React.FC<Props & UseControllerProps> = ({
+export const Checkbox: React.FC<Props> = ({
   config: { dataType, description, label, placeholder, required, path },
   ...props
 }) => {

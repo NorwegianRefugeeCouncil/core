@@ -41,7 +41,6 @@ export const Field: React.FC<FieldProps> = ({ config }) => {
           case Component.List:
             return <List config={config} {...props} />;
           default:
-            // TODO throw error somewhere?
             // eslint-disable-next-line react/jsx-no-useless-fragment
             return <></>;
         }

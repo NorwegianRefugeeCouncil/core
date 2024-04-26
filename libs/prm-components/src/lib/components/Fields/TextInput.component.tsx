@@ -6,7 +6,7 @@ import {
   Input,
 } from '@chakra-ui/react';
 import {
-  UseControllerProps,
+  ControllerRenderProps,
   useFormContext,
   ControllerFieldState,
 } from 'react-hook-form';
@@ -16,11 +16,10 @@ import { FieldConfig } from '../../config';
 type Props = {
   config: FieldConfig;
   name: string;
-};
+} & ControllerFieldState &
+  Omit<ControllerRenderProps, 'ref'>;
 
-export const TextInput: React.FC<
-  Props & UseControllerProps & ControllerFieldState
-> = ({
+export const TextInput: React.FC<Props> = ({
   config: { dataType, description, label, placeholder, required },
   name,
   invalid,

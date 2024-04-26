@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-import { ParticipantSchema } from './participant.model';
-import { ParticipantDefinition } from './participant.model';
+import { ParticipantSchema, ParticipantDefinition } from './participant.model';
 
 export enum EntityType {
   Participant = 'participants',

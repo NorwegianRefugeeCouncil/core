@@ -5,7 +5,6 @@ import {
   DisplacementStatus,
   EngagementContext,
   IdentificationType,
-  Participant,
   Sex,
   YesNoUnknown,
 } from '@nrcno/core-models';
@@ -181,7 +180,7 @@ export const participantConfig: EntityUIConfig = {
             path: ['contactDetails'],
             component: Component.List,
             label: 'Email addresses',
-            filter: (contactDetail) =>
+            map: (contactDetail) =>
               contactDetail.contactDetailType === ContactDetailType.Email,
             children: [
               {
@@ -206,7 +205,7 @@ export const participantConfig: EntityUIConfig = {
             path: ['contactDetails'],
             component: Component.List,
             label: 'Phone numbers',
-            filter: (contactDetail) =>
+            map: (contactDetail) =>
               contactDetail.contactDetailType === ContactDetailType.PhoneNumber,
             children: [
               {

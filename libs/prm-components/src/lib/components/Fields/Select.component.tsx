@@ -5,16 +5,21 @@ import {
   FormLabel,
   Select as S,
 } from '@chakra-ui/react';
-import { UseControllerProps, useFormContext } from 'react-hook-form';
+import {
+  ControllerFieldState,
+  ControllerRenderProps,
+  useFormContext,
+} from 'react-hook-form';
 
 import { FieldConfig } from '../../config';
 
 type Props = {
   config: FieldConfig;
   name: string;
-};
+} & ControllerFieldState &
+  Omit<ControllerRenderProps, 'ref'>;
 
-export const Select: React.FC<Props & UseControllerProps> = ({
+export const Select: React.FC<Props> = ({
   config: { description, label, placeholder, required, options },
   name,
   ...props
