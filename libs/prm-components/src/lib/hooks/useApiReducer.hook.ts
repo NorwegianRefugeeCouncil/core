@@ -65,6 +65,7 @@ export const useApiReducer = <T>() => {
     success: (data: T) => dispatch({ type: SubmitStatus.SUCCESS, data }),
     error: (error: Error) =>
       dispatch({ type: SubmitStatus.ERROR, data: error }),
+    reset: () => dispatch({ type: SubmitStatus.IDLE }),
   };
 
   return [state, actions] as const;
