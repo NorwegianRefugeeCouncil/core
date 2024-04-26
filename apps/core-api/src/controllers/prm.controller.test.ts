@@ -47,7 +47,7 @@ describe('PRM Controller', () => {
         expect(res._getJSONData()).toEqual(fakeParticipant);
       });
 
-      it('should call next with an error if the entity type is not found', async () => {
+      it('should return a 404 if the entity type is not found', async () => {
         const req = httpMocks.createRequest({
           params: {
             entityType: 'Unknown',
@@ -59,7 +59,7 @@ describe('PRM Controller', () => {
 
         await createEntity(req, res, next);
 
-        expect(next).toHaveBeenCalledWith(expect.any(ZodError));
+        expect(res.statusCode).toEqual(404);
       });
 
       it('should call next with an error if the prm service throws an error', async () => {
@@ -101,7 +101,7 @@ describe('PRM Controller', () => {
         expect(res._getJSONData()).toEqual({ ...fakeParticipant, id });
       });
 
-      it('should call next with an error if the entity type is not found', async () => {
+      it('should return a 404 if the entity type is not found', async () => {
         const req = httpMocks.createRequest({
           params: {
             entityType: 'Unknown',
@@ -113,10 +113,10 @@ describe('PRM Controller', () => {
 
         await getEntity(req, res, next);
 
-        expect(next).toHaveBeenCalledWith(expect.any(ZodError));
+        expect(res.statusCode).toEqual(404);
       });
 
-      it('should call next with an error if the entity id is invalid', async () => {
+      it('should return a 404 if the entity id is invalid', async () => {
         const req = httpMocks.createRequest({
           params: {
             entityType: EntityType.Participant,
@@ -128,7 +128,7 @@ describe('PRM Controller', () => {
 
         await getEntity(req, res, next);
 
-        expect(next).toHaveBeenCalledWith(expect.any(ZodError));
+        expect(res.statusCode).toEqual(404);
       });
 
       it('should call next with an error if the prm service throws an error', async () => {
