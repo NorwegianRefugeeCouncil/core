@@ -1,8 +1,7 @@
-import * as React from 'react';
 import { PrmClient } from '@nrcno/core-clients';
 import { EntityType } from '@nrcno/core-models';
 
-import { SubmitStatus, State, Action } from '../types';
+import { SubmitStatus, useApiReducer } from '../types';
 
 export type ReadEntityState = {
   loadEntity: (entityId: string) => Promise<void>;
@@ -24,46 +23,20 @@ type Data = Awaited<ReturnType<PrmClient[EntityType]['read']>>;
 export const useReadEntity = (
   client: PrmClient[EntityType] | undefined,
 ): ReadEntityState => {
-  const [state, dispatch] = React.useReducer(
-    (state: State<Data>, action: Action<Data>) => {
-      switch (action.type) {
-        case SubmitStatus.SUBMITTING:
-          return { ...state, status: SubmitStatus.SUBMITTING };
-        case SubmitStatus.SUCCESS:
-          return {
-            ...state,
-            status: SubmitStatus.SUCCESS,
-            data: action.data,
-          };
-        case SubmitStatus.ERROR:
-          return {
-            ...state,
-            status: SubmitStatus.ERROR,
-            error: action.data,
-          };
-        case SubmitStatus.IDLE:
-          return { ...state, status: SubmitStatus.IDLE };
-        default:
-          return state;
-      }
-    },
-    {
-      status: SubmitStatus.IDLE,
-    },
-  );
+  const [state, actions] = useApiReducer<Data>();
 
   const loadEntity = async (entityId: string) => {
     if (!client) {
       throw new Error('Client is not defined');
     }
     try {
-      dispatch({ type: SubmitStatus.SUBMITTING });
+      actions.submitting();
       const entity = await client.read(entityId);
-      dispatch({ type: SubmitStatus.SUCCESS, data: entity });
+      actions.success(entity);
     } catch (error) {
       const err =
         error instanceof Error ? error : new Error('An error occurred');
-      dispatch({ type: SubmitStatus.ERROR, data: err });
+      actions.error(err);
     }
   };
 
