@@ -52,16 +52,6 @@ describe('PRM client', () => {
         );
       });
 
-      it('should fail with an invalid participant definition', async () => {
-        const participantDefinition = {
-          firstName: faker.person.firstName(),
-        };
-
-        await expect(
-          client.create(participantDefinition as ParticipantDefinition),
-        ).rejects.toThrow(expect.any(ZodError));
-      });
-
       it('should fail when receiving an invalid response from the api', () => {
         const participantDefinition = {
           consentGdpr: faker.datatype.boolean(),

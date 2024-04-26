@@ -30,11 +30,9 @@ const getPrmClient = (axiosInstance: AxiosInstance) => {
     const baseClient = new BaseClient(axiosInstance);
 
     const create = async (entityDefinition: any) => {
-      const validatedEntityDefinition =
-        validators[entityType].definition.parse(entityDefinition);
       const response = await baseClient.post(
         `/prm/${entityType}`,
-        validatedEntityDefinition,
+        entityDefinition,
       );
       return validators[entityType].entity.parse(response.data);
     };
