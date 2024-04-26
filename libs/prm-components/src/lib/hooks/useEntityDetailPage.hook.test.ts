@@ -3,10 +3,10 @@ import { useLoaderData } from 'react-router-dom';
 import { vi, Mock } from 'vitest';
 import { EntityType } from '@nrcno/core-models';
 
-import { SubmitStatus } from '../types';
 import { usePrmContext } from '../prm.context';
 import { config } from '../config';
 
+import { SubmitStatus } from './useApiReducer.hook';
 import { useEntityDetailPage } from './useEntityDetailPage.hook';
 
 vi.mock('react-router-dom', () => ({
