@@ -132,7 +132,7 @@ export const participantConfig: EntityUIConfig = {
             children: [
               {
                 path: ['isoCode'],
-                dataType: DataType.String,
+                dataType: DataType.Hidden,
                 component: Component.Hidden,
               },
               {
@@ -155,7 +155,7 @@ export const participantConfig: EntityUIConfig = {
             children: [
               {
                 path: ['isoCode'],
-                dataType: DataType.String,
+                dataType: DataType.Hidden,
                 component: Component.Hidden,
               },
               {

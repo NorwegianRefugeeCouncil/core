@@ -15,7 +15,6 @@ type Props = {
 
 export const Checkbox: React.FC<Props> = ({
   config: { dataType, description, label, placeholder, required, path },
-  ...props
 }) => {
   const { getFieldState, register } = useFormContext();
   const state = getFieldState(path.join('.'));
@@ -28,7 +27,6 @@ export const Checkbox: React.FC<Props> = ({
         isRequired={required}
         placeholder={placeholder}
         type={dataType}
-        {...props}
         {...register(path.join('.'))}
       />
       <FormHelperText>{description}</FormHelperText>

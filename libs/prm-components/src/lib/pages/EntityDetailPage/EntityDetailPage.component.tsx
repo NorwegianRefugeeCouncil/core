@@ -19,7 +19,7 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
       {isSuccess && <div>Success</div>}
       <Form
         id={`entity_detail_${entityType}`}
-        title={'EntityDetailPage'}
+        title={'New participants'}
         config={config}
         submit={onSubmit}
         entity={{
@@ -32,8 +32,12 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
           consentReferral: true,
           languages: [
             {
+              isoCode: 'fr',
+              translationKey: 'fr',
+            },
+            {
               isoCode: 'es',
-              translationKey: '',
+              translationKey: 'es',
             },
           ],
           nationalities: [],

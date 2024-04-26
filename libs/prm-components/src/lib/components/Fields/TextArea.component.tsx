@@ -20,9 +20,8 @@ type Props = {
   Omit<ControllerRenderProps, 'ref'>;
 
 export const TextArea: React.FC<Props> = ({
-  config: { description, label, placeholder, required, path },
+  config: { description, label, placeholder, required },
   name,
-  ...props
 }) => {
   const { getFieldState, register } = useFormContext();
   const state = getFieldState(name);
@@ -34,7 +33,6 @@ export const TextArea: React.FC<Props> = ({
         isInvalid={state.invalid}
         isRequired={required}
         placeholder={placeholder}
-        {...props}
         {...register(name)}
       />
       <FormHelperText>{description}</FormHelperText>

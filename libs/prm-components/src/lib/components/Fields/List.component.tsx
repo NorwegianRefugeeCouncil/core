@@ -15,18 +15,19 @@ export const List: React.FC<Props> = ({
   name,
   value,
 }) => {
-  const mapped = map ? value.map(map) : children;
+  const mapped = map ? value.map(map) : value;
   return (
     <Box>
       <FormLabel>{label}</FormLabel>
       {mapped.map((v: boolean, i: number) => {
         if (!v) return null;
         return children.map((childConfig: FieldConfig) => {
+          const innerPath = [name, `${i}`, childConfig.path.join('.')];
           const innerConfig = {
             ...childConfig,
-            path: [name, `${i}`, childConfig.path.join('.')],
+            path: innerPath,
           };
-          return <Field config={innerConfig} />;
+          return <Field key={innerPath.join('.')} config={innerConfig} />;
         });
       })}
     </Box>

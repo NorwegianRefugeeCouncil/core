@@ -1,6 +1,11 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { vi, Mock } from 'vitest';
-import { EntityType } from '@nrcno/core-models';
+import {
+  ContactDetailType,
+  DisabilityLevel,
+  EntityType,
+  YesNoUnknown,
+} from '@nrcno/core-models';
 
 import { PrmContextData, usePrmContext } from '../prm.context';
 import { config } from '../config';
@@ -105,38 +110,95 @@ describe('useEntityDetailPage', () => {
 
       const { result } = renderHook(() => useEntityDetailPage('create'));
 
-      const form = document.createElement('form');
-      const createInputElement = (name: string, value: string) => {
-        const input = document.createElement('input');
-        input.name = name;
-        input.value = value;
-        return input;
-      };
-      form.appendChild(createInputElement('firstName', 'John'));
-      form.appendChild(createInputElement('lastName', 'Doe'));
-      form.appendChild(
-        createInputElement('disabilities.disabilityPwdComment', 'Comment'),
-      );
-      form.appendChild(
-        createInputElement('contactDetails.0.contactDetailType', 'Email'),
-      );
-
       if (!result.current.onSubmit)
         throw new Error('onSubmit is not defined on the hook');
 
-      result.current.onSubmit(form);
+      result.current.onSubmit({
+        firstName: 'John',
+        lastName: 'Doe',
+        disabilities: {
+          hasDisabilityPwd: false,
+          disabilityPwdComment: 'Comment',
+          hasDisabilityVision: false,
+          disabilityVisionLevel: DisabilityLevel.Four,
+          hasDisabilityHearing: false,
+          disabilityHearingLevel: DisabilityLevel.Four,
+          hasDisabilityMobility: false,
+          disabilityMobilityLevel: DisabilityLevel.Four,
+          hasDisabilityCognition: false,
+          disabilityCognitionLevel: DisabilityLevel.Four,
+          hasDisabilitySelfcare: false,
+          disabilitySelfcareLevel: DisabilityLevel.Four,
+          hasDisabilityCommunication: false,
+          disabilityCommunicationLevel: DisabilityLevel.Four,
+          isChildAtRisk: YesNoUnknown.No,
+          isElderAtRisk: YesNoUnknown.No,
+          isWomanAtRisk: YesNoUnknown.No,
+          isSingleParent: YesNoUnknown.No,
+          isSeparatedChild: YesNoUnknown.No,
+          isPregnant: YesNoUnknown.No,
+          isLactating: YesNoUnknown.No,
+          hasMedicalCondition: YesNoUnknown.No,
+          needsLegalPhysicalProtection: YesNoUnknown.No,
+          vulnerabilityComments: 'Comments',
+        },
+        contactDetails: [
+          {
+            contactDetailType: ContactDetailType.Email,
+            value: '',
+            id: '',
+          },
+        ],
+        consentGdpr: false,
+        consentReferral: false,
+        languages: [],
+        nationalities: [],
+        identification: [],
+        id: '',
+      });
 
       expect(prmContextData.create.onCreateEntity).toHaveBeenCalledWith({
         firstName: 'John',
         lastName: 'Doe',
         disabilities: {
+          hasDisabilityPwd: false,
           disabilityPwdComment: 'Comment',
+          hasDisabilityVision: false,
+          disabilityVisionLevel: DisabilityLevel.Four,
+          hasDisabilityHearing: false,
+          disabilityHearingLevel: DisabilityLevel.Four,
+          hasDisabilityMobility: false,
+          disabilityMobilityLevel: DisabilityLevel.Four,
+          hasDisabilityCognition: false,
+          disabilityCognitionLevel: DisabilityLevel.Four,
+          hasDisabilitySelfcare: false,
+          disabilitySelfcareLevel: DisabilityLevel.Four,
+          hasDisabilityCommunication: false,
+          disabilityCommunicationLevel: DisabilityLevel.Four,
+          isChildAtRisk: YesNoUnknown.No,
+          isElderAtRisk: YesNoUnknown.No,
+          isWomanAtRisk: YesNoUnknown.No,
+          isSingleParent: YesNoUnknown.No,
+          isSeparatedChild: YesNoUnknown.No,
+          isPregnant: YesNoUnknown.No,
+          isLactating: YesNoUnknown.No,
+          hasMedicalCondition: YesNoUnknown.No,
+          needsLegalPhysicalProtection: YesNoUnknown.No,
+          vulnerabilityComments: 'Comments',
         },
         contactDetails: [
           {
-            contactDetailType: 'Email',
+            contactDetailType: ContactDetailType.Email,
+            value: '',
+            id: '',
           },
         ],
+        consentGdpr: false,
+        consentReferral: false,
+        languages: [],
+        nationalities: [],
+        identification: [],
+        id: '',
       });
     });
   });

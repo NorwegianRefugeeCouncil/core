@@ -22,7 +22,6 @@ type Props = {
 export const Select: React.FC<Props> = ({
   config: { description, label, placeholder, required, options },
   name,
-  ...props
 }) => {
   const { getFieldState, register } = useFormContext();
   const state = getFieldState(name);
@@ -34,7 +33,6 @@ export const Select: React.FC<Props> = ({
         isInvalid={state.invalid}
         isRequired={required}
         placeholder={placeholder}
-        {...props}
         {...register(name)}
       >
         {options &&

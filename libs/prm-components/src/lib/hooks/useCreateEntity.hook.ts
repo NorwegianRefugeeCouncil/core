@@ -1,10 +1,10 @@
 import { PrmClient } from '@nrcno/core-clients';
-import { Entity, EntityType } from '@nrcno/core-models';
+import { Entity, EntityDefinition, EntityType } from '@nrcno/core-models';
 
 import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
 
 export type CreateEntityState = {
-  onCreateEntity: (entityDefinition: any) => Promise<any>;
+  onCreateEntity: (entityDefinition: EntityDefinition) => Promise<any>;
   status: SubmitStatus;
   data?: Entity;
   error?: Error;
@@ -22,7 +22,7 @@ export const useCreateEntity = (
 ): CreateEntityState => {
   const [state, actions] = useApiReducer<Entity>();
 
-  const onCreateEntity = async (entityDefinition: any) => {
+  const onCreateEntity = async (entityDefinition: EntityDefinition) => {
     if (!client) {
       throw new Error('Client is not defined');
     }
