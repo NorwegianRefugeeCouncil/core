@@ -25,6 +25,7 @@
     "express": "^4.19.2",
     "express-rate-limit": "^7.2.0",
     "express-session": "^1.18.0",
+    "fast-dice-coefficient": "^1.0.3",
     "framer-motion": "^11.1.7",
     "helmet": "^7.1.0",
     "knex": "^3.1.0",

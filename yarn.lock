@@ -9306,6 +9306,11 @@ fast-deep-equal@^3.1.1, fast-deep-equal@^3.1.3:
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz#3a7d56b559d6cbc3eb512325244e619a65c6c525"
   integrity sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==
 
+fast-dice-coefficient@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/fast-dice-coefficient/-/fast-dice-coefficient-1.0.3.tgz#8993922894eb78c1a719b296bf784f6d69b81917"
+  integrity sha512-cV3wG72wbbKCRfFH/6aHFa3d+zvKzgTOOcgeedtqK1ayzkrsvRivOc24eK10NSwfkkHJRIZfdzz6rYFP3z7mqQ==
+
 fast-diff@^1.1.2:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/fast-diff/-/fast-diff-1.3.0.tgz#ece407fa550a64d638536cd727e129c61616e0f0"
