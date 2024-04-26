@@ -202,7 +202,6 @@ export const hasListMixin = (
     typeof obj.list === 'function' &&
     typeof obj.count === 'function'
   );
-};
 
 export const hasGetMixin = (obj: any | undefined): obj is { get: Function } => {
   return obj !== undefined && typeof obj.get === 'function';
