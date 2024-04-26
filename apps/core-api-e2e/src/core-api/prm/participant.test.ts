@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { faker } from '@faker-js/faker';
 import { ulid } from 'ulidx';
-import { ParticipantGenerator } from '@nrcno/core-test-utils';
 
+import { ParticipantGenerator } from '@nrcno/core-test-utils';
 import {
   ParticipantSchema,
   ParticipantDefinition,
