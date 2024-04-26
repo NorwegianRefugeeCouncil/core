@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { faker } from '@faker-js/faker';
 import { ulid } from 'ulidx';
-
 import { ParticipantGenerator } from '@nrcno/core-test-utils';
 
 import {
@@ -221,13 +220,11 @@ describe('Participants', () => {
 
       expect(response.status).toBe(404);
     });
-    
+
     it('should return 404 if the participant id is invalid', async () => {
-      const response = await axiosInstance.get(
-        `/api/prm/participants/invalid`,
-      );
+      const response = await axiosInstance.get(`/api/prm/participants/invalid`);
 
       expect(response.status).toBe(404);
-    }
+    });
   });
 });
