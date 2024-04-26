@@ -1,12 +1,12 @@
 import { PrmClient } from '@nrcno/core-clients';
-import { EntityType } from '@nrcno/core-models';
+import { Entity, EntityType } from '@nrcno/core-models';
 
-import { SubmitStatus, useApiReducer } from '../types';
+import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
 
 export type CreateEntityState = {
   onCreateEntity: (entityDefinition: any) => Promise<any>;
   status: SubmitStatus;
-  data?: any;
+  data?: Entity;
   error?: Error;
 };
 
@@ -17,13 +17,10 @@ export const defaultCreateEntityState: CreateEntityState = {
   error: undefined,
 };
 
-// WARNING: This may break as we add more entity types
-type Data = Awaited<ReturnType<PrmClient[EntityType]['create']>>;
-
 export const useCreateEntity = (
   client: PrmClient[EntityType] | undefined,
 ): CreateEntityState => {
-  const [state, actions] = useApiReducer<Data>();
+  const [state, actions] = useApiReducer<Entity>();
 
   const onCreateEntity = async (entityDefinition: any) => {
     if (!client) {

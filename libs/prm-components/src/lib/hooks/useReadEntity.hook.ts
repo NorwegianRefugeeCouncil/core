@@ -1,12 +1,12 @@
 import { PrmClient } from '@nrcno/core-clients';
-import { EntityType } from '@nrcno/core-models';
+import { EntityType, Entity } from '@nrcno/core-models';
 
 import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
 
 export type ReadEntityState = {
   loadEntity: (entityId: string) => Promise<void>;
   status: SubmitStatus;
-  data?: any;
+  data?: Entity;
   error?: Error;
 };
 
@@ -17,13 +17,10 @@ export const defaultReadEntityState: ReadEntityState = {
   error: undefined,
 };
 
-// WARNING: This may break as we add more entity types
-type Data = Awaited<ReturnType<PrmClient[EntityType]['read']>>;
-
 export const useReadEntity = (
   client: PrmClient[EntityType] | undefined,
 ): ReadEntityState => {
-  const [state, actions] = useApiReducer<Data>();
+  const [state, actions] = useApiReducer<Entity>();
 
   const loadEntity = async (entityId: string) => {
     if (!client) {
