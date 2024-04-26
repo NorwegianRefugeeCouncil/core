@@ -4,6 +4,7 @@ import { faker } from '@faker-js/faker';
 import { ZodError } from 'zod';
 import { ulid } from 'ulidx';
 
+import { ParticipantGenerator } from '@nrcno/core-test-utils';
 import { EntityType, ParticipantDefinition } from '@nrcno/core-models';
 
 import { PrmClient } from './prm.client';
@@ -127,6 +128,51 @@ describe('PRM client', () => {
         mock.onGet(`/prm/participants/${participantId}`).reply(400);
         expect(client.read(participantId)).rejects.toThrow(
           'Request failed with status code 400',
+        );
+      });
+    });
+
+    describe('update', () => {
+      it('should update a participant', async () => {
+        const participant = ParticipantGenerator.generateEntity();
+        const participantId = participant.id;
+        const updatedParticipant = {
+          ...participant,
+          consentGdpr: !participant.consentGdpr,
+        };
+        mock
+          .onPatch(`/prm/participants/${participantId}`)
+          .reply(200, updatedParticipant);
+        const res = await client.update(participantId, {
+          consentGdpr: !participant.consentGdpr,
+        });
+        expect(res).toEqual(updatedParticipant);
+        expect(mock.history.patch.length).toBe(1);
+        expect(mock.history.patch[0].url).toBe(
+          `/prm/participants/${participantId}`,
+        );
+        expect(mock.history.patch[0].data).toBe(
+          JSON.stringify({ consentGdpr: !participant.consentGdpr }),
+        );
+      });
+
+      it('should fail when receiving an invalid response from the api', () => {
+        const participant = ParticipantGenerator.generateEntity();
+        const participantId = participant.id;
+        mock.onPatch(`/prm/participants/${participantId}`).reply(200, {
+          foo: 'bar',
+        });
+        expect(client.update(participantId, participant)).rejects.toThrow(
+          expect.any(ZodError),
+        );
+      });
+
+      it('should fail if the api returns an error', () => {
+        const participant = ParticipantGenerator.generateEntity();
+        const participantId = participant.id;
+        mock.onPatch(`/prm/participants/${participantId}`).reply(500);
+        expect(client.update(participantId, participant)).rejects.toThrow(
+          'Request failed with status code 500',
         );
       });
     });
