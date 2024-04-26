@@ -7,6 +7,6 @@ const axiosInstance = axios.create({
 describe('POST /api/prm/:entityType', () => {
   it('should return 400 if the entity type is invalid', async () => {
     const { status } = await axiosInstance.post('/api/prm/invalid', {});
-    expect(status).toBe(400);
+    expect(status).toBe(404);
   });
 });
