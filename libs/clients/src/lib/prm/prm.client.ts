@@ -1,5 +1,7 @@
 import { AxiosInstance } from 'axios';
 
+import { EntityType } from '@nrcno/core-models';
+
 import { ClientConfig } from '../base.client';
 
 import { ParticipantClient } from './participant.client';
@@ -11,7 +13,7 @@ export class PrmClient {
     this.participantClient = new ParticipantClient(instance, config);
   }
 
-  get participant() {
+  get [EntityType.Participant]() {
     return this.participantClient;
   }
 }

@@ -1,15 +1,45 @@
 import * as React from 'react';
+import { AxiosInstance } from 'axios';
+import { PrmClient } from '@nrcno/core-clients';
+import { EntityType } from '@nrcno/core-models';
 
-type PrmContextData = unknown;
+import {
+  CreateEntityState,
+  defaultCreateEntityState,
+  useCreateEntity,
+} from './hooks';
 
-export const PrmContext = React.createContext<PrmContextData>({});
+type Props = {
+  axiosInstance: AxiosInstance;
+  children: React.ReactNode;
+};
 
-export const usePrm = () => React.useContext(PrmContext);
+type PrmContextData = {
+  create: CreateEntityState;
+};
 
-export const PrmProvider = PrmContext.Provider;
+export const PrmContext = React.createContext<PrmContextData>({
+  create: defaultCreateEntityState,
+});
 
-export const PrmConsumer = PrmContext.Consumer;
+export const usePrmContext = () => React.useContext(PrmContext);
 
-export const Prm = ({ children }: { children: React.ReactNode }) => {
-  return <PrmProvider value={{}}>{children}</PrmProvider>;
+export const PrmProvider: React.FC<Props> = ({ axiosInstance, children }) => {
+  const entityType = EntityType.Participant;
+
+  const prmClient = React.useMemo(
+    () => new PrmClient(axiosInstance),
+    [axiosInstance],
+  );
+
+  const client = React.useMemo(
+    () => prmClient[entityType],
+    [prmClient, entityType],
+  );
+
+  const create = useCreateEntity(client);
+
+  return (
+    <PrmContext.Provider value={{ create }}>{children}</PrmContext.Provider>
+  );
 };

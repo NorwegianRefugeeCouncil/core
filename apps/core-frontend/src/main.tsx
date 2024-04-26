@@ -5,8 +5,8 @@ import { ChakraProvider } from '@chakra-ui/react';
 
 import { theme } from '@nrcno/core-theme';
 
-import { ApiProvider } from './contexts';
 import { router } from './routes';
+import { ApiProvider } from './components/ApiProvider.component';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
