@@ -1,11 +1,11 @@
 import { Router } from 'express';
+
+import { DeduplicationService } from '@nrcno/core-deduplication-engine';
 import {
+  ParticipantSchema,
   DeduplicationIgnoreSchema,
   DeduplicationMergeSchema,
-  DeduplicationService,
-} from '@nrcno/core-deduplication-engine';
-
-import { ParticipantSchema } from '@nrcno/core-models';
+} from '@nrcno/core-models';
 
 const router = Router();
 

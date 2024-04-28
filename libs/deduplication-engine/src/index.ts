@@ -1,2 +1,1 @@
-export * from './lib/deduplication.model';
-export * as DeduplicationService from './lib/deduplication.service';
+export * from './lib/deduplication.service';
