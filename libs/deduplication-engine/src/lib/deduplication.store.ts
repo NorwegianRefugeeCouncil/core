@@ -1,9 +1,8 @@
 import { getDb } from '@nrcno/core-db';
-
 import {
   DeduplicationRecord,
   DeduplicationRecordSchema,
-} from './deduplication.model';
+} from '@nrcno/core-models';
 
 export const list = async (): Promise<DeduplicationRecord[]> => {
   const db = getDb();
@@ -73,7 +72,7 @@ export const logResolution = async (
 ): Promise<void> => {
   const db = getDb();
 
-  await db('deduplication_resolution').insert({
+  await db('deduplication_resolutions').insert({
     participantId_a: participantIdA,
     participantId_b: participantIdB,
     resolution,

@@ -1,22 +1,45 @@
-import { Participant } from '@nrcno/core-models';
+import {
+  Participant,
+  DeduplicationRecord,
+  ScoringMechanism,
+} from '@nrcno/core-models';
 import { PrmService } from '@nrcno/core-prm-engine';
 
 import * as DeduplicationStore from './deduplication.store';
-import { DeduplicationRecord } from './deduplication.model';
 import { config, totalWeight } from './config';
 
-const cutoff = 0.4;
+const cutoff = 0.8;
 const batchSize = 1000;
-const returnLimit = 10;
 
 const ParticipantService = PrmService.participants;
 
+interface IDeduplicationService {
+  getDuplicatesForParticipant: (
+    participant: Partial<Participant>,
+  ) => Promise<DeduplicationRecord[]>;
+  compareAllParticipants: () => Promise<void>;
+  mergeDuplicate: (
+    participantId: string,
+    duplicateParticipantId: string,
+    resolvedParticipant: Participant,
+  ) => Promise<Participant>;
+  ignoreDuplicate: (
+    participantId: string,
+    duplicateParticipantId: string,
+  ) => Promise<void>;
+  listDuplicates: () => Promise<DeduplicationRecord[]>;
+  checkDuplicatesWithinList: (
+    participants: Participant[],
+  ) => Promise<DeduplicationRecord[]>;
+}
+
+// Compare two participants
 const compareParticipants = (
   participantA: Partial<Participant>,
   participantB: Participant,
 ): DeduplicationRecord => {
-  const scores: DeduplicationRecord['scores'] = config.reduce(
-    (acc, { key, score, weight }) => {
+  const scores: DeduplicationRecord['scores'] = Object.entries(config).reduce(
+    (acc, [key, { score, weight }]) => {
       const s = score(participantA, participantB);
       return {
         ...acc,
@@ -29,9 +52,32 @@ const compareParticipants = (
     {},
   );
 
-  const weightedScore =
-    Object.values(scores).reduce((acc, { weighted }) => acc + weighted, 0) /
-    totalWeight;
+  const isExactMatch = Object.entries(scores).some(
+    ([key, { raw }]) =>
+      (config[key].mechanism === ScoringMechanism.ExactOrNothing ||
+        config[key].mechanism === ScoringMechanism.ExactOrWeighted) &&
+      raw === 1,
+  );
+
+  const isExactNoMatch = Object.entries(scores).some(
+    ([key, { raw }]) =>
+      (config[key].mechanism === ScoringMechanism.ExactOrNothing ||
+        config[key].mechanism === ScoringMechanism.ExactOrWeighted) &&
+      raw === -1,
+  );
+
+  const weightedScore = (() => {
+    if (isExactMatch) return 1;
+    if (isExactNoMatch) return 0;
+    const score =
+      Object.entries(scores).reduce((acc, [key, { weighted }]) => {
+        if (config[key].mechanism === ScoringMechanism.ExactOrNothing) {
+          return acc;
+        }
+        return acc + weighted;
+      }, 0) / totalWeight;
+    return Math.max(0, score);
+  })();
 
   return {
     participantIdA: participantA.id,
@@ -41,7 +87,8 @@ const compareParticipants = (
   };
 };
 
-export const getDuplicatesForParticipant = async (
+// Used for finding duplicates when inputting a new participant
+const getDuplicatesForParticipant = async (
   participantA: Partial<Participant>,
 ): Promise<DeduplicationRecord[]> => {
   const getDuplicatesForParticipantIdBatch = async (
@@ -70,12 +117,11 @@ export const getDuplicatesForParticipant = async (
     }
   }
 
-  return results
-    .sort((a, b) => b.weightedScore - a.weightedScore)
-    .slice(0, returnLimit);
+  return results.sort((a, b) => b.weightedScore - a.weightedScore);
 };
 
-export const compareAllParticipants = async (): Promise<void> => {
+// Used for the worker to calculate existing duplicates
+const compareAllParticipants = async (): Promise<void> => {
   const getDuplicatesForParticipantIdBatch = async (
     startIndex: number,
   ): Promise<DeduplicationRecord[]> => {
@@ -104,7 +150,8 @@ export const compareAllParticipants = async (): Promise<void> => {
   }
 };
 
-export const mergeDuplicate = async (
+// Used for resolving duplicates
+const mergeDuplicate = async (
   participantId: string,
   duplicateParticipantId: string,
   resolvedParticipant: Participant,
@@ -128,7 +175,8 @@ export const mergeDuplicate = async (
   return participant;
 };
 
-export const ignoreDuplicate = async (
+// Used for resolving duplicates
+const ignoreDuplicate = async (
   participantId: string,
   duplicateParticipantId: string,
 ): Promise<void> => {
@@ -140,11 +188,13 @@ export const ignoreDuplicate = async (
   );
 };
 
-export const listDuplicates = async (): Promise<DeduplicationRecord[]> => {
+// Used for showing table of existing duplicates
+const listDuplicates = async (): Promise<DeduplicationRecord[]> => {
   return DeduplicationStore.list();
 };
 
-export const checkDuplicatesWithinList = async (
+// Used for checking duplicates within a file
+const checkDuplicatesWithinList = async (
   participants: Participant[],
 ): Promise<DeduplicationRecord[]> => {
   const records: DeduplicationRecord[] = [];
@@ -159,4 +209,13 @@ export const checkDuplicatesWithinList = async (
   }
 
   return records.sort((a, b) => b.weightedScore - a.weightedScore);
+};
+
+export const DeduplicationService: IDeduplicationService = {
+  getDuplicatesForParticipant,
+  compareAllParticipants,
+  mergeDuplicate,
+  ignoreDuplicate,
+  listDuplicates,
+  checkDuplicatesWithinList,
 };
