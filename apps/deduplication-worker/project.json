@@ -1,0 +1,56 @@
+{
+  "name": "deduplication-worker",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/deduplication-worker/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/apps/deduplication-worker",
+        "format": ["cjs"],
+        "bundle": false,
+        "main": "apps/deduplication-worker/src/main.ts",
+        "tsConfig": "apps/deduplication-worker/tsconfig.app.json",
+        "assets": ["apps/deduplication-worker/src/assets"],
+        "generatePackageJson": true,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "esbuildOptions": {
+            "sourcemap": false,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "deduplication-worker:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "deduplication-worker:build:development"
+        },
+        "production": {
+          "buildTarget": "deduplication-worker:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}
