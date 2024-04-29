@@ -64,7 +64,16 @@ const batchSize = 100;
 const seedCount = 1_000;
 
 export async function seed(knex: Knex): Promise<void> {
+  await knex('duplicates').del();
+  await knex('deduplication_resolutions').del();
+  await knex('participant_disabilities').del();
+  await knex('participant_contact_details').del();
+  await knex('participant_identifications').del();
+  await knex('participant_languages').del();
+  await knex('participant_nationalities').del();
   await knex('participants').del();
+  await knex('entities').del();
+  await knex('persons').del();
 
   const makeParticipant = () => {
     const participantId = ulid();
