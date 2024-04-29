@@ -64,6 +64,12 @@ describe('usePrmContext', () => {
         status: SubmitStatus.IDLE,
         loadEntity: expect.any(Function),
       },
+      edit: {
+        onEditEntity: expect.any(Function),
+        status: SubmitStatus.IDLE,
+        data: undefined,
+        error: undefined,
+      },
     });
   });
 });

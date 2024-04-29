@@ -68,10 +68,10 @@ const parseEntityFromForm = (
 
 // TODO: Refactor after react-hook-form is integrated
 export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
-  const { entityType, entityId, create, read } = usePrmContext();
+  const { entityType, entityId, create, read, edit } = usePrmContext();
 
   React.useEffect(() => {
-    if (mode === 'read' && entityId) {
+    if ((mode === 'read' || mode === 'edit') && entityId) {
       read.loadEntity(entityId);
     }
   }, [mode, entityId]);
@@ -114,6 +114,31 @@ export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
         isSuccess: read.status === SubmitStatus.SUCCESS,
         error: read.error,
         data: read.data,
+      };
+    }
+    case 'edit': {
+      const onSubmit = (target: HTMLFormElement) => {
+        if (!entityId) throw new Error('Entity ID is required');
+        const entity = parseEntityFromForm(detailConfig, target);
+        edit.onEditEntity(entityId, entity);
+      };
+
+      return {
+        onSubmit,
+        mode: mode,
+        entityType: entityType,
+        config: detailConfig,
+        isLoading:
+          edit.status === SubmitStatus.SUBMITTING ||
+          read.status === SubmitStatus.SUBMITTING,
+        isError:
+          edit.status === SubmitStatus.ERROR ||
+          read.status === SubmitStatus.ERROR,
+        isSuccess:
+          edit.status === SubmitStatus.SUCCESS ||
+          read.status === SubmitStatus.SUCCESS,
+        error: edit.error || read.error,
+        data: edit.data || read.data,
       };
     }
     default:
