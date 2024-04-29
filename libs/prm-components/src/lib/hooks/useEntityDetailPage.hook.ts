@@ -27,9 +27,7 @@ export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
 
   switch (mode) {
     case 'create': {
-      const onSubmit = (data: Entity) => {
-        create.onCreateEntity(data);
-      };
+      const onSubmit = create.onCreateEntity;
 
       return {
         onSubmit,
@@ -55,10 +53,10 @@ export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
       };
     }
     case 'edit': {
-      const onSubmit = (target: HTMLFormElement) => {
+      const onSubmit = (data: Entity) => {
         if (!entityId) throw new Error('Entity ID is required');
-        const entity = parseEntityFromForm(detailConfig, target);
-        edit.onEditEntity(entityId, entity);
+
+        edit.onEditEntity(entityId, data);
       };
 
       return {

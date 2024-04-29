@@ -24,6 +24,7 @@ export const TextInput: React.FC<Props> = ({
   name,
   invalid,
   error,
+  
 }) => {
   const { register } = useFormContext();
 

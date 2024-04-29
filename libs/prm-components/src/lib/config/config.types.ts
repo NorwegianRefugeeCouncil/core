@@ -3,7 +3,7 @@ import { EntityType } from '@nrcno/core-models';
 export enum Component {
   List = 'list',
   Hidden = 'hidden',
-  ReadOnly = 'read-only',
+  Display = 'display',
   TextInput = 'text-input',
   TextArea = 'text-area',
   // NumberInput = 'number-input',
@@ -33,7 +33,9 @@ export type ListFieldConfig = {
   component: Component.List;
   label: string;
   children: FieldConfig[];
-  map?: (value: any) => boolean;
+  filter?: (value: any) => boolean;
+  options?: Option[];
+  defaults?: any;
 };
 
 type Option = {

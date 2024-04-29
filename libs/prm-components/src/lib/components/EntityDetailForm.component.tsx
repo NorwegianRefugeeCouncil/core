@@ -1,6 +1,6 @@
 import { Box, Button, Heading, HStack } from '@chakra-ui/react';
-import { useForm, FormProvider } from 'react-hook-form';
 import { Entity } from '@nrcno/core-models';
+import { FormProvider, useForm } from 'react-hook-form';
 
 import { EntityUIConfig } from '../config';
 
@@ -11,10 +11,10 @@ type Props = {
   config: EntityUIConfig['detail'];
   title: string;
   submit?: (data: Entity) => void;
-  entity: Entity;
+  entity?: Entity | undefined;
 };
 
-export const Form: React.FC<Props> = ({
+export const EntityDetailForm: React.FC<Props> = ({
   id,
   config,
   title,
@@ -27,7 +27,7 @@ export const Form: React.FC<Props> = ({
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={submit && form.handleSubmit(submit)}>
+      <form onSubmit={submit && form.handleSubmit(submit)} id={id}>
         <Box>
           <Heading>{title}</Heading>
           {config.sections.map((section) => (

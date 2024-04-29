@@ -3,8 +3,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { Component, FieldConfig, ListFieldConfig } from '../../config';
 
 import { Checkbox } from './Checkbox.component';
-import { Date } from './Date.component';
-import { Hidden } from './Hidden.component';
+import { Display } from './Display.component';
 import { List } from './List.component';
 import { Select } from './Select.component';
 import { TextArea } from './TextArea.component';
@@ -26,8 +25,8 @@ export const Field: React.FC<FieldProps> = ({ config }) => {
         const props = { ...fieldProps, ...fieldState, ...formState };
 
         switch (config.component) {
-          case Component.Hidden:
-            return <Hidden config={config} {...props} />;
+          case Component.Display:
+            return <Display config={config} {...props} />;
           case Component.TextInput:
             return <TextInput config={config} {...props} />;
           case Component.TextArea:
@@ -36,8 +35,6 @@ export const Field: React.FC<FieldProps> = ({ config }) => {
             return <Select config={config} {...props} />;
           case Component.Checkbox:
             return <Checkbox config={config} {...props} />;
-          case Component.Date:
-            return <Date config={config} {...props} />;
           case Component.List:
             return <List config={config} {...props} />;
           default:

@@ -76,7 +76,7 @@ export const participantConfig: EntityUIConfig = {
           {
             path: ['dateOfBirth'],
             dataType: DataType.Date,
-            component: Component.Date,
+            component: Component.TextInput,
             label: 'Date of Birth',
           },
           {
@@ -133,7 +133,7 @@ export const participantConfig: EntityUIConfig = {
               {
                 path: ['isoCode'],
                 dataType: DataType.Hidden,
-                component: Component.Hidden,
+                component: Component.TextInput,
               },
               {
                 path: ['translationKey'],
@@ -156,7 +156,7 @@ export const participantConfig: EntityUIConfig = {
               {
                 path: ['isoCode'],
                 dataType: DataType.Hidden,
-                component: Component.Hidden,
+                component: Component.TextInput,
               },
               {
                 path: ['translationKey'],
@@ -180,18 +180,18 @@ export const participantConfig: EntityUIConfig = {
             path: ['contactDetails'],
             component: Component.List,
             label: 'Email addresses',
-            map: (contactDetail) =>
+            filter: (contactDetail) =>
               contactDetail.contactDetailType === ContactDetailType.Email,
             children: [
               {
                 path: ['id'],
                 dataType: DataType.Hidden,
-                component: Component.Hidden,
+                component: Component.TextInput,
               },
               {
-                path: ['type'],
+                path: ['contactDetailType'],
                 dataType: DataType.Hidden,
-                component: Component.Hidden,
+                component: Component.TextInput,
               },
               {
                 path: ['value'],
@@ -200,23 +200,25 @@ export const participantConfig: EntityUIConfig = {
                 label: 'Email',
               },
             ],
+            options: optionsFromEnum(ContactMeans),
+            defaults: { contactDetailType: ContactDetailType.Email },
           },
           {
             path: ['contactDetails'],
             component: Component.List,
             label: 'Phone numbers',
-            map: (contactDetail) =>
+            filter: (contactDetail) =>
               contactDetail.contactDetailType === ContactDetailType.PhoneNumber,
             children: [
               {
                 path: ['id'],
                 dataType: DataType.Hidden,
-                component: Component.Hidden,
+                component: Component.TextInput,
               },
               {
-                path: ['type'],
+                path: ['contactDetailType'],
                 dataType: DataType.Hidden,
-                component: Component.Hidden,
+                component: Component.TextInput,
               },
               {
                 path: ['value'],
@@ -225,6 +227,8 @@ export const participantConfig: EntityUIConfig = {
                 label: 'Phone number',
               },
             ],
+            options: optionsFromEnum(ContactMeans),
+            defaults: { contactDetailType: ContactDetailType.PhoneNumber },
           },
         ],
       },
@@ -238,8 +242,8 @@ export const participantConfig: EntityUIConfig = {
             children: [
               {
                 path: ['id'],
-                dataType: DataType.String,
-                component: Component.Hidden,
+                dataType: DataType.Hidden,
+                component: Component.TextInput,
               },
               {
                 path: ['identificationType'],
@@ -261,6 +265,7 @@ export const participantConfig: EntityUIConfig = {
                 label: 'Is Primary',
               },
             ],
+            options: optionsFromEnum(IdentificationType),
           },
         ],
       },
