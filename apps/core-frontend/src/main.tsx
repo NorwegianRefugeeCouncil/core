@@ -7,6 +7,8 @@ import { theme } from '@nrcno/core-theme';
 
 import { router } from './routes';
 
+import './styles.scss';
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
 );

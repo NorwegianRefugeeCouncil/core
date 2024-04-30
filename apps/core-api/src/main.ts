@@ -3,6 +3,7 @@
  * This is only a minimal backend to get started.
  */
 
+import * as fs from 'fs';
 import * as path from 'path';
 
 import { config as dotenvConfig } from 'dotenv';
@@ -100,15 +101,22 @@ const server = app.listen(port, async () => {
 
   logger.info('Database migrations have been run');
 
+  const commonSeedPath = path.join(config.db.seedsDir, 'common');
+  if (!fs.existsSync(commonSeedPath)) {
+    throw new Error('Could not find common seeds');
+  }
   await db.seed.run({
     loadExtensions: ['.js'],
-    directory: path.join(config.db.seedsDir, 'common'),
+    directory: commonSeedPath,
   });
 
-  await db.seed.run({
-    loadExtensions: ['.js'],
-    directory: path.join(config.db.seedsDir, config.environment),
-  });
+  const envSeedPath = path.join(config.db.seedsDir, config.environment);
+  if (fs.existsSync(envSeedPath)) {
+    await db.seed.run({
+      loadExtensions: ['.js'],
+      directory: envSeedPath,
+    });
+  }
 
   logger.info('Database seed data has been inserted');
 });
