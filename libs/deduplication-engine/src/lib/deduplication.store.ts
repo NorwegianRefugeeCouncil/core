@@ -1,27 +1,44 @@
 import { getDb } from '@nrcno/core-db';
 import {
   DeduplicationRecord,
+  DeduplicationRecordDefinition,
   DeduplicationRecordSchema,
+  Pagination,
 } from '@nrcno/core-models';
 
-export const list = async (): Promise<DeduplicationRecord[]> => {
+export const list = async (
+  pagination: Pagination,
+): Promise<DeduplicationRecord[]> => {
   const db = getDb();
 
-  const rows = await db('duplicates');
+  const rows = await db('duplicates')
+    .limit(pagination.limit)
+    .offset(pagination.startIndex)
+    .orderBy('weighted_score', 'desc');
 
   return rows.map((row: any) => {
-    const { participantIdA, participantIdB, weightedScore, ...scores } = row;
+    const {
+      participantIdA,
+      participantIdB,
+      weightedScore,
+      createdAt,
+      updatedAt,
+      scores,
+    } = row;
+
     return DeduplicationRecordSchema.parse({
       participantIdA,
       participantIdB,
       weightedScore,
       scores,
+      createdAt,
+      updatedAt,
     });
   });
 };
 
 export const upsert = async (
-  records: DeduplicationRecord[],
+  records: (DeduplicationRecord | DeduplicationRecordDefinition)[],
 ): Promise<DeduplicationRecord[]> => {
   const db = getDb();
 

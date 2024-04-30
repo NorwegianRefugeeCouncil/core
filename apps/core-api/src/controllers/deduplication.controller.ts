@@ -3,8 +3,9 @@ import { Router } from 'express';
 import { DeduplicationService } from '@nrcno/core-deduplication-engine';
 import {
   ParticipantSchema,
-  DeduplicationIgnoreSchema,
-  DeduplicationMergeSchema,
+  DeduplicationIgnoreDefinitionSchema,
+  DeduplicationMergeDefinitionSchema,
+  PaginationSchema,
 } from '@nrcno/core-models';
 
 const router = Router();
@@ -25,7 +26,7 @@ router.post('/deduplication/check', async (req, res, next) => {
 router.post('/deduplication/merge', async (req, res, next) => {
   try {
     const { participantIdA, participantIdB, resolvedParticipant } =
-      DeduplicationMergeSchema.parse(req.body);
+      DeduplicationMergeDefinitionSchema.parse(req.body);
 
     const participant = await DeduplicationService.mergeDuplicate(
       participantIdA,
@@ -33,7 +34,7 @@ router.post('/deduplication/merge', async (req, res, next) => {
       resolvedParticipant,
     );
 
-    res.json({ participant }).status(200);
+    res.json(participant).status(200);
   } catch (error) {
     next(error);
   }
@@ -41,9 +42,8 @@ router.post('/deduplication/merge', async (req, res, next) => {
 
 router.post('/deduplication/ignore', async (req, res, next) => {
   try {
-    const { participantIdA, participantIdB } = DeduplicationIgnoreSchema.parse(
-      req.body,
-    );
+    const { participantIdA, participantIdB } =
+      DeduplicationIgnoreDefinitionSchema.parse(req.body);
 
     await DeduplicationService.ignoreDuplicate(participantIdA, participantIdB);
 
@@ -55,8 +55,11 @@ router.post('/deduplication/ignore', async (req, res, next) => {
 
 router.get('/deduplication', async (req, res, next) => {
   try {
-    const duplicates = await DeduplicationService.listDuplicates();
-    res.json({ duplicates }).status(200);
+    const pagination = PaginationSchema.parse(req.query);
+    const duplicates = await DeduplicationService.listDuplicates(pagination);
+    const denormalisedDuplicates =
+      await DeduplicationService.denormaliseDuplicateRecords(duplicates);
+    res.json({ duplicates: denormalisedDuplicates }).status(200);
   } catch (error) {
     next(error);
   }

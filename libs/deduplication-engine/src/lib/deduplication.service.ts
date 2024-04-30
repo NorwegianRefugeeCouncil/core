@@ -2,21 +2,25 @@ import {
   Participant,
   DeduplicationRecord,
   ScoringMechanism,
+  DeduplicationRecordDefinition,
+  DenormalisedDeduplicationRecord,
+  DenormalisedDeduplicationRecordSchema,
+  Pagination,
 } from '@nrcno/core-models';
 import { PrmService } from '@nrcno/core-prm-engine';
 
 import * as DeduplicationStore from './deduplication.store';
 import { config, totalWeight } from './config';
 
-const cutoff = 0.8;
-const batchSize = 1000;
+const cutoff = 0.1;
+const batchSize = 100;
 
 const ParticipantService = PrmService.participants;
 
 interface IDeduplicationService {
   getDuplicatesForParticipant: (
     participant: Partial<Participant>,
-  ) => Promise<DeduplicationRecord[]>;
+  ) => Promise<DeduplicationRecordDefinition[]>;
   compareAllParticipants: () => Promise<void>;
   mergeDuplicate: (
     participantId: string,
@@ -27,17 +31,20 @@ interface IDeduplicationService {
     participantId: string,
     duplicateParticipantId: string,
   ) => Promise<void>;
-  listDuplicates: () => Promise<DeduplicationRecord[]>;
+  listDuplicates: (pagination: Pagination) => Promise<DeduplicationRecord[]>;
   checkDuplicatesWithinList: (
     participants: Participant[],
-  ) => Promise<DeduplicationRecord[]>;
+  ) => Promise<DeduplicationRecordDefinition[]>;
+  denormaliseDuplicateRecords: (
+    duplicates: DeduplicationRecord[],
+  ) => Promise<DenormalisedDeduplicationRecord[]>;
 }
 
 // Compare two participants
 const compareParticipants = (
   participantA: Partial<Participant>,
   participantB: Participant,
-): DeduplicationRecord => {
+): DeduplicationRecordDefinition => {
   const scores: DeduplicationRecord['scores'] = Object.entries(config).reduce(
     (acc, [key, { score, weight }]) => {
       const s = score(participantA, participantB);
@@ -90,10 +97,10 @@ const compareParticipants = (
 // Used for finding duplicates when inputting a new participant
 const getDuplicatesForParticipant = async (
   participantA: Partial<Participant>,
-): Promise<DeduplicationRecord[]> => {
+): Promise<DeduplicationRecordDefinition[]> => {
   const getDuplicatesForParticipantIdBatch = async (
     startIndex: number,
-  ): Promise<DeduplicationRecord[]> => {
+  ): Promise<DeduplicationRecordDefinition[]> => {
     const participants = await ParticipantService.list({
       startIndex,
       limit: batchSize,
@@ -103,7 +110,7 @@ const getDuplicatesForParticipant = async (
     );
   };
 
-  const results: DeduplicationRecord[] = [];
+  const results: DeduplicationRecordDefinition[] = [];
   const totalParticipants = await ParticipantService.count();
   const batches = Math.ceil(totalParticipants / batchSize);
 
@@ -124,7 +131,7 @@ const getDuplicatesForParticipant = async (
 const compareAllParticipants = async (): Promise<void> => {
   const getDuplicatesForParticipantIdBatch = async (
     startIndex: number,
-  ): Promise<DeduplicationRecord[]> => {
+  ): Promise<DeduplicationRecordDefinition[]> => {
     const participants = await ParticipantService.list({
       startIndex,
       limit: batchSize,
@@ -189,15 +196,17 @@ const ignoreDuplicate = async (
 };
 
 // Used for showing table of existing duplicates
-const listDuplicates = async (): Promise<DeduplicationRecord[]> => {
-  return DeduplicationStore.list();
+const listDuplicates = async (
+  pagination: Pagination,
+): Promise<DeduplicationRecord[]> => {
+  return DeduplicationStore.list(pagination);
 };
 
 // Used for checking duplicates within a file
 const checkDuplicatesWithinList = async (
   participants: Participant[],
-): Promise<DeduplicationRecord[]> => {
-  const records: DeduplicationRecord[] = [];
+): Promise<DeduplicationRecordDefinition[]> => {
+  const records: DeduplicationRecordDefinition[] = [];
   for (const participantA of participants) {
     for (const participantB of participants) {
       if (participantA.id === participantB.id) continue;
@@ -211,6 +220,32 @@ const checkDuplicatesWithinList = async (
   return records.sort((a, b) => b.weightedScore - a.weightedScore);
 };
 
+const denormaliseDuplicateRecords = async (
+  duplicates: DeduplicationRecord[],
+): Promise<DenormalisedDeduplicationRecord[]> => {
+  const participantIds = duplicates
+    .flatMap((d) => [d.participantIdA, d.participantIdB])
+    .filter((id): id is string => id !== null && id !== undefined);
+  const participantsMap = (
+    await Promise.all(
+      participantIds.map((id) => PrmService.participants.get(id)),
+    )
+  ).reduce<Record<string, Participant>>(
+    (acc, p) => ({
+      ...acc,
+      [p.id]: p,
+    }),
+    {},
+  );
+  return duplicates.map((d) =>
+    DenormalisedDeduplicationRecordSchema.parse({
+      ...d,
+      participantA: d.participantIdA ? participantsMap[d.participantIdA] : null,
+      participantB: participantsMap[d.participantIdB],
+    }),
+  );
+};
+
 export const DeduplicationService: IDeduplicationService = {
   getDuplicatesForParticipant,
   compareAllParticipants,
@@ -218,4 +253,5 @@ export const DeduplicationService: IDeduplicationService = {
   ignoreDuplicate,
   listDuplicates,
   checkDuplicatesWithinList,
+  denormaliseDuplicateRecords,
 };
