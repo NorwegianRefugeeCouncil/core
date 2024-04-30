@@ -102,12 +102,13 @@ const server = app.listen(port, async () => {
   logger.info('Database migrations have been run');
 
   const commonSeedPath = path.join(config.db.seedsDir, 'common');
-  if (fs.existsSync(commonSeedPath)) {
-    await db.seed.run({
-      loadExtensions: ['.js'],
-      directory: commonSeedPath,
-    });
+  if (!fs.existsSync(commonSeedPath)) {
+    throw new Error('Could not find common seeds');
   }
+  await db.seed.run({
+    loadExtensions: ['.js'],
+    directory: commonSeedPath,
+  });
 
   const envSeedPath = path.join(config.db.seedsDir, config.environment);
   if (fs.existsSync(envSeedPath)) {
