@@ -24,21 +24,9 @@ const run = async () => {
   // Initialise and get database connection
   const db = getDb(config.db);
 
-  await db.migrate.latest({
-    loadExtensions: ['.js'],
-    directory: config.db.migrationsDir,
-  });
-
-  logger.info('Database migrations have been run');
-
   await db.seed.run({
     loadExtensions: ['.js'],
-    directory: path.join(config.db.seedsDir, 'common'),
-  });
-
-  await db.seed.run({
-    loadExtensions: ['.js'],
-    directory: path.join(config.db.seedsDir, config.environment),
+    directory: path.join(config.db.seedsDir, 'deduplication'),
   });
 
   logger.info('Database seed data has been inserted');
@@ -49,6 +37,8 @@ const run = async () => {
 
   logger.info('Duplicate calculation complete');
   logger.info('Exiting...');
+
+  process.exit(0);
 };
 
 run();
