@@ -13,7 +13,7 @@ const generateDefinition = (
 ): IdentificationDefinition => {
   return {
     identificationType: faker.helpers.enumValue(IdentificationType),
-    identificationNumber: faker.string.alphanumeric(),
+    identificationNumber: faker.string.alphanumeric(10),
     isPrimary: faker.datatype.boolean(),
     ...overrides,
   };
