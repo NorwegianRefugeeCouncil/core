@@ -16,6 +16,9 @@
     "paths": {
       "@nrcno/core-clients": ["libs/clients/src/index.ts"],
       "@nrcno/core-db": ["libs/db/src/index.ts"],
+      "@nrcno/core-deduplication-components": [
+        "libs/deduplication-components/src/index.ts"
+      ],
       "@nrcno/core-deduplication-engine": [
         "libs/deduplication-engine/src/index.ts"
       ],

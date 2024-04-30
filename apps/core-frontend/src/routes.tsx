@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
+import { ExistingDuplicates } from '@nrcno/core-deduplication-components';
 
 import { EntityDetailPage, EntityListPage } from '@nrcno/core-prm-components';
 
@@ -41,6 +42,10 @@ export const router = createBrowserRouter([
           {
             path: '/users',
             element: <div>User</div>,
+          },
+          {
+            path: '/deduplication',
+            element: <ExistingDuplicates />,
           },
         ],
       },
