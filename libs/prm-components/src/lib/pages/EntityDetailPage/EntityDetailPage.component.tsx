@@ -1,5 +1,4 @@
 import { Spinner } from '@chakra-ui/react';
-import { IdentificationType, Sex } from '@nrcno/core-models';
 
 import { EntityDetailForm } from '../../components';
 import { useEntityDetailPage } from '../../hooks/useEntityDetailPage.hook';
@@ -9,8 +8,16 @@ type Props = {
 };
 
 export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
-  const { entityType, config, isLoading, isError, isSuccess, error, onSubmit } =
-    useEntityDetailPage(mode);
+  const {
+    entityType,
+    config,
+    isLoading,
+    isError,
+    isSuccess,
+    error,
+    onSubmit,
+    data,
+  } = useEntityDetailPage(mode);
 
   return (
     <>
@@ -22,52 +29,7 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
         title={'New participants'}
         config={config}
         submit={onSubmit}
-        entity={{
-          id: 'id',
-          firstName: 'John',
-          lastName: 'Doe',
-          dateOfBirth: new Date('1990-01-01'),
-          sex: Sex.Male,
-          consentGdpr: true,
-          consentReferral: true,
-          languages: [
-            {
-              isoCode: 'fr',
-              translationKey: 'fr',
-            },
-            {
-              isoCode: 'es',
-              translationKey: 'es',
-            },
-          ],
-          nationalities: [],
-          contactDetails: {
-            emails: [
-              {
-                value: 'john.doe@example.com',
-                id: '1',
-              },
-            ],
-            phones: [
-              {
-                value: '9876543210',
-                id: '2',
-              },
-              {
-                value: '1234567890',
-                id: '3',
-              },
-            ],
-          },
-          identification: [
-            {
-              identificationType: IdentificationType.UnhcrId,
-              identificationNumber: '1234567890',
-              isPrimary: true,
-              id: '4',
-            },
-          ],
-        }}
+        entity={data}
       />
     </>
   );

@@ -257,7 +257,6 @@ export const participantConfig: EntityUIConfig = {
                 label: 'Is Primary',
               },
             ],
-            options: optionsFromEnum(IdentificationType),
           },
         ],
       },
