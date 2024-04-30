@@ -130,11 +130,16 @@ const create = async (
         languages: languagesResult,
         nationalities: nationalitiesResult,
         disabilities,
-        contactDetails: contactEmailsDetailsForDb.map((contact) => ({
-          id: contact.id,
-          contactDetailType: contact.contactDetailType,
-          value: contact.rawValue,
-        })),
+        contactDetails: {
+          emails: contactEmailsDetailsForDb.map((contact) => ({
+            id: contact.id,
+            value: contact.rawValue,
+          })),
+          phones: contactPhonesDetailsForDb.map((contact) => ({
+            id: contact.id,
+            value: contact.rawValue,
+          })),
+        },
         identification: identificationForDb,
       });
 
@@ -200,11 +205,26 @@ const get = async (id: string): Promise<Participant | null> => {
     ...participant,
     languages,
     nationalities,
-    contactDetails: contactDetails.map((contactDetail) => ({
-      id: contactDetail.id,
-      contactDetailType: contactDetail.contactDetailType,
-      value: contactDetail.rawValue,
-    })),
+    contactDetails: {
+      emails: contactDetails
+        .filter(
+          (contactDetail) =>
+            contactDetail.contactDetailType === ContactDetailType.Email,
+        )
+        .map((contactDetail) => ({
+          id: contactDetail.id,
+          value: contactDetail.rawValue,
+        })),
+      phones: contactDetails
+        .filter(
+          (contactDetail) =>
+            contactDetail.contactDetailType === ContactDetailType.PhoneNumber,
+        )
+        .map((contactDetail) => ({
+          id: contactDetail.id,
+          value: contactDetail.rawValue,
+        })),
+    },
     identification: identifications,
     disabilities,
   });

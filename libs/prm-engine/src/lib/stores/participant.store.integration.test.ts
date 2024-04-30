@@ -58,15 +58,22 @@ describe('Participant store', () => {
     const personId = generateMockUlid();
     const entityId = generateMockUlid();
     const participantId = generateMockUlid();
-    const contactDetailsId = faker.string.uuid();
+    const contactDetailsIdEmail = faker.string.uuid();
+    const contactDetailsIdPhone = faker.string.uuid();
     const identificationId = faker.string.uuid();
     const expectedParticipant = ParticipantGenerator.generateEntity({
       ...participantDefinition,
       id: participantId,
-      contactDetails: participantDefinition.contactDetails.map((cd) => ({
-        ...cd,
-        id: contactDetailsId,
-      })),
+      contactDetails: {
+        emails: participantDefinition.contactDetails.emails.map((cd) => ({
+          ...cd,
+          id: contactDetailsIdEmail,
+        })),
+        phones: participantDefinition.contactDetails.phones.map((cd) => ({
+          ...cd,
+          id: contactDetailsIdPhone,
+        })),
+      },
       identification: participantDefinition.identification.map(
         (identification) => ({
           ...identification,
@@ -89,7 +96,8 @@ describe('Participant store', () => {
       .mockReturnValueOnce(participantId);
 
     (v4 as jest.Mock)
-      .mockReturnValueOnce(contactDetailsId)
+      .mockReturnValueOnce(contactDetailsIdEmail)
+      .mockReturnValueOnce(contactDetailsIdPhone)
       .mockReturnValueOnce(identificationId);
 
     const createdParticipant = await ParticipantStore.create(
