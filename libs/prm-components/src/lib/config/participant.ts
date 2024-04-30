@@ -177,11 +177,9 @@ export const participantConfig: EntityUIConfig = {
         title: 'Contact Information',
         fields: [
           {
-            path: ['contactDetails'],
+            path: ['contactDetails.emails'],
             component: Component.List,
             label: 'Email addresses',
-            filter: (contactDetail) =>
-              contactDetail.contactDetailType === ContactDetailType.Email,
             children: [
               {
                 path: ['id'],
@@ -200,15 +198,11 @@ export const participantConfig: EntityUIConfig = {
                 label: 'Email',
               },
             ],
-            options: optionsFromEnum(ContactMeans),
-            defaults: { contactDetailType: ContactDetailType.Email },
           },
           {
-            path: ['contactDetails'],
+            path: ['contactDetails.phones'],
             component: Component.List,
             label: 'Phone numbers',
-            filter: (contactDetail) =>
-              contactDetail.contactDetailType === ContactDetailType.PhoneNumber,
             children: [
               {
                 path: ['id'],
@@ -227,8 +221,6 @@ export const participantConfig: EntityUIConfig = {
                 label: 'Phone number',
               },
             ],
-            options: optionsFromEnum(ContactMeans),
-            defaults: { contactDetailType: ContactDetailType.PhoneNumber },
           },
         ],
       },

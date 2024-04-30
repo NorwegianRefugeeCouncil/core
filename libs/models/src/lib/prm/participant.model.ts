@@ -113,7 +113,6 @@ const ParticipantDisabilitySchema = z.object({
 });
 
 const ContactDetailsSchema = z.object({
-  contactDetailType: ContactDetailTypeSchema,
   value: z.string(),
 });
 
@@ -136,7 +135,10 @@ export const ParticipantDefinitionSchema = ParticipantDetailsSchema.merge(
         isoCode: z.string().max(20),
       }),
     ),
-    contactDetails: z.array(ContactDetailsSchema),
+    contactDetails: z.object({
+      emails: z.array(ContactDetailsSchema),
+      phones: z.array(ContactDetailsSchema),
+    }),
     identification: z.array(IdentificationSchema),
   }),
 );
@@ -158,13 +160,22 @@ export const ParticipantSchema = ParticipantDefinitionSchema.merge(
         translationKey: z.string().max(200),
       }),
     ),
-    contactDetails: z.array(
-      ContactDetailsSchema.merge(
-        z.object({
-          id: z.string().uuid(),
-        }),
+    contactDetails: z.object({
+      emails: z.array(
+        ContactDetailsSchema.merge(
+          z.object({
+            id: z.string().uuid(),
+          }),
+        ),
       ),
-    ),
+      phones: z.array(
+        ContactDetailsSchema.merge(
+          z.object({
+            id: z.string().uuid(),
+          }),
+        ),
+      ),
+    }),
     identification: z.array(
       IdentificationSchema.merge(
         z.object({

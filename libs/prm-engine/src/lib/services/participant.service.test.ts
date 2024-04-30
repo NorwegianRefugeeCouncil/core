@@ -19,7 +19,7 @@ describe('Participant service', () => {
         consentReferral: true,
         languages: [],
         nationalities: [],
-        contactDetails: [],
+        contactDetails: { emails: [], phones: [] },
         identification: [],
       };
 
@@ -38,7 +38,7 @@ describe('Participant service', () => {
         consentReferral: true,
         languages: [],
         nationalities: [],
-        contactDetails: [],
+        contactDetails: { emails: [], phones: [] },
         identification: [],
       };
 

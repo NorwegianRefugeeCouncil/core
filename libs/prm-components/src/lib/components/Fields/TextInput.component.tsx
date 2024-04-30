@@ -11,7 +11,7 @@ import {
   ControllerFieldState,
 } from 'react-hook-form';
 
-import { FieldConfig } from '../../config';
+import { DataType, FieldConfig } from '../../config';
 
 type Props = {
   config: FieldConfig;
@@ -24,11 +24,22 @@ export const TextInput: React.FC<Props> = ({
   name,
   invalid,
   error,
-  
 }) => {
   const { register } = useFormContext();
 
   const registerProps = register(name);
+
+  if (dataType === DataType.Hidden)
+    return (
+      <Input
+        isInvalid={invalid}
+        isRequired={required}
+        placeholder={placeholder}
+        type={dataType}
+        readOnly={false}
+        {...registerProps}
+      />
+    );
 
   return (
     <FormControl>

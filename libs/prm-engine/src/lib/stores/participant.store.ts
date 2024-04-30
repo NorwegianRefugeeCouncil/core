@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ulid } from 'ulidx';
 
 import {
+  ContactDetailType,
   Participant,
   ParticipantDefinition,
   ParticipantSchema,
@@ -77,18 +78,36 @@ const create = async (
         );
       }
 
-      const contactDetailsForDb =
-        contactDetails && contactDetails.length > 0
-          ? contactDetails.map((contact) => ({
+      const contactEmailsDetailsForDb =
+        contactDetails && contactDetails.emails.length > 0
+          ? contactDetails.emails.map((email) => ({
               id: uuidv4(),
-              contactDetailType: contact.contactDetailType,
-              rawValue: contact.value,
-              cleanValue: contact.value, // TODO: Clean string for searching
+              contactDetailType: ContactDetailType.Email,
+              rawValue: email.value,
+              cleanValue: email.value, // TODO: Clean string for searching
               participantId,
             }))
           : [];
-      if (contactDetailsForDb.length > 0) {
-        await trx('participant_contact_details').insert(contactDetailsForDb);
+      if (contactEmailsDetailsForDb.length > 0) {
+        await trx('participant_contact_details').insert(
+          contactEmailsDetailsForDb,
+        );
+      }
+
+      const contactPhonesDetailsForDb =
+        contactDetails && contactDetails.phones.length > 0
+          ? contactDetails.phones.map((phone) => ({
+              id: uuidv4(),
+              contactDetailType: ContactDetailType.PhoneNumber,
+              rawValue: phone.value,
+              cleanValue: phone.value, // TODO: Clean string for searching
+              participantId,
+            }))
+          : [];
+      if (contactPhonesDetailsForDb.length > 0) {
+        await trx('participant_contact_details').insert(
+          contactPhonesDetailsForDb,
+        );
       }
 
       const identificationForDb =
@@ -111,7 +130,7 @@ const create = async (
         languages: languagesResult,
         nationalities: nationalitiesResult,
         disabilities,
-        contactDetails: contactDetailsForDb.map((contact) => ({
+        contactDetails: contactEmailsDetailsForDb.map((contact) => ({
           id: contact.id,
           contactDetailType: contact.contactDetailType,
           value: contact.rawValue,

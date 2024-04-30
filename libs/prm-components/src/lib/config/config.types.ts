@@ -33,9 +33,6 @@ export type ListFieldConfig = {
   component: Component.List;
   label: string;
   children: FieldConfig[];
-  filter?: (value: any) => boolean;
-  options?: Option[];
-  defaults?: any;
 };
 
 type Option = {
