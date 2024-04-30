@@ -2,18 +2,29 @@ import { ulid } from 'ulidx';
 import { v4 } from 'uuid';
 import { faker } from '@faker-js/faker';
 
-import { ParticipantGenerator } from '@nrcno/core-test-utils';
+import {
+  ContactDetailsGenerator,
+  IdentificationGenerator,
+  ParticipantGenerator,
+} from '@nrcno/core-test-utils';
 import { getDb } from '@nrcno/core-db';
+import { ParticipantUpdate } from '@nrcno/core-models';
 
 import { ParticipantStore } from './participant.store';
 
-jest.mock('ulidx', () => ({
-  ulid: jest.fn(),
-}));
+jest.mock('ulidx', () => {
+  const realUlid = jest.requireActual('ulidx').ulid;
+  return {
+    ulid: jest.fn().mockImplementation(() => realUlid()),
+  };
+});
 
-jest.mock('uuid', () => ({
-  v4: jest.fn(),
-}));
+jest.mock('uuid', () => {
+  const realUuid = jest.requireActual('uuid').v4;
+  return {
+    v4: jest.fn().mockImplementation(() => realUuid()),
+  };
+});
 
 function generateMockUlid() {
   const chars = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
@@ -43,6 +54,57 @@ describe('Participant store', () => {
         ParticipantStore.create(participantDefinition),
       ).rejects.toThrow(); // ulid is mocked to return the same value
     });
+
+    test('should create and get a participant', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition();
+      const personId = generateMockUlid();
+      const entityId = generateMockUlid();
+      const participantId = generateMockUlid();
+      const contactDetailsId = faker.string.uuid();
+      const identificationId = faker.string.uuid();
+      const expectedParticipant = ParticipantGenerator.generateEntity({
+        ...participantDefinition,
+        id: participantId,
+        contactDetails: participantDefinition.contactDetails.map((cd) => ({
+          ...cd,
+          id: contactDetailsId,
+        })),
+        identification: participantDefinition.identification.map(
+          (identification) => ({
+            ...identification,
+            id: identificationId,
+          }),
+        ),
+        languages: participantDefinition.languages.map((lang) => ({
+          ...lang,
+          translationKey: `language__${lang.isoCode}`,
+        })),
+        nationalities: participantDefinition.nationalities.map((nat) => ({
+          ...nat,
+          translationKey: `nationality__${nat.isoCode}`,
+        })),
+      });
+
+      (ulid as jest.Mock)
+        .mockReturnValueOnce(personId)
+        .mockReturnValueOnce(entityId)
+        .mockReturnValueOnce(participantId);
+
+      (v4 as jest.Mock)
+        .mockReturnValueOnce(contactDetailsId)
+        .mockReturnValueOnce(identificationId);
+
+      const createdParticipant = await ParticipantStore.create(
+        participantDefinition,
+      );
+
+      expect(createdParticipant).toEqual(expectedParticipant);
+
+      const participant = await ParticipantStore.get(createdParticipant.id);
+
+      expect(participant).toBeDefined();
+      expect(participant).toEqual(expectedParticipant);
+    });
   });
 
   describe('get', () => {
@@ -53,54 +115,298 @@ describe('Participant store', () => {
     });
   });
 
-  test('should create and get a participant', async () => {
-    const participantDefinition = ParticipantGenerator.generateDefinition();
-    const personId = generateMockUlid();
-    const entityId = generateMockUlid();
-    const participantId = generateMockUlid();
-    const contactDetailsId = faker.string.uuid();
-    const identificationId = faker.string.uuid();
-    const expectedParticipant = ParticipantGenerator.generateEntity({
-      ...participantDefinition,
-      id: participantId,
-      contactDetails: participantDefinition.contactDetails.map((cd) => ({
-        ...cd,
-        id: contactDetailsId,
-      })),
-      identification: participantDefinition.identification.map(
-        (identification) => ({
-          ...identification,
-          id: identificationId,
-        }),
-      ),
-      languages: participantDefinition.languages.map((lang) => ({
-        ...lang,
-        translationKey: `language__${lang.isoCode}`,
-      })),
-      nationalities: participantDefinition.nationalities.map((nat) => ({
-        ...nat,
-        translationKey: `nationality__${nat.isoCode}`,
-      })),
+  describe('update', () => {
+    beforeAll(() => {
+      (ulid as jest.Mock).mockImplementation(() =>
+        jest.requireActual('ulidx').ulid(),
+      );
+      (v4 as jest.Mock).mockImplementation(() =>
+        jest.requireActual('uuid').v4(),
+      );
+    });
+    test('should update a participant basic details', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition();
+      const createdParticipant = await ParticipantStore.create(
+        participantDefinition,
+      );
+
+      const participantUpdates = ParticipantGenerator.generateDefinition();
+
+      const updatedParticipant = await ParticipantStore.update(
+        createdParticipant.id,
+        {
+          firstName: participantUpdates.firstName,
+          middleName: participantUpdates.middleName,
+          lastName: participantUpdates.lastName,
+          nativeName: participantUpdates.nativeName,
+          motherName: participantUpdates.motherName,
+          preferredName: participantUpdates.preferredName,
+          dateOfBirth: participantUpdates.dateOfBirth,
+          nrcId: participantUpdates.nrcId,
+          residence: participantUpdates.residence,
+          contactMeansComment: participantUpdates.contactMeansComment,
+          consentGdpr: participantUpdates.consentGdpr,
+          consentReferral: participantUpdates.consentReferral,
+          sex: participantUpdates.sex,
+          preferredContactMeans: participantUpdates.preferredContactMeans,
+          displacementStatus: participantUpdates.displacementStatus,
+          engagementContext: participantUpdates.engagementContext,
+        },
+      );
+
+      expect(updatedParticipant).toBeDefined();
+      expect(updatedParticipant).toMatchObject({
+        firstName: participantUpdates.firstName,
+        middleName: participantUpdates.middleName,
+        lastName: participantUpdates.lastName,
+        nativeName: participantUpdates.nativeName,
+        motherName: participantUpdates.motherName,
+        preferredName: participantUpdates.preferredName,
+        dateOfBirth: participantUpdates.dateOfBirth,
+        nrcId: participantUpdates.nrcId,
+        residence: participantUpdates.residence,
+        contactMeansComment: participantUpdates.contactMeansComment,
+        consentGdpr: participantUpdates.consentGdpr,
+        consentReferral: participantUpdates.consentReferral,
+        sex: participantUpdates.sex,
+        preferredContactMeans: participantUpdates.preferredContactMeans,
+        displacementStatus: participantUpdates.displacementStatus,
+        engagementContext: participantUpdates.engagementContext,
+      });
     });
 
-    (ulid as jest.Mock)
-      .mockReturnValueOnce(personId)
-      .mockReturnValueOnce(entityId)
-      .mockReturnValueOnce(participantId);
+    test('should update a participant disabilities', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition();
+      const createdParticipant = await ParticipantStore.create(
+        participantDefinition,
+      );
 
-    (v4 as jest.Mock)
-      .mockReturnValueOnce(contactDetailsId)
-      .mockReturnValueOnce(identificationId);
+      const participantUpdateDisabilities =
+        ParticipantGenerator.generateDefinition().disabilities;
 
-    const createdParticipant = await ParticipantStore.create(
-      participantDefinition,
-    );
+      const updatedParticipant = await ParticipantStore.update(
+        createdParticipant.id,
+        {
+          disabilities: participantUpdateDisabilities,
+        },
+      );
 
-    expect(createdParticipant).toEqual(expectedParticipant);
+      expect(updatedParticipant).toBeDefined();
+      expect(updatedParticipant.disabilities).toEqual(
+        participantUpdateDisabilities,
+      );
+    });
 
-    const participant = await ParticipantStore.get(createdParticipant.id);
+    test('should update a participant contact details', async () => {
+      const contactDetailsToKeep = ContactDetailsGenerator.generateDefinition();
+      const contactDetailsToUpdate =
+        ContactDetailsGenerator.generateDefinition();
+      const contactDetailsToRemove =
+        ContactDetailsGenerator.generateDefinition();
+      const participantDefinition = ParticipantGenerator.generateDefinition({
+        contactDetails: [
+          contactDetailsToKeep,
+          contactDetailsToUpdate,
+          contactDetailsToRemove,
+        ],
+      });
+      const createdParticipant = await ParticipantStore.create(
+        participantDefinition,
+      );
 
-    expect(participant).toBeDefined();
-    expect(participant).toEqual(expectedParticipant);
+      const contactDetailsToAdd = ContactDetailsGenerator.generateDefinition();
+
+      const contactDetails = createdParticipant.contactDetails.map((cd) => {
+        switch (cd.value) {
+          case contactDetailsToUpdate.value:
+            return {
+              ...cd,
+              value: '123456789',
+            };
+          case contactDetailsToRemove.value:
+            return contactDetailsToAdd;
+          default:
+            return cd;
+        }
+      });
+
+      const update: ParticipantUpdate = {
+        contactDetails,
+      };
+
+      const updatedParticipant = await ParticipantStore.update(
+        createdParticipant.id,
+        update,
+      );
+
+      expect(updatedParticipant).toBeDefined();
+      expect(updatedParticipant.contactDetails).toHaveLength(3);
+      expect(updatedParticipant.contactDetails).toContainEqual({
+        ...contactDetailsToKeep,
+        id: expect.any(String),
+      });
+      expect(updatedParticipant.contactDetails).toContainEqual({
+        ...contactDetailsToUpdate,
+        value: '123456789',
+        id: expect.any(String),
+      });
+      expect(updatedParticipant.contactDetails).toContainEqual({
+        ...contactDetailsToAdd,
+        id: expect.any(String),
+      });
+    });
+
+    test('should update a participant identification', async () => {
+      const identificationToKeep = IdentificationGenerator.generateDefinition();
+      const identificationToUpdate =
+        IdentificationGenerator.generateDefinition();
+      const identificationToRemove =
+        IdentificationGenerator.generateDefinition();
+      const participantDefinition = ParticipantGenerator.generateDefinition({
+        identification: [
+          identificationToKeep,
+          identificationToUpdate,
+          identificationToRemove,
+        ],
+      });
+      const createdParticipant = await ParticipantStore.create(
+        participantDefinition,
+      );
+
+      const identificationToAdd = IdentificationGenerator.generateDefinition();
+
+      const identification = createdParticipant.identification.map((id) => {
+        if (
+          id.identificationNumber ===
+          identificationToUpdate.identificationNumber
+        ) {
+          return {
+            ...id,
+            identificationNumber: '987654321',
+          };
+        }
+        if (
+          id.identificationNumber ===
+          identificationToRemove.identificationNumber
+        ) {
+          return identificationToAdd;
+        }
+        return id;
+      });
+
+      const update: ParticipantUpdate = {
+        identification,
+      };
+
+      const updatedParticipant = await ParticipantStore.update(
+        createdParticipant.id,
+        update,
+      );
+
+      expect(updatedParticipant).toBeDefined();
+      expect(updatedParticipant.identification).toHaveLength(3);
+      expect(updatedParticipant.identification).toContainEqual({
+        ...identificationToKeep,
+        id: expect.any(String),
+      });
+      expect(updatedParticipant.identification).toContainEqual({
+        ...identificationToUpdate,
+        identificationNumber: '987654321',
+        id: expect.any(String),
+      });
+      expect(updatedParticipant.identification).toContainEqual({
+        ...identificationToAdd,
+        id: expect.any(String),
+      });
+    });
+
+    test('should update a participant languages', async () => {
+      const languageToKeep = {
+        isoCode: 'en',
+      };
+      const languageToRemove = {
+        isoCode: 'fr',
+      };
+      const participantDefinition = ParticipantGenerator.generateDefinition({
+        languages: [languageToKeep, languageToRemove],
+      });
+      const createdParticipant = await ParticipantStore.create(
+        participantDefinition,
+      );
+
+      const languageToAdd = {
+        isoCode: 'ar',
+      };
+
+      const languages = createdParticipant.languages.map((lang) => {
+        if (lang.isoCode === languageToRemove.isoCode) {
+          return languageToAdd;
+        }
+        return lang;
+      });
+
+      const update: ParticipantUpdate = {
+        languages,
+      };
+
+      const updatedParticipant = await ParticipantStore.update(
+        createdParticipant.id,
+        update,
+      );
+
+      expect(updatedParticipant).toBeDefined();
+      expect(updatedParticipant.languages).toHaveLength(2);
+      expect(updatedParticipant.languages).toContainEqual({
+        ...languageToKeep,
+        translationKey: `language__${languageToKeep.isoCode}`,
+      });
+      expect(updatedParticipant.languages).toContainEqual({
+        ...languageToAdd,
+        translationKey: `language__${languageToAdd.isoCode}`,
+      });
+    });
+
+    test('should update a participant nationalities', async () => {
+      const nationalityToKeep = {
+        isoCode: 'en',
+      };
+      const nationalityToRemove = {
+        isoCode: 'fr',
+      };
+      const participantDefinition = ParticipantGenerator.generateDefinition({
+        nationalities: [nationalityToKeep, nationalityToRemove],
+      });
+      const createdParticipant = await ParticipantStore.create(
+        participantDefinition,
+      );
+
+      const nationalityToAdd = {
+        isoCode: 'ar',
+      };
+      const nationalities = createdParticipant.nationalities.map((nat) => {
+        if (nat.isoCode === nationalityToRemove.isoCode) {
+          return nationalityToAdd;
+        }
+        return nat;
+      });
+      const update: ParticipantUpdate = {
+        nationalities,
+      };
+      const updatedParticipant = await ParticipantStore.update(
+        createdParticipant.id,
+        update,
+      );
+
+      expect(updatedParticipant).toBeDefined();
+      expect(updatedParticipant.nationalities).toHaveLength(2);
+      expect(updatedParticipant.nationalities).toContainEqual({
+        ...nationalityToKeep,
+        translationKey: `nationality__${nationalityToKeep.isoCode}`,
+      });
+      expect(updatedParticipant.nationalities).toContainEqual({
+        ...nationalityToAdd,
+        translationKey: `nationality__${nationalityToAdd.isoCode}`,
+      });
+    });
   });
 });

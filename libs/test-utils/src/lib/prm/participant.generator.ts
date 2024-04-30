@@ -9,12 +9,13 @@ import {
   EngagementContext,
   DisabilityLevel,
   YesNoUnknown,
-  ContactDetailType,
-  IdentificationType,
   Participant,
 } from '@nrcno/core-models';
 
 import { BaseTestEntityGenerator } from '../base-test-entity-generator';
+
+import { ContactDetailsGenerator } from './contact-details.generator';
+import { IdentificationGenerator } from './identification.generator';
 
 const generateDefinition = (
   overrides?: Partial<ParticipantDefinition>,
@@ -79,19 +80,8 @@ const generateDefinition = (
         isoCode: faker.helpers.arrayElement(['en', 'es', 'fr', 'ar']),
       },
     ],
-    contactDetails: [
-      {
-        contactDetailType: faker.helpers.enumValue(ContactDetailType),
-        value: faker.phone.number(),
-      },
-    ],
-    identification: [
-      {
-        identificationType: faker.helpers.enumValue(IdentificationType),
-        identificationNumber: faker.string.alphanumeric(),
-        isPrimary: faker.datatype.boolean(),
-      },
-    ],
+    contactDetails: [ContactDetailsGenerator.generateDefinition()],
+    identification: [IdentificationGenerator.generateDefinition()],
     ...overrides,
   };
 };

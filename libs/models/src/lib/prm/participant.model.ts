@@ -86,58 +86,94 @@ const ParticipantDetailsSchema = z.object({
 });
 
 const ParticipantDisabilitySchema = z.object({
-  hasDisabilityPwd: z.boolean(),
-  disabilityPwdComment: z.string(),
-  hasDisabilityVision: z.boolean(),
-  disabilityVisionLevel: DisabilityLevelSchema,
-  hasDisabilityHearing: z.boolean(),
-  disabilityHearingLevel: DisabilityLevelSchema,
-  hasDisabilityMobility: z.boolean(),
-  disabilityMobilityLevel: DisabilityLevelSchema,
-  hasDisabilityCognition: z.boolean(),
-  disabilityCognitionLevel: DisabilityLevelSchema,
-  hasDisabilitySelfcare: z.boolean(),
-  disabilitySelfcareLevel: DisabilityLevelSchema,
-  hasDisabilityCommunication: z.boolean(),
-  disabilityCommunicationLevel: DisabilityLevelSchema,
-  isChildAtRisk: YesNoUnknownSchema,
-  isElderAtRisk: YesNoUnknownSchema,
-  isWomanAtRisk: YesNoUnknownSchema,
-  isSingleParent: YesNoUnknownSchema,
-  isSeparatedChild: YesNoUnknownSchema,
-  isPregnant: YesNoUnknownSchema,
-  isLactating: YesNoUnknownSchema,
-  hasMedicalCondition: YesNoUnknownSchema,
-  needsLegalPhysicalProtection: YesNoUnknownSchema,
-  vulnerabilityComments: z.string(),
+  hasDisabilityPwd: z.boolean().optional(),
+  disabilityPwdComment: z.string().optional(),
+  hasDisabilityVision: z.boolean().optional(),
+  disabilityVisionLevel: DisabilityLevelSchema.optional(),
+  hasDisabilityHearing: z.boolean().optional(),
+  disabilityHearingLevel: DisabilityLevelSchema.optional(),
+  hasDisabilityMobility: z.boolean().optional(),
+  disabilityMobilityLevel: DisabilityLevelSchema.optional(),
+  hasDisabilityCognition: z.boolean().optional(),
+  disabilityCognitionLevel: DisabilityLevelSchema.optional(),
+  hasDisabilitySelfcare: z.boolean().optional(),
+  disabilitySelfcareLevel: DisabilityLevelSchema.optional(),
+  hasDisabilityCommunication: z.boolean().optional(),
+  disabilityCommunicationLevel: DisabilityLevelSchema.optional(),
+  isChildAtRisk: YesNoUnknownSchema.optional(),
+  isElderAtRisk: YesNoUnknownSchema.optional(),
+  isWomanAtRisk: YesNoUnknownSchema.optional(),
+  isSingleParent: YesNoUnknownSchema.optional(),
+  isSeparatedChild: YesNoUnknownSchema.optional(),
+  isPregnant: YesNoUnknownSchema.optional(),
+  isLactating: YesNoUnknownSchema.optional(),
+  hasMedicalCondition: YesNoUnknownSchema.optional(),
+  needsLegalPhysicalProtection: YesNoUnknownSchema.optional(),
+  vulnerabilityComments: z.string().optional(),
 });
 
-const ContactDetailsSchema = z.object({
+const ContactDetailsDefinitionSchema = z.object({
   contactDetailType: ContactDetailTypeSchema,
   value: z.string(),
 });
+export type ContactDetailsDefinition = z.infer<
+  typeof ContactDetailsDefinitionSchema
+>;
 
-const IdentificationSchema = z.object({
+const ContactDetailsSchema = ContactDetailsDefinitionSchema.merge(
+  z.object({
+    id: z.string().uuid(),
+  }),
+);
+export type ContactDetails = z.infer<typeof ContactDetailsSchema>;
+
+const IdentificationDefinitionSchema = z.object({
   identificationType: IdentificationTypeSchema,
   identificationNumber: z.string(),
   isPrimary: z.boolean(),
 });
+export type IdentificationDefinition = z.infer<
+  typeof IdentificationDefinitionSchema
+>;
+
+const IdentificationSchema = IdentificationDefinitionSchema.merge(
+  z.object({
+    id: z.string().uuid(),
+  }),
+);
+export type Identification = z.infer<typeof IdentificationSchema>;
+
+const LanguageDefinitionSchema = z.object({
+  isoCode: z.string().max(20),
+});
+export type LanguageDefinition = z.infer<typeof LanguageDefinitionSchema>;
+
+const LanguageSchema = LanguageDefinitionSchema.merge(
+  z.object({
+    translationKey: z.string().max(200),
+  }),
+);
+export type Language = z.infer<typeof LanguageSchema>;
+
+const NationalityDefinitionSchema = z.object({
+  isoCode: z.string().max(20),
+});
+export type NationalityDefinition = z.infer<typeof NationalityDefinitionSchema>;
+
+const NationalitySchema = NationalityDefinitionSchema.merge(
+  z.object({
+    translationKey: z.string().max(200),
+  }),
+);
+export type Nationality = z.infer<typeof NationalitySchema>;
 
 export const ParticipantDefinitionSchema = ParticipantDetailsSchema.merge(
   z.object({
     disabilities: ParticipantDisabilitySchema.optional(),
-    languages: z.array(
-      z.object({
-        isoCode: z.string().max(20),
-      }),
-    ),
-    nationalities: z.array(
-      z.object({
-        isoCode: z.string().max(20),
-      }),
-    ),
-    contactDetails: z.array(ContactDetailsSchema),
-    identification: z.array(IdentificationSchema),
+    languages: z.array(LanguageDefinitionSchema),
+    nationalities: z.array(NationalityDefinitionSchema),
+    contactDetails: z.array(ContactDetailsDefinitionSchema),
+    identification: z.array(IdentificationDefinitionSchema),
   }),
 );
 
@@ -146,33 +182,39 @@ export type ParticipantDefinition = z.infer<typeof ParticipantDefinitionSchema>;
 export const ParticipantSchema = ParticipantDefinitionSchema.merge(
   z.object({
     id: z.string().ulid(),
-    languages: z.array(
-      z.object({
-        isoCode: z.string().max(20),
-        translationKey: z.string().max(200),
-      }),
-    ),
-    nationalities: z.array(
-      z.object({
-        isoCode: z.string().max(20),
-        translationKey: z.string().max(200),
-      }),
-    ),
-    contactDetails: z.array(
-      ContactDetailsSchema.merge(
-        z.object({
-          id: z.string().uuid(),
-        }),
-      ),
-    ),
-    identification: z.array(
-      IdentificationSchema.merge(
-        z.object({
-          id: z.string().uuid(),
-        }),
-      ),
-    ),
+    languages: z.array(LanguageSchema),
+    nationalities: z.array(NationalitySchema),
+    contactDetails: z.array(ContactDetailsSchema),
+    identification: z.array(IdentificationSchema),
   }),
 );
 
 export type Participant = z.infer<typeof ParticipantSchema>;
+
+const ParticipantUpdateSchema = ParticipantDefinitionSchema.merge(
+  z.object({
+    consentGdpr: z.boolean().optional(),
+    consentReferral: z.boolean().optional(),
+    languages: z.array(LanguageDefinitionSchema).optional(),
+    nationalities: z.array(NationalityDefinitionSchema).optional(),
+    contactDetails: z
+      .array(
+        ContactDetailsDefinitionSchema.merge(
+          z.object({
+            id: z.string().uuid().optional(),
+          }),
+        ),
+      )
+      .optional(),
+    identification: z
+      .array(
+        IdentificationDefinitionSchema.merge(
+          z.object({
+            id: z.string().uuid().optional(),
+          }),
+        ),
+      )
+      .optional(),
+  }),
+);
+export type ParticipantUpdate = z.infer<typeof ParticipantUpdateSchema>;
