@@ -25,8 +25,6 @@ export const List: React.FC<Props> = ({
     name,
   });
 
-  // console.log('fields', fields, name);
-
   return (
     <Flex>
       <Box>
@@ -39,7 +37,6 @@ export const List: React.FC<Props> = ({
                 ...childConfig,
                 path: innerPath,
               };
-            // console.log('child', name, innerConfig.path);
               return (
                 <Field key={innerConfig.path.join('.')} config={innerConfig} />
               );
