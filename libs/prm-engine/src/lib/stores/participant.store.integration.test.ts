@@ -34,6 +34,7 @@ describe('Participant store', () => {
       const participantDefinition = ParticipantGenerator.generateDefinition();
       const id = generateMockUlid();
       (ulid as jest.Mock).mockReturnValue(id);
+      (v4 as jest.Mock).mockReturnValueOnce(faker.string.uuid());
       (v4 as jest.Mock).mockReturnValue(faker.string.uuid());
 
       const participant = await ParticipantStore.create(participantDefinition);

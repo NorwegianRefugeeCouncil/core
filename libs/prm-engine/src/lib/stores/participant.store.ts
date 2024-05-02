@@ -78,7 +78,7 @@ const create = async (
         );
       }
 
-      const contactEmailsDetailsForDb =
+      const contactDetailsEmailsForDb =
         contactDetails && contactDetails.emails.length > 0
           ? contactDetails.emails.map((email) => ({
               id: uuidv4(),
@@ -88,13 +88,13 @@ const create = async (
               participantId,
             }))
           : [];
-      if (contactEmailsDetailsForDb.length > 0) {
+      if (contactDetailsEmailsForDb.length > 0) {
         await trx('participant_contact_details').insert(
-          contactEmailsDetailsForDb,
+          contactDetailsEmailsForDb,
         );
       }
 
-      const contactPhonesDetailsForDb =
+      const contactDetailsPhonesForDb =
         contactDetails && contactDetails.phones.length > 0
           ? contactDetails.phones.map((phone) => ({
               id: uuidv4(),
@@ -104,9 +104,9 @@ const create = async (
               participantId,
             }))
           : [];
-      if (contactPhonesDetailsForDb.length > 0) {
+      if (contactDetailsPhonesForDb.length > 0) {
         await trx('participant_contact_details').insert(
-          contactPhonesDetailsForDb,
+          contactDetailsPhonesForDb,
         );
       }
 
@@ -131,11 +131,11 @@ const create = async (
         nationalities: nationalitiesResult,
         disabilities,
         contactDetails: {
-          emails: contactEmailsDetailsForDb.map((contact) => ({
+          emails: contactDetailsEmailsForDb.map((contact) => ({
             id: contact.id,
             value: contact.rawValue,
           })),
-          phones: contactPhonesDetailsForDb.map((contact) => ({
+          phones: contactDetailsPhonesForDb.map((contact) => ({
             id: contact.id,
             value: contact.rawValue,
           })),
