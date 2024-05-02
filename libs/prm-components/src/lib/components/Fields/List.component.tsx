@@ -1,5 +1,6 @@
-import { Box, Button, Flex, FormLabel } from '@chakra-ui/react';
+import { Flex, Heading, IconButton } from '@chakra-ui/react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
+import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 
 import { FieldConfig, ListFieldConfig } from '../../config';
 
@@ -16,39 +17,43 @@ export const List: React.FC<Props> = ({ config }) => {
     name: config.path.join('.'),
   });
 
+  const handleAppend = () => {
+    const defaults: Record<string, string> = {};
+    config.children.forEach((childConfig) => {
+      defaults[childConfig.path.join('.')] =
+        childConfig.defaultValue || undefined;
+    });
+    append(defaults);
+  };
+
   return (
-    <Flex>
-      <Box>
-        <FormLabel>{config.label}</FormLabel>
+    <Flex direction="column">
+      <Flex gap={4} w="100%" justifyContent="space-between">
+        <Heading as="h4" size="sm">
+          {config.label}
+        </Heading>
+        <IconButton aria-label="Add" onClick={handleAppend} size="sm">
+          <AddIcon />
+        </IconButton>
+      </Flex>
+      <Flex direction="column" gap={4}>
         {fields.map((field: Record<'id', string>, i: number) => (
-          <fieldset key={field.id}>
-            <Flex align={'center'}>
-              {config.children.map((childConfig: FieldConfig) => (
-                <Field
-                  key={childConfig.path.join('.')}
-                  config={{
-                    ...childConfig,
-                    path: [...config.path, i.toString(), ...childConfig.path],
-                  }}
-                />
-              ))}
-              <Button onClick={() => remove(i)}>remove</Button>
-            </Flex>
-          </fieldset>
+          <Flex key={field.id} alignItems="flex-end" gap={4}>
+            {config.children.map((childConfig: FieldConfig) => {
+              const innerConfig = {
+                ...childConfig,
+                path: [...config.path, `${i}`, ...childConfig.path],
+              };
+              return (
+                <Field key={innerConfig.path.join('.')} config={innerConfig} />
+              );
+            })}
+            <IconButton aria-label="Remove" onClick={() => remove(i)}>
+              <DeleteIcon />
+            </IconButton>
+          </Flex>
         ))}
-      </Box>
-      <Button
-        onClick={() => {
-          const defaults: Record<string, string> = {};
-          config.children.forEach((childConfig) => {
-            defaults[childConfig.path.join('.')] =
-              childConfig.defaultValue || '';
-          });
-          append(defaults);
-        }}
-      >
-        new
-      </Button>
+      </Flex>
     </Flex>
   );
 };

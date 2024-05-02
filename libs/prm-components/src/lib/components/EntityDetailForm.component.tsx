@@ -1,4 +1,16 @@
-import { Box, Button, Heading, HStack } from '@chakra-ui/react';
+import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Heading,
+  Spinner,
+} from '@chakra-ui/react';
 import { Entity } from '@nrcno/core-models';
 import { FormProvider, useForm } from 'react-hook-form';
 
@@ -12,6 +24,7 @@ type Props = {
   title: string;
   submit?: (data: Entity) => void;
   entity?: Entity | undefined;
+  isLoading?: boolean;
 };
 
 export const EntityDetailForm: React.FC<Props> = ({
@@ -20,6 +33,7 @@ export const EntityDetailForm: React.FC<Props> = ({
   title,
   submit,
   entity,
+  isLoading,
 }) => {
   const form = useForm<Entity>({
     defaultValues: entity,
@@ -28,20 +42,56 @@ export const EntityDetailForm: React.FC<Props> = ({
   return (
     <FormProvider {...form}>
       <form onSubmit={submit && form.handleSubmit(submit)} id={id}>
-        <Box>
-          <Heading>{title}</Heading>
-          {config.sections.map((section) => (
-            <Section key={`${id}_${section.title}`} section={section} />
-          ))}
+        <Flex
+          direction="row"
+          justifyContent="space-between"
+          alignItems="flex-start"
+          zIndex="docked"
+          position="sticky"
+          top={0}
+          bg="white"
+          pt={2}
+        >
+          <Flex direction="row" gap={4} alignItems="flex-start">
+            <Heading mb={4}>{title}</Heading>
+            {isLoading && <Spinner colorScheme="primary" size="lg" />}
+          </Flex>
           <HStack>
-            <Button colorScheme="primary" type="reset">
+            <Button colorScheme="secondary" type="reset" disabled={isLoading}>
               Cancel
             </Button>
-            <Button colorScheme="primary" type="submit">
+            <Button
+              colorScheme="primary"
+              type="submit"
+              disabled={!form.formState.isValid || isLoading}
+            >
               Save
             </Button>
           </HStack>
-        </Box>
+        </Flex>
+        <Accordion
+          defaultIndex={config.sections.map((_, i) => i)}
+          allowMultiple
+          allowToggle
+        >
+          {config.sections.map((section) => (
+            <AccordionItem>
+              <Heading as="h3">
+                <AccordionButton>
+                  <Box as="span" flex="1" textAlign="left">
+                    <Heading as="h3" size="md">
+                      {section.title}
+                    </Heading>
+                  </Box>
+                  <AccordionIcon />
+                </AccordionButton>
+              </Heading>
+              <AccordionPanel pb={4}>
+                <Section key={`${id}_${section.title}`} section={section} />
+              </AccordionPanel>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </form>
     </FormProvider>
   );
