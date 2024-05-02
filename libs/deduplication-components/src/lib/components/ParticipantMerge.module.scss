@@ -1,0 +1,17 @@
+.mergeFieldLeft {
+  & .selected {
+    background-color: #f0f0f0;
+  }
+}
+
+.mergeFieldRight {
+  & .selected {
+    background-color: #f0f0f0;
+  }
+}
+
+.mergeField {
+  &:hover {
+    background-color: #f0f0f0;
+  }
+}

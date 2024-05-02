@@ -19,7 +19,7 @@ export const DuplicateDetail: React.FC<Props> = ({ duplicate }) => {
           <Button>Merge</Button>
         </Flex>
       </Flex>
-      <DuplicateMerger />
+      <DuplicateMerger duplicateRecord={duplicate} />
     </Flex>
   );
 };

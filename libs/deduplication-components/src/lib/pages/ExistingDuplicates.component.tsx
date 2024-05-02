@@ -73,6 +73,7 @@ export const ExistingDuplicates: React.FC = () => {
       <Modal
         isOpen={Boolean(selectedDuplicate)}
         onClose={() => setSelectedDuplicate(null)}
+        size="full"
       >
         <ModalOverlay />
         <ModalContent>
