@@ -75,7 +75,7 @@ export const EntityDetailForm: React.FC<Props> = ({
           allowToggle
         >
           {config.sections.map((section) => (
-            <AccordionItem>
+            <AccordionItem key={`${id}_${section.title}`}>
               <Heading as="h3">
                 <AccordionButton>
                   <Box as="span" flex="1" textAlign="left">
@@ -87,7 +87,7 @@ export const EntityDetailForm: React.FC<Props> = ({
                 </AccordionButton>
               </Heading>
               <AccordionPanel pb={4}>
-                <Section key={`${id}_${section.title}`} section={section} />
+                <Section section={section} />
               </AccordionPanel>
             </AccordionItem>
           ))}
