@@ -31,7 +31,9 @@ export const TextInput: React.FC<Props> = ({ config }) => {
         readOnly={false}
         {...field}
       />
-      <FormHelperText>{config.description}</FormHelperText>
+      {config.description && (
+        <FormHelperText>{config.description}</FormHelperText>
+      )}
       {fieldState.error && (
         <FormErrorMessage>{fieldState.error.message}</FormErrorMessage>
       )}

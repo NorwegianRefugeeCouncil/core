@@ -29,7 +29,9 @@ export const TextArea: React.FC<Props> = ({ config }) => {
         placeholder={config.placeholder}
         {...field}
       />
-      <FormHelperText>{config.description}</FormHelperText>
+      {config.description && (
+        <FormHelperText>{config.description}</FormHelperText>
+      )}
       {fieldState.error && (
         <FormErrorMessage>{fieldState.error.message}</FormErrorMessage>
       )}

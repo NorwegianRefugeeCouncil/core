@@ -38,7 +38,9 @@ export const Select: React.FC<Props> = ({ config }) => {
             </option>
           ))}
       </S>
-      <FormHelperText>{config.description}</FormHelperText>
+      {config.description && (
+        <FormHelperText>{config.description}</FormHelperText>
+      )}
       {fieldState.error && (
         <FormErrorMessage>{fieldState.error.message}</FormErrorMessage>
       )}

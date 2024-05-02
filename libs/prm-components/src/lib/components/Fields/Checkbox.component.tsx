@@ -3,7 +3,6 @@ import {
   FormControl,
   FormErrorMessage,
   FormHelperText,
-  FormLabel,
 } from '@chakra-ui/react';
 import { useController, useFormContext } from 'react-hook-form';
 
@@ -22,15 +21,18 @@ export const Checkbox: React.FC<Props> = ({ config }) => {
 
   return (
     <FormControl>
-      <FormLabel>{config.label}</FormLabel>
       <CB
         isInvalid={fieldState.invalid}
         isRequired={config.required}
         placeholder={config.placeholder}
         type={config.dataType}
         {...field}
-      />
-      <FormHelperText>{config.description}</FormHelperText>
+      >
+        {config.label}
+      </CB>
+      {config.description && (
+        <FormHelperText>{config.description}</FormHelperText>
+      )}
       {fieldState.error && (
         <FormErrorMessage>{fieldState.error.message}</FormErrorMessage>
       )}

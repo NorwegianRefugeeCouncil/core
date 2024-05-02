@@ -18,7 +18,9 @@ export const Display: React.FC<Props> = ({ config }) => {
     <FormControl>
       <FormLabel>{config.label}</FormLabel>
       <Text>{field.value}</Text>
-      <FormHelperText>{config.description}</FormHelperText>
+      {config.description && (
+        <FormHelperText>{config.description}</FormHelperText>
+      )}
     </FormControl>
   );
 };
