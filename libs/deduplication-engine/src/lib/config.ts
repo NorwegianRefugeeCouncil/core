@@ -92,7 +92,7 @@ export const config: DeduplicationConfig = {
             ...acc,
             [cur.identificationType]: [
               ...(acc[cur.identificationType] ?? []),
-              ...cur.identificationNumber,
+              cur.identificationNumber,
             ],
           }),
           {} as Record<IdentificationType, string[]>,
@@ -106,7 +106,7 @@ export const config: DeduplicationConfig = {
             ...acc,
             [cur.identificationType]: [
               ...(acc[cur.identificationType] ?? []),
-              ...cur.identificationNumber,
+              cur.identificationNumber,
             ],
           }),
           {} as Record<IdentificationType, string[]>,
