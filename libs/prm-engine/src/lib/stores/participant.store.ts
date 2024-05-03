@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ulid } from 'ulidx';
 
 import {
+  ContactDetailType,
   Participant,
   ParticipantDefinition,
   ParticipantSchema,
@@ -77,16 +78,30 @@ const create = async (
         );
       }
 
-      const contactDetailsForDb =
-        contactDetails && contactDetails.length > 0
-          ? contactDetails.map((contact) => ({
+      const contactDetailsEmailsForDb =
+        contactDetails && contactDetails.emails.length > 0
+          ? contactDetails.emails.map((email) => ({
               id: uuidv4(),
-              contactDetailType: contact.contactDetailType,
-              rawValue: contact.value,
-              cleanValue: contact.value, // TODO: Clean string for searching
+              contactDetailType: ContactDetailType.Email,
+              rawValue: email.value,
+              cleanValue: email.value, // TODO: Clean string for searching
               participantId,
             }))
           : [];
+
+      const contactDetailsPhonesForDb =
+        contactDetails && contactDetails.phones.length > 0
+          ? contactDetails.phones.map((phone) => ({
+              id: uuidv4(),
+              contactDetailType: ContactDetailType.PhoneNumber,
+              rawValue: phone.value,
+              cleanValue: phone.value, // TODO: Clean string for searching
+              participantId,
+            }))
+          : [];
+      const contactDetailsForDb = contactDetailsEmailsForDb.concat(
+        contactDetailsPhonesForDb,
+      );
       if (contactDetailsForDb.length > 0) {
         await trx('participant_contact_details').insert(contactDetailsForDb);
       }
@@ -111,11 +126,16 @@ const create = async (
         languages: languagesResult,
         nationalities: nationalitiesResult,
         disabilities,
-        contactDetails: contactDetailsForDb.map((contact) => ({
-          id: contact.id,
-          contactDetailType: contact.contactDetailType,
-          value: contact.rawValue,
-        })),
+        contactDetails: {
+          emails: contactDetailsEmailsForDb.map((contact) => ({
+            id: contact.id,
+            value: contact.rawValue,
+          })),
+          phones: contactDetailsPhonesForDb.map((contact) => ({
+            id: contact.id,
+            value: contact.rawValue,
+          })),
+        },
         identification: identificationForDb,
       });
 
@@ -181,11 +201,26 @@ const get = async (id: string): Promise<Participant | null> => {
     ...participant,
     languages,
     nationalities,
-    contactDetails: contactDetails.map((contactDetail) => ({
-      id: contactDetail.id,
-      contactDetailType: contactDetail.contactDetailType,
-      value: contactDetail.rawValue,
-    })),
+    contactDetails: {
+      emails: contactDetails
+        .filter(
+          (contactDetail) =>
+            contactDetail.contactDetailType === ContactDetailType.Email,
+        )
+        .map((contactDetail) => ({
+          id: contactDetail.id,
+          value: contactDetail.rawValue,
+        })),
+      phones: contactDetails
+        .filter(
+          (contactDetail) =>
+            contactDetail.contactDetailType === ContactDetailType.PhoneNumber,
+        )
+        .map((contactDetail) => ({
+          id: contactDetail.id,
+          value: contactDetail.rawValue,
+        })),
+    },
     identification: identifications,
     disabilities,
   });

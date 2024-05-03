@@ -6,6 +6,7 @@ const config: StorybookConfig = {
     '@storybook/addon-essentials',
     '@storybook/addon-interactions',
     '@chakra-ui/storybook-addon',
+    'storybook-addon-remix-react-router',
   ],
   framework: {
     name: '@storybook/react-vite',

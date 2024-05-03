@@ -9,7 +9,6 @@ import {
   EngagementContext,
   DisabilityLevel,
   YesNoUnknown,
-  ContactDetailType,
   IdentificationType,
   Participant,
 } from '@nrcno/core-models';
@@ -79,12 +78,18 @@ const generateDefinition = (
         isoCode: faker.helpers.arrayElement(['en', 'es', 'fr', 'ar']),
       },
     ],
-    contactDetails: [
-      {
-        contactDetailType: faker.helpers.enumValue(ContactDetailType),
-        value: faker.phone.number(),
-      },
-    ],
+    contactDetails: {
+      emails: [
+        {
+          value: faker.internet.email(),
+        },
+      ],
+      phones: [
+        {
+          value: faker.phone.number(),
+        },
+      ],
+    },
     identification: [
       {
         identificationType: faker.helpers.enumValue(IdentificationType),
@@ -102,10 +107,18 @@ const generateEntity = (overrides?: Partial<Participant>): Participant => {
   return {
     ...definition,
     id: overrides?.id || ulid(),
-    contactDetails: definition.contactDetails.map((contactDetail, index) => ({
-      ...contactDetail,
-      id: overrides?.contactDetails?.[index]?.id || faker.string.uuid(),
-    })),
+    contactDetails: {
+      emails: definition.contactDetails.emails.map((contactDetail, index) => ({
+        ...contactDetail,
+        id:
+          overrides?.contactDetails?.emails?.[index]?.id || faker.string.uuid(),
+      })),
+      phones: definition.contactDetails.phones.map((contactDetail, index) => ({
+        ...contactDetail,
+        id:
+          overrides?.contactDetails?.phones?.[index]?.id || faker.string.uuid(),
+      })),
+    },
     identification: definition.identification.map((identification, index) => ({
       ...identification,
       id: overrides?.identification?.[index]?.id || faker.string.uuid(),

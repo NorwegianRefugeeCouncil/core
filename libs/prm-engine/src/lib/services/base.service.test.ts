@@ -42,7 +42,7 @@ describe('Base PRM service', () => {
           consentReferral: true,
           languages: [],
           nationalities: [],
-          contactDetails: [],
+          contactDetails: { emails: [], phones: [] },
           identification: [],
         };
 
@@ -62,7 +62,7 @@ describe('Base PRM service', () => {
           consentReferral: true,
           languages: [],
           nationalities: [],
-          contactDetails: [],
+          contactDetails: { emails: [], phones: [] },
           identification: [],
         };
 

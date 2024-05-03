@@ -1,37 +1,35 @@
-import { Component, Field as FieldType, ListField } from '../../config';
+import { Component, FieldConfig, ListFieldConfig } from '../../config';
 
 import { Checkbox } from './Checkbox.component';
-import { Date } from './Date.component';
-import { Hidden } from './Hidden.component';
+import { Display } from './Display.component';
 import { List } from './List.component';
-import { ReadOnly } from './ReadOnly.component';
 import { Select } from './Select.component';
 import { TextArea } from './TextArea.component';
 import { TextInput } from './TextInput.component';
+import { Hidden } from './Hidden.component';
 
 type FieldProps = {
-  field: FieldType | ListField;
+  config: FieldConfig | ListFieldConfig;
 };
 
-export const Field: React.FC<FieldProps> = ({ field }) => {
-  switch (field.component) {
+export const Field: React.FC<FieldProps> = ({ config }) => {
+  switch (config.component) {
+    case Component.Display:
+      return <Display config={config} />;
     case Component.Hidden:
-      return <Hidden field={field} />;
-    case Component.ReadOnly:
-      return <ReadOnly field={field} />;
+      return <Hidden config={config} />;
     case Component.TextInput:
-      return <TextInput field={field} />;
+      return <TextInput config={config} />;
     case Component.TextArea:
-      return <TextArea field={field} />;
+      return <TextArea config={config} />;
     case Component.Select:
-      return <Select field={field} />;
+      return <Select config={config} />;
     case Component.Checkbox:
-      return <Checkbox field={field} />;
-    case Component.Date:
-      return <Date field={field} />;
+      return <Checkbox config={config} />;
     case Component.List:
-      return <List field={field} />;
+      return <List config={config} />;
     default:
-      throw new Error(`Unsupported field component`);
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      return <></>;
   }
 };

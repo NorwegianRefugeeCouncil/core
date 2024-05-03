@@ -19,12 +19,20 @@ const participantDefinitionWithEveryField =
 const participantWithEveryField: Participant = {
   ...participantDefinitionWithEveryField,
   id: expect.any(String),
-  contactDetails: participantDefinitionWithEveryField.contactDetails.map(
-    (contactDetail) => ({
-      ...contactDetail,
-      id: expect.any(String),
-    }),
-  ),
+  contactDetails: {
+    emails: participantDefinitionWithEveryField.contactDetails.emails.map(
+      (contactDetail) => ({
+        ...contactDetail,
+        id: expect.any(String),
+      }),
+    ),
+    phones: participantDefinitionWithEveryField.contactDetails.phones.map(
+      (contactDetail) => ({
+        ...contactDetail,
+        id: expect.any(String),
+      }),
+    ),
+  },
   identification: participantDefinitionWithEveryField.identification.map(
     (identification) => ({
       ...identification,
@@ -48,14 +56,14 @@ const participantDefinitionWithSomeFields: ParticipantDefinition = {
   consentReferral: faker.datatype.boolean(),
   languages: [],
   nationalities: [],
-  contactDetails: [],
+  contactDetails: { emails: [], phones: [] },
   identification: [],
 };
 
 const participantWithSomeFields: Participant = {
   ...participantDefinitionWithSomeFields,
   id: expect.any(String),
-  contactDetails: [],
+  contactDetails: { emails: [], phones: [] },
   identification: [],
   languages: [],
   nationalities: [],
@@ -65,7 +73,7 @@ const participantDefinitionWithMissingRequiredFields = {
   consentReferral: faker.datatype.boolean(),
   languages: [],
   nationalities: [],
-  contactDetails: [],
+  contactDetails: { emails: [], phones: [] },
   identification: [],
 };
 
@@ -75,19 +83,27 @@ const participantDefinitionWithInvalidFields = {
   consentReferral: faker.datatype.boolean(),
   languages: [],
   nationalities: [],
-  contactDetails: [],
+  contactDetails: { emails: [], phones: [] },
   identification: [],
 };
 
 const participantDefinitionWithIds = {
   ...participantDefinitionWithEveryField,
   id: ulid(),
-  contactDetails: participantDefinitionWithEveryField.contactDetails.map(
-    (contactDetail) => ({
-      ...contactDetail,
-      id: faker.string.uuid(),
-    }),
-  ),
+  contactDetails: {
+    emails: participantDefinitionWithEveryField.contactDetails.emails.map(
+      (contactDetail) => ({
+        ...contactDetail,
+        id: faker.string.uuid(),
+      }),
+    ),
+    phones: participantDefinitionWithEveryField.contactDetails.phones.map(
+      (contactDetail) => ({
+        ...contactDetail,
+        id: faker.string.uuid(),
+      }),
+    ),
+  },
   identification: participantDefinitionWithEveryField.identification.map(
     (identification) => ({
       ...identification,
@@ -177,11 +193,20 @@ describe('Participants', () => {
         participantWithEveryField,
       );
       expect(res.data.id).not.toEqual(participantDefinitionWithIds.id);
-      res.data.contactDetails.forEach((contactDetail: any, index: number) => {
-        expect(contactDetail.id).not.toEqual(
-          participantDefinitionWithIds.contactDetails[index].id,
-        );
-      });
+      res.data.contactDetails.emails.forEach(
+        (contactDetail: any, index: number) => {
+          expect(contactDetail.id).not.toEqual(
+            participantDefinitionWithIds.contactDetails.emails[index].id,
+          );
+        },
+      );
+      res.data.contactDetails.phones.forEach(
+        (contactDetail: any, index: number) => {
+          expect(contactDetail.id).not.toEqual(
+            participantDefinitionWithIds.contactDetails.phones[index].id,
+          );
+        },
+      );
       res.data.identification.forEach((identification: any, index: number) => {
         expect(identification.id).not.toEqual(
           participantDefinitionWithIds.identification[index].id,
