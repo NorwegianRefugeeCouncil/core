@@ -24,7 +24,6 @@ export const List: React.FC<Props> = ({ config }) => {
     control,
     name,
   });
-  console.log('LIST', name, config.children, fields);
 
   return (
     <Flex>
@@ -32,38 +31,16 @@ export const List: React.FC<Props> = ({ config }) => {
         <FormLabel>{config.label}</FormLabel>
         {fields.map((field: Record<'id', string>, i: number) => (
           <fieldset key={field.id}>
-            <SubForm
-              control={control}
-              update={update}
-              index={i}
-              value={field}
-              config={config.children}
-            />
-            {/* <Flex align={'center'}>
-              {config.children.map((childConfig: FieldConfig) => {
-                const innerPath = [...config.path, `${i}`, ...childConfig.path];
-                const innerConfig = {
-                  ...childConfig,
-                  path: innerPath,
-                };
-                console.log('FIELD', field);
-                return (
-                  <Field
-                    key={innerConfig.path.join('.')}
-                    config={innerConfig}
-                  />
-                );
-              })}
-              <Button
-                onClick={handleSubmit((data) => {
-                  console.log('SUBMIT', data);
-                  update(i, data);
-                })}
-              >
-                add
-              </Button>{' '}
-            </Flex> */}
-            <Button onClick={() => remove(i)}>remove</Button>
+            <Flex align={'center'}>
+              <SubForm
+                control={control}
+                update={update}
+                index={i}
+                value={field}
+                config={config.children}
+              />
+              <Button onClick={() => remove(i)}>remove</Button>
+            </Flex>
           </fieldset>
         ))}
       </Box>
@@ -93,7 +70,7 @@ const SubForm: React.FC<SubFormProps> = ({
 
   return (
     <FormProvider {...form}>
-      <form id={`${index}`}>
+      <Flex align={'center'}>
         {config.map((childConfig: FieldConfig) => {
           return (
             <Field key={childConfig.path.join('.')} config={childConfig} />
@@ -103,21 +80,19 @@ const SubForm: React.FC<SubFormProps> = ({
         <Button
           type="submit"
           onClick={form.handleSubmit((data) => {
-            const updateData:any = {};
+            const updateData: object = {};
+
             config.forEach((childConfig) => {
-              console.log(
-                'child path update',
-                childConfig.path,
-                (updateData[childConfig.path.join('.')] =
-                  data[childConfig.path.join('.')] || childConfig.defaultValue),
-              );
+              updateData[childConfig.path.join('.')] =
+                data[childConfig.path.join('.')] || childConfig.defaultValue;
             });
+            console.log('child path update', updateData);
             update(index, updateData);
           })}
         >
           Submit
         </Button>
-      </form>
+      </Flex>
     </FormProvider>
   );
 };
