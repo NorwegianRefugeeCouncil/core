@@ -1,12 +1,5 @@
 import { Box, Button, Flex, FormLabel } from '@chakra-ui/react';
-import {
-  Control,
-  FormProvider,
-  UseFieldArrayUpdate,
-  useFieldArray,
-  useForm,
-  useFormContext,
-} from 'react-hook-form';
+import { useFieldArray, useFormContext } from 'react-hook-form';
 
 import { FieldConfig, ListFieldConfig } from '../../config';
 
@@ -20,7 +13,7 @@ export const List: React.FC<Props> = ({ config }) => {
   const { control } = useFormContext();
   const name = config.path.join('.');
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control,
     name,
   });
@@ -32,67 +25,21 @@ export const List: React.FC<Props> = ({ config }) => {
         {fields.map((field: Record<'id', string>, i: number) => (
           <fieldset key={field.id}>
             <Flex align={'center'}>
-              <SubForm
-                control={control}
-                update={update}
-                index={i}
-                value={field}
-                config={config.children}
-              />
+              {config.children.map((childConfig: FieldConfig) => (
+                <Field
+                  key={childConfig.path.join('.')}
+                  config={{
+                    ...childConfig,
+                    path: [...config.path, i.toString(), ...childConfig.path],
+                  }}
+                />
+              ))}
               <Button onClick={() => remove(i)}>remove</Button>
             </Flex>
           </fieldset>
         ))}
       </Box>
-      <Button onClick={append}>new</Button>
+      <Button onClick={() => append({})}>new</Button>
     </Flex>
-  );
-};
-
-type SubFormProps = {
-  update: UseFieldArrayUpdate;
-  index: number;
-  value: Record<'id', string>;
-  control: Control;
-  config: FieldConfig[];
-};
-
-const SubForm: React.FC<SubFormProps> = ({
-  update,
-  index,
-  value,
-  config,
-  control,
-}) => {
-  const form = useForm({
-    defaultValues: value,
-  });
-
-  return (
-    <FormProvider {...form}>
-      <Flex align={'center'}>
-        {config.map((childConfig: FieldConfig) => {
-          return (
-            <Field key={childConfig.path.join('.')} config={childConfig} />
-          );
-        })}
-
-        <Button
-          type="submit"
-          onClick={form.handleSubmit((data) => {
-            const updateData: object = {};
-
-            config.forEach((childConfig) => {
-              updateData[childConfig.path.join('.')] =
-                data[childConfig.path.join('.')] || childConfig.defaultValue;
-            });
-            console.log('child path update', updateData);
-            update(index, updateData);
-          })}
-        >
-          Submit
-        </Button>
-      </Flex>
-    </FormProvider>
   );
 };
