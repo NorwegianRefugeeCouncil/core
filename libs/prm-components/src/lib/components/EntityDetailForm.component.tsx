@@ -13,6 +13,8 @@ import {
 } from '@chakra-ui/react';
 import { Entity } from '@nrcno/core-models';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 import { EntityUIConfig } from '../config';
 
@@ -39,6 +41,37 @@ export const EntityDetailForm: React.FC<Props> = ({
     defaultValues: entity,
   });
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    window.onbeforeunload = () => {
+      if (form.formState.isDirty) {
+        if (window.confirm('Are you sure you want to leave?')) {
+          return true;
+        }
+        return false;
+      }
+      return true;
+    };
+    return () => {
+      window.onbeforeunload = null;
+    };
+  }, [form.formState.isDirty]);
+
+  const handleCancel = () => {
+    if (
+      !form.formState.isDirty ||
+      window.confirm('Are you sure you want to cancel?')
+    ) {
+      if (location.state?.from) {
+        navigate(-1);
+      } else {
+        navigate('/prm/participants');
+      }
+    }
+  };
+
   return (
     <FormProvider {...form}>
       <form onSubmit={submit && form.handleSubmit(submit)} id={id}>
@@ -57,7 +90,11 @@ export const EntityDetailForm: React.FC<Props> = ({
             {isLoading && <Spinner colorScheme="primary" size="lg" />}
           </Flex>
           <HStack>
-            <Button colorScheme="secondary" type="reset" disabled={isLoading}>
+            <Button
+              colorScheme="secondary"
+              disabled={isLoading}
+              onClick={handleCancel}
+            >
               Cancel
             </Button>
             <Button
