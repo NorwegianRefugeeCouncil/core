@@ -83,9 +83,16 @@ describe('Participant service', () => {
       const participantUpdate = {
         ...participant,
         contactDetails: {
-          add: [],
-          update: participant.contactDetails,
-          remove: [],
+          emails: {
+            add: [],
+            update: participant.contactDetails.emails,
+            remove: [],
+          },
+          phones: {
+            add: [],
+            update: participant.contactDetails.phones,
+            remove: [],
+          },
         },
         identification: {
           add: [],
@@ -129,9 +136,20 @@ describe('Participant service', () => {
       const participantUpdate = {
         ...updatedParticipant,
         contactDetails: {
-          add: updatedParticipant.contactDetails,
-          update: [],
-          remove: originalParticipant.contactDetails.map((cd) => cd.id),
+          emails: {
+            add: updatedParticipant.contactDetails.emails,
+            update: [],
+            remove: originalParticipant.contactDetails.emails.map(
+              (cd) => cd.id,
+            ),
+          },
+          phones: {
+            add: updatedParticipant.contactDetails.phones,
+            update: [],
+            remove: originalParticipant.contactDetails.phones.map(
+              (cd) => cd.id,
+            ),
+          },
         },
         identification: {
           add: updatedParticipant.identification,

@@ -38,6 +38,13 @@ const colors = {
   },
 };
 
+const fonts = {
+  body: 'Roboto, sans-serif',
+  heading: 'Roboto, sans-serif',
+  mono: 'Menlo, monospace',
+};
+
 export const theme = extendTheme({
   colors,
+  fonts,
 });

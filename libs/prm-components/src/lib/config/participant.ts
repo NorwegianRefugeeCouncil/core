@@ -5,7 +5,6 @@ import {
   DisplacementStatus,
   EngagementContext,
   IdentificationType,
-  Participant,
   Sex,
   YesNoUnknown,
 } from '@nrcno/core-models';
@@ -77,7 +76,7 @@ export const participantConfig: EntityUIConfig = {
           {
             path: ['dateOfBirth'],
             dataType: DataType.Date,
-            component: Component.Date,
+            component: Component.TextInput,
             label: 'Date of Birth',
           },
           {
@@ -140,14 +139,12 @@ export const participantConfig: EntityUIConfig = {
                 path: ['translationKey'],
                 dataType: DataType.String,
                 component: Component.Select,
-                options: {
-                  options: [
-                    { value: 'en', label: 'English' },
-                    { value: 'es', label: 'Spanish' },
-                    { value: 'fr', label: 'French' },
-                    { value: 'ar', label: 'Arabic' },
-                  ],
-                },
+                options: [
+                  { value: 'en', label: 'English' },
+                  { value: 'es', label: 'Spanish' },
+                  { value: 'fr', label: 'French' },
+                  { value: 'ar', label: 'Arabic' },
+                ],
               },
             ],
           },
@@ -165,14 +162,12 @@ export const participantConfig: EntityUIConfig = {
                 path: ['translationKey'],
                 dataType: DataType.String,
                 component: Component.Select,
-                options: {
-                  options: [
-                    { value: 'en', label: 'English' },
-                    { value: 'es', label: 'Spanish' },
-                    { value: 'fr', label: 'French' },
-                    { value: 'ar', label: 'Arabic' },
-                  ],
-                },
+                options: [
+                  { value: 'en', label: 'English' },
+                  { value: 'es', label: 'Spanish' },
+                  { value: 'fr', label: 'French' },
+                  { value: 'ar', label: 'Arabic' },
+                ],
               },
             ],
           },
@@ -182,11 +177,9 @@ export const participantConfig: EntityUIConfig = {
         title: 'Contact Information',
         fields: [
           {
-            path: ['contactDetails'],
+            path: ['contactDetails.emails'],
             component: Component.List,
             label: 'Email addresses',
-            filter: (value: Participant['contactDetails'][0]) =>
-              value.contactDetailType === ContactDetailType.Email,
             children: [
               {
                 path: ['id'],
@@ -194,9 +187,10 @@ export const participantConfig: EntityUIConfig = {
                 component: Component.Hidden,
               },
               {
-                path: ['type'],
+                path: ['contactDetailType'],
                 dataType: DataType.String,
                 component: Component.Hidden,
+                defaultValue: ContactDetailType.Email,
               },
               {
                 path: ['value'],
@@ -207,11 +201,9 @@ export const participantConfig: EntityUIConfig = {
             ],
           },
           {
-            path: ['contactDetails'],
+            path: ['contactDetails.phones'],
             component: Component.List,
             label: 'Phone numbers',
-            filter: (value: Participant['contactDetails'][0]) =>
-              value.contactDetailType === ContactDetailType.PhoneNumber,
             children: [
               {
                 path: ['id'],
@@ -219,9 +211,10 @@ export const participantConfig: EntityUIConfig = {
                 component: Component.Hidden,
               },
               {
-                path: ['type'],
+                path: ['contactDetailType'],
                 dataType: DataType.String,
                 component: Component.Hidden,
+                defaultValue: ContactDetailType.PhoneNumber,
               },
               {
                 path: ['value'],

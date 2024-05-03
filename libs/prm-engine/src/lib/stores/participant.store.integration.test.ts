@@ -3,15 +3,11 @@ import { v4 } from 'uuid';
 import { faker } from '@faker-js/faker';
 
 import {
-  ContactDetailsGenerator,
   IdentificationGenerator,
   ParticipantGenerator,
 } from '@nrcno/core-test-utils';
 import { getDb } from '@nrcno/core-db';
-import {
-  ParticipantPartialUpdate,
-  ParticipantUpdate,
-} from '@nrcno/core-models';
+import { ParticipantPartialUpdate } from '@nrcno/core-models';
 
 import { ParticipantStore } from './participant.store';
 
@@ -48,6 +44,7 @@ describe('Participant store', () => {
       const participantDefinition = ParticipantGenerator.generateDefinition();
       const id = generateMockUlid();
       (ulid as jest.Mock).mockReturnValue(id);
+      (v4 as jest.Mock).mockReturnValueOnce(faker.string.uuid());
       (v4 as jest.Mock).mockReturnValue(faker.string.uuid());
 
       const participant = await ParticipantStore.create(participantDefinition);
@@ -63,15 +60,22 @@ describe('Participant store', () => {
       const personId = generateMockUlid();
       const entityId = generateMockUlid();
       const participantId = generateMockUlid();
-      const contactDetailsId = faker.string.uuid();
+      const contactDetailsIdEmail = faker.string.uuid();
+      const contactDetailsIdPhone = faker.string.uuid();
       const identificationId = faker.string.uuid();
       const expectedParticipant = ParticipantGenerator.generateEntity({
         ...participantDefinition,
         id: participantId,
-        contactDetails: participantDefinition.contactDetails.map((cd) => ({
-          ...cd,
-          id: contactDetailsId,
-        })),
+        contactDetails: {
+          emails: participantDefinition.contactDetails.emails.map((cd) => ({
+            ...cd,
+            id: contactDetailsIdEmail,
+          })),
+          phones: participantDefinition.contactDetails.phones.map((cd) => ({
+            ...cd,
+            id: contactDetailsIdPhone,
+          })),
+        },
         identification: participantDefinition.identification.map(
           (identification) => ({
             ...identification,
@@ -94,7 +98,8 @@ describe('Participant store', () => {
         .mockReturnValueOnce(participantId);
 
       (v4 as jest.Mock)
-        .mockReturnValueOnce(contactDetailsId)
+        .mockReturnValueOnce(contactDetailsIdEmail)
+        .mockReturnValueOnce(contactDetailsIdPhone)
         .mockReturnValueOnce(identificationId);
 
       const createdParticipant = await ParticipantStore.create(
@@ -201,35 +206,60 @@ describe('Participant store', () => {
     });
 
     test('should update a participant contact details', async () => {
-      const contactDetailsToKeep = ContactDetailsGenerator.generateDefinition();
-      const contactDetailsToUpdate =
-        ContactDetailsGenerator.generateDefinition();
-      const contactDetailsToRemove =
-        ContactDetailsGenerator.generateDefinition();
+      const phoneToKeep = faker.phone.number();
+      const phoneToUpdate = faker.phone.number();
+      const phoneToRemove = faker.phone.number();
+      const emailToKeep = faker.internet.email();
+      const emailToUpdate = faker.internet.email();
+      const emailToRemove = faker.internet.email();
       const participantDefinition = ParticipantGenerator.generateDefinition({
-        contactDetails: [
-          contactDetailsToKeep,
-          contactDetailsToUpdate,
-          contactDetailsToRemove,
-        ],
+        contactDetails: {
+          emails: [
+            { value: emailToKeep },
+            { value: emailToUpdate },
+            { value: emailToRemove },
+          ],
+          phones: [
+            { value: phoneToKeep },
+            { value: phoneToUpdate },
+            { value: phoneToRemove },
+          ],
+        },
       });
       const createdParticipant = await ParticipantStore.create(
         participantDefinition,
       );
 
-      const contactDetailsToAdd = ContactDetailsGenerator.generateDefinition();
+      const phoneToAdd = faker.phone.number();
+      const emailToAdd = faker.internet.email();
+      const updatedPhone = faker.phone.number();
+      const updatedEmail = faker.internet.email();
 
       const contactDetails = {
-        add: [contactDetailsToAdd],
-        update: createdParticipant.contactDetails
-          .filter((cd) => cd.value === contactDetailsToUpdate.value)
-          .map((cd) => ({
-            ...cd,
-            value: '123456789',
-          })),
-        remove: createdParticipant.contactDetails
-          .filter((cd) => cd.value === contactDetailsToRemove.value)
-          .map((cd) => cd.id),
+        phones: {
+          add: [{ value: phoneToAdd }],
+          update: createdParticipant.contactDetails.phones
+            .filter((cd) => cd.value === phoneToUpdate)
+            .map((cd) => ({
+              ...cd,
+              value: updatedPhone,
+            })),
+          remove: createdParticipant.contactDetails.phones
+            .filter((cd) => cd.value === phoneToRemove)
+            .map((cd) => cd.id),
+        },
+        emails: {
+          add: [{ value: emailToAdd }],
+          update: createdParticipant.contactDetails.emails
+            .filter((cd) => cd.value === emailToUpdate)
+            .map((cd) => ({
+              ...cd,
+              value: updatedEmail,
+            })),
+          remove: createdParticipant.contactDetails.emails
+            .filter((cd) => cd.value === emailToRemove)
+            .map((cd) => cd.id),
+        },
       };
 
       const update: ParticipantPartialUpdate = {
@@ -241,21 +271,41 @@ describe('Participant store', () => {
         update,
       );
 
-      expect(updatedParticipant).toBeDefined();
-      expect(updatedParticipant.contactDetails).toHaveLength(3);
-      expect(updatedParticipant.contactDetails).toContainEqual({
-        ...contactDetailsToKeep,
-        id: expect.any(String),
-      });
-      expect(updatedParticipant.contactDetails).toContainEqual({
-        ...contactDetailsToUpdate,
-        value: '123456789',
-        id: expect.any(String),
-      });
-      expect(updatedParticipant.contactDetails).toContainEqual({
-        ...contactDetailsToAdd,
-        id: expect.any(String),
-      });
+      expect(updatedParticipant.contactDetails).toBeDefined();
+      expect(updatedParticipant.contactDetails.emails).toHaveLength(3);
+      expect(updatedParticipant.contactDetails.emails).toEqual(
+        expect.arrayContaining([
+          {
+            value: emailToKeep,
+            id: expect.any(String),
+          },
+          {
+            value: updatedEmail,
+            id: expect.any(String),
+          },
+          {
+            value: emailToAdd,
+            id: expect.any(String),
+          },
+        ]),
+      );
+      expect(updatedParticipant.contactDetails.phones).toHaveLength(3);
+      expect(updatedParticipant.contactDetails.phones).toEqual(
+        expect.arrayContaining([
+          {
+            value: phoneToKeep,
+            id: expect.any(String),
+          },
+          {
+            value: updatedPhone,
+            id: expect.any(String),
+          },
+          {
+            value: phoneToAdd,
+            id: expect.any(String),
+          },
+        ]),
+      );
     });
 
     test('should update a participant identification', async () => {

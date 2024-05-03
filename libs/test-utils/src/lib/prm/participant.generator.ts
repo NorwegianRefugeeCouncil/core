@@ -14,7 +14,6 @@ import {
 
 import { BaseTestEntityGenerator } from '../base-test-entity-generator';
 
-import { ContactDetailsGenerator } from './contact-details.generator';
 import { IdentificationGenerator } from './identification.generator';
 
 const generateDefinition = (
@@ -80,7 +79,18 @@ const generateDefinition = (
         isoCode: faker.helpers.arrayElement(['en', 'es', 'fr', 'ar']),
       },
     ],
-    contactDetails: [ContactDetailsGenerator.generateDefinition()],
+    contactDetails: {
+      emails: [
+        {
+          value: faker.internet.email(),
+        },
+      ],
+      phones: [
+        {
+          value: faker.phone.number(),
+        },
+      ],
+    },
     identification: [IdentificationGenerator.generateDefinition()],
     ...overrides,
   };
@@ -92,10 +102,18 @@ const generateEntity = (overrides?: Partial<Participant>): Participant => {
   return {
     ...definition,
     id: overrides?.id || ulid(),
-    contactDetails: definition.contactDetails.map((contactDetail, index) => ({
-      ...contactDetail,
-      id: overrides?.contactDetails?.[index]?.id || faker.string.uuid(),
-    })),
+    contactDetails: {
+      emails: definition.contactDetails.emails.map((contactDetail, index) => ({
+        ...contactDetail,
+        id:
+          overrides?.contactDetails?.emails?.[index]?.id || faker.string.uuid(),
+      })),
+      phones: definition.contactDetails.phones.map((contactDetail, index) => ({
+        ...contactDetail,
+        id:
+          overrides?.contactDetails?.phones?.[index]?.id || faker.string.uuid(),
+      })),
+    },
     identification: definition.identification.map((identification, index) => ({
       ...identification,
       id: overrides?.identification?.[index]?.id || faker.string.uuid(),

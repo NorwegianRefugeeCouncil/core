@@ -38,15 +38,42 @@ export const ParticipantService: PrmService<
       throw new Error(`Participant with id ${id} not found`);
     }
 
+    const phonesToAdd = contactDetails?.phones?.filter((cd) => !cd.id) || [];
+    const emailsToAdd = contactDetails?.emails?.filter((cd) => !cd.id) || [];
+
+    const phonesToUpdate =
+      (contactDetails?.phones?.filter((cd) => cd.id) as ContactDetails[]) || [];
+    const emailsToUpdate =
+      (contactDetails?.emails?.filter((cd) => cd.id) as ContactDetails[]) || [];
+
+    const phonesToRemove = existingParticipant.contactDetails?.phones
+      ?.filter(
+        (existingContactDetail) =>
+          !contactDetails?.phones?.some(
+            (cd) => cd.id === existingContactDetail.id,
+          ),
+      )
+      .map((cd) => cd.id);
+    const emailsToRemove = existingParticipant.contactDetails?.emails
+      ?.filter(
+        (existingContactDetail) =>
+          !contactDetails?.emails?.some(
+            (cd) => cd.id === existingContactDetail.id,
+          ),
+      )
+      .map((cd) => cd.id);
+
     const contactDetailUpdates = {
-      add: contactDetails?.filter((cd) => !cd.id),
-      update: contactDetails?.filter((cd) => cd.id) as ContactDetails[],
-      remove: existingParticipant.contactDetails
-        .filter(
-          (existingContactDetail) =>
-            !contactDetails?.some((cd) => cd.id === existingContactDetail.id),
-        )
-        .map((cd) => cd.id),
+      phones: {
+        add: phonesToAdd,
+        update: phonesToUpdate,
+        remove: phonesToRemove,
+      },
+      emails: {
+        add: emailsToAdd,
+        update: emailsToUpdate,
+        remove: emailsToRemove,
+      },
     };
 
     const identificationUpdates = {

@@ -113,7 +113,6 @@ const ParticipantDisabilitySchema = z.object({
 });
 
 const ContactDetailsDefinitionSchema = z.object({
-  contactDetailType: ContactDetailTypeSchema,
   value: z.string(),
 });
 export type ContactDetailsDefinition = z.infer<
@@ -173,7 +172,10 @@ export const ParticipantDefinitionSchema = ParticipantDetailsSchema.merge(
     disabilities: ParticipantDisabilitySchema.optional(),
     languages: z.array(LanguageDefinitionSchema),
     nationalities: z.array(NationalityDefinitionSchema),
-    contactDetails: z.array(ContactDetailsDefinitionSchema),
+    contactDetails: z.object({
+      emails: z.array(ContactDetailsDefinitionSchema),
+      phones: z.array(ContactDetailsDefinitionSchema),
+    }),
     identification: z.array(IdentificationDefinitionSchema),
   }),
 );
@@ -185,7 +187,10 @@ export const ParticipantSchema = ParticipantDefinitionSchema.merge(
     id: z.string().ulid(),
     languages: z.array(LanguageSchema),
     nationalities: z.array(NationalitySchema),
-    contactDetails: z.array(ContactDetailsSchema),
+    contactDetails: z.object({
+      emails: z.array(ContactDetailsSchema),
+      phones: z.array(ContactDetailsSchema),
+    }),
     identification: z.array(IdentificationSchema),
   }),
 );
@@ -199,13 +204,26 @@ export const ParticipantUpdateSchema = ParticipantDefinitionSchema.merge(
     languages: z.array(LanguageDefinitionSchema).optional(),
     nationalities: z.array(NationalityDefinitionSchema).optional(),
     contactDetails: z
-      .array(
-        ContactDetailsDefinitionSchema.merge(
-          z.object({
-            id: z.string().uuid().optional(),
-          }),
-        ),
-      )
+      .object({
+        emails: z
+          .array(
+            ContactDetailsDefinitionSchema.merge(
+              z.object({
+                id: z.string().uuid().optional(),
+              }),
+            ),
+          )
+          .optional(),
+        phones: z
+          .array(
+            ContactDetailsDefinitionSchema.merge(
+              z.object({
+                id: z.string().uuid().optional(),
+              }),
+            ),
+          )
+          .optional(),
+      })
       .optional(),
     identification: z
       .array(
@@ -236,9 +254,20 @@ const ParticipantPartialUpdateSchema = ParticipantUpdateSchema.merge(
       .optional(),
     contactDetails: z
       .object({
-        add: z.array(ContactDetailsDefinitionSchema).optional(),
-        update: z.array(ContactDetailsSchema).optional(),
-        remove: z.array(z.string().uuid()).optional(),
+        phones: z
+          .object({
+            add: z.array(ContactDetailsDefinitionSchema).optional(),
+            update: z.array(ContactDetailsSchema).optional(),
+            remove: z.array(z.string().uuid()).optional(),
+          })
+          .optional(),
+        emails: z
+          .object({
+            add: z.array(ContactDetailsDefinitionSchema).optional(),
+            update: z.array(ContactDetailsSchema).optional(),
+            remove: z.array(z.string().uuid()).optional(),
+          })
+          .optional(),
       })
       .optional(),
     identification: z

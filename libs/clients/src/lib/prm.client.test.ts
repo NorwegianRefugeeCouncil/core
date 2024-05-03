@@ -32,7 +32,7 @@ describe('PRM client', () => {
           consentReferral: faker.datatype.boolean(),
           languages: [],
           nationalities: [],
-          contactDetails: [],
+          contactDetails: { emails: [], phones: [] },
           identification: [],
         };
 
@@ -59,7 +59,7 @@ describe('PRM client', () => {
           consentReferral: faker.datatype.boolean(),
           languages: [],
           nationalities: [],
-          contactDetails: [],
+          contactDetails: { emails: [], phones: [] },
           identification: [],
         };
 
@@ -78,7 +78,7 @@ describe('PRM client', () => {
           consentReferral: faker.datatype.boolean(),
           languages: [],
           nationalities: [],
-          contactDetails: [],
+          contactDetails: { emails: [], phones: [] },
           identification: [],
         };
 
@@ -99,7 +99,7 @@ describe('PRM client', () => {
           consentReferral: faker.datatype.boolean(),
           languages: [],
           nationalities: [],
-          contactDetails: [],
+          contactDetails: { emails: [], phones: [] },
           identification: [],
         };
         mock
