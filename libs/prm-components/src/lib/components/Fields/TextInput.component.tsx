@@ -14,16 +14,11 @@ type Props = {
 };
 
 export const TextInput: React.FC<Props> = ({ config }) => {
-  const name = config.path.join('.');
-  const { register, control, handleSubmit } = useFormContext();
+  const { control } = useFormContext();
   const { field, fieldState } = useController({
     name: config.path.join('.'),
     control,
   });
-
-  // const { register, handleSubmit } = useForm({
-  //   defaultValues: value
-  // });
 
   return (
     <FormControl>
@@ -35,8 +30,6 @@ export const TextInput: React.FC<Props> = ({ config }) => {
         type={config.dataType}
         readOnly={false}
         {...field}
-        {...register(name, { required: true })}
-
       />
       <FormHelperText>{config.description}</FormHelperText>
       {fieldState.error && (
