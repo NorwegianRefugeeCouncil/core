@@ -34,6 +34,8 @@ jobs:
       DB_PASSWORD: postgres
       DB_NAME: core
       TZ: UTC
+      LOG_LEVEL: debug
+      REQUEST_LOG_LEVEL: trace
 
     timeout-minutes: 10
     steps:
