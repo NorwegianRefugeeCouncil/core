@@ -11,11 +11,9 @@ type Props = {
 
 export const List: React.FC<Props> = ({ config }) => {
   const { control } = useFormContext();
-  const name = config.path.join('.');
-
   const { fields, append, remove } = useFieldArray({
     control,
-    name,
+    name: config.path.join('.'),
   });
 
   return (
@@ -39,7 +37,17 @@ export const List: React.FC<Props> = ({ config }) => {
           </fieldset>
         ))}
       </Box>
-      <Button onClick={() => append({})}>new</Button>
+      <Button
+        onClick={() => {
+          const defaults: Record<string, string> = {};
+          config.children.forEach((childConfig) => {
+            defaults[childConfig.path.join('.')] = childConfig.defaultValue;
+          });
+          append(defaults);
+        }}
+      >
+        new
+      </Button>
     </Flex>
   );
 };
