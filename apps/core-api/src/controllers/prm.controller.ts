@@ -1,7 +1,12 @@
 import { Router, Request, Response, NextFunction } from 'express';
 
 import { PrmService } from '@nrcno/core-prm-engine';
-import { EntityTypeSchema, EntityIdSchema } from '@nrcno/core-models';
+import {
+  EntityTypeSchema,
+  EntityIdSchema,
+  getEntityDefinitionSchema,
+  getEntityUpdateSchema,
+} from '@nrcno/core-models';
 
 // This is exported for testing purposes (not great)
 export const createEntity = async (
@@ -19,8 +24,13 @@ export const createEntity = async (
 
     const prmService = PrmService[entityType.data];
 
-    const entityDefinition = req.body; // TODO: Validate entity definition
-    const createdEntity = await prmService.create(entityDefinition);
+    const schema = getEntityDefinitionSchema(entityType.data);
+    const entityDefinition = schema.safeParse(req.body);
+    if (entityDefinition.success === false) {
+      res.sendStatus(400);
+      return;
+    }
+    const createdEntity = await prmService.create(entityDefinition.data);
 
     res.status(201).json(createdEntity);
   } catch (error) {
@@ -56,8 +66,43 @@ export const getEntity = async (
   }
 };
 
+export const updateEntity = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const entityType = EntityTypeSchema.safeParse(req.params.entityType);
+    const entityId = EntityIdSchema.safeParse(req.params.entityId);
+
+    if (entityType.success === false || entityId.success === false) {
+      res.sendStatus(404);
+      return;
+    }
+
+    const prmService = PrmService[entityType.data];
+
+    const schema = getEntityUpdateSchema(entityType.data);
+    const entityUpdate = schema.safeParse(req.body);
+    if (entityUpdate.success === false) {
+      res.sendStatus(400);
+      return;
+    }
+
+    const updatedEntity = await prmService.update(
+      entityId.data,
+      entityUpdate.data,
+    );
+
+    res.status(200).json(updatedEntity);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const router = Router();
 router.post('/prm/:entityType', createEntity);
 router.get('/prm/:entityType/:entityId', getEntity);
+router.put('/prm/:entityType/:entityId', updateEntity);
 
 export { router as prmRouter };
