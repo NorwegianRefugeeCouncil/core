@@ -8,7 +8,10 @@ import {
   ParticipantGenerator,
 } from '@nrcno/core-test-utils';
 import { getDb } from '@nrcno/core-db';
-import { ParticipantUpdate } from '@nrcno/core-models';
+import {
+  ParticipantPartialUpdate,
+  ParticipantUpdate,
+} from '@nrcno/core-models';
 
 import { ParticipantStore } from './participant.store';
 
@@ -216,21 +219,20 @@ describe('Participant store', () => {
 
       const contactDetailsToAdd = ContactDetailsGenerator.generateDefinition();
 
-      const contactDetails = createdParticipant.contactDetails.map((cd) => {
-        switch (cd.value) {
-          case contactDetailsToUpdate.value:
-            return {
-              ...cd,
-              value: '123456789',
-            };
-          case contactDetailsToRemove.value:
-            return contactDetailsToAdd;
-          default:
-            return cd;
-        }
-      });
+      const contactDetails = {
+        add: [contactDetailsToAdd],
+        update: createdParticipant.contactDetails
+          .filter((cd) => cd.value === contactDetailsToUpdate.value)
+          .map((cd) => ({
+            ...cd,
+            value: '123456789',
+          })),
+        remove: createdParticipant.contactDetails
+          .filter((cd) => cd.value === contactDetailsToRemove.value)
+          .map((cd) => cd.id),
+      };
 
-      const update: ParticipantUpdate = {
+      const update: ParticipantPartialUpdate = {
         contactDetails,
       };
 
@@ -275,26 +277,28 @@ describe('Participant store', () => {
 
       const identificationToAdd = IdentificationGenerator.generateDefinition();
 
-      const identification = createdParticipant.identification.map((id) => {
-        if (
-          id.identificationNumber ===
-          identificationToUpdate.identificationNumber
-        ) {
-          return {
+      const identification = {
+        add: [identificationToAdd],
+        update: createdParticipant.identification
+          .filter(
+            (id) =>
+              id.identificationNumber ===
+              identificationToUpdate.identificationNumber,
+          )
+          .map((id) => ({
             ...id,
             identificationNumber: '987654321',
-          };
-        }
-        if (
-          id.identificationNumber ===
-          identificationToRemove.identificationNumber
-        ) {
-          return identificationToAdd;
-        }
-        return id;
-      });
+          })),
+        remove: createdParticipant.identification
+          .filter(
+            (id) =>
+              id.identificationNumber ===
+              identificationToRemove.identificationNumber,
+          )
+          .map((id) => id.id),
+      };
 
-      const update: ParticipantUpdate = {
+      const update: ParticipantPartialUpdate = {
         identification,
       };
 
@@ -338,14 +342,12 @@ describe('Participant store', () => {
         isoCode: 'ar',
       };
 
-      const languages = createdParticipant.languages.map((lang) => {
-        if (lang.isoCode === languageToRemove.isoCode) {
-          return languageToAdd;
-        }
-        return lang;
-      });
+      const languages = {
+        add: [languageToAdd],
+        remove: [languageToRemove.isoCode],
+      };
 
-      const update: ParticipantUpdate = {
+      const update: ParticipantPartialUpdate = {
         languages,
       };
 
@@ -383,13 +385,12 @@ describe('Participant store', () => {
       const nationalityToAdd = {
         isoCode: 'ar',
       };
-      const nationalities = createdParticipant.nationalities.map((nat) => {
-        if (nat.isoCode === nationalityToRemove.isoCode) {
-          return nationalityToAdd;
-        }
-        return nat;
-      });
-      const update: ParticipantUpdate = {
+      const nationalities = {
+        add: [nationalityToAdd],
+        remove: [nationalityToRemove.isoCode],
+      };
+
+      const update: ParticipantPartialUpdate = {
         nationalities,
       };
       const updatedParticipant = await ParticipantStore.update(

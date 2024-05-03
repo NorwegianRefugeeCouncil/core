@@ -1,5 +1,5 @@
-export interface BaseStore<T, U, V> {
-  create: (entity: T) => Promise<U>;
-  get: (id: string) => Promise<U | null>;
-  update: (id: string, entity: V) => Promise<U>;
+export interface BaseStore<TDefinition, TEntity, TPartialUpdateDefinition> {
+  create: (entity: TDefinition) => Promise<TEntity>;
+  get: (id: string) => Promise<TEntity | null>;
+  update: (id: string, entity: TPartialUpdateDefinition) => Promise<TEntity>;
 }

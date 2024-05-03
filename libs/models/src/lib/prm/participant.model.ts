@@ -143,8 +143,9 @@ const IdentificationSchema = IdentificationDefinitionSchema.merge(
 );
 export type Identification = z.infer<typeof IdentificationSchema>;
 
+const IsoCodeSchema = z.string().max(20);
 const LanguageDefinitionSchema = z.object({
-  isoCode: z.string().max(20),
+  isoCode: IsoCodeSchema,
 });
 export type LanguageDefinition = z.infer<typeof LanguageDefinitionSchema>;
 
@@ -156,7 +157,7 @@ const LanguageSchema = LanguageDefinitionSchema.merge(
 export type Language = z.infer<typeof LanguageSchema>;
 
 const NationalityDefinitionSchema = z.object({
-  isoCode: z.string().max(20),
+  isoCode: IsoCodeSchema,
 });
 export type NationalityDefinition = z.infer<typeof NationalityDefinitionSchema>;
 
@@ -191,7 +192,7 @@ export const ParticipantSchema = ParticipantDefinitionSchema.merge(
 
 export type Participant = z.infer<typeof ParticipantSchema>;
 
-const ParticipantUpdateSchema = ParticipantDefinitionSchema.merge(
+export const ParticipantUpdateSchema = ParticipantDefinitionSchema.merge(
   z.object({
     consentGdpr: z.boolean().optional(),
     consentReferral: z.boolean().optional(),
@@ -218,3 +219,37 @@ const ParticipantUpdateSchema = ParticipantDefinitionSchema.merge(
   }),
 );
 export type ParticipantUpdate = z.infer<typeof ParticipantUpdateSchema>;
+
+const ParticipantPartialUpdateSchema = ParticipantUpdateSchema.merge(
+  z.object({
+    languages: z
+      .object({
+        add: z.array(LanguageDefinitionSchema).optional(),
+        remove: z.array(IsoCodeSchema).optional(),
+      })
+      .optional(),
+    nationalities: z
+      .object({
+        add: z.array(NationalityDefinitionSchema).optional(),
+        remove: z.array(IsoCodeSchema).optional(),
+      })
+      .optional(),
+    contactDetails: z
+      .object({
+        add: z.array(ContactDetailsDefinitionSchema).optional(),
+        update: z.array(ContactDetailsSchema).optional(),
+        remove: z.array(z.string().uuid()).optional(),
+      })
+      .optional(),
+    identification: z
+      .object({
+        add: z.array(IdentificationDefinitionSchema).optional(),
+        update: z.array(IdentificationSchema).optional(),
+        remove: z.array(z.string().uuid()).optional(),
+      })
+      .optional(),
+  }),
+);
+export type ParticipantPartialUpdate = z.infer<
+  typeof ParticipantPartialUpdateSchema
+>;

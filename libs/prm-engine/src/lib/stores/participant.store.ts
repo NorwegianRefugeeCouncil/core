@@ -2,14 +2,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { ulid } from 'ulidx';
 
 import {
-  ContactDetails,
-  Identification,
-  LanguageDefinition,
-  NationalityDefinition,
   Participant,
   ParticipantDefinition,
+  ParticipantPartialUpdate,
   ParticipantSchema,
-  ParticipantUpdate,
 } from '@nrcno/core-models';
 import { PostgresError, PostgresErrorCode, getDb } from '@nrcno/core-db';
 import { AlreadyExistsError } from '@nrcno/core-errors';
@@ -198,50 +194,9 @@ const get = async (id: string): Promise<Participant | null> => {
   return participantResult;
 };
 
-const calculateUpdates = async <T, U>(
-  tableName: string,
-  idFieldInTable: keyof U,
-  participantId: string,
-  idField: keyof T,
-  incomingData?: T[],
-) => {
-  const updates: {
-    add?: T[];
-    update?: T[];
-    remove?: U[];
-  } = {};
-  if (incomingData?.length) {
-    const db = getDb();
-    const existingData: U[] = await db(tableName).where(
-      'participantId',
-      participantId,
-    );
-
-    updates.add = incomingData.filter(
-      (item) =>
-        !existingData.some(
-          (existingItem: any) => item[idField] === existingItem[idFieldInTable],
-        ),
-    );
-    updates.update = incomingData.filter((item) =>
-      existingData.some(
-        (existingItem: any) => item[idField] === existingItem[idFieldInTable],
-      ),
-    ); // for updates we could do a diff to see if the value has changed
-    updates.remove = existingData.filter(
-      (existingItem: any) =>
-        !incomingData.some(
-          (item) =>
-            item[idField] && item[idField] === existingItem[idFieldInTable],
-        ),
-    );
-  }
-  return updates;
-};
-
 const update = async (
   participantId: string,
-  participantUpdate: ParticipantUpdate,
+  participantUpdate: ParticipantPartialUpdate,
 ): Promise<Participant> => {
   const db = getDb();
 
@@ -253,38 +208,6 @@ const update = async (
     nationalities,
     ...participantDetails
   } = participantUpdate;
-
-  const contactDetailUpdates = await calculateUpdates<
-    Partial<ContactDetails>,
-    ContactDetails
-  >('participant_contact_details', 'id', participantId, 'id', contactDetails);
-
-  const identificationUpdates = await calculateUpdates<
-    Partial<Identification>,
-    Identification
-  >('participant_identifications', 'id', participantId, 'id', identification);
-
-  const languageUpdates = await calculateUpdates<
-    LanguageDefinition,
-    { participantId: string; languageIsoCode: string }
-  >(
-    'participant_languages',
-    'languageIsoCode',
-    participantId,
-    'isoCode',
-    languages,
-  );
-
-  const nationalityUpdates = await calculateUpdates<
-    NationalityDefinition,
-    { participantId: string; nationalityIsoCode: string }
-  >(
-    'participant_nationalities',
-    'nationalityIsoCode',
-    participantId,
-    'isoCode',
-    nationalities,
-  );
 
   await db.transaction(async (trx) => {
     if (Object.keys(participantDetails).length > 0) {
@@ -303,68 +226,56 @@ const update = async (
         .where('participantId', participantId);
     }
 
-    if (languages && languages.length > 0) {
-      if (languageUpdates.add?.length) {
-        await trx('participant_languages').insert(
-          languageUpdates.add.map((lang) => ({
-            languageIsoCode: lang.isoCode,
-            participantId,
-          })),
-        );
-      }
-      if (languageUpdates.remove?.length) {
-        await trx('participant_languages')
-          .whereIn(
-            'languageIsoCode',
-            languageUpdates.remove.map((lang) => lang.languageIsoCode),
-          )
-          .where('participantId', participantId)
-          .del();
-      }
-    }
-
-    if (nationalities && nationalities.length > 0) {
-      if (nationalityUpdates.add?.length) {
-        await trx('participant_nationalities').insert(
-          nationalityUpdates.add.map((nat) => ({
-            nationalityIsoCode: nat.isoCode,
-            participantId,
-          })),
-        );
-      }
-      if (nationalityUpdates.remove?.length) {
-        await trx('participant_nationalities')
-          .whereIn(
-            'nationalityIsoCode',
-            nationalityUpdates.remove.map((nat) => nat.nationalityIsoCode),
-          )
-          .where('participantId', participantId)
-          .del();
-      }
-    }
-
-    const contactDetailsToAdd = contactDetailUpdates.add
-      ? contactDetailUpdates.add.map((contact) => ({
-          id: uuidv4(),
-          contactDetailType: contact.contactDetailType,
-          rawValue: contact.value,
-          cleanValue: contact.value, // TODO: Clean string for searching
+    if (languages?.add?.length) {
+      await trx('participant_languages').insert(
+        languages.add.map((lang) => ({
+          languageIsoCode: lang.isoCode,
           participantId,
-        }))
-      : [];
+        })),
+      );
+    }
+    if (languages?.remove?.length) {
+      await trx('participant_languages')
+        .whereIn('languageIsoCode', languages.remove)
+        .where('participantId', participantId)
+        .del();
+    }
+
+    if (nationalities?.add?.length) {
+      await trx('participant_nationalities').insert(
+        nationalities.add.map((nat) => ({
+          nationalityIsoCode: nat.isoCode,
+          participantId,
+        })),
+      );
+    }
+    if (nationalities?.remove?.length) {
+      await trx('participant_nationalities')
+        .whereIn('nationalityIsoCode', nationalities.remove)
+        .where('participantId', participantId)
+        .del();
+    }
+
+    const contactDetailsToAdd =
+      contactDetails?.add?.map((contact) => ({
+        id: uuidv4(),
+        contactDetailType: contact.contactDetailType,
+        rawValue: contact.value,
+        cleanValue: contact.value, // TODO: Clean string for searching
+        participantId,
+      })) || [];
     if (contactDetailsToAdd.length > 0) {
       await trx('participant_contact_details').insert(contactDetailsToAdd);
     }
 
-    const contactDetailsToUpdate = contactDetailUpdates.update
-      ? contactDetailUpdates.update.map((contact) => ({
-          id: contact.id,
-          contactDetailType: contact.contactDetailType,
-          rawValue: contact.value,
-          cleanValue: contact.value, // TODO: Clean string for searching
-          participantId,
-        }))
-      : [];
+    const contactDetailsToUpdate =
+      contactDetails?.update?.map((contact) => ({
+        id: contact.id,
+        contactDetailType: contact.contactDetailType,
+        rawValue: contact.value,
+        cleanValue: contact.value, // TODO: Clean string for searching
+        participantId,
+      })) || [];
     if (contactDetailsToUpdate.length > 0) {
       for (const detail of contactDetailsToUpdate) {
         await trx('participant_contact_details')
@@ -378,31 +289,26 @@ const update = async (
       }
     }
 
-    if (contactDetailUpdates.remove?.length) {
+    if (contactDetails?.remove?.length) {
       await trx('participant_contact_details')
-        .whereIn(
-          'id',
-          contactDetailUpdates.remove.map((cd) => cd.id!),
-        )
+        .whereIn('id', contactDetails.remove)
         .del();
     }
 
-    const identificationsToAdd = identificationUpdates.add
-      ? identificationUpdates.add.map((identification) => ({
-          ...identification,
-          id: uuidv4(),
-          participantId,
-        }))
-      : [];
+    const identificationsToAdd =
+      identification?.add?.map((identification) => ({
+        ...identification,
+        id: uuidv4(),
+        participantId,
+      })) || [];
     if (identificationsToAdd.length > 0) {
       await trx('participant_identifications').insert(identificationsToAdd);
     }
-    const identificationsToUpdate = identificationUpdates.update
-      ? identificationUpdates.update.map((identification) => ({
-          ...identification,
-          participantId,
-        }))
-      : [];
+    const identificationsToUpdate =
+      identification?.update?.map((identification) => ({
+        ...identification,
+        participantId,
+      })) || [];
     if (identificationsToUpdate.length > 0) {
       for (const identification of identificationsToUpdate) {
         await trx('participant_identifications')
@@ -415,25 +321,21 @@ const update = async (
           .where('id', identification.id);
       }
     }
-    if (identificationUpdates.remove?.length) {
+    if (identification?.remove?.length) {
       await trx('participant_identifications')
-        .whereIn(
-          'id',
-          identificationUpdates.remove.map((id) => id.id!),
-        )
+        .whereIn('id', identification.remove)
         .del();
     }
   });
 
   const updatedParticipant = await get(participantId);
-
   return updatedParticipant!;
 };
 
 export const ParticipantStore: BaseStore<
   ParticipantDefinition,
   Participant,
-  ParticipantUpdate
+  ParticipantPartialUpdate
 > = {
   create,
   get,
