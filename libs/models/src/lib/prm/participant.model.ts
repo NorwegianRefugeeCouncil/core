@@ -209,8 +209,6 @@ const IdentificationWithOptionalIdSchema = IdentificationDefinitionSchema.merge(
 );
 export const ParticipantUpdateSchema = ParticipantDefinitionSchema.merge(
   z.object({
-    consentGdpr: z.boolean().optional(),
-    consentReferral: z.boolean().optional(),
     languages: z.array(LanguageDefinitionSchema).optional(),
     nationalities: z.array(NationalityDefinitionSchema).optional(),
     contactDetails: z
@@ -226,6 +224,8 @@ export type ParticipantUpdate = z.infer<typeof ParticipantUpdateSchema>;
 
 const ParticipantPartialUpdateSchema = ParticipantUpdateSchema.merge(
   z.object({
+    consentGdpr: z.boolean().optional(),
+    consentReferral: z.boolean().optional(),
     languages: z
       .object({
         add: z.array(LanguageDefinitionSchema).optional(),

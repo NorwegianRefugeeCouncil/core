@@ -16,40 +16,43 @@ const axiosInstance = axios.create({
 const participantDefinitionWithEveryField =
   ParticipantGenerator.generateDefinition();
 
-const participantWithEveryField: Participant = {
-  ...participantDefinitionWithEveryField,
+const generateExpectedParticipant = (
+  participantDefinition: ParticipantDefinition,
+): Participant => ({
+  ...participantDefinition,
   id: expect.any(String),
   contactDetails: {
-    emails: participantDefinitionWithEveryField.contactDetails.emails.map(
+    emails: participantDefinition.contactDetails.emails.map(
       (contactDetail) => ({
         ...contactDetail,
         id: expect.any(String),
       }),
     ),
-    phones: participantDefinitionWithEveryField.contactDetails.phones.map(
+    phones: participantDefinition.contactDetails.phones.map(
       (contactDetail) => ({
         ...contactDetail,
         id: expect.any(String),
       }),
     ),
   },
-  identification: participantDefinitionWithEveryField.identification.map(
+  identification: participantDefinition.identification.map(
     (identification) => ({
       ...identification,
       id: expect.any(String),
     }),
   ),
-  languages: participantDefinitionWithEveryField.languages.map((language) => ({
+  languages: participantDefinition.languages.map((language) => ({
     ...language,
     translationKey: `language__${language.isoCode}`,
   })),
-  nationalities: participantDefinitionWithEveryField.nationalities.map(
-    (nationality) => ({
-      ...nationality,
-      translationKey: `nationality__${nationality.isoCode}`,
-    }),
-  ),
-};
+  nationalities: participantDefinition.nationalities.map((nationality) => ({
+    ...nationality,
+    translationKey: `nationality__${nationality.isoCode}`,
+  })),
+});
+const participantWithEveryField = generateExpectedParticipant(
+  participantDefinitionWithEveryField,
+);
 
 const participantDefinitionWithSomeFields: ParticipantDefinition = {
   consentGdpr: faker.datatype.boolean(),
@@ -138,50 +141,35 @@ describe('Participants', () => {
       );
     });
 
-    // Enable with validation ticket
-    it.skip('should return an error when creating a participant with missing required fields', async () => {
+    it('should return an error when creating a participant with missing required fields', async () => {
       const res = await axiosInstance.post(
         `/api/prm/participants`,
         participantDefinitionWithMissingRequiredFields,
       );
 
       expect(res.status).toBe(400);
-      expect(res.data).toEqual({
-        message: 'Validation Failed',
-        errors: [
-          {
-            path: 'consentGdpr',
-            message: 'Required',
-          },
-        ],
-      });
     });
 
-    // Enable with validation ticket
-    it.skip('should return an error when creating a participant with invalid fields', async () => {
+    it('should return an error when creating a participant with invalid fields', async () => {
       const res = await axiosInstance.post(
         `/api/prm/participants`,
         participantDefinitionWithInvalidFields,
       );
       expect(res.status).toBe(400);
-      expect(res.data).toEqual({
-        message: 'Validation Failed',
-        errors: [{}],
-      });
     });
 
-    // Enable with validation ticket
-    it.skip('should strip unknown fields when creating a participant', async () => {
+    it('should strip unknown fields when creating a participant', async () => {
       const res = await axiosInstance.post(`/api/prm/participants`, {
         ...participantDefinitionWithEveryField,
         unknownField: faker.word.noun(),
       });
 
       expect(res.status).toBe(201);
-      expect(res.data).toEqual(participantWithEveryField);
+      expect(ParticipantSchema.parse(res.data)).toEqual(
+        participantWithEveryField,
+      );
     });
 
-    // Currently it doesn't strip ids, instead overwriting them in the db layer
     it('should strip ids when sent in the request body', async () => {
       const res = await axiosInstance.post(
         `/api/prm/participants`,
@@ -250,6 +238,61 @@ describe('Participants', () => {
       const response = await axiosInstance.get(`/api/prm/participants/invalid`);
 
       expect(response.status).toBe(404);
+    });
+  });
+
+  describe('PUT /api/prm/participants/:id', () => {
+    let participantId: string;
+
+    beforeAll(async () => {
+      const res = await axiosInstance.post(
+        `/api/prm/participants`,
+        participantDefinitionWithEveryField,
+      );
+      participantId = res.data.id;
+    });
+
+    it('should update a participant', async () => {
+      const participantUpdate = ParticipantGenerator.generateDefinition();
+      const res = await axiosInstance.put(
+        `/api/prm/participants/${participantId}`,
+        participantUpdate,
+      );
+
+      expect(res.status).toBe(200);
+      const expectedParticipant =
+        generateExpectedParticipant(participantUpdate);
+      expect(ParticipantSchema.parse(res.data)).toEqual(expectedParticipant);
+    });
+
+    it('should return an error if the participant does not exist', async () => {
+      const response = await axiosInstance.put(
+        `/api/prm/participants/${ulid()}`,
+        participantDefinitionWithEveryField,
+      );
+
+      expect(response.status).toBe(404);
+    });
+
+    it('should return 404 if the participant id is invalid', async () => {
+      const response = await axiosInstance.put(
+        `/api/prm/participants/invalid`,
+        participantDefinitionWithEveryField,
+      );
+
+      expect(response.status).toBe(404);
+    });
+
+    it('should return an error when updating a participant with missing required fields', async () => {
+      const response = await axiosInstance.put(
+        `/api/prm/participants/${participantId}`,
+        {
+          ...participantDefinitionWithEveryField,
+          consentGdpr: undefined,
+        },
+      );
+
+      expect(response.status).toBe(400);
     });
   });
 });

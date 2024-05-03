@@ -6,6 +6,7 @@ import {
   ParticipantDefinition,
   ParticipantUpdate,
 } from '@nrcno/core-models';
+import { NotFoundError } from '@nrcno/core-errors';
 
 import { ParticipantStore } from '../stores/participant.store';
 
@@ -36,7 +37,7 @@ export const ParticipantService: PrmService<
 
     const existingParticipant = await ParticipantStore.get(id);
     if (!existingParticipant) {
-      throw new Error(`Participant with id ${id} not found`);
+      throw new NotFoundError(`Participant with id ${id} not found`);
     }
 
     const phonesToAdd =
