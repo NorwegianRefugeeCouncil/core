@@ -88,11 +88,6 @@ const create = async (
               participantId,
             }))
           : [];
-      if (contactDetailsEmailsForDb.length > 0) {
-        await trx('participant_contact_details').insert(
-          contactDetailsEmailsForDb,
-        );
-      }
 
       const contactDetailsPhonesForDb =
         contactDetails && contactDetails.phones.length > 0
@@ -104,10 +99,11 @@ const create = async (
               participantId,
             }))
           : [];
-      if (contactDetailsPhonesForDb.length > 0) {
-        await trx('participant_contact_details').insert(
-          contactDetailsPhonesForDb,
-        );
+      const contactDetailsForDb = contactDetailsEmailsForDb.concat(
+        contactDetailsPhonesForDb,
+      );
+      if (contactDetailsForDb.length > 0) {
+        await trx('participant_contact_details').insert(contactDetailsForDb);
       }
 
       const identificationForDb =

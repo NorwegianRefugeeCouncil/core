@@ -5,33 +5,34 @@ import {
   FormHelperText,
   FormLabel,
 } from '@chakra-ui/react';
-import { ControllerRenderProps, useFormContext } from 'react-hook-form';
+import { useController, useFormContext } from 'react-hook-form';
 
 import { FieldConfig } from '../../config';
 
 type Props = {
   config: FieldConfig;
-} & Omit<ControllerRenderProps, 'ref'>;
+};
 
-export const Checkbox: React.FC<Props> = ({
-  config: { dataType, description, label, placeholder, required, path },
-}) => {
-  const { getFieldState, register } = useFormContext();
-  const state = getFieldState(path.join('.'));
+export const Checkbox: React.FC<Props> = ({ config }) => {
+  const { control } = useFormContext();
+  const { field, fieldState } = useController({
+    name: config.path.join('.'),
+    control,
+  });
 
   return (
     <FormControl>
-      <FormLabel>{label}</FormLabel>
+      <FormLabel>{config.label}</FormLabel>
       <CB
-        isInvalid={state.invalid}
-        isRequired={required}
-        placeholder={placeholder}
-        type={dataType}
-        {...register(path.join('.'))}
+        isInvalid={fieldState.invalid}
+        isRequired={config.required}
+        placeholder={config.placeholder}
+        type={config.dataType}
+        {...field}
       />
-      <FormHelperText>{description}</FormHelperText>
-      {state.error && (
-        <FormErrorMessage>{state.error.message}</FormErrorMessage>
+      <FormHelperText>{config.description}</FormHelperText>
+      {fieldState.error && (
+        <FormErrorMessage>{fieldState.error.message}</FormErrorMessage>
       )}
     </FormControl>
   );

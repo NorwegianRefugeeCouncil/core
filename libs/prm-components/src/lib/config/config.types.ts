@@ -25,7 +25,6 @@ export enum DataType {
   Time = 'time',
   DateTime = 'datetime',
   File = 'file',
-  Hidden = 'hidden',
 }
 
 export type ListFieldConfig = {
@@ -49,6 +48,7 @@ export type FieldConfig = {
   path: string[];
   placeholder?: string;
   required?: boolean;
+  defaultValue?: any;
 };
 
 export type Section = {

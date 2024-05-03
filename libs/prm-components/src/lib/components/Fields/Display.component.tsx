@@ -1,21 +1,24 @@
 import { FormControl, FormHelperText, FormLabel, Text } from '@chakra-ui/react';
-import { ControllerRenderProps, ControllerFieldState } from 'react-hook-form';
+import { useFormContext, useController } from 'react-hook-form';
 
 import { FieldConfig } from '../../config';
 
 type Props = {
   config: FieldConfig;
-  name: string;
-} & ControllerFieldState &
-  Omit<ControllerRenderProps, 'ref'>;
+};
 
-export const Display: React.FC<Props> = ({
-  config: { description, label },
-  value,
-}) => (
-  <FormControl>
-    <FormLabel>{label}</FormLabel>
-    <Text>{value}</Text>
-    <FormHelperText>{description}</FormHelperText>
-  </FormControl>
-);
+export const Display: React.FC<Props> = ({ config }) => {
+  const { control } = useFormContext();
+  const { field } = useController({
+    name: config.path.join('.'),
+    control,
+  });
+
+  return (
+    <FormControl>
+      <FormLabel>{config.label}</FormLabel>
+      <Text>{field.value}</Text>
+      <FormHelperText>{config.description}</FormHelperText>
+    </FormControl>
+  );
+};

@@ -132,8 +132,8 @@ export const participantConfig: EntityUIConfig = {
             children: [
               {
                 path: ['isoCode'],
-                dataType: DataType.Hidden,
-                component: Component.TextInput,
+                dataType: DataType.String,
+                component: Component.Hidden,
               },
               {
                 path: ['translationKey'],
@@ -155,8 +155,8 @@ export const participantConfig: EntityUIConfig = {
             children: [
               {
                 path: ['isoCode'],
-                dataType: DataType.Hidden,
-                component: Component.TextInput,
+                dataType: DataType.String,
+                component: Component.Hidden,
               },
               {
                 path: ['translationKey'],
@@ -183,13 +183,14 @@ export const participantConfig: EntityUIConfig = {
             children: [
               {
                 path: ['id'],
-                dataType: DataType.Hidden,
-                component: Component.TextInput,
+                dataType: DataType.String,
+                component: Component.Hidden,
               },
               {
                 path: ['contactDetailType'],
-                dataType: DataType.Hidden,
-                component: Component.TextInput,
+                dataType: DataType.String,
+                component: Component.Hidden,
+                defaultValue: ContactDetailType.Email,
               },
               {
                 path: ['value'],
@@ -206,13 +207,14 @@ export const participantConfig: EntityUIConfig = {
             children: [
               {
                 path: ['id'],
-                dataType: DataType.Hidden,
-                component: Component.TextInput,
+                dataType: DataType.String,
+                component: Component.Hidden,
               },
               {
                 path: ['contactDetailType'],
-                dataType: DataType.Hidden,
-                component: Component.TextInput,
+                dataType: DataType.String,
+                component: Component.Hidden,
+                defaultValue: ContactDetailType.PhoneNumber,
               },
               {
                 path: ['value'],
@@ -234,8 +236,8 @@ export const participantConfig: EntityUIConfig = {
             children: [
               {
                 path: ['id'],
-                dataType: DataType.Hidden,
-                component: Component.TextInput,
+                dataType: DataType.String,
+                component: Component.Hidden,
               },
               {
                 path: ['identificationType'],

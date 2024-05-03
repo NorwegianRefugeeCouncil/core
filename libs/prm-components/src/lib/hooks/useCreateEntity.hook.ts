@@ -23,6 +23,7 @@ export const useCreateEntity = (
   const [state, actions] = useApiReducer<Entity>();
 
   const onCreateEntity = async (entityDefinition: EntityDefinition) => {
+    console.log('DEFINITION', entityDefinition);
     if (!client) {
       throw new Error('Client is not defined');
     }

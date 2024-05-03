@@ -5,46 +5,42 @@ import {
   FormLabel,
   Select as S,
 } from '@chakra-ui/react';
-import {
-  ControllerFieldState,
-  ControllerRenderProps,
-  useFormContext,
-} from 'react-hook-form';
+import { useController, useFormContext } from 'react-hook-form';
 
 import { FieldConfig } from '../../config';
 
 type Props = {
   config: FieldConfig;
-  name: string;
-} & ControllerFieldState &
-  Omit<ControllerRenderProps, 'ref'>;
+};
 
-export const Select: React.FC<Props> = ({
-  config: { description, label, placeholder, required, options },
-  name,
-}) => {
-  const { getFieldState, register } = useFormContext();
-  const state = getFieldState(name);
+export const Select: React.FC<Props> = ({ config }) => {
+  const name = config.path.join('.');
+
+  const { control } = useFormContext();
+  const { field, fieldState } = useController({
+    name,
+    control,
+  });
 
   return (
     <FormControl>
-      <FormLabel>{label}</FormLabel>
+      <FormLabel>{config.label}</FormLabel>
       <S
-        isInvalid={state.invalid}
-        isRequired={required}
-        placeholder={placeholder}
-        {...register(name)}
+        isInvalid={fieldState.invalid}
+        isRequired={config.required}
+        placeholder={config.placeholder}
+        {...field}
       >
-        {options &&
-          options.map((option) => (
+        {config.options &&
+          config.options.map((option) => (
             <option value={option.value} key={`${name}_${option.value}`}>
               {option.label}
             </option>
           ))}
       </S>
-      <FormHelperText>{description}</FormHelperText>
-      {state.error && (
-        <FormErrorMessage>{state.error.message}</FormErrorMessage>
+      <FormHelperText>{config.description}</FormHelperText>
+      {fieldState.error && (
+        <FormErrorMessage>{fieldState.error.message}</FormErrorMessage>
       )}
     </FormControl>
   );
