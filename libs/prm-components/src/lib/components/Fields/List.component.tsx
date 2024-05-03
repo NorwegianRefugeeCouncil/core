@@ -41,7 +41,8 @@ export const List: React.FC<Props> = ({ config }) => {
         onClick={() => {
           const defaults: Record<string, string> = {};
           config.children.forEach((childConfig) => {
-            defaults[childConfig.path.join('.')] = childConfig.defaultValue || '';
+            defaults[childConfig.path.join('.')] =
+              childConfig.defaultValue || '';
           });
           append(defaults);
         }}
