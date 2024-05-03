@@ -94,13 +94,13 @@ const participantDefinitionWithIds = {
     emails: participantDefinitionWithEveryField.contactDetails.emails.map(
       (contactDetail) => ({
         ...contactDetail,
-        id: expect.any(String),
+        id: faker.string.uuid(),
       }),
     ),
     phones: participantDefinitionWithEveryField.contactDetails.phones.map(
       (contactDetail) => ({
         ...contactDetail,
-        id: expect.any(String),
+        id: faker.string.uuid(),
       }),
     ),
   },
