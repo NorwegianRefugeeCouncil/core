@@ -13,7 +13,12 @@ import {
 } from '@chakra-ui/react';
 import { Entity } from '@nrcno/core-models';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  unstable_usePrompt,
+} from 'react-router-dom';
 import { useEffect } from 'react';
 
 import { EntityUIConfig } from '../config';
@@ -53,13 +58,19 @@ export const EntityDetailForm: React.FC<Props> = ({
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Client side blocking
+  unstable_usePrompt({
+    message: 'Are you sure you want to leave?',
+    when: !readOnly && form.formState.isDirty,
+  });
+
+  // Document blocking
   useEffect(() => {
     if (!readOnly && form.formState.isDirty) {
-      window.onbeforeunload = () => {
-        if (window.confirm('Are you sure you want to leave?')) {
-          return true;
-        }
-        return false;
+      window.onbeforeunload = (event: BeforeUnloadEvent) => {
+        event.preventDefault();
+        // eslint-disable-next-line no-param-reassign
+        event.returnValue = true;
       };
     } else {
       window.onbeforeunload = null;
@@ -69,19 +80,6 @@ export const EntityDetailForm: React.FC<Props> = ({
       window.onbeforeunload = null;
     };
   }, [form.formState.isDirty, readOnly]);
-
-  const handleCancel = () => {
-    if (
-      !form.formState.isDirty ||
-      window.confirm('Are you sure you want to cancel?')
-    ) {
-      if (location.state?.from) {
-        navigate(-1);
-      } else {
-        navigate(defaultBackPath);
-      }
-    }
-  };
 
   const handleEdit = () => {
     navigate(`${location.pathname}/edit`);
@@ -111,13 +109,11 @@ export const EntityDetailForm: React.FC<Props> = ({
             {isSubmitting && <Spinner colorScheme="primary" size="lg" />}
           </Flex>
           <HStack>
-            <Button
-              colorScheme="secondary"
-              disabled={isSubmitting}
-              onClick={handleCancel}
-            >
-              {readOnly ? 'Back' : 'Cancel'}
-            </Button>
+            <Link to={defaultBackPath}>
+              <Button colorScheme="secondary" disabled={isSubmitting}>
+                {readOnly ? 'Back' : 'Cancel'}
+              </Button>
+            </Link>
             <Button
               colorScheme="primary"
               type={readOnly ? 'button' : 'submit'}
