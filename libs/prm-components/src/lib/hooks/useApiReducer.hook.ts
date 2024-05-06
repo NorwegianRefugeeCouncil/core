@@ -30,6 +30,12 @@ export type Action<T> =
       data: Error;
     };
 
+const defaultState = {
+  status: SubmitStatus.IDLE,
+  data: undefined,
+  error: undefined,
+};
+
 export const useApiReducer = <T>() => {
   const [state, dispatch] = React.useReducer(
     (state: State<T>, action: Action<T>) => {
@@ -49,14 +55,12 @@ export const useApiReducer = <T>() => {
             error: action.data,
           };
         case SubmitStatus.IDLE:
-          return { ...state, status: SubmitStatus.IDLE };
+          return defaultState;
         default:
           return state;
       }
     },
-    {
-      status: SubmitStatus.IDLE,
-    },
+    defaultState,
   );
 
   const actions = {
