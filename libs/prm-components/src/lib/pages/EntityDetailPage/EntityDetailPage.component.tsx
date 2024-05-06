@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Alert, AlertIcon, Box } from '@chakra-ui/react';
+import { Alert, AlertIcon, Box, Skeleton } from '@chakra-ui/react';
 
 import { EntityDetailForm } from '../../components';
 import { useEntityDetailPage } from '../../hooks/useEntityDetailPage.hook';
@@ -57,16 +57,18 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
           {entityType} saved successfully
         </Alert>
       )}
-      <EntityDetailForm
-        id={`entity_detail_${entityType}`}
-        title={title}
-        config={config}
-        onSubmit={onSubmit}
-        entity={data}
-        isSubmitting={isSubmitting}
-        defaultBackPath={defaultBackPath}
-        readOnly={mode === 'read'}
-      />
+      <Skeleton isLoaded={!isLoading}>
+        <EntityDetailForm
+          id={`entity_detail_${entityType}`}
+          title={title}
+          config={config}
+          onSubmit={onSubmit}
+          entity={data}
+          isSubmitting={isSubmitting}
+          defaultBackPath={defaultBackPath}
+          readOnly={mode === 'read'}
+        />
+      </Skeleton>
     </Box>
   );
 };
