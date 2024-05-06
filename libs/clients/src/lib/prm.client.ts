@@ -45,10 +45,7 @@ const getPrmClient = (axiosInstance: AxiosInstance) => {
     };
 
     const update = async (id: string, entity: any) => {
-      const response = await baseClient.patch(
-        `/prm/${entityType}/${id}`,
-        entity,
-      );
+      const response = await baseClient.put(`/prm/${entityType}/${id}`, entity);
       return validators[entityType].entity.parse(response.data);
     };
 
