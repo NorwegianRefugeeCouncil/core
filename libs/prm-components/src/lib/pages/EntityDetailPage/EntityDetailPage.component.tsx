@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Alert, AlertIcon, Box, Spinner } from '@chakra-ui/react';
+import { Alert, AlertIcon, Box } from '@chakra-ui/react';
 
 import { EntityDetailForm } from '../../components';
 import { useEntityDetailPage } from '../../hooks/useEntityDetailPage.hook';
@@ -11,8 +11,10 @@ type Props = {
 export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
   const {
     entityType,
+    entityId,
     config,
     isLoading,
+    isSubmitting,
     isError,
     isSuccess,
     error,
@@ -31,16 +33,15 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
     }
   }, [mode]);
 
-  const successMessage = useMemo(() => {
+  const defaultBackPath = useMemo(() => {
     switch (mode) {
       case 'create':
-        return `${entityType} created successfully`;
-      case 'edit':
-        return `${entityType} updated successfully`;
       case 'read':
-        return '';
+        return `/prm/${entityType}`;
+      case 'edit':
+        return `/prm/${entityType}/${entityId}`;
     }
-  }, [mode, entityType]);
+  }, [mode, entityType, entityId]);
 
   return (
     <Box p={10} maxW="850px" ml="auto" mr="auto">
@@ -50,19 +51,21 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
           {error?.message}
         </Alert>
       )}
-      {isSuccess && mode !== 'read' && (
+      {isSuccess && (
         <Alert status="success" mb={4}>
           <AlertIcon />
-          {successMessage}
+          {entityType} saved successfully
         </Alert>
       )}
       <EntityDetailForm
         id={`entity_detail_${entityType}`}
         title={title}
         config={config}
-        submit={onSubmit}
+        onSubmit={onSubmit}
         entity={data}
-        isLoading={isLoading}
+        isSubmitting={isSubmitting}
+        defaultBackPath={defaultBackPath}
+        readOnly={mode === 'read'}
       />
     </Box>
   );

@@ -24,8 +24,10 @@ type Props = {
   id: string;
   config: EntityUIConfig['detail'];
   title: string;
-  submit?: (data: Entity) => void;
+  onSubmit?: (data: Entity) => void;
   entity?: Entity | undefined;
+  isSubmitting?: boolean;
+  defaultBackPath: string;
   readOnly: boolean;
 };
 
@@ -33,8 +35,10 @@ export const EntityDetailForm: React.FC<Props> = ({
   id,
   config,
   title,
-  submit,
+  onSubmit,
   entity,
+  isSubmitting,
+  defaultBackPath,
   readOnly,
 }) => {
   const form = useForm<Entity>({
@@ -51,7 +55,7 @@ export const EntityDetailForm: React.FC<Props> = ({
 
   useEffect(() => {
     if (!readOnly && form.formState.isDirty) {
-    window.onbeforeunload = () => {
+      window.onbeforeunload = () => {
         if (window.confirm('Are you sure you want to leave?')) {
           return true;
         }
@@ -59,7 +63,7 @@ export const EntityDetailForm: React.FC<Props> = ({
       };
     } else {
       window.onbeforeunload = null;
-      }
+    }
 
     return () => {
       window.onbeforeunload = null;
@@ -74,14 +78,24 @@ export const EntityDetailForm: React.FC<Props> = ({
       if (location.state?.from) {
         navigate(-1);
       } else {
-        navigate('/prm/participants');
+        navigate(defaultBackPath);
       }
+    }
+  };
+
+  const handleEdit = () => {
+    navigate(`${location.pathname}/edit`);
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    if (onSubmit) {
+      form.handleSubmit(onSubmit)(event);
     }
   };
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={submit && form.handleSubmit(submit)} id={id}>
+      <form onSubmit={handleSubmit} id={id}>
         <Flex
           direction="row"
           justifyContent="space-between"
@@ -94,12 +108,12 @@ export const EntityDetailForm: React.FC<Props> = ({
         >
           <Flex direction="row" gap={4} alignItems="flex-start">
             <Heading mb={4}>{title}</Heading>
-            {isLoading && <Spinner colorScheme="primary" size="lg" />}
+            {isSubmitting && <Spinner colorScheme="primary" size="lg" />}
           </Flex>
           <HStack>
             <Button
               colorScheme="secondary"
-              disabled={isLoading}
+              disabled={isSubmitting}
               onClick={handleCancel}
             >
               {readOnly ? 'Back' : 'Cancel'}
