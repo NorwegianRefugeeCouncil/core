@@ -31,7 +31,7 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
       case 'read':
         return entityType;
     }
-  }, [mode]);
+  }, [mode, entityType]);
 
   const defaultBackPath = useMemo(() => {
     switch (mode) {
