@@ -191,13 +191,19 @@ export type ParticipantDefinition = z.infer<typeof ParticipantDefinitionSchema>;
 export const ParticipantSchema = ParticipantDefinitionSchema.merge(
   z.object({
     id: z.string().ulid(),
-    languages: z.array(LanguageSchema),
-    nationalities: z.array(NationalitySchema),
-    contactDetails: z.object({
-      emails: z.array(ContactDetailsSchema),
-      phones: z.array(ContactDetailsSchema),
-    }),
-    identification: z.array(IdentificationSchema),
+    languages: z.array(LanguageSchema).optional().default([]),
+    nationalities: z.array(NationalitySchema).optional().default([]),
+    contactDetails: z
+      .object({
+        emails: z.array(ContactDetailsSchema).optional().default([]),
+        phones: z.array(ContactDetailsSchema).optional().default([]),
+      })
+      .optional()
+      .default({
+        emails: [],
+        phones: [],
+      }),
+    identification: z.array(IdentificationSchema).optional().default([]),
   }),
 );
 
