@@ -26,6 +26,7 @@ export const Checkbox: React.FC<Props> = ({ config }) => {
         isRequired={config.required}
         placeholder={config.placeholder}
         type={config.dataType}
+        isChecked={field.value}
         {...field}
       >
         {config.label}
