@@ -11,7 +11,10 @@ type Props = {
 };
 
 export const List: React.FC<Props> = ({ config }) => {
-  const { control } = useFormContext();
+  const {
+    control,
+    formState: { disabled },
+  } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
     name: config.path.join('.'),
@@ -32,9 +35,11 @@ export const List: React.FC<Props> = ({ config }) => {
         <Heading as="h4" size="sm">
           {config.label}
         </Heading>
-        <IconButton aria-label="Add" onClick={handleAppend} size="sm">
-          <AddIcon />
-        </IconButton>
+        {!disabled && (
+          <IconButton aria-label="Add" onClick={handleAppend} size="sm">
+            <AddIcon />
+          </IconButton>
+        )}
       </Flex>
       <Flex direction="column" gap={4}>
         {fields.map((field: Record<'id', string>, i: number) => (
@@ -48,9 +53,11 @@ export const List: React.FC<Props> = ({ config }) => {
                 <Field key={innerConfig.path.join('.')} config={innerConfig} />
               );
             })}
-            <IconButton aria-label="Remove" onClick={() => remove(i)}>
-              <DeleteIcon />
-            </IconButton>
+            {!disabled && (
+              <IconButton aria-label="Remove" onClick={() => remove(i)}>
+                <DeleteIcon />
+              </IconButton>
+            )}
           </Flex>
         ))}
       </Flex>

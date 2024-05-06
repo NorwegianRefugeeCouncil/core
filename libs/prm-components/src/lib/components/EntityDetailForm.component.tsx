@@ -26,7 +26,7 @@ type Props = {
   title: string;
   submit?: (data: Entity) => void;
   entity?: Entity | undefined;
-  isLoading?: boolean;
+  readOnly: boolean;
 };
 
 export const EntityDetailForm: React.FC<Props> = ({
@@ -35,29 +35,36 @@ export const EntityDetailForm: React.FC<Props> = ({
   title,
   submit,
   entity,
-  isLoading,
+  readOnly,
 }) => {
   const form = useForm<Entity>({
     defaultValues: entity,
+    disabled: readOnly || isSubmitting,
   });
+
+  useEffect(() => {
+    form.reset(entity);
+  }, [JSON.stringify(entity), readOnly]);
 
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
+    if (!readOnly && form.formState.isDirty) {
     window.onbeforeunload = () => {
-      if (form.formState.isDirty) {
         if (window.confirm('Are you sure you want to leave?')) {
           return true;
         }
         return false;
+      };
+    } else {
+      window.onbeforeunload = null;
       }
-      return true;
-    };
+
     return () => {
       window.onbeforeunload = null;
     };
-  }, [form.formState.isDirty]);
+  }, [form.formState.isDirty, readOnly]);
 
   const handleCancel = () => {
     if (
@@ -95,14 +102,15 @@ export const EntityDetailForm: React.FC<Props> = ({
               disabled={isLoading}
               onClick={handleCancel}
             >
-              Cancel
+              {readOnly ? 'Back' : 'Cancel'}
             </Button>
             <Button
               colorScheme="primary"
-              type="submit"
-              disabled={!form.formState.isValid || isLoading}
+              type={readOnly ? 'button' : 'submit'}
+              disabled={!form.formState.isValid || isSubmitting}
+              onClick={readOnly ? handleEdit : undefined}
             >
-              Save
+              {readOnly ? 'Edit' : 'Save'}
             </Button>
           </HStack>
         </Flex>
