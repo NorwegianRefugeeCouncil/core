@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 
-import { EntityDetailPage } from '@nrcno/core-prm-components';
+import { EntityDetailPage, EntityListPage } from '@nrcno/core-prm-components';
 
 import { App } from './app';
 import { ApiProvider } from './components/ApiProvider.component';
@@ -24,7 +24,7 @@ export const router = createBrowserRouter([
           },
           {
             path: '/prm/:entityType',
-            element: <div>Entity list</div>,
+            element: <EntityListPage />,
           },
           {
             path: '/prm/:entityType/new',

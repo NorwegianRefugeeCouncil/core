@@ -280,3 +280,8 @@ export const ParticipantListItemSchema = z.object({
   phone: z.string().nullable(),
 });
 export type ParticipantListItem = z.infer<typeof ParticipantListItemSchema>;
+
+export const ParticipantListItemFieldSchema = ParticipantListItemSchema.keyof();
+export type ParticipantListItemField = z.infer<
+  typeof ParticipantListItemFieldSchema
+>;
