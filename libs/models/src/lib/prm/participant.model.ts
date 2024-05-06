@@ -197,6 +197,16 @@ export const ParticipantSchema = ParticipantDefinitionSchema.merge(
 
 export type Participant = z.infer<typeof ParticipantSchema>;
 
+const ContactDetailsWithOptionalIdSchema = ContactDetailsDefinitionSchema.merge(
+  z.object({
+    id: z.string().uuid().optional(),
+  }),
+);
+const IdentificationWithOptionalIdSchema = IdentificationDefinitionSchema.merge(
+  z.object({
+    id: z.string().uuid().optional(),
+  }),
+);
 export const ParticipantUpdateSchema = ParticipantDefinitionSchema.merge(
   z.object({
     consentGdpr: z.boolean().optional(),
@@ -205,35 +215,11 @@ export const ParticipantUpdateSchema = ParticipantDefinitionSchema.merge(
     nationalities: z.array(NationalityDefinitionSchema).optional(),
     contactDetails: z
       .object({
-        emails: z
-          .array(
-            ContactDetailsDefinitionSchema.merge(
-              z.object({
-                id: z.string().uuid().optional(),
-              }),
-            ),
-          )
-          .optional(),
-        phones: z
-          .array(
-            ContactDetailsDefinitionSchema.merge(
-              z.object({
-                id: z.string().uuid().optional(),
-              }),
-            ),
-          )
-          .optional(),
+        emails: z.array(ContactDetailsWithOptionalIdSchema).optional(),
+        phones: z.array(ContactDetailsWithOptionalIdSchema).optional(),
       })
       .optional(),
-    identification: z
-      .array(
-        IdentificationDefinitionSchema.merge(
-          z.object({
-            id: z.string().uuid().optional(),
-          }),
-        ),
-      )
-      .optional(),
+    identification: z.array(IdentificationWithOptionalIdSchema).optional(),
   }),
 );
 export type ParticipantUpdate = z.infer<typeof ParticipantUpdateSchema>;
