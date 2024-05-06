@@ -418,6 +418,38 @@ export const participantConfig: EntityUIConfig = {
       },
     ],
   },
-  list: {},
+  list: [
+    {
+      field: 'id',
+      title: 'ID',
+      fixed: true,
+      width: 2,
+      onClickHandler: () => {},
+    },
+    { field: 'firstName', title: 'Name', width: 2 },
+    { field: 'lastName', title: 'Surname', width: 2 },
+    { field: 'sex', title: 'Sex', width: 2 },
+    { field: 'dateOfBirth', title: 'Date of Birth', width: 2 },
+    {
+      field: 'primaryNationality',
+      title: 'Nationality',
+    },
+    {
+      field: 'primaryIdentification',
+      title: 'Primary Identification number',
+    },
+    {
+      field: 'email1',
+      title: 'Phone Number #1',
+    },
+    {
+      field: 'phone1',
+      title: 'Email Address #1',
+    },
+    {
+      field: 'displacementStatus',
+      title: 'Displacement Status',
+    },
+  ],
   search: {},
 };

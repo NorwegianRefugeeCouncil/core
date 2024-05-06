@@ -1,4 +1,4 @@
-import { EntityType } from '@nrcno/core-models';
+import { EntityListItemField, EntityType } from '@nrcno/core-models';
 
 export enum Component {
   List = 'list',
@@ -56,11 +56,19 @@ export type Section = {
   fields: (FieldConfig | ListFieldConfig)[];
 };
 
+export type TableColumn = {
+  field: EntityListItemField;
+  title: string;
+  fixed?: boolean;
+  width?: number;
+  onClickHandler?: () => void;
+};
+
 export type EntityUIConfig = {
   detail: {
     sections: Section[];
   };
-  list: unknown;
+  list: TableColumn[];
   search: unknown;
 };
 
