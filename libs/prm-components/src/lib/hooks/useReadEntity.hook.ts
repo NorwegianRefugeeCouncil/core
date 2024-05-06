@@ -5,6 +5,7 @@ import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
 
 export type ReadEntityState = {
   loadEntity: (entityId: string) => Promise<void>;
+  reset: () => void;
   status: SubmitStatus;
   data?: Entity;
   error?: Error;
@@ -12,6 +13,9 @@ export type ReadEntityState = {
 
 export const defaultReadEntityState: ReadEntityState = {
   loadEntity: async (entityId: string) => Promise.resolve(),
+  reset: () => {
+    return;
+  },
   status: SubmitStatus.IDLE,
   data: undefined,
   error: undefined,
@@ -39,6 +43,7 @@ export const useReadEntity = (
 
   return {
     loadEntity,
+    reset: actions.reset,
     status: state.status,
     data: state.data,
     error: state.error,

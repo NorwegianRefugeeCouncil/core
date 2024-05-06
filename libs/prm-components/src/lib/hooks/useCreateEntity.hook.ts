@@ -5,6 +5,7 @@ import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
 
 export type CreateEntityState = {
   onCreateEntity: (entityDefinition: EntityDefinition) => Promise<any>;
+  reset: () => void;
   status: SubmitStatus;
   data?: Entity;
   error?: Error;
@@ -12,6 +13,9 @@ export type CreateEntityState = {
 
 export const defaultCreateEntityState: CreateEntityState = {
   onCreateEntity: async () => Promise.resolve(),
+  reset: () => {
+    return;
+  },
   status: SubmitStatus.IDLE,
   data: undefined,
   error: undefined,
@@ -23,7 +27,6 @@ export const useCreateEntity = (
   const [state, actions] = useApiReducer<Entity>();
 
   const onCreateEntity = async (entityDefinition: EntityDefinition) => {
-    console.log('DEFINITION', entityDefinition);
     if (!client) {
       throw new Error('Client is not defined');
     }
@@ -40,6 +43,7 @@ export const useCreateEntity = (
 
   return {
     onCreateEntity,
+    reset: actions.reset,
     status: state.status,
     data: state.data,
     error: state.error,
