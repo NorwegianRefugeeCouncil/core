@@ -23,11 +23,11 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
   const title = useMemo(() => {
     switch (mode) {
       case 'create':
-        return 'New participant';
+        return `New ${entityType}`;
       case 'edit':
-        return 'Edit participant';
+        return `Edit ${entityType}`;
       case 'read':
-        return 'Participant';
+        return entityType;
     }
   }, [mode]);
 
