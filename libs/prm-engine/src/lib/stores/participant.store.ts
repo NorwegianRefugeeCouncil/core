@@ -261,7 +261,7 @@ const update = async (
         .where('participantId', participantId);
     }
 
-    if (languages?.add?.length) {
+    if (languages?.add && languages.add.length > 0) {
       await trx('participant_languages').insert(
         languages.add.map((lang) => ({
           languageIsoCode: lang.isoCode,
@@ -269,14 +269,14 @@ const update = async (
         })),
       );
     }
-    if (languages?.remove?.length) {
+    if (languages?.remove && languages?.remove?.length > 0) {
       await trx('participant_languages')
         .whereIn('languageIsoCode', languages.remove)
         .where('participantId', participantId)
         .del();
     }
 
-    if (nationalities?.add?.length) {
+    if (nationalities?.add && nationalities?.add?.length > 0) {
       await trx('participant_nationalities').insert(
         nationalities.add.map((nat) => ({
           nationalityIsoCode: nat.isoCode,
@@ -284,7 +284,7 @@ const update = async (
         })),
       );
     }
-    if (nationalities?.remove?.length) {
+    if (nationalities?.remove && nationalities?.remove?.length > 0) {
       await trx('participant_nationalities')
         .whereIn('nationalityIsoCode', nationalities.remove)
         .where('participantId', participantId)
@@ -345,7 +345,7 @@ const update = async (
     const phonesToRemove = contactDetails?.phones?.remove || [];
     const emailsToRemove = contactDetails?.emails?.remove || [];
     const contactDetailsToRemove = phonesToRemove.concat(emailsToRemove);
-    if (contactDetailsToRemove.length) {
+    if (contactDetailsToRemove.length > 0) {
       await trx('participant_contact_details')
         .whereIn('id', contactDetailsToRemove)
         .del();
@@ -377,7 +377,7 @@ const update = async (
           .where('id', identification.id);
       }
     }
-    if (identification?.remove?.length) {
+    if (identification?.remove && identification?.remove?.length > 0) {
       await trx('participant_identifications')
         .whereIn('id', identification.remove)
         .del();

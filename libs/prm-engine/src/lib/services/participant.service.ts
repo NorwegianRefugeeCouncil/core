@@ -1,5 +1,6 @@
 import {
   ContactDetails,
+  ContactDetailsDefinition,
   Identification,
   Participant,
   ParticipantDefinition,
@@ -38,13 +39,23 @@ export const ParticipantService: PrmService<
       throw new Error(`Participant with id ${id} not found`);
     }
 
-    const phonesToAdd = contactDetails?.phones?.filter((cd) => !cd.id) || [];
-    const emailsToAdd = contactDetails?.emails?.filter((cd) => !cd.id) || [];
+    const phonesToAdd =
+      contactDetails?.phones?.filter(
+        (cd): cd is ContactDetailsDefinition => !cd.id,
+      ) || [];
+    const emailsToAdd =
+      contactDetails?.emails?.filter(
+        (cd): cd is ContactDetailsDefinition => !cd.id,
+      ) || [];
 
     const phonesToUpdate =
-      (contactDetails?.phones?.filter((cd) => cd.id) as ContactDetails[]) || [];
+      contactDetails?.phones?.filter(
+        (cd): cd is ContactDetails => cd.id !== undefined,
+      ) || [];
     const emailsToUpdate =
-      (contactDetails?.emails?.filter((cd) => cd.id) as ContactDetails[]) || [];
+      contactDetails?.emails?.filter(
+        (cd): cd is ContactDetails => cd.id !== undefined,
+      ) || [];
 
     const phonesToRemove = existingParticipant.contactDetails?.phones
       ?.filter(
