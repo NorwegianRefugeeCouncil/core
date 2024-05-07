@@ -88,6 +88,7 @@ export const EntityDetailForm: React.FC<Props> = ({
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     if (onSubmit) {
       form.handleSubmit(onSubmit)(event);
+      form.reset();
     }
   };
 
