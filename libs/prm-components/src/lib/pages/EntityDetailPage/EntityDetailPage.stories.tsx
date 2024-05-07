@@ -4,6 +4,7 @@ import { expect } from '@storybook/jest';
 import axios from 'axios';
 import { ZodError } from 'zod';
 import { EntityType } from '@nrcno/core-models';
+import { withRouter } from 'storybook-addon-remix-react-router';
 
 import { PrmProvider } from '../../prm.context';
 
@@ -36,9 +37,10 @@ const meta: Meta = {
       <EntityDetailPage mode={mode} />
     </PrmProvider>
   ),
+  decorators: [withRouter],
   argTypes: {
     mode: {
-      options: ['create', 'read', 'update'],
+      options: ['create', 'read', 'edit'],
       control: { type: 'select' },
     },
     entityType: {
