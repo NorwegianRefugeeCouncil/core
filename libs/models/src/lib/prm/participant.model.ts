@@ -195,12 +195,8 @@ export const ParticipantListItemSchema = z.object({
   dateOfBirth: z.coerce.date().nullable(),
   sex: SexSchema.nullable(),
   displacementStatus: DisplacementStatusSchema.nullable(),
-  primaryIdentification: z
-    .object({
-      identificationType: IdentificationTypeSchema,
-      identificationNumber: z.string(),
-    })
-    .nullable(),
+  primaryIdentificationType: IdentificationTypeSchema.nullable(),
+  primaryIdentificationNumber: z.string().nullable(),
   nationality: z.string().max(20).nullable(), // TODO: update with the ISO code schema var when rebasing
   email: z.string().nullable(),
   phone: z.string().nullable(),
