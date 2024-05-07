@@ -128,7 +128,6 @@ export const EntityDetailForm: React.FC<Props> = ({
         <Accordion
           defaultIndex={config.sections.map((_, i) => i)}
           allowMultiple
-          allowToggle
         >
           {config.sections.map((section) => (
             <AccordionItem key={`${id}_${section.title}`}>
