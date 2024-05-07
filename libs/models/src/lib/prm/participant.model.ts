@@ -197,18 +197,12 @@ export const ParticipantListItemSchema = z.object({
   displacementStatus: DisplacementStatusSchema.nullable(),
   primaryIdentification: z
     .object({
-      id: z.string().uuid(),
       identificationType: IdentificationTypeSchema,
       identificationNumber: z.string(),
     })
     .nullable(),
-  primaryNationality: z
-    .object({
-      isoCode: z.string().max(20),
-      translationKey: z.string().max(200),
-    })
-    .nullable(),
-  email1: z.string().nullable(),
-  phone1: z.string().nullable(),
+  nationality: z.string().max(20).nullable(), // TODO: update with the ISO code schema var when rebasing
+  email: z.string().nullable(),
+  phone: z.string().nullable(),
 });
 export type ParticipantListItem = z.infer<typeof ParticipantListItemSchema>;
