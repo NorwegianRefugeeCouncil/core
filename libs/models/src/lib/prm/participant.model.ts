@@ -187,3 +187,28 @@ export const ParticipantSchema = ParticipantDefinitionSchema.merge(
 );
 
 export type Participant = z.infer<typeof ParticipantSchema>;
+
+export const ParticipantListItemSchema = z.object({
+  id: z.string().ulid(),
+  firstName: z.string().max(100).nullable(),
+  lastName: z.string().max(100).nullable(),
+  dateOfBirth: z.coerce.date().nullable(),
+  sex: SexSchema.nullable(),
+  displacementStatus: DisplacementStatusSchema.nullable(),
+  primaryIdentification: z
+    .object({
+      id: z.string().uuid(),
+      identificationType: IdentificationTypeSchema,
+      identificationNumber: z.string(),
+    })
+    .nullable(),
+  primaryNationality: z
+    .object({
+      isoCode: z.string().max(20),
+      translationKey: z.string().max(200),
+    })
+    .nullable(),
+  email1: z.string().nullable(),
+  phone1: z.string().nullable(),
+});
+export type ParticipantListItem = z.infer<typeof ParticipantListItemSchema>;
