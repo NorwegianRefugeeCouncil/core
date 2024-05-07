@@ -37,6 +37,7 @@ module.exports = async function () {
     resources: ['http-get://localhost:3333/healthz'],
     timeout: 30000,
   });
+  console.log('Server is ready!');
 
   // Hint: Use `globalThis` to pass variables to global teardown.
   (globalThis as any).__TEARDOWN_MESSAGE__ = '\nTearing down...\n';

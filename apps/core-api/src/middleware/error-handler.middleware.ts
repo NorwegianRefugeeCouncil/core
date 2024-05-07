@@ -2,7 +2,11 @@ import { ZodError } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 
 import { getLogger } from '@nrcno/core-logger';
-import { formatHttpError, formatZodError } from '@nrcno/core-errors';
+import {
+  NotFoundError,
+  formatHttpError,
+  formatZodError,
+} from '@nrcno/core-errors';
 
 import { Environment, getServerConfig } from '../config';
 
@@ -17,6 +21,9 @@ export const errorHandler = (
 
   if (err instanceof ZodError) {
     res.status(400).json(formatZodError(err));
+  } else if (err instanceof NotFoundError) {
+    res.sendStatus(404);
+    return;
   } else {
     logger.error(err);
     res
