@@ -5,6 +5,7 @@ import {
   ContactDetailType,
   Participant,
   ParticipantDefinition,
+  ParticipantPartialUpdate,
   ParticipantSchema,
 } from '@nrcno/core-models';
 import { PostgresError, PostgresErrorCode, getDb } from '@nrcno/core-db';
@@ -228,7 +229,171 @@ const get = async (id: string): Promise<Participant | null> => {
   return participantResult;
 };
 
-export const ParticipantStore: BaseStore<ParticipantDefinition, Participant> = {
+const update = async (
+  participantId: string,
+  participantUpdate: ParticipantPartialUpdate,
+): Promise<Participant> => {
+  const db = getDb();
+
+  const {
+    disabilities,
+    contactDetails,
+    identification,
+    languages,
+    nationalities,
+    ...participantDetails
+  } = participantUpdate;
+
+  await db.transaction(async (trx) => {
+    if (Object.keys(participantDetails).length > 0) {
+      await trx('participants')
+        .update({
+          ...participantDetails,
+        })
+        .where('id', participantId);
+    }
+
+    if (disabilities) {
+      await trx('participant_disabilities')
+        .update({
+          ...disabilities,
+        })
+        .where('participantId', participantId);
+    }
+
+    if (languages?.add && languages.add.length > 0) {
+      await trx('participant_languages').insert(
+        languages.add.map((lang) => ({
+          languageIsoCode: lang.isoCode,
+          participantId,
+        })),
+      );
+    }
+    if (languages?.remove && languages?.remove?.length > 0) {
+      await trx('participant_languages')
+        .whereIn('languageIsoCode', languages.remove)
+        .where('participantId', participantId)
+        .del();
+    }
+
+    if (nationalities?.add && nationalities?.add?.length > 0) {
+      await trx('participant_nationalities').insert(
+        nationalities.add.map((nat) => ({
+          nationalityIsoCode: nat.isoCode,
+          participantId,
+        })),
+      );
+    }
+    if (nationalities?.remove && nationalities?.remove?.length > 0) {
+      await trx('participant_nationalities')
+        .whereIn('nationalityIsoCode', nationalities.remove)
+        .where('participantId', participantId)
+        .del();
+    }
+
+    const phonesToAdd =
+      contactDetails?.phones?.add?.map((contact) => ({
+        id: uuidv4(),
+        contactDetailType: ContactDetailType.PhoneNumber,
+        rawValue: contact.value,
+        cleanValue: contact.value, // TODO: Clean string for searching
+        participantId,
+      })) || [];
+    const emailsToAdd =
+      contactDetails?.emails?.add?.map((contact) => ({
+        id: uuidv4(),
+        contactDetailType: ContactDetailType.Email,
+        rawValue: contact.value,
+        cleanValue: contact.value, // TODO: Clean string for searching
+        participantId,
+      })) || [];
+    const contactDetailsToAdd = phonesToAdd.concat(emailsToAdd);
+    if (contactDetailsToAdd.length > 0) {
+      await trx('participant_contact_details').insert(contactDetailsToAdd);
+    }
+
+    const phonesToUpdate =
+      contactDetails?.phones?.update?.map((contact) => ({
+        id: contact.id,
+        contactDetailType: ContactDetailType.PhoneNumber,
+        rawValue: contact.value,
+        cleanValue: contact.value, // TODO: Clean string for searching
+        participantId,
+      })) || [];
+    const emailsToUpdate =
+      contactDetails?.emails?.update?.map((contact) => ({
+        id: contact.id,
+        contactDetailType: ContactDetailType.Email,
+        rawValue: contact.value,
+        cleanValue: contact.value, // TODO: Clean string for searching
+        participantId,
+      })) || [];
+    const contactDetailsToUpdate = phonesToUpdate.concat(emailsToUpdate);
+    if (contactDetailsToUpdate.length > 0) {
+      for (const detail of contactDetailsToUpdate) {
+        await trx('participant_contact_details')
+          .update({
+            contactDetailType: detail.contactDetailType,
+            rawValue: detail.rawValue,
+            cleanValue: detail.cleanValue,
+          })
+          .where('participantId', detail.participantId)
+          .where('id', detail.id);
+      }
+    }
+
+    const phonesToRemove = contactDetails?.phones?.remove || [];
+    const emailsToRemove = contactDetails?.emails?.remove || [];
+    const contactDetailsToRemove = phonesToRemove.concat(emailsToRemove);
+    if (contactDetailsToRemove.length > 0) {
+      await trx('participant_contact_details')
+        .whereIn('id', contactDetailsToRemove)
+        .del();
+    }
+
+    const identificationsToAdd =
+      identification?.add?.map((identification) => ({
+        ...identification,
+        id: uuidv4(),
+        participantId,
+      })) || [];
+    if (identificationsToAdd.length > 0) {
+      await trx('participant_identifications').insert(identificationsToAdd);
+    }
+    const identificationsToUpdate =
+      identification?.update?.map((identification) => ({
+        ...identification,
+        participantId,
+      })) || [];
+    if (identificationsToUpdate.length > 0) {
+      for (const identification of identificationsToUpdate) {
+        await trx('participant_identifications')
+          .update({
+            identificationType: identification.identificationType,
+            identificationNumber: identification.identificationNumber,
+            isPrimary: identification.isPrimary,
+          })
+          .where('participantId', identification.participantId)
+          .where('id', identification.id);
+      }
+    }
+    if (identification?.remove && identification?.remove?.length > 0) {
+      await trx('participant_identifications')
+        .whereIn('id', identification.remove)
+        .del();
+    }
+  });
+
+  const updatedParticipant = await get(participantId);
+  return updatedParticipant!;
+};
+
+export const ParticipantStore: BaseStore<
+  ParticipantDefinition,
+  Participant,
+  ParticipantPartialUpdate
+> = {
   create,
   get,
+  update,
 };

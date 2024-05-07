@@ -9,11 +9,12 @@ import {
   EngagementContext,
   DisabilityLevel,
   YesNoUnknown,
-  IdentificationType,
   Participant,
 } from '@nrcno/core-models';
 
 import { BaseTestEntityGenerator } from '../base-test-entity-generator';
+
+import { IdentificationGenerator } from './identification.generator';
 
 const generateDefinition = (
   overrides?: Partial<ParticipantDefinition>,
@@ -90,13 +91,7 @@ const generateDefinition = (
         },
       ],
     },
-    identification: [
-      {
-        identificationType: faker.helpers.enumValue(IdentificationType),
-        identificationNumber: faker.string.alphanumeric(),
-        isPrimary: faker.datatype.boolean(),
-      },
-    ],
+    identification: [IdentificationGenerator.generateDefinition()],
     ...overrides,
   };
 };
