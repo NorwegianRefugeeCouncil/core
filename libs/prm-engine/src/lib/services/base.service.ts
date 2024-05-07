@@ -2,19 +2,23 @@ import {
   EntityType,
   Participant,
   ParticipantDefinition,
+  ParticipantUpdate,
 } from '@nrcno/core-models';
 
 import { PrmStore } from '../stores';
 
-export type PrmService<T, U> = {
-  create: (entity: T) => Promise<U>;
-  get: (id: string) => Promise<U>;
+export type PrmService<TDefinition, TEntity, TUpdateDefinition> = {
+  create: (entity: TDefinition) => Promise<TEntity>;
+  get: (id: string) => Promise<TEntity | null>;
+  update: (id: string, entity: TUpdateDefinition) => Promise<TEntity>;
 };
 
 export function getPrmService(
   entityType: EntityType.Participant,
-): PrmService<ParticipantDefinition, Participant>;
-export function getPrmService(entityType: EntityType): PrmService<any, any> {
+): PrmService<ParticipantDefinition, Participant, ParticipantUpdate>;
+export function getPrmService(
+  entityType: EntityType,
+): PrmService<any, any, any> {
   const Store = PrmStore[entityType];
 
   if (!Store) {
@@ -29,5 +33,9 @@ export function getPrmService(entityType: EntityType): PrmService<any, any> {
     return Store.get(id);
   };
 
-  return { create, get };
+  const update = async (id: string, entity: any) => {
+    return Store.update(id, entity);
+  };
+
+  return { create, get, update };
 }
