@@ -268,3 +268,18 @@ const ParticipantPartialUpdateSchema = ParticipantUpdateSchema.merge(
 export type ParticipantPartialUpdate = z.infer<
   typeof ParticipantPartialUpdateSchema
 >;
+
+export const ParticipantListItemSchema = z.object({
+  id: z.string().ulid(),
+  firstName: z.string().max(100).nullable(),
+  lastName: z.string().max(100).nullable(),
+  dateOfBirth: z.coerce.date().nullable(),
+  sex: SexSchema.nullable(),
+  displacementStatus: DisplacementStatusSchema.nullable(),
+  primaryIdentificationType: IdentificationTypeSchema.nullable(),
+  primaryIdentificationNumber: z.string().nullable(),
+  nationality: z.string().max(20).nullable(), // TODO: update with the ISO code schema var when rebasing
+  email: z.string().nullable(),
+  phone: z.string().nullable(),
+});
+export type ParticipantListItem = z.infer<typeof ParticipantListItemSchema>;
