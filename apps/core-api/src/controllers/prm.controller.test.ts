@@ -1,17 +1,20 @@
 import * as httpMocks from 'node-mocks-http';
 import { ulid } from 'ulidx';
 
-import { EntityType, ParticipantDefinition } from '@nrcno/core-models';
+import { EntityType } from '@nrcno/core-models';
 import { PrmService } from '@nrcno/core-prm-engine';
-import { NotFoundError } from '@nrcno/core-errors';
 
 import { createEntity, getEntity, updateEntity } from './prm.controller';
 
-const fakeParticipant: ParticipantDefinition = {
+const fakeParticipant = {
   consentGdpr: true,
   consentReferral: true,
   firstName: 'John',
   lastName: 'Doe',
+};
+
+const fakeParticipantWithDefaults = {
+  ...fakeParticipant,
   contactDetails: {
     emails: [],
     phones: [],
@@ -24,10 +27,13 @@ const fakeParticipant: ParticipantDefinition = {
 jest.mock('@nrcno/core-prm-engine', () => ({
   PrmService: {
     [EntityType.Participant]: {
-      create: jest
+      create: jest.fn().mockImplementation((entityDefinition) => ({
+        ...entityDefinition,
+        id: ulid(),
+      })),
+      get: jest
         .fn()
-        .mockImplementation((entityDefinition) => entityDefinition),
-      get: jest.fn().mockImplementation((id) => ({ ...fakeParticipant, id })),
+        .mockImplementation((id) => ({ ...fakeParticipantWithDefaults, id })),
       update: jest.fn().mockImplementation((id, entityDefinition) => ({
         ...entityDefinition,
         id,
@@ -52,10 +58,13 @@ describe('PRM Controller', () => {
         await createEntity(req, res, next);
 
         expect(PrmService[EntityType.Participant].create).toHaveBeenCalledWith(
-          fakeParticipant,
+          fakeParticipantWithDefaults,
         );
         expect(res.statusCode).toEqual(201);
-        expect(res._getJSONData()).toEqual(fakeParticipant);
+        expect(res._getJSONData()).toEqual({
+          ...fakeParticipantWithDefaults,
+          id: expect.any(String),
+        });
       });
 
       it('should return a 404 if the entity type is not found', async () => {
@@ -109,7 +118,10 @@ describe('PRM Controller', () => {
 
         expect(PrmService[EntityType.Participant].get).toHaveBeenCalledWith(id);
         expect(res.statusCode).toEqual(200);
-        expect(res._getJSONData()).toEqual({ ...fakeParticipant, id });
+        expect(res._getJSONData()).toEqual({
+          ...fakeParticipantWithDefaults,
+          id,
+        });
       });
 
       it('should return a 404 if the entity type is not found', async () => {
@@ -198,10 +210,13 @@ describe('PRM Controller', () => {
 
         expect(PrmService[EntityType.Participant].update).toHaveBeenCalledWith(
           id,
-          fakeParticipant,
+          fakeParticipantWithDefaults,
         );
         expect(res.statusCode).toEqual(200);
-        expect(res._getJSONData()).toEqual({ ...fakeParticipant, id });
+        expect(res._getJSONData()).toEqual({
+          ...fakeParticipantWithDefaults,
+          id,
+        });
       });
 
       it('should return a 404 if the entity type is not found', async () => {
@@ -254,45 +269,6 @@ describe('PRM Controller', () => {
         await updateEntity(req, res, next);
 
         expect(next).toHaveBeenCalledWith(new Error('Failed to update entity'));
-      });
-
-      it('should return 400 if the entity update is invalid', async () => {
-        const req = httpMocks.createRequest({
-          params: {
-            entityType: EntityType.Participant,
-            entityId: ulid(),
-          },
-          body: {
-            ...fakeParticipant,
-            consentGdpr: undefined,
-          },
-        });
-        const res = httpMocks.createResponse();
-        const next = jest.fn();
-
-        await updateEntity(req, res, next);
-
-        expect(res.statusCode).toEqual(400);
-      });
-
-      it('should return 404 if the entity is not found', async () => {
-        const req = httpMocks.createRequest({
-          params: {
-            entityType: EntityType.Participant,
-            entityId: ulid(),
-          },
-          body: fakeParticipant,
-        });
-        const res = httpMocks.createResponse();
-        const next = jest.fn();
-
-        (
-          PrmService[EntityType.Participant].update as jest.Mock
-        ).mockRejectedValue(new NotFoundError());
-
-        await updateEntity(req, res, next);
-
-        expect(res.statusCode).toEqual(404);
       });
     });
   });

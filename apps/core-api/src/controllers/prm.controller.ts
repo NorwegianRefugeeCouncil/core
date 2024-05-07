@@ -7,7 +7,6 @@ import {
   getEntityDefinitionSchema,
   getEntityUpdateSchema,
 } from '@nrcno/core-models';
-import { NotFoundError } from '@nrcno/core-errors';
 
 // This is exported for testing purposes (not great)
 export const createEntity = async (
@@ -26,12 +25,9 @@ export const createEntity = async (
     const prmService = PrmService[entityType.data];
 
     const schema = getEntityDefinitionSchema(entityType.data);
-    const entityDefinition = schema.safeParse(req.body);
-    if (entityDefinition.success === false) {
-      res.status(400).json(entityDefinition.error);
-      return;
-    }
-    const createdEntity = await prmService.create(entityDefinition.data);
+    const entityDefinition = schema.parse(req.body);
+
+    const createdEntity = await prmService.create(entityDefinition);
 
     res.status(201).json(createdEntity);
   } catch (error) {
@@ -84,23 +80,12 @@ export const updateEntity = async (
     const prmService = PrmService[entityType.data];
 
     const schema = getEntityUpdateSchema(entityType.data);
-    const entityUpdate = schema.safeParse(req.body);
-    if (entityUpdate.success === false) {
-      res.status(400).json(entityUpdate.error);
-      return;
-    }
+    const entityUpdate = schema.parse(req.body);
 
-    const updatedEntity = await prmService.update(
-      entityId.data,
-      entityUpdate.data,
-    );
+    const updatedEntity = await prmService.update(entityId.data, entityUpdate);
 
     res.status(200).json(updatedEntity);
   } catch (error) {
-    if (error instanceof NotFoundError) {
-      res.sendStatus(404);
-      return;
-    }
     next(error);
   }
 };

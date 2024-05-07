@@ -170,13 +170,19 @@ export type Nationality = z.infer<typeof NationalitySchema>;
 export const ParticipantDefinitionSchema = ParticipantDetailsSchema.merge(
   z.object({
     disabilities: ParticipantDisabilitySchema.optional(),
-    languages: z.array(LanguageDefinitionSchema),
-    nationalities: z.array(NationalityDefinitionSchema),
-    contactDetails: z.object({
-      emails: z.array(ContactDetailsDefinitionSchema),
-      phones: z.array(ContactDetailsDefinitionSchema),
-    }),
-    identification: z.array(IdentificationDefinitionSchema),
+    languages: z.array(LanguageDefinitionSchema).optional().default([]),
+    nationalities: z.array(NationalityDefinitionSchema).optional().default([]),
+    contactDetails: z
+      .object({
+        emails: z.array(ContactDetailsDefinitionSchema).optional().default([]),
+        phones: z.array(ContactDetailsDefinitionSchema).optional().default([]),
+      })
+      .optional()
+      .default({ emails: [], phones: [] }),
+    identification: z
+      .array(IdentificationDefinitionSchema)
+      .optional()
+      .default([]),
   }),
 );
 
@@ -209,15 +215,23 @@ const IdentificationWithOptionalIdSchema = IdentificationDefinitionSchema.merge(
 );
 export const ParticipantUpdateSchema = ParticipantDefinitionSchema.merge(
   z.object({
-    languages: z.array(LanguageDefinitionSchema).optional(),
-    nationalities: z.array(NationalityDefinitionSchema).optional(),
     contactDetails: z
       .object({
-        emails: z.array(ContactDetailsWithOptionalIdSchema).optional(),
-        phones: z.array(ContactDetailsWithOptionalIdSchema).optional(),
+        emails: z
+          .array(ContactDetailsWithOptionalIdSchema)
+          .optional()
+          .default([]),
+        phones: z
+          .array(ContactDetailsWithOptionalIdSchema)
+          .optional()
+          .default([]),
       })
-      .optional(),
-    identification: z.array(IdentificationWithOptionalIdSchema).optional(),
+      .optional()
+      .default({ emails: [], phones: [] }),
+    identification: z
+      .array(IdentificationWithOptionalIdSchema)
+      .optional()
+      .default([]),
   }),
 );
 export type ParticipantUpdate = z.infer<typeof ParticipantUpdateSchema>;
