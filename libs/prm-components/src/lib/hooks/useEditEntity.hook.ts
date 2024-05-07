@@ -5,6 +5,7 @@ import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
 
 export type EditEntityState = {
   onEditEntity: (entityId: string, entityDefinition: any) => Promise<any>;
+  reset: () => void;
   status: SubmitStatus;
   data?: Entity;
   error?: Error;
@@ -12,6 +13,9 @@ export type EditEntityState = {
 
 export const defaultEditEntityState: EditEntityState = {
   onEditEntity: async () => Promise.resolve(),
+  reset: () => {
+    return;
+  },
   status: SubmitStatus.IDLE,
   data: undefined,
   error: undefined,
@@ -39,6 +43,7 @@ export const useEditEntity = (
 
   return {
     onEditEntity,
+    reset: actions.reset,
     status: state.status,
     data: state.data,
     error: state.error,

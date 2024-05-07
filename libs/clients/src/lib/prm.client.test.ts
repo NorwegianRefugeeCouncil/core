@@ -141,17 +141,17 @@ describe('PRM client', () => {
           consentGdpr: !participant.consentGdpr,
         };
         mock
-          .onPatch(`/prm/participants/${participantId}`)
+          .onPut(`/prm/participants/${participantId}`)
           .reply(200, updatedParticipant);
         const res = await client.update(participantId, {
           consentGdpr: !participant.consentGdpr,
         });
         expect(res).toEqual(updatedParticipant);
-        expect(mock.history.patch.length).toBe(1);
-        expect(mock.history.patch[0].url).toBe(
+        expect(mock.history.put.length).toBe(1);
+        expect(mock.history.put[0].url).toBe(
           `/prm/participants/${participantId}`,
         );
-        expect(mock.history.patch[0].data).toBe(
+        expect(mock.history.put[0].data).toBe(
           JSON.stringify({ consentGdpr: !participant.consentGdpr }),
         );
       });
@@ -159,7 +159,7 @@ describe('PRM client', () => {
       it('should fail when receiving an invalid response from the api', () => {
         const participant = ParticipantGenerator.generateEntity();
         const participantId = participant.id;
-        mock.onPatch(`/prm/participants/${participantId}`).reply(200, {
+        mock.onPut(`/prm/participants/${participantId}`).reply(200, {
           foo: 'bar',
         });
         expect(client.update(participantId, participant)).rejects.toThrow(
@@ -170,7 +170,7 @@ describe('PRM client', () => {
       it('should fail if the api returns an error', () => {
         const participant = ParticipantGenerator.generateEntity();
         const participantId = participant.id;
-        mock.onPatch(`/prm/participants/${participantId}`).reply(500);
+        mock.onPut(`/prm/participants/${participantId}`).reply(500);
         expect(client.update(participantId, participant)).rejects.toThrow(
           'Request failed with status code 500',
         );

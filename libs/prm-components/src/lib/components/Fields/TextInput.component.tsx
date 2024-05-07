@@ -28,7 +28,6 @@ export const TextInput: React.FC<Props> = ({ config }) => {
         isRequired={config.required}
         placeholder={config.placeholder}
         type={config.dataType}
-        readOnly={false}
         {...field}
       />
       {config.description && (

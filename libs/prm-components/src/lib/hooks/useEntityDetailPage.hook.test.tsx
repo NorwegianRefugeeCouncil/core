@@ -1,17 +1,19 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { vi, Mock } from 'vitest';
-import {
-  ContactDetailType,
-  DisabilityLevel,
-  EntityType,
-  YesNoUnknown,
-} from '@nrcno/core-models';
+import { DisabilityLevel, EntityType, YesNoUnknown } from '@nrcno/core-models';
+import { MemoryRouter } from 'react-router-dom';
 
 import { PrmContextData, usePrmContext } from '../prm.context';
 import { config } from '../config';
 
 import { SubmitStatus } from './useApiReducer.hook';
 import { useEntityDetailPage } from './useEntityDetailPage.hook';
+
+const renderHookOptions = {
+  wrapper: ({ children }: { children: any }) => (
+    <MemoryRouter>{children}</MemoryRouter>
+  ),
+};
 
 vi.mock('../prm.context', () => ({
   usePrmContext: vi.fn(),
@@ -31,25 +33,31 @@ describe('useEntityDetailPage', () => {
         status: SubmitStatus.IDLE,
         data: undefined,
         error: undefined,
+        reset: vi.fn(),
       },
       read: {
         loadEntity: vi.fn(),
         status: SubmitStatus.IDLE,
         data: undefined,
         error: undefined,
+        reset: vi.fn(),
       },
       edit: {
         onEditEntity: vi.fn(),
         status: SubmitStatus.IDLE,
         data: undefined,
         error: undefined,
+        reset: vi.fn(),
       },
     };
 
     it('should return the correct values', () => {
       (usePrmContext as Mock).mockReturnValue(prmContextData);
 
-      const { result } = renderHook(() => useEntityDetailPage('create'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('create'),
+        renderHookOptions,
+      );
 
       expect(result.current).toEqual({
         mode: 'create',
@@ -60,10 +68,12 @@ describe('useEntityDetailPage', () => {
         isError: false,
         isSuccess: false,
         error: undefined,
+        isSubmitting: false,
+        data: undefined,
       });
     });
 
-    it('should set isLoading to true when status is SUBMITTING', () => {
+    it('should set isSubmitting to true when status is SUBMITTING', () => {
       (usePrmContext as Mock).mockReturnValue({
         ...prmContextData,
         create: {
@@ -72,9 +82,12 @@ describe('useEntityDetailPage', () => {
         },
       });
 
-      const { result } = renderHook(() => useEntityDetailPage('create'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('create'),
+        renderHookOptions,
+      );
 
-      expect(result.current.isLoading).toBe(true);
+      expect(result.current.isSubmitting).toBe(true);
     });
 
     it('should set isError to true when status is ERROR', () => {
@@ -86,7 +99,10 @@ describe('useEntityDetailPage', () => {
         },
       });
 
-      const { result } = renderHook(() => useEntityDetailPage('create'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('create'),
+        renderHookOptions,
+      );
 
       expect(result.current.isError).toBe(true);
     });
@@ -100,7 +116,10 @@ describe('useEntityDetailPage', () => {
         },
       });
 
-      const { result } = renderHook(() => useEntityDetailPage('create'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('create'),
+        renderHookOptions,
+      );
 
       expect(result.current.isSuccess).toBe(true);
     });
@@ -108,7 +127,10 @@ describe('useEntityDetailPage', () => {
     it('should parse the form data and call onCreateEntity when handleSubmit is called', () => {
       (usePrmContext as Mock).mockReturnValue(prmContextData);
 
-      const { result } = renderHook(() => useEntityDetailPage('create'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('create'),
+        renderHookOptions,
+      );
 
       if (!result.current.onSubmit)
         throw new Error('onSubmit is not defined on the hook');
@@ -216,25 +238,31 @@ describe('useEntityDetailPage', () => {
         status: SubmitStatus.IDLE,
         data: undefined,
         error: undefined,
+        reset: vi.fn(),
       },
       read: {
         loadEntity: vi.fn(),
         status: SubmitStatus.IDLE,
         data: undefined,
         error: undefined,
+        reset: vi.fn(),
       },
       edit: {
         onEditEntity: vi.fn(),
         status: SubmitStatus.IDLE,
         data: undefined,
         error: undefined,
+        reset: vi.fn(),
       },
     };
 
     it('should return the correct values', () => {
       (usePrmContext as Mock).mockReturnValue(prmContextData);
 
-      const { result } = renderHook(() => useEntityDetailPage('read'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('read'),
+        renderHookOptions,
+      );
 
       expect(result.current).toEqual({
         mode: 'read',
@@ -244,6 +272,9 @@ describe('useEntityDetailPage', () => {
         isError: false,
         isSuccess: false,
         error: undefined,
+        isSubmitting: false,
+        data: undefined,
+        entityId: '1234',
       });
     });
 
@@ -256,7 +287,10 @@ describe('useEntityDetailPage', () => {
         },
       });
 
-      const { result } = renderHook(() => useEntityDetailPage('read'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('read'),
+        renderHookOptions,
+      );
 
       expect(result.current.isLoading).toBe(true);
     });
@@ -270,12 +304,15 @@ describe('useEntityDetailPage', () => {
         },
       });
 
-      const { result } = renderHook(() => useEntityDetailPage('read'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('read'),
+        renderHookOptions,
+      );
 
       expect(result.current.isError).toBe(true);
     });
 
-    it('should set isSuccess to true when status is SUCCESS', () => {
+    it('should not set isSuccess to true when status is SUCCESS', () => {
       (usePrmContext as Mock).mockReturnValue({
         ...prmContextData,
         read: {
@@ -284,15 +321,18 @@ describe('useEntityDetailPage', () => {
         },
       });
 
-      const { result } = renderHook(() => useEntityDetailPage('read'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('read'),
+        renderHookOptions,
+      );
 
-      expect(result.current.isSuccess).toBe(true);
+      expect(result.current.isSuccess).toBe(false);
     });
 
     it('should call loadEntity when entityId is defined', () => {
       (usePrmContext as Mock).mockReturnValue(prmContextData);
 
-      renderHook(() => useEntityDetailPage('read'));
+      renderHook(() => useEntityDetailPage('read'), renderHookOptions);
 
       expect(prmContextData.read.loadEntity).toHaveBeenCalledWith('1234');
     });
@@ -310,7 +350,10 @@ describe('useEntityDetailPage', () => {
         },
       });
 
-      const { result } = renderHook(() => useEntityDetailPage('read'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('read'),
+        renderHookOptions,
+      );
 
       expect(result.current.data).toEqual({
         id: '1234',
@@ -329,25 +372,31 @@ describe('useEntityDetailPage', () => {
         status: SubmitStatus.IDLE,
         data: undefined,
         error: undefined,
+        reset: vi.fn(),
       },
       read: {
         loadEntity: vi.fn(),
         status: SubmitStatus.IDLE,
         data: undefined,
         error: undefined,
+        reset: vi.fn(),
       },
       edit: {
         onEditEntity: vi.fn(),
         status: SubmitStatus.IDLE,
         data: undefined,
         error: undefined,
+        reset: vi.fn(),
       },
     };
 
     it('should return the correct values', () => {
       (usePrmContext as Mock).mockReturnValue(prmContextData);
 
-      const { result } = renderHook(() => useEntityDetailPage('edit'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('edit'),
+        renderHookOptions,
+      );
 
       expect(result.current).toEqual({
         mode: 'edit',
@@ -358,10 +407,12 @@ describe('useEntityDetailPage', () => {
         isError: false,
         isSuccess: false,
         error: undefined,
+        isSubmitting: false,
+        data: undefined,
       });
     });
 
-    it('should set isLoading to true when edit status is SUBMITTING', () => {
+    it('should set isSubmitting to true when edit status is SUBMITTING', () => {
       (usePrmContext as Mock).mockReturnValue({
         ...prmContextData,
         edit: {
@@ -370,9 +421,12 @@ describe('useEntityDetailPage', () => {
         },
       });
 
-      const { result } = renderHook(() => useEntityDetailPage('edit'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('edit'),
+        renderHookOptions,
+      );
 
-      expect(result.current.isLoading).toBe(true);
+      expect(result.current.isSubmitting).toBe(true);
     });
 
     it('should set isLoading to true when read status is SUBMITTING', () => {
@@ -384,7 +438,10 @@ describe('useEntityDetailPage', () => {
         },
       });
 
-      const { result } = renderHook(() => useEntityDetailPage('edit'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('edit'),
+        renderHookOptions,
+      );
 
       expect(result.current.isLoading).toBe(true);
     });
@@ -398,7 +455,10 @@ describe('useEntityDetailPage', () => {
         },
       });
 
-      const { result } = renderHook(() => useEntityDetailPage('edit'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('edit'),
+        renderHookOptions,
+      );
 
       expect(result.current.isError).toBe(true);
     });
@@ -412,7 +472,10 @@ describe('useEntityDetailPage', () => {
         },
       });
 
-      const { result } = renderHook(() => useEntityDetailPage('edit'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('edit'),
+        renderHookOptions,
+      );
 
       expect(result.current.isError).toBe(true);
     });
@@ -426,21 +489,10 @@ describe('useEntityDetailPage', () => {
         },
       });
 
-      const { result } = renderHook(() => useEntityDetailPage('edit'));
-
-      expect(result.current.isSuccess).toBe(true);
-    });
-
-    it('should set isSuccess to true when read status is SUCCESS', () => {
-      (usePrmContext as Mock).mockReturnValue({
-        ...prmContextData,
-        read: {
-          ...prmContextData.read,
-          status: SubmitStatus.SUCCESS,
-        },
-      });
-
-      const { result } = renderHook(() => useEntityDetailPage('edit'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('edit'),
+        renderHookOptions,
+      );
 
       expect(result.current.isSuccess).toBe(true);
     });
@@ -448,7 +500,7 @@ describe('useEntityDetailPage', () => {
     it('should call loadEntity when entityId is defined', () => {
       (usePrmContext as Mock).mockReturnValue(prmContextData);
 
-      renderHook(() => useEntityDetailPage('read'));
+      renderHook(() => useEntityDetailPage('read'), renderHookOptions);
 
       expect(prmContextData.read.loadEntity).toHaveBeenCalledWith('1234');
     });
@@ -466,7 +518,10 @@ describe('useEntityDetailPage', () => {
         },
       });
 
-      const { result } = renderHook(() => useEntityDetailPage('edit'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('edit'),
+        renderHookOptions,
+      );
 
       expect(result.current.data).toEqual({
         id: '1234',
@@ -488,7 +543,10 @@ describe('useEntityDetailPage', () => {
         },
       });
 
-      const { result } = renderHook(() => useEntityDetailPage('edit'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('edit'),
+        renderHookOptions,
+      );
 
       expect(result.current.data).toEqual({
         id: '1234',
@@ -500,7 +558,10 @@ describe('useEntityDetailPage', () => {
     it('should parse the form data and call onEditEntity when handleSubmit is called', () => {
       (usePrmContext as Mock).mockReturnValue(prmContextData);
 
-      const { result } = renderHook(() => useEntityDetailPage('edit'));
+      const { result } = renderHook(
+        () => useEntityDetailPage('edit'),
+        renderHookOptions,
+      );
 
       if (!result.current.onSubmit)
         throw new Error('onSubmit is not defined on the hook');

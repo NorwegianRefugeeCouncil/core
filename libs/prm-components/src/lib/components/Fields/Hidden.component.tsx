@@ -19,7 +19,7 @@ export const Hidden: React.FC<Props> = ({ config }) => {
       isRequired={config.required}
       placeholder={config.placeholder}
       type={'hidden'}
-      readOnly={false}
+      isReadOnly={true}
       {...field}
     />
   );

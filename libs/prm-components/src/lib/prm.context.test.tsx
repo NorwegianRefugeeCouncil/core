@@ -57,18 +57,21 @@ describe('usePrmContext', () => {
         status: SubmitStatus.IDLE,
         data: undefined,
         error: undefined,
+        reset: expect.any(Function),
       },
       read: {
         data: undefined,
         error: undefined,
         status: SubmitStatus.IDLE,
         loadEntity: expect.any(Function),
+        reset: expect.any(Function),
       },
       edit: {
         onEditEntity: expect.any(Function),
         status: SubmitStatus.IDLE,
         data: undefined,
         error: undefined,
+        reset: expect.any(Function),
       },
     });
   });
