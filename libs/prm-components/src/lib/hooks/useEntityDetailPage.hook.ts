@@ -63,8 +63,8 @@ export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
 
       return {
         onSubmit,
-        mode: mode,
-        entityType: entityType,
+        mode,
+        entityType,
         config: detailConfig,
         data: create.data,
         isSubmitting: create.status === SubmitStatus.SUBMITTING,
@@ -77,8 +77,8 @@ export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
     case 'read': {
       return {
         mode: mode,
-        entityType: entityType,
-        entityId: entityId,
+        entityType,
+        entityId,
         config: detailConfig,
         isSubmitting: false,
         isLoading: read.status === SubmitStatus.SUBMITTING,
@@ -99,8 +99,9 @@ export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
 
       return {
         onSubmit,
-        mode: mode,
-        entityType: entityType,
+        entityId,
+        mode,
+        entityType,
         config: detailConfig,
         isSubmitting: edit.status === SubmitStatus.SUBMITTING,
         isLoading: read.status === SubmitStatus.SUBMITTING,
