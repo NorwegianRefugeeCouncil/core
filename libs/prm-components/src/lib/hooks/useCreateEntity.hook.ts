@@ -4,7 +4,7 @@ import { Entity, EntityDefinition, EntityType } from '@nrcno/core-models';
 import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
 
 export type CreateEntityState = {
-  onCreateEntity: (entityDefinition: EntityDefinition) => Promise<any>;
+  onCreateEntity: (entityDefinition: EntityDefinition) => Promise<Entity>;
   reset: () => void;
   status: SubmitStatus;
   data?: Entity;
@@ -12,7 +12,7 @@ export type CreateEntityState = {
 };
 
 export const defaultCreateEntityState: CreateEntityState = {
-  onCreateEntity: async () => Promise.resolve(),
+  onCreateEntity: async () => Promise.reject(),
   reset: () => {
     return;
   },
@@ -26,7 +26,9 @@ export const useCreateEntity = (
 ): CreateEntityState => {
   const [state, actions] = useApiReducer<Entity>();
 
-  const onCreateEntity = async (entityDefinition: EntityDefinition) => {
+  const onCreateEntity = async (
+    entityDefinition: EntityDefinition,
+  ): Promise<Entity> => {
     if (!client) {
       throw new Error('Client is not defined');
     }
@@ -34,10 +36,12 @@ export const useCreateEntity = (
       actions.submitting();
       const entity = await client.create(entityDefinition);
       actions.success(entity);
+      return entity;
     } catch (error) {
       const err =
         error instanceof Error ? error : new Error('An error occurred');
       actions.error(err);
+      throw err;
     }
   };
 

@@ -21,31 +21,11 @@ export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
 
   // Reset form when switching between create and edit mode
   React.useEffect(() => {
-    if (mode === 'edit') {
+    if (mode === 'edit' || mode === 'create') {
       create.reset();
-    }
-    if (mode === 'create') {
       edit.reset();
     }
   }, [mode]);
-
-  // Redirect to read page after successful create
-  React.useEffect(() => {
-    if (
-      mode === 'create' &&
-      create.status === SubmitStatus.SUCCESS &&
-      create.data?.id
-    ) {
-      navigate(`/prm/${entityType}/${create.data?.id}`);
-    }
-  }, [create.status, mode, entityType, create.data?.id]);
-
-  // Redirect to read page after successful edit
-  React.useEffect(() => {
-    if (mode === 'edit' && edit.status === SubmitStatus.SUCCESS) {
-      navigate(`/prm/${entityType}/${entityId}`);
-    }
-  }, [edit.status, mode, entityType, entityId]);
 
   if (!entityType) {
     throw new Error('Entity type is required');
@@ -59,7 +39,14 @@ export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
 
   switch (mode) {
     case 'create': {
-      const onSubmit = create.onCreateEntity;
+      const onSubmit = async (data: Entity) => {
+        try {
+          const entity = await create.onCreateEntity(data);
+          navigate(`/prm/${entityType}/${entity.id}`);
+        } catch {
+          // Do nothing - error handled via state
+        }
+      };
 
       return {
         onSubmit,
@@ -91,10 +78,15 @@ export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
       };
     }
     case 'edit': {
-      const onSubmit = (data: Entity) => {
+      const onSubmit = async (data: Entity) => {
         if (!entityId) throw new Error('Entity ID is required');
 
-        edit.onEditEntity(entityId, data);
+        try {
+          await edit.onEditEntity(entityId, data);
+          navigate(`/prm/${entityType}/${entityId}`);
+        } catch {
+          // Do nothing - error handled via state
+        }
       };
 
       return {
