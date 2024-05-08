@@ -116,6 +116,7 @@ export const EntityDetailForm: React.FC<Props> = ({
               </Button>
             </Link>
             <Button
+              key={readOnly ? 'edit' : 'save'}
               colorScheme="primary"
               type={readOnly ? 'button' : 'submit'}
               disabled={!form.formState.isValid || isSubmitting}
