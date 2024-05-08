@@ -298,7 +298,7 @@ export const ParticipantListItemSchema = z.object({
   displacementStatus: DisplacementStatusSchema.nullable(),
   primaryIdentificationType: IdentificationTypeSchema.nullable(),
   primaryIdentificationNumber: z.string().nullable(),
-  nationality: z.string().max(20).nullable(), // TODO: update with the ISO code schema var when rebasing
+  nationality: z.string().max(20).nullable(),
   email: z.string().nullable(),
   phone: z.string().nullable(),
 });
