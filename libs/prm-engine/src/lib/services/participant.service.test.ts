@@ -126,12 +126,12 @@ describe('Participant service', () => {
 
     it('should generate the partial update changing all fields', async () => {
       const originalParticipant = ParticipantGenerator.generateEntity({
-        languages: [{ isoCode: 'es', translationKey: 'language__es' }],
-        nationalities: [{ isoCode: 'es', translationKey: 'nationality__es' }],
+        languages: ['es'],
+        nationalities: ['es'],
       });
       const updatedParticipant = ParticipantGenerator.generateDefinition({
-        languages: [{ isoCode: 'en' }],
-        nationalities: [{ isoCode: 'en' }],
+        languages: ['en'],
+        nationalities: ['en'],
       });
       const participantUpdate = {
         ...updatedParticipant,
@@ -157,11 +157,11 @@ describe('Participant service', () => {
           remove: originalParticipant.identification.map((id) => id.id),
         },
         languages: {
-          add: [{ isoCode: 'en' }],
+          add: ['en'],
           remove: ['es'],
         },
         nationalities: {
-          add: [{ isoCode: 'en' }],
+          add: ['en'],
           remove: ['es'],
         },
       };

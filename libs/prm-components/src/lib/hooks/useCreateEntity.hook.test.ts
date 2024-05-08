@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react-hooks';
 import { PrmClient } from '@nrcno/core-clients';
 import { EntityType } from '@nrcno/core-models';
 import { vi, Mock } from 'vitest';
+import { ParticipantGenerator } from '@nrcno/core-test-utils';
 
 import { SubmitStatus } from './useApiReducer.hook';
 import { useCreateEntity } from './useCreateEntity.hook';
@@ -29,7 +30,7 @@ describe('useCreateEntity', () => {
     const { result } = renderHook(() => useCreateEntity(participantClient));
     const { onCreateEntity } = result.current;
 
-    const entityDefinition = { name: 'John Doe', age: 30 };
+    const entityDefinition = ParticipantGenerator.generateDefinition();
     await act(async () => {
       await onCreateEntity(entityDefinition);
     });
@@ -40,21 +41,21 @@ describe('useCreateEntity', () => {
   test('should update status to "SUBMITTING" while creating entity', async () => {
     const { result } = renderHook(() => useCreateEntity(participantClient));
     const { onCreateEntity } = result.current;
-    const entityDefinition = { name: 'John Doe', age: 30 };
+    const entityDefinition = ParticipantGenerator.generateDefinition();
     onCreateEntity(entityDefinition);
 
     expect(result.current.status).toBe(SubmitStatus.SUBMITTING);
   });
 
   test('should update status to "SUCCESS" and set data when entity creation is successful', async () => {
-    const mockCreatedEntity = { id: '1', name: 'John Doe', age: 30 };
+    const mockCreatedEntity = ParticipantGenerator.generateEntity();
 
     (participantClient.create as Mock).mockResolvedValueOnce(mockCreatedEntity);
 
     const { result } = renderHook(() => useCreateEntity(participantClient));
     const { onCreateEntity } = result.current;
 
-    const entityDefinition = { name: 'John Doe', age: 30 };
+    const entityDefinition = ParticipantGenerator.generateDefinition();
     await act(async () => {
       await onCreateEntity(entityDefinition);
     });
@@ -71,9 +72,13 @@ describe('useCreateEntity', () => {
     const { result } = renderHook(() => useCreateEntity(participantClient));
     const { onCreateEntity } = result.current;
 
-    const entityDefinition = { name: 'John Doe', age: 30 };
+    const entityDefinition = ParticipantGenerator.generateDefinition();
     await act(async () => {
-      await onCreateEntity(entityDefinition);
+      try {
+        await onCreateEntity(entityDefinition);
+      } catch (e) {
+        expect(e).toEqual(mockError);
+      }
     });
 
     expect(result.current.status).toBe(SubmitStatus.ERROR);

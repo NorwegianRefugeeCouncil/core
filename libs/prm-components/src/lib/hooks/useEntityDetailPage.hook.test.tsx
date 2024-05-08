@@ -409,6 +409,7 @@ describe('useEntityDetailPage', () => {
         error: undefined,
         isSubmitting: false,
         data: undefined,
+        entityId: '1234',
       });
     });
 
