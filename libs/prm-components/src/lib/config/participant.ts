@@ -431,19 +431,23 @@ export const participantConfig: EntityUIConfig = {
     { field: 'sex', title: 'Sex', width: 2 },
     { field: 'dateOfBirth', title: 'Date of Birth', width: 2 },
     {
-      field: 'primaryNationality',
+      field: 'nationality',
       title: 'Nationality',
     },
     {
-      field: 'primaryIdentification',
+      field: 'primaryIdentificationNumber',
       title: 'Primary Identification number',
     },
     {
-      field: 'email1',
+      field: 'primaryIdentificationType',
+      title: 'Primary Identification number',
+    },
+    {
+      field: 'phone',
       title: 'Phone Number #1',
     },
     {
-      field: 'phone1',
+      field: 'email',
       title: 'Email Address #1',
     },
     {

@@ -12,11 +12,9 @@ export const App: React.FC = () => {
       templateAreas={`"header header"
                   "menu main"`}
       gridTemplateRows="auto 1fr"
-      gridTemplateColumns="auto 1fr"
-      h="100%"
-      w="100%"
+      gridTemplateColumns="8rem 1fr"
       color="neutrals.500"
-      position="fixed"
+      height={'100vh'}
     >
       <GridItem
         p="2"
@@ -27,13 +25,11 @@ export const App: React.FC = () => {
       >
         <Header user={me.data} />
       </GridItem>
-      <GridItem p="2" bg="bgLight" area="menu">
+      <GridItem p="4" bg="bgLight" area="menu">
         <Navigation />
       </GridItem>
-      <GridItem p="10" area="main" maxW="100%">
-        <Container m={0} p={0} minWidth={'100%'}>
-          <Outlet />
-        </Container>
+      <GridItem m="4" area="main" overflowY={'scroll'}>
+        <Outlet />
       </GridItem>
     </Grid>
   );
