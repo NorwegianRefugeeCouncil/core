@@ -102,27 +102,27 @@ export const ParticipantService: PrmService<
     const languageUpdates = {
       add: languages?.filter((lang) =>
         existingParticipant.languages.every(
-          (existingLang) => lang.isoCode !== existingLang.isoCode,
+          (existingLang) => lang !== existingLang,
         ),
       ),
       remove: existingParticipant.languages
         .filter((existingLang) =>
-          languages?.every((lang) => lang.isoCode !== existingLang.isoCode),
+          languages?.every((lang) => lang !== existingLang),
         )
-        .map((lang) => lang.isoCode),
+        .map((lang) => lang),
     };
 
     const nationalityUpdates = {
       add: nationalities?.filter((nat) =>
         existingParticipant.nationalities.every(
-          (existingNat) => nat.isoCode !== existingNat.isoCode,
+          (existingNat) => nat !== existingNat,
         ),
       ),
       remove: existingParticipant.nationalities
         .filter((existingNat) =>
-          nationalities?.every((nat) => nat.isoCode !== existingNat.isoCode),
+          nationalities?.every((nat) => nat !== existingNat),
         )
-        .map((nat) => nat.isoCode),
+        .map((nat) => nat),
     };
 
     return ParticipantStore.update(id, {

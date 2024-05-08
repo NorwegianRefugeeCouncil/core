@@ -3,10 +3,10 @@ import { Knex } from 'knex';
 export async function seed(knex: Knex): Promise<void> {
   // TODO: Import nationalities from a JSON file
   const nationalities = [
-    { translationKey: 'nationality__en', isoCode: 'en' },
-    { translationKey: 'nationality__es', isoCode: 'es' },
-    { translationKey: 'nationality__fr', isoCode: 'fr' },
-    { translationKey: 'nationality__ar', isoCode: 'ar' },
+    { isoCode: 'en' },
+    { isoCode: 'es' },
+    { isoCode: 'fr' },
+    { isoCode: 'ar' },
   ];
 
   // Upsert all rows in nationalities

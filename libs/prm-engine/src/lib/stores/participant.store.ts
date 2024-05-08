@@ -9,7 +9,7 @@ import {
   ParticipantSchema,
 } from '@nrcno/core-models';
 import { PostgresError, PostgresErrorCode, getDb } from '@nrcno/core-db';
-import { AlreadyExistsError } from '@nrcno/core-errors';
+import { AlreadyExistsError, NotFoundError } from '@nrcno/core-errors';
 
 import { BaseStore } from './base.store';
 
@@ -51,31 +51,21 @@ const create = async (
         });
       }
 
-      let languagesResult: Participant['languages'] = [];
       if (languages && languages.length > 0) {
         await trx('participant_languages').insert(
           languages.map((lang) => ({
-            languageIsoCode: lang.isoCode,
+            languageIsoCode: lang,
             participantId,
           })),
-        );
-        languagesResult = await trx('languages').whereIn(
-          'isoCode',
-          languages.map((lang) => lang.isoCode),
         );
       }
 
-      let nationalitiesResult: Participant['nationalities'] = [];
       if (nationalities && nationalities.length > 0) {
         await trx('participant_nationalities').insert(
           nationalities.map((nat) => ({
-            nationalityIsoCode: nat.isoCode,
+            nationalityIsoCode: nat,
             participantId,
           })),
-        );
-        nationalitiesResult = await trx('nationalities').whereIn(
-          'isoCode',
-          nationalities.map((nat) => nat.isoCode),
         );
       }
 
@@ -124,8 +114,8 @@ const create = async (
         id: participantId,
         personId,
         entityId,
-        languages: languagesResult,
-        nationalities: nationalitiesResult,
+        languages,
+        nationalities,
         disabilities,
         contactDetails: {
           emails: contactDetailsEmailsForDb.map((contact) => ({
@@ -174,21 +164,11 @@ const get = async (id: string): Promise<Participant | null> => {
     disabilities,
   ] = await Promise.all([
     db('participant_languages')
-      .join(
-        'languages',
-        'languages.isoCode',
-        'participant_languages.languageIsoCode',
-      )
       .where('participantId', id)
-      .select('isoCode', 'translationKey'),
+      .select('languageIsoCode'),
     db('participant_nationalities')
-      .join(
-        'nationalities',
-        'nationalities.isoCode',
-        'participant_nationalities.nationalityIsoCode',
-      )
       .where('participantId', id)
-      .select('isoCode', 'translationKey'),
+      .select('nationalityIsoCode'),
     db('participant_contact_details')
       .where('participantId', id)
       .select('id', 'contactDetailType', 'rawValue'),
@@ -200,8 +180,8 @@ const get = async (id: string): Promise<Participant | null> => {
 
   const participantResult = ParticipantSchema.parse({
     ...participant,
-    languages,
-    nationalities,
+    languages: languages.map((lang) => lang.languageIsoCode),
+    nationalities: nationalities.map((nat) => nat.nationalityIsoCode),
     contactDetails: {
       emails: contactDetails
         .filter(
@@ -264,7 +244,7 @@ const update = async (
     if (languages?.add && languages.add.length > 0) {
       await trx('participant_languages').insert(
         languages.add.map((lang) => ({
-          languageIsoCode: lang.isoCode,
+          languageIsoCode: lang,
           participantId,
         })),
       );
@@ -279,7 +259,7 @@ const update = async (
     if (nationalities?.add && nationalities?.add?.length > 0) {
       await trx('participant_nationalities').insert(
         nationalities.add.map((nat) => ({
-          nationalityIsoCode: nat.isoCode,
+          nationalityIsoCode: nat,
           participantId,
         })),
       );
@@ -385,7 +365,12 @@ const update = async (
   });
 
   const updatedParticipant = await get(participantId);
-  return updatedParticipant!;
+
+  if (!updatedParticipant) {
+    throw new NotFoundError('Participant that was updated not found');
+  }
+
+  return updatedParticipant;
 };
 
 export const ParticipantStore: BaseStore<
