@@ -40,8 +40,8 @@ describe('useListEntity', () => {
 
   it('should update status to "SUCCESS" and set data when entity list is loaded', async () => {
     const mockResponse = {
-      pageIndex: 0,
-      pageSize: 100,
+      startIndex: 0,
+      limit: 100,
       totalCount: 1,
       items: [
         {

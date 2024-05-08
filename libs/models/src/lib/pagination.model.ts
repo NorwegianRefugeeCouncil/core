@@ -11,8 +11,8 @@ export const createPaginatedResponseSchema = <T extends z.ZodTypeAny>(
   itemSchema: T,
 ) => {
   return z.object({
-    pageIndex: z.number(),
-    pageSize: z.number(),
+    startIndex: z.number(),
+    limit: z.number(),
     totalCount: z.number(),
     items: z.array(itemSchema),
   });

@@ -190,8 +190,8 @@ describe('PRM client', () => {
           .fill(null)
           .map(() => ParticipantGenerator.generateListItem());
         const responsePayload = {
-          pageIndex: 0,
-          pageSize: 100,
+          startIndex: 0,
+          limit: 100,
           totalCount: 5,
           items: participants,
         };
