@@ -73,6 +73,13 @@ describe('usePrmContext', () => {
         error: undefined,
         reset: expect.any(Function),
       },
+      list: {
+        data: undefined,
+        error: undefined,
+        status: SubmitStatus.IDLE,
+        listEntities: expect.any(Function),
+        reset: expect.any(Function),
+      },
     });
   });
 });
