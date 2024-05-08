@@ -2,28 +2,45 @@ import {
   EntityType,
   Participant,
   ParticipantDefinition,
+  ParticipantListItem,
   ParticipantUpdate,
 } from '@nrcno/core-models';
 
 import { PrmStore } from '../stores';
 
-export type PrmService<TDefinition, TEntity, TUpdateDefinition> = {
+export type PrmService<
+  TDefinition,
+  TEntity,
+  TUpdateDefinition,
+  TEntityListItem,
+> = {
+  count: () => Promise<number>;
   create: (entity: TDefinition) => Promise<TEntity>;
   get: (id: string) => Promise<TEntity | null>;
   update: (id: string, entity: TUpdateDefinition) => Promise<TEntity>;
+  list: (page?: number, pageSize?: number) => Promise<TEntityListItem[]>;
 };
 
 export function getPrmService(
   entityType: EntityType.Participant,
-): PrmService<ParticipantDefinition, Participant, ParticipantUpdate>;
+): PrmService<
+  ParticipantDefinition,
+  Participant,
+  ParticipantUpdate,
+  ParticipantListItem
+>;
 export function getPrmService(
   entityType: EntityType,
-): PrmService<any, any, any> {
+): PrmService<any, any, any, any> {
   const Store = PrmStore[entityType];
 
   if (!Store) {
     throw new Error(`Entity type "${entityType}" is not supported`);
   }
+
+  const count = async () => {
+    return Store.count();
+  };
 
   const create = async (entity: any) => {
     return Store.create(entity);
@@ -37,5 +54,9 @@ export function getPrmService(
     return Store.update(id, entity);
   };
 
-  return { create, get, update };
+  const list = async (startIndex?: number, pageSize?: number) => {
+    return Store.list(startIndex, pageSize);
+  };
+
+  return { count, create, get, update, list };
 }

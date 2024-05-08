@@ -4,7 +4,12 @@ import { ulid } from 'ulidx';
 import { EntityType } from '@nrcno/core-models';
 import { PrmService } from '@nrcno/core-prm-engine';
 
-import { createEntity, getEntity, updateEntity } from './prm.controller';
+import {
+  createEntity,
+  getEntity,
+  listEntities,
+  updateEntity,
+} from './prm.controller';
 
 const fakeParticipant = {
   consentGdpr: true,
@@ -27,6 +32,7 @@ const fakeParticipantWithDefaults = {
 jest.mock('@nrcno/core-prm-engine', () => ({
   PrmService: {
     [EntityType.Participant]: {
+      count: jest.fn().mockResolvedValue(0),
       create: jest.fn().mockImplementation((entityDefinition) => ({
         ...entityDefinition,
         id: ulid(),
@@ -34,6 +40,7 @@ jest.mock('@nrcno/core-prm-engine', () => ({
       get: jest
         .fn()
         .mockImplementation((id) => ({ ...fakeParticipantWithDefaults, id })),
+      list: jest.fn().mockResolvedValue([]),
       update: jest.fn().mockImplementation((id, entityDefinition) => ({
         ...entityDefinition,
         id,
@@ -190,6 +197,82 @@ describe('PRM Controller', () => {
         await getEntity(req, res, next);
 
         expect(res.statusCode).toEqual(404);
+      });
+    });
+
+    describe('list', () => {
+      it('should return 404 if entityType is invalid', async () => {
+        const req = httpMocks.createRequest({
+          params: {
+            entityType: 'Invalid',
+          },
+          query: {
+            startIndex: 0,
+            pageSize: 2,
+          },
+        });
+        const res = httpMocks.createResponse();
+        const next = jest.fn();
+
+        await listEntities(req, res, next);
+
+        expect(res.statusCode).toEqual(404);
+      });
+
+      it('should return paginated entities', async () => {
+        const mockEntities = [{ id: 1 }, { id: 2 }];
+        const mockCount = 2;
+
+        (
+          PrmService[EntityType.Participant].list as jest.Mock
+        ).mockResolvedValue(mockEntities);
+        (
+          PrmService[EntityType.Participant].count as jest.Mock
+        ).mockResolvedValue(mockCount);
+
+        const req = httpMocks.createRequest({
+          params: {
+            entityType: EntityType.Participant,
+          },
+          query: {
+            startIndex: 0,
+            pageSize: 2,
+          },
+        });
+        const res = httpMocks.createResponse();
+        const next = jest.fn();
+
+        await listEntities(req, res, next);
+
+        expect(res.statusCode).toEqual(200);
+        expect(res._getJSONData()).toEqual({
+          startIndex: 0,
+          pageSize: 2,
+          totalCount: mockCount,
+          items: mockEntities,
+        });
+      });
+
+      it('should pass error to next middleware if PrmService throws error', async () => {
+        (
+          PrmService[EntityType.Participant].list as jest.Mock
+        ).mockRejectedValue(new Error('Test error'));
+
+        const req = httpMocks.createRequest({
+          params: {
+            entityType: EntityType.Participant,
+          },
+          query: {
+            startIndex: 0,
+            pageSize: 2,
+          },
+        });
+        const res = httpMocks.createResponse();
+        const next = jest.fn();
+
+        await listEntities(req, res, next);
+
+        expect(next).toHaveBeenCalledWith(new Error('Test error'));
       });
     });
 

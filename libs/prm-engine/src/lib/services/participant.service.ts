@@ -4,6 +4,7 @@ import {
   Identification,
   Participant,
   ParticipantDefinition,
+  ParticipantListItem,
   ParticipantUpdate,
 } from '@nrcno/core-models';
 import { NotFoundError } from '@nrcno/core-errors';
@@ -15,14 +16,23 @@ import { PrmService } from './base.service';
 export const ParticipantService: PrmService<
   ParticipantDefinition,
   Participant,
-  ParticipantUpdate
+  ParticipantUpdate,
+  ParticipantListItem
 > = {
+  count: async () => {
+    return ParticipantStore.count();
+  },
+
   create: async (participant: ParticipantDefinition) => {
     return ParticipantStore.create(participant);
   },
 
   get: async (id: string) => {
     return ParticipantStore.get(id);
+  },
+
+  list: async (startIndex?: number, pageSize?: number) => {
+    return ParticipantStore.list(startIndex, pageSize);
   },
 
   update: async (id: string, participant: ParticipantUpdate) => {
