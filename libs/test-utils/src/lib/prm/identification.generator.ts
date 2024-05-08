@@ -4,6 +4,7 @@ import {
   IdentificationDefinition,
   Identification,
   IdentificationType,
+  ParticipantListItem,
 } from '@nrcno/core-models';
 
 import { BaseTestEntityGenerator } from '../base-test-entity-generator';
@@ -30,10 +31,28 @@ const generateEntity = (
   };
 };
 
+type IdentificationListItem = Pick<
+  ParticipantListItem,
+  'primaryIdentificationType'
+> &
+  Pick<ParticipantListItem, 'primaryIdentificationNumber'>;
+const generateListItem = (
+  overrides?: Partial<IdentificationListItem>,
+): IdentificationListItem => {
+  const identification = generateEntity();
+  return {
+    primaryIdentificationType: identification.identificationType,
+    primaryIdentificationNumber: identification.identificationNumber,
+    ...overrides,
+  };
+};
+
 export const IdentificationGenerator: BaseTestEntityGenerator<
   IdentificationDefinition,
-  Identification
+  Identification,
+  IdentificationListItem
 > = {
   generateDefinition,
   generateEntity,
+  generateListItem,
 };
