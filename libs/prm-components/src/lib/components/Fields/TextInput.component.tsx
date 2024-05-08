@@ -7,7 +7,7 @@ import {
 } from '@chakra-ui/react';
 import { useController, useFormContext } from 'react-hook-form';
 
-import { FieldConfig } from '../../config';
+import { DataType, FieldConfig } from '../../config';
 
 type Props = {
   config: FieldConfig;
@@ -20,6 +20,19 @@ export const TextInput: React.FC<Props> = ({ config }) => {
     control,
   });
 
+  const value = (() => {
+    switch (config.dataType) {
+      case DataType.Date:
+      case DataType.DateTime: {
+        if (!field.value) return undefined;
+        if (typeof field.value === 'string') return field.value;
+        return field.value?.toISOString().split('T')[0];
+      }
+      default:
+        return field.value;
+    }
+  })();
+
   return (
     <FormControl>
       <FormLabel>{config.label}</FormLabel>
@@ -29,6 +42,7 @@ export const TextInput: React.FC<Props> = ({ config }) => {
         placeholder={config.placeholder}
         type={config.dataType}
         {...field}
+        value={value}
       />
       {config.description && (
         <FormHelperText>{config.description}</FormHelperText>
