@@ -47,11 +47,4 @@ const fonts = {
 export const theme = extendTheme({
   colors,
   fonts,
-  components: {
-    Table: {
-      Td: {
-        fontWeight: '400',
-      },
-    },
-  },
 });

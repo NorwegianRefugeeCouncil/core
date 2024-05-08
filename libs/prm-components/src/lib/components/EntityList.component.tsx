@@ -23,8 +23,8 @@ export const EntityList: React.FC<Props> = ({
   return (
     <TableContainer>
       <Table variant="simple" size="sm">
-        <Thead>
-          <Tr textStyle={'bold'}>
+        <Thead zIndex={'docked'} position={'sticky'} top={'0'}>
+          <Tr textStyle="bold">
             {columns.map((column) => {
               return (
                 <Th key={column.field} width={column.width}>
