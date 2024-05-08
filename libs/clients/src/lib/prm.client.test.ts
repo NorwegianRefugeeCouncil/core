@@ -5,7 +5,7 @@ import { ZodError } from 'zod';
 import { ulid } from 'ulidx';
 
 import { ParticipantGenerator } from '@nrcno/core-test-utils';
-import { EntityType, ParticipantDefinition } from '@nrcno/core-models';
+import { EntityType, Pagination } from '@nrcno/core-models';
 
 import { PrmClient } from './prm.client';
 
@@ -17,6 +17,8 @@ describe('PRM client', () => {
     beforeEach(() => {
       const axiosInstance = axios.create();
       mock = new MockAdapter(axiosInstance);
+      mock.history['QUERY'] = [];
+      mock.history['query'] = [];
       const prmClient = new PrmClient(axiosInstance);
       client = prmClient[EntityType.Participant];
     });
@@ -172,6 +174,42 @@ describe('PRM client', () => {
         const participantId = participant.id;
         mock.onPut(`/prm/participants/${participantId}`).reply(500);
         expect(client.update(participantId, participant)).rejects.toThrow(
+          'Request failed with status code 500',
+        );
+      });
+    });
+
+    describe('list', () => {
+      const pagination: Pagination = {
+        startIndex: 0,
+        limit: 100,
+      };
+
+      it('should list participants', async () => {
+        const participants = new Array(5)
+          .fill(null)
+          .map(() => ParticipantGenerator.generateListItem());
+        const responsePayload = {
+          pageIndex: 0,
+          pageSize: 100,
+          totalCount: 5,
+          items: participants,
+        };
+        mock.onGet('/prm/participants').reply(200, responsePayload);
+        const res = await client.list(pagination);
+        expect(res).toEqual(responsePayload);
+        expect(mock.history.get.length).toBe(1);
+        expect(mock.history.get[0].url).toBe('/prm/participants');
+      });
+
+      it('should fail when receiving an invalid response from the api', () => {
+        mock.onGet('/prm/participants').reply(200, { foo: 'bar' });
+        expect(client.list(pagination)).rejects.toThrow(expect.any(ZodError));
+      });
+
+      it('should fail if the api returns an error', () => {
+        mock.onGet('/prm/participants').reply(500);
+        expect(client.list(pagination)).rejects.toThrow(
           'Request failed with status code 500',
         );
       });
