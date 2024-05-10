@@ -4,7 +4,6 @@ import { PrmProvider } from '@nrcno/core-prm-components';
 
 import { useAxiosInstance } from '../hooks/useAxiosInstance.hook';
 import { UserProvider } from '../contexts/user.context';
-import { AuthProvider } from '../contexts/auth.context';
 
 export const ApiProvider: React.FC = () => {
   const { entityType, entityId } = useParams();
@@ -12,16 +11,14 @@ export const ApiProvider: React.FC = () => {
   const axiosInstance = useAxiosInstance();
 
   return (
-    <AuthProvider axiosInstance={axiosInstance}>
-      <UserProvider axiosInstance={axiosInstance}>
-        <PrmProvider
-          axiosInstance={axiosInstance}
-          entityType={entityType}
-          entityId={entityId}
-        >
-          <Outlet />
-        </PrmProvider>
-      </UserProvider>
-    </AuthProvider>
+    <UserProvider axiosInstance={axiosInstance}>
+      <PrmProvider
+        axiosInstance={axiosInstance}
+        entityType={entityType}
+        entityId={entityId}
+      >
+        <Outlet />
+      </PrmProvider>
+    </UserProvider>
   );
 };

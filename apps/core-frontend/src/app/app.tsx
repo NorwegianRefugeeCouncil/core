@@ -1,5 +1,4 @@
 import { Outlet } from 'react-router-dom';
-import { useEffect } from 'react';
 import { Grid, GridItem } from '@chakra-ui/react';
 
 import { Navigation, Header } from '../components';
@@ -7,14 +6,6 @@ import { useUserContext } from '../contexts';
 
 export const App: React.FC = () => {
   const { me } = useUserContext();
-
-  useEffect(() => {
-    (async () => {
-      if (me) {
-        await me.getMe();
-      }
-    })();
-  }, [Boolean(me)]);
 
   return (
     <Grid
