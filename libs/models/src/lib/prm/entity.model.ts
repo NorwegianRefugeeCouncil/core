@@ -5,7 +5,6 @@ import {
   ParticipantSchema,
   ParticipantUpdateSchema,
   ParticipantDefinition,
-  ParticipantListItem,
   ParticipantListItemFieldSchema,
   ParticipantListItemSchema,
 } from './participant.model';
