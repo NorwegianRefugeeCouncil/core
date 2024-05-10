@@ -180,7 +180,7 @@ describe('PRM client', () => {
     describe('list', () => {
       const pagination: Pagination = {
         startIndex: 0,
-        limit: 100,
+        pageSize: 100,
       };
 
       it('should list participants', async () => {
