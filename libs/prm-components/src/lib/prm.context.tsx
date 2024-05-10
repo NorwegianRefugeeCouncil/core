@@ -18,6 +18,11 @@ import {
   defaultEditEntityState,
   useEditEntity,
 } from './hooks/useEditEntity.hook';
+import {
+  ListEntityState,
+  defaultListEntityState,
+  useListEntity,
+} from './hooks/useListEntity.hook';
 
 type Props = {
   axiosInstance: AxiosInstance;
@@ -32,6 +37,7 @@ export type PrmContextData = {
   create: CreateEntityState;
   read: ReadEntityState;
   edit: EditEntityState;
+  list: ListEntityState;
 };
 
 export const PrmContext = React.createContext<PrmContextData>({
@@ -40,6 +46,7 @@ export const PrmContext = React.createContext<PrmContextData>({
   create: defaultCreateEntityState,
   read: defaultReadEntityState,
   edit: defaultEditEntityState,
+  list: defaultListEntityState,
 });
 
 export const usePrmContext = () => React.useContext(PrmContext);
@@ -65,6 +72,7 @@ export const PrmProvider: React.FC<Props> = ({
   const create = useCreateEntity(client);
   const read = useReadEntity(client);
   const edit = useEditEntity(client);
+  const list = useListEntity(client);
 
   return (
     <PrmContext.Provider
@@ -74,6 +82,7 @@ export const PrmProvider: React.FC<Props> = ({
         create,
         read,
         edit,
+        list,
       }}
     >
       {children}

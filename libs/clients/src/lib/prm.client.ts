@@ -2,54 +2,64 @@ import { AxiosInstance } from 'axios';
 
 import {
   EntityType,
+  PaginatedResponse,
+  Pagination,
   Participant,
   ParticipantDefinition,
-  ParticipantDefinitionSchema,
-  ParticipantSchema,
+  ParticipantListItem,
+  createPaginatedResponseSchema,
+  getEntityListItemSchema,
+  getEntitySchema,
 } from '@nrcno/core-models';
 
 import { BaseClient } from './base.client';
 
-type PrmEntityClient<T, U> = {
+type PrmEntityClient<T, U, V> = {
   create: (entity: T) => Promise<U>;
   read: (id: string) => Promise<U>;
   update: (id: string, entity: Partial<U>) => Promise<U>;
-};
-
-const validators = {
-  [EntityType.Participant]: {
-    definition: ParticipantDefinitionSchema,
-    entity: ParticipantSchema,
-  },
+  list: (pagination: Pagination) => Promise<PaginatedResponse<V>>;
 };
 
 const getPrmClient = (axiosInstance: AxiosInstance) => {
   function _getPrmClient(
     entityType: EntityType.Participant,
-  ): PrmEntityClient<ParticipantDefinition, Participant>;
+  ): PrmEntityClient<ParticipantDefinition, Participant, ParticipantListItem>;
 
-  function _getPrmClient(entityType: EntityType): PrmEntityClient<any, any> {
+  function _getPrmClient(
+    entityType: EntityType,
+  ): PrmEntityClient<any, any, any> {
     const baseClient = new BaseClient(axiosInstance);
+
+    const entitySchema = getEntitySchema(entityType);
+    const entityListPaginationSchema = createPaginatedResponseSchema(
+      getEntityListItemSchema(entityType),
+    );
 
     const create = async (entityDefinition: any) => {
       const response = await baseClient.post(
         `/prm/${entityType}`,
         entityDefinition,
       );
-      return validators[entityType].entity.parse(response.data);
+      return entitySchema.parse(response.data);
     };
 
     const read = async (id: string) => {
       const response = await baseClient.get(`/prm/${entityType}/${id}`);
-      return validators[entityType].entity.parse(response.data);
+      return entitySchema.parse(response.data);
     };
 
     const update = async (id: string, entity: any) => {
       const response = await baseClient.put(`/prm/${entityType}/${id}`, entity);
-      return validators[entityType].entity.parse(response.data);
+      return entitySchema.parse(response.data);
     };
 
-    return { create, read, update };
+    const list = async (pagination: Pagination) => {
+      const response = await baseClient.get(`/prm/${entityType}`, pagination);
+      return entityListPaginationSchema.parse(response.data);
+    };
+
+    return { create, read, update, list };
   }
 
   return _getPrmClient;
@@ -58,7 +68,8 @@ const getPrmClient = (axiosInstance: AxiosInstance) => {
 export class PrmClient {
   private participantClient: PrmEntityClient<
     ParticipantDefinition,
-    Participant
+    Participant,
+    ParticipantListItem
   >;
 
   constructor(axiosInstance: AxiosInstance) {

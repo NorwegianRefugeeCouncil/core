@@ -5,6 +5,8 @@ import {
   ParticipantSchema,
   ParticipantUpdateSchema,
   ParticipantDefinition,
+  ParticipantListItem,
+  ParticipantListItemSchema,
 } from './participant.model';
 
 export enum EntityType {
@@ -19,6 +21,13 @@ export const EntityIdSchema = z.string().ulid();
 export const EntitySchema = ParticipantSchema;
 export type Entity = z.infer<typeof EntitySchema>;
 export type EntityDefinition = ParticipantDefinition;
+export type EntityListItem = ParticipantListItem;
+
+const entitySchemaMap = {
+  [EntityType.Participant]: ParticipantSchema,
+};
+export const getEntitySchema = (entityType: EntityType) =>
+  entitySchemaMap[entityType];
 
 const entityDefinitionSchemaMap = {
   [EntityType.Participant]: ParticipantDefinitionSchema,
@@ -31,3 +40,9 @@ const entityUpdateSchemaMap = {
 };
 export const getEntityUpdateSchema = (entityType: EntityType) =>
   entityUpdateSchemaMap[entityType];
+
+const entityListItemSchemaMap = {
+  [EntityType.Participant]: ParticipantListItemSchema,
+};
+export const getEntityListItemSchema = (entityType: EntityType) =>
+  entityListItemSchemaMap[entityType];
