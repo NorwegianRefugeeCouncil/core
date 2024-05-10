@@ -265,7 +265,7 @@ describe('Participants', () => {
         displacementStatus: participantDefinition.displacementStatus,
         primaryIdentificationType: primaryIdentification.identificationType,
         primaryIdentificationNumber: primaryIdentification.identificationNumber,
-        nationality: participantDefinition.nationalities[0].isoCode,
+        nationality: participantDefinition.nationalities[0],
         email: participantDefinition.contactDetails.emails[0].value,
         phone: participantDefinition.contactDetails.phones[0].value,
       };

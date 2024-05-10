@@ -176,7 +176,7 @@ describe('Participant store', () => {
         displacementStatus: participant.displacementStatus,
         primaryIdentificationType: primaryIdentification.identificationType,
         primaryIdentificationNumber: primaryIdentification.identificationNumber,
-        nationality: participant.nationalities[0].isoCode,
+        nationality: participant.nationalities[0],
         email: participant.contactDetails.emails[0].value,
         phone: participant.contactDetails.phones[0].value,
       });
