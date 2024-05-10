@@ -21,8 +21,8 @@ router.get('/users/me', async (req, res, next) => {
 
 router.get('/users', async (req, res, next) => {
   try {
-    const { startIndex, limit } = PaginationSchema.parse(req.query);
-    const users = await UserService.list(startIndex, limit);
+    const { startIndex, pageSize } = PaginationSchema.parse(req.query);
+    const users = await UserService.list(startIndex, pageSize);
     res.status(200).json({ users });
   } catch (error) {
     next(error);
