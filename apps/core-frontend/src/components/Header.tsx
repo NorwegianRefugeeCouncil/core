@@ -14,7 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ user }) => {
     <Flex align="center">
       <Flex justify="flex-start" align="center" flex="1rem 1">
         <NRCLogo height="2rem" width="2rem" me="1rem" />
-        <Heading>CORE</Heading>
+        <Heading as="h1">CORE</Heading>
       </Flex>
       {user && <UserInfo {...user} />}
     </Flex>
