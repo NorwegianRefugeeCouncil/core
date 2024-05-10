@@ -105,11 +105,9 @@ export const ParticipantService: PrmService<
           (existingLang) => lang !== existingLang,
         ),
       ),
-      remove: existingParticipant.languages
-        .filter((existingLang) =>
-          languages?.every((lang) => lang !== existingLang),
-        )
-        .map((lang) => lang),
+      remove: existingParticipant.languages.filter((existingLang) =>
+        languages?.every((lang) => lang !== existingLang),
+      ),
     };
 
     const nationalityUpdates = {
@@ -118,11 +116,9 @@ export const ParticipantService: PrmService<
           (existingNat) => nat !== existingNat,
         ),
       ),
-      remove: existingParticipant.nationalities
-        .filter((existingNat) =>
-          nationalities?.every((nat) => nat !== existingNat),
-        )
-        .map((nat) => nat),
+      remove: existingParticipant.nationalities.filter((existingNat) =>
+        nationalities?.every((nat) => nat !== existingNat),
+      ),
     };
 
     return ParticipantStore.update(id, {
