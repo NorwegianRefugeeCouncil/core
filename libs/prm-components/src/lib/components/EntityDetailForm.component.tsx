@@ -81,10 +81,6 @@ export const EntityDetailForm: React.FC<Props> = ({
     };
   }, [form.formState.isDirty, readOnly]);
 
-  const handleEdit = () => {
-    navigate(`${location.pathname}/edit`);
-  };
-
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     if (onSubmit) {
       form.handleSubmit(onSubmit)(event);
@@ -115,14 +111,19 @@ export const EntityDetailForm: React.FC<Props> = ({
                 {readOnly ? 'Back' : 'Cancel'}
               </Button>
             </Link>
-            <Button
-              colorScheme="primary"
-              type={readOnly ? 'button' : 'submit'}
-              disabled={!form.formState.isValid || isSubmitting}
-              onClick={readOnly ? handleEdit : undefined}
-            >
-              {readOnly ? 'Edit' : 'Save'}
-            </Button>
+            {readOnly ? (
+              <Link to={`${location.pathname.replace(/\/$/, '')}/edit`}>
+                <Button colorScheme="primary">Edit</Button>
+              </Link>
+            ) : (
+              <Button
+                colorScheme="primary"
+                type={'submit'}
+                disabled={!form.formState.isValid || isSubmitting}
+              >
+                Save
+              </Button>
+            )}
           </HStack>
         </Flex>
         <Accordion

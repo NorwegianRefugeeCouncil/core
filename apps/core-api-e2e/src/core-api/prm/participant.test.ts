@@ -41,14 +41,6 @@ const generateExpectedParticipant = (
       id: expect.any(String),
     }),
   ),
-  languages: participantDefinition.languages.map((language) => ({
-    ...language,
-    translationKey: `language__${language.isoCode}`,
-  })),
-  nationalities: participantDefinition.nationalities.map((nationality) => ({
-    ...nationality,
-    translationKey: `nationality__${nationality.isoCode}`,
-  })),
 });
 const participantWithEveryField = generateExpectedParticipant(
   participantDefinitionWithEveryField,

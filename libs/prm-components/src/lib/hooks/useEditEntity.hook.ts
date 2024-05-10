@@ -4,7 +4,7 @@ import { Entity, EntityType } from '@nrcno/core-models';
 import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
 
 export type EditEntityState = {
-  onEditEntity: (entityId: string, entityDefinition: any) => Promise<any>;
+  onEditEntity: (entityId: string, entityDefinition: any) => Promise<Entity>;
   reset: () => void;
   status: SubmitStatus;
   data?: Entity;
@@ -12,7 +12,7 @@ export type EditEntityState = {
 };
 
 export const defaultEditEntityState: EditEntityState = {
-  onEditEntity: async () => Promise.resolve(),
+  onEditEntity: async () => Promise.reject(),
   reset: () => {
     return;
   },
@@ -26,7 +26,10 @@ export const useEditEntity = (
 ): EditEntityState => {
   const [state, actions] = useApiReducer<Entity>();
 
-  const onEditEntity = async (entityId: string, entityDefinition: any) => {
+  const onEditEntity = async (
+    entityId: string,
+    entityDefinition: any,
+  ): Promise<Entity> => {
     if (!client) {
       throw new Error('Client is not defined');
     }
@@ -34,10 +37,12 @@ export const useEditEntity = (
       actions.submitting();
       const entity = await client.update(entityId, entityDefinition);
       actions.success(entity);
+      return entity;
     } catch (error) {
       const err =
         error instanceof Error ? error : new Error('An error occurred');
       actions.error(err);
+      throw err;
     }
   };
 

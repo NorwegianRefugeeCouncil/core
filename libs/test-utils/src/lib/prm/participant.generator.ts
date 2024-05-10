@@ -69,16 +69,8 @@ const generateDefinition = (
       needsLegalPhysicalProtection: faker.helpers.enumValue(YesNoUnknown),
       vulnerabilityComments: faker.lorem.sentence(),
     },
-    languages: [
-      {
-        isoCode: faker.helpers.arrayElement(['en', 'es', 'fr', 'ar']),
-      },
-    ],
-    nationalities: [
-      {
-        isoCode: faker.helpers.arrayElement(['en', 'es', 'fr', 'ar']),
-      },
-    ],
+    languages: [faker.helpers.arrayElement(['en', 'es', 'fr', 'ar'])],
+    nationalities: [faker.helpers.arrayElement(['en', 'es', 'fr', 'ar'])],
     contactDetails: {
       emails: [
         {
@@ -118,14 +110,8 @@ const generateEntity = (overrides?: Partial<Participant>): Participant => {
       ...identification,
       id: overrides?.identification?.[index]?.id || faker.string.uuid(),
     })),
-    languages: definition.languages.map((language) => ({
-      ...language,
-      translationKey: `language__${language.isoCode}`,
-    })),
-    nationalities: definition.nationalities.map((nationality) => ({
-      ...nationality,
-      translationKey: `nationality__${nationality.isoCode}`,
-    })),
+    languages: definition.languages,
+    nationalities: definition.nationalities,
   };
 };
 

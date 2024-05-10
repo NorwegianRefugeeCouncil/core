@@ -131,12 +131,7 @@ export const participantConfig: EntityUIConfig = {
             label: 'Nationalities',
             children: [
               {
-                path: ['isoCode'],
-                dataType: DataType.String,
-                component: Component.Hidden,
-              },
-              {
-                path: ['translationKey'],
+                path: [],
                 dataType: DataType.String,
                 component: Component.Select,
                 options: [
@@ -154,12 +149,7 @@ export const participantConfig: EntityUIConfig = {
             label: 'Languages',
             children: [
               {
-                path: ['isoCode'],
-                dataType: DataType.String,
-                component: Component.Hidden,
-              },
-              {
-                path: ['translationKey'],
+                path: [],
                 dataType: DataType.String,
                 component: Component.Select,
                 options: [

@@ -60,7 +60,11 @@ describe('useEditEntity', () => {
     const { result } = renderHook(() => useEditEntity(mockClient));
 
     await act(async () => {
-      await result.current.onEditEntity(entityId, mockEntity);
+      try {
+        await result.current.onEditEntity(entityId, mockEntity);
+      } catch (e) {
+        expect(e).toEqual(mockError);
+      }
     });
 
     expect(mockClient.update).toHaveBeenCalledWith(entityId, mockEntity);

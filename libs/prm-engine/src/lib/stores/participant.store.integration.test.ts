@@ -82,14 +82,8 @@ describe('Participant store', () => {
             id: identificationId,
           }),
         ),
-        languages: participantDefinition.languages.map((lang) => ({
-          ...lang,
-          translationKey: `language__${lang.isoCode}`,
-        })),
-        nationalities: participantDefinition.nationalities.map((nat) => ({
-          ...nat,
-          translationKey: `nationality__${nat.isoCode}`,
-        })),
+        languages: participantDefinition.languages,
+        nationalities: participantDefinition.nationalities,
       });
 
       (ulid as jest.Mock)
@@ -375,12 +369,8 @@ describe('Participant store', () => {
     });
 
     test('should update a participant languages', async () => {
-      const languageToKeep = {
-        isoCode: 'en',
-      };
-      const languageToRemove = {
-        isoCode: 'fr',
-      };
+      const languageToKeep = 'en';
+      const languageToRemove = 'fr';
       const participantDefinition = ParticipantGenerator.generateDefinition({
         languages: [languageToKeep, languageToRemove],
       });
@@ -388,13 +378,11 @@ describe('Participant store', () => {
         participantDefinition,
       );
 
-      const languageToAdd = {
-        isoCode: 'ar',
-      };
+      const languageToAdd = 'ar';
 
       const languages = {
         add: [languageToAdd],
-        remove: [languageToRemove.isoCode],
+        remove: [languageToRemove],
       };
 
       const update: ParticipantPartialUpdate = {
@@ -408,23 +396,13 @@ describe('Participant store', () => {
 
       expect(updatedParticipant).toBeDefined();
       expect(updatedParticipant.languages).toHaveLength(2);
-      expect(updatedParticipant.languages).toContainEqual({
-        ...languageToKeep,
-        translationKey: `language__${languageToKeep.isoCode}`,
-      });
-      expect(updatedParticipant.languages).toContainEqual({
-        ...languageToAdd,
-        translationKey: `language__${languageToAdd.isoCode}`,
-      });
+      expect(updatedParticipant.languages).toContainEqual(languageToKeep);
+      expect(updatedParticipant.languages).toContainEqual(languageToAdd);
     });
 
     test('should update a participant nationalities', async () => {
-      const nationalityToKeep = {
-        isoCode: 'en',
-      };
-      const nationalityToRemove = {
-        isoCode: 'fr',
-      };
+      const nationalityToKeep = 'en';
+      const nationalityToRemove = 'fr';
       const participantDefinition = ParticipantGenerator.generateDefinition({
         nationalities: [nationalityToKeep, nationalityToRemove],
       });
@@ -432,12 +410,10 @@ describe('Participant store', () => {
         participantDefinition,
       );
 
-      const nationalityToAdd = {
-        isoCode: 'ar',
-      };
+      const nationalityToAdd = 'ar';
       const nationalities = {
         add: [nationalityToAdd],
-        remove: [nationalityToRemove.isoCode],
+        remove: [nationalityToRemove],
       };
 
       const update: ParticipantPartialUpdate = {
@@ -450,14 +426,10 @@ describe('Participant store', () => {
 
       expect(updatedParticipant).toBeDefined();
       expect(updatedParticipant.nationalities).toHaveLength(2);
-      expect(updatedParticipant.nationalities).toContainEqual({
-        ...nationalityToKeep,
-        translationKey: `nationality__${nationalityToKeep.isoCode}`,
-      });
-      expect(updatedParticipant.nationalities).toContainEqual({
-        ...nationalityToAdd,
-        translationKey: `nationality__${nationalityToAdd.isoCode}`,
-      });
+      expect(updatedParticipant.nationalities).toContainEqual(
+        nationalityToKeep,
+      );
+      expect(updatedParticipant.nationalities).toContainEqual(nationalityToAdd);
     });
   });
 });

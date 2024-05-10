@@ -129,7 +129,7 @@ export type ContactDetails = z.infer<typeof ContactDetailsSchema>;
 const IdentificationDefinitionSchema = z.object({
   identificationType: IdentificationTypeSchema,
   identificationNumber: z.string(),
-  isPrimary: z.boolean(),
+  isPrimary: z.boolean().optional().default(false),
 });
 export type IdentificationDefinition = z.infer<
   typeof IdentificationDefinitionSchema
@@ -143,35 +143,12 @@ const IdentificationSchema = IdentificationDefinitionSchema.merge(
 export type Identification = z.infer<typeof IdentificationSchema>;
 
 const IsoCodeSchema = z.string().max(20);
-const LanguageDefinitionSchema = z.object({
-  isoCode: IsoCodeSchema,
-});
-export type LanguageDefinition = z.infer<typeof LanguageDefinitionSchema>;
-
-const LanguageSchema = LanguageDefinitionSchema.merge(
-  z.object({
-    translationKey: z.string().max(200),
-  }),
-);
-export type Language = z.infer<typeof LanguageSchema>;
-
-const NationalityDefinitionSchema = z.object({
-  isoCode: IsoCodeSchema,
-});
-export type NationalityDefinition = z.infer<typeof NationalityDefinitionSchema>;
-
-const NationalitySchema = NationalityDefinitionSchema.merge(
-  z.object({
-    translationKey: z.string().max(200),
-  }),
-);
-export type Nationality = z.infer<typeof NationalitySchema>;
 
 export const ParticipantDefinitionSchema = ParticipantDetailsSchema.merge(
   z.object({
     disabilities: ParticipantDisabilitySchema.optional(),
-    languages: z.array(LanguageDefinitionSchema).optional().default([]),
-    nationalities: z.array(NationalityDefinitionSchema).optional().default([]),
+    languages: z.array(IsoCodeSchema).optional().default([]),
+    nationalities: z.array(IsoCodeSchema).optional().default([]),
     contactDetails: z
       .object({
         emails: z.array(ContactDetailsDefinitionSchema).optional().default([]),
@@ -191,8 +168,8 @@ export type ParticipantDefinition = z.infer<typeof ParticipantDefinitionSchema>;
 export const ParticipantSchema = ParticipantDefinitionSchema.merge(
   z.object({
     id: z.string().ulid(),
-    languages: z.array(LanguageSchema).optional().default([]),
-    nationalities: z.array(NationalitySchema).optional().default([]),
+    languages: z.array(IsoCodeSchema).optional().default([]),
+    nationalities: z.array(IsoCodeSchema).optional().default([]),
     contactDetails: z
       .object({
         emails: z.array(ContactDetailsSchema).optional().default([]),
@@ -248,13 +225,13 @@ const ParticipantPartialUpdateSchema = ParticipantUpdateSchema.merge(
     consentReferral: z.boolean().optional(),
     languages: z
       .object({
-        add: z.array(LanguageDefinitionSchema).optional(),
+        add: z.array(IsoCodeSchema).optional(),
         remove: z.array(IsoCodeSchema).optional(),
       })
       .optional(),
     nationalities: z
       .object({
-        add: z.array(NationalityDefinitionSchema).optional(),
+        add: z.array(IsoCodeSchema).optional(),
         remove: z.array(IsoCodeSchema).optional(),
       })
       .optional(),
@@ -298,7 +275,7 @@ export const ParticipantListItemSchema = z.object({
   displacementStatus: DisplacementStatusSchema.nullable(),
   primaryIdentificationType: IdentificationTypeSchema.nullable(),
   primaryIdentificationNumber: z.string().nullable(),
-  nationality: z.string().max(20).nullable(),
+  nationality: IsoCodeSchema.nullable(),
   email: z.string().nullable(),
   phone: z.string().nullable(),
 });
