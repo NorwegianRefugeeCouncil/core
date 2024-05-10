@@ -17,8 +17,6 @@ describe('PRM client', () => {
     beforeEach(() => {
       const axiosInstance = axios.create();
       mock = new MockAdapter(axiosInstance);
-      mock.history['QUERY'] = [];
-      mock.history['query'] = [];
       const prmClient = new PrmClient(axiosInstance);
       client = prmClient[EntityType.Participant];
     });
