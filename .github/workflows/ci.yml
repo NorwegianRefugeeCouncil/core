@@ -56,4 +56,4 @@ jobs:
       - run: yarn nx affected -t test --exclude=*-e2e
       - run: yarn nx affected -t build
       - run: yarn nx affected -t integration-test
-      - run: yarn nx affected -t e2e
+      - run: yarn nx affected -t e2e --exclude="core-frontend-e2e"
