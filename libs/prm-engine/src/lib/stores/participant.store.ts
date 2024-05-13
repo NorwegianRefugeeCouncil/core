@@ -3,6 +3,7 @@ import { ulid } from 'ulidx';
 
 import {
   ContactDetailType,
+  Pagination,
   Participant,
   ParticipantDefinition,
   ParticipantListItem,
@@ -219,10 +220,7 @@ const get = async (id: string): Promise<Participant | null> => {
   return participantResult;
 };
 
-const list = async (
-  startIndex = 0,
-  pageSize = 50,
-): Promise<ParticipantListItem[]> => {
+const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
   const db = getDb();
 
   const participantFields = [
@@ -248,8 +246,8 @@ const list = async (
         db.raw('?', [true]),
       );
     })
-    .limit(pageSize)
-    .offset(startIndex)
+    .limit(pagination.pageSize)
+    .offset(pagination.startIndex)
     .orderBy('lastName', 'asc');
 
   const participantIds = participants.map((participant) => participant.id);

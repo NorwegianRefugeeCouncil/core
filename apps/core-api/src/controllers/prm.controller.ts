@@ -105,16 +105,16 @@ export const listEntities = async (
       res.sendStatus(404);
       return;
     }
-    const { startIndex, pageSize } = PaginationSchema.parse(req.query);
+    const pagination = PaginationSchema.parse(req.query);
 
     const prmService = PrmService[entityType.data];
 
-    const entities = await prmService.list(startIndex, pageSize);
+    const entities = await prmService.list(pagination);
     const totalCount = await prmService.count();
 
     const response: PaginatedResponse<EntityListItem> = {
-      startIndex,
-      pageSize,
+      startIndex: pagination.startIndex,
+      pageSize: pagination.pageSize,
       totalCount,
       items: entities,
     };

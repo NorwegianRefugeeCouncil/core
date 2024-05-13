@@ -2,6 +2,7 @@ import {
   ContactDetails,
   ContactDetailsDefinition,
   Identification,
+  Pagination,
   Participant,
   ParticipantDefinition,
   ParticipantListItem,
@@ -31,8 +32,8 @@ export const ParticipantService: PrmService<
     return ParticipantStore.get(id);
   },
 
-  list: async (startIndex?: number, pageSize?: number) => {
-    return ParticipantStore.list(startIndex, pageSize);
+  list: async (pagination: Pagination) => {
+    return ParticipantStore.list(pagination);
   },
 
   update: async (id: string, participant: ParticipantUpdate) => {

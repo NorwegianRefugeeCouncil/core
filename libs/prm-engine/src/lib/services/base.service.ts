@@ -1,5 +1,6 @@
 import {
   EntityType,
+  Pagination,
   Participant,
   ParticipantDefinition,
   ParticipantListItem,
@@ -18,7 +19,7 @@ export type PrmService<
   create: (entity: TDefinition) => Promise<TEntity>;
   get: (id: string) => Promise<TEntity | null>;
   update: (id: string, entity: TUpdateDefinition) => Promise<TEntity>;
-  list: (page?: number, pageSize?: number) => Promise<TEntityListItem[]>;
+  list: (pagination: Pagination) => Promise<TEntityListItem[]>;
 };
 
 export function getPrmService(
@@ -54,8 +55,8 @@ export function getPrmService(
     return Store.update(id, entity);
   };
 
-  const list = async (startIndex?: number, pageSize?: number) => {
-    return Store.list(startIndex, pageSize);
+  const list = async (pagination: Pagination) => {
+    return Store.list(pagination);
   };
 
   return { count, create, get, update, list };
