@@ -4,11 +4,11 @@ import axios from 'axios';
 
 import { PrmProvider } from '../../prm.context';
 
-import { EntityDetailPage } from './EntityListPage.component';
+import { EntityListPage } from './EntityListPage.component';
 
 const axiosInstance = axios.create();
 
-describe('EntityDetailPage', () => {
+describe('EntityListPage', () => {
   it('should render successfully', () => {
     const { baseElement } = render(
       <PrmProvider
@@ -16,12 +16,12 @@ describe('EntityDetailPage', () => {
         entityType={EntityType.Participant}
         entityId={undefined}
       >
-        <EntityDetailPage mode="create" />
+        <EntityListPage />
       </PrmProvider>,
     );
     expect(baseElement).toBeTruthy();
     expect(baseElement.getElementsByTagName('h2')[0].textContent).toBe(
-      'New participants',
+      'participants',
     );
   });
 });

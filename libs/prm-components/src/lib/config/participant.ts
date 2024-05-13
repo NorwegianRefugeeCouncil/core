@@ -422,14 +422,18 @@ export const participantConfig: EntityUIConfig = {
     {
       field: 'id',
       title: 'ID',
-      fixed: true,
-      width: 2,
-      onClickHandler: () => {},
+      isID: true,
+      width: 4,
     },
     { field: 'firstName', title: 'Name', width: 2 },
     { field: 'lastName', title: 'Surname', width: 2 },
     { field: 'sex', title: 'Sex', width: 2 },
-    { field: 'dateOfBirth', title: 'Date of Birth', width: 2 },
+    {
+      field: 'dateOfBirth',
+      title: 'Date of Birth',
+      width: 2,
+      format: (date: Date) => date.toLocaleDateString(),
+    },
     {
       field: 'nationality',
       title: 'Nationality',
@@ -437,10 +441,12 @@ export const participantConfig: EntityUIConfig = {
     {
       field: 'primaryIdentificationNumber',
       title: 'Primary Identification number',
+      width: 2,
     },
     {
       field: 'primaryIdentificationType',
       title: 'Primary Identification number',
+      width: 2,
     },
     {
       field: 'phone',

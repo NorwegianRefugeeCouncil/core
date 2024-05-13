@@ -6,7 +6,9 @@ import {
   Th,
   Thead,
   Tr,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
+import { Link as ReactRouterLink } from 'react-router-dom';
 import { EntityListItem } from '@nrcno/core-models';
 
 import { EntityUIConfig } from '../config';
@@ -27,7 +29,7 @@ export const EntityList: React.FC<Props> = ({
           <Tr textStyle="bold">
             {columns.map((column) => {
               return (
-                <Th key={column.field} width={column.width}>
+                <Th key={column.field} width={`${column.width}rem`}>
                   {column.title}
                 </Th>
               );
@@ -39,7 +41,23 @@ export const EntityList: React.FC<Props> = ({
             entityList.map((entity) => (
               <Tr key={entity.id}>
                 {columns.map((column) => (
-                  <Td key={column.field}>{entity[column.field]?.toString()}</Td>
+                  <Td key={column.field} width={`${column.width}rem`}>
+                    {column.isID && (
+                      <ChakraLink
+                        color="secondary.500"
+                        href="#"
+                        as={ReactRouterLink}
+                        to={`${entity[column.field]}`}
+                      >
+                        {entity[column.field]?.toString()}
+                      </ChakraLink>
+                    )}
+
+                    {!column.isID &&
+                      (column.format
+                        ? column.format(entity[column.field])
+                        : entity[column.field]?.toString())}
+                  </Td>
                 ))}
               </Tr>
             ))}
