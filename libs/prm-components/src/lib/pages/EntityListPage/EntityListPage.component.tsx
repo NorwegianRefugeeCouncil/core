@@ -5,13 +5,32 @@ import {
   Sex,
 } from '@nrcno/core-models';
 import { theme } from '@nrcno/core-theme';
+import { useEffect } from 'react';
 
 import { EntityList } from '../../components';
 import { useEntityListPage } from '../../hooks/useEntityListPage.hook';
+import { usePagination } from '../../hooks/usePagination';
+import { Pagination } from '../../components/Pagination.component';
 
 export const EntityListPage: React.FC = () => {
+  const {
+    pagination,
+    setPageSize,
+    nextPage,
+    prevPage,
+    isFirstPage,
+    isLastPage,
+    totalCount,
+    totalPages,
+    updateFromPaginationResponse,
+  } = usePagination();
+
   const { entityType, config, isLoading, isError, isSuccess, error, data } =
-    useEntityListPage();
+    useEntityListPage(pagination);
+
+  useEffect(() => {
+    if (data) updateFromPaginationResponse(data);
+  }, [JSON.stringify(data)]);
 
   return (
     <Box>
@@ -61,6 +80,18 @@ export const EntityListPage: React.FC = () => {
           sex: Sex.Female,
         })}
       />
-    </Box>
+      <Flex justifyContent="flex-end">
+        <Pagination
+          pagination={pagination}
+          setPageSize={setPageSize}
+          nextPage={nextPage}
+          prevPage={prevPage}
+          isFirstPage={isFirstPage}
+          isLastPage={isLastPage}
+          totalCount={totalCount}
+          totalPages={totalPages}
+        />
+      </Flex>
+      </Flex>
   );
 };
