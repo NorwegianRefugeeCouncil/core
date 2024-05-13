@@ -59,9 +59,9 @@ export type Section = {
 export type TableColumn = {
   field: EntityListItemField;
   title: string;
-  fixed?: boolean;
   width?: number;
-  onClickHandler?: () => void;
+  isID?: boolean;
+  format?: (input: any) => string;
 };
 
 export type EntityUIConfig = {
