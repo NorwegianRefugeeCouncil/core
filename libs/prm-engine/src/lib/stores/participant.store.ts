@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { ulid } from 'ulidx';
+import { z } from 'zod';
 
 import {
   ContactDetailType,
@@ -252,50 +253,67 @@ const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
 
   const participantIds = participants.map((participant) => participant.id);
 
-  const nationalities = await db('participant_nationalities')
-    .select(
-      'participantId',
-      db.raw(
-        'array_agg(nationality_iso_code ORDER BY created_at ASC) as nationalities',
-      ),
-    )
-    .whereIn('participantId', participantIds)
-    .groupBy('participantId');
+  const nationalities = (
+    await db('participant_nationalities')
+      .select(
+        'participantId',
+        db.raw(
+          'array_agg(nationality_iso_code ORDER BY created_at ASC) as nationalities',
+        ),
+      )
+      .whereIn('participantId', participantIds)
+      .groupBy('participantId')
+  ).reduce(
+    (map, entry) => ({
+      ...map,
+      [entry.participantId]: entry.nationalities[0],
+    }),
+    {},
+  );
 
-  const phones = await db('participant_contact_details')
-    .select(
-      'participantId',
-      db.raw('array_agg(raw_value ORDER BY created_at ASC) as raw_values'),
-    )
-    .where('contactDetailType', ContactDetailType.PhoneNumber)
-    .whereIn('participantId', participantIds)
-    .groupBy('participantId');
+  const phones = (
+    await db('participant_contact_details')
+      .select(
+        'participantId',
+        db.raw('array_agg(raw_value ORDER BY created_at ASC) as raw_values'),
+      )
+      .where('contactDetailType', ContactDetailType.PhoneNumber)
+      .whereIn('participantId', participantIds)
+      .groupBy('participantId')
+  ).reduce(
+    (map, entry) => ({
+      ...map,
+      [entry.participantId]: entry.rawValues[0],
+    }),
+    {},
+  );
 
-  const emails = await db('participant_contact_details')
-    .select(
-      'participantId',
-      db.raw('array_agg(raw_value ORDER BY created_at ASC) as raw_values'),
-    )
-    .where('contactDetailType', ContactDetailType.Email)
-    .whereIn('participantId', participantIds)
-    .groupBy('participantId');
+  const emails = (
+    await db('participant_contact_details')
+      .select(
+        'participantId',
+        db.raw('array_agg(raw_value ORDER BY created_at ASC) as raw_values'),
+      )
+      .where('contactDetailType', ContactDetailType.Email)
+      .whereIn('participantId', participantIds)
+      .groupBy('participantId')
+  ).reduce(
+    (map, entry) => ({
+      ...map,
+      [entry.participantId]: entry.rawValues[0],
+    }),
+    {},
+  );
 
-  return participants.map((participant) =>
-    ParticipantListItemSchema.parse({
+  return z.array(ParticipantListItemSchema).parse(
+    participants.map((participant) => ({
       ...participant,
       primaryIdentificationType: participant.identificationType,
       primaryIdentificationNumber: participant.identificationNumber,
-      nationality:
-        nationalities.find(
-          (nationality) => nationality.participantId === participant.id,
-        )?.nationalities?.[0] || null,
-      email:
-        emails.find((email) => email.participantId === participant.id)
-          ?.rawValues?.[0] || null,
-      phone:
-        phones.find((phone) => phone.participantId === participant.id)
-          ?.rawValues?.[0] || null,
-    }),
+      nationality: nationalities[participant.id] || null,
+      email: emails[participant.id] || null,
+      phone: phones[participant.id] || null,
+    })),
   );
 };
 

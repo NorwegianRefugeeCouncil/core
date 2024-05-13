@@ -163,7 +163,10 @@ describe('Participant store', () => {
       });
       const participant = await ParticipantStore.create(participantDefinition);
 
-      const participants = await ParticipantStore.list();
+      const participants = await ParticipantStore.list({
+        startIndex: 0,
+        pageSize: 50,
+      });
 
       expect(participants).toBeDefined();
       expect(participants).toHaveLength(1);
@@ -192,7 +195,10 @@ describe('Participant store', () => {
       );
       await ParticipantStore.create(secondParticipantDefinition);
 
-      const participants = await ParticipantStore.list(0, 1);
+      const participants = await ParticipantStore.list({
+        startIndex: 0,
+        pageSize: 1,
+      });
 
       expect(participants).toBeDefined();
       expect(participants).toHaveLength(1);
@@ -207,7 +213,10 @@ describe('Participant store', () => {
       });
       const participant = await ParticipantStore.create(participantDefinition);
 
-      const participants = await ParticipantStore.list();
+      const participants = await ParticipantStore.list({
+        startIndex: 0,
+        pageSize: 50,
+      });
 
       expect(participants).toBeDefined();
       expect(participants).toHaveLength(1);
