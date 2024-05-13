@@ -19,7 +19,6 @@ export const TextArea: React.FC<Props> = ({ config }) => {
     name: config.path.join('.'),
     control,
   });
-  console.log('TEXTAREA', field, control);
 
   return (
     <FormControl>
