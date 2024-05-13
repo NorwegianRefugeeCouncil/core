@@ -12,7 +12,7 @@ export const createSortingSchema = (possibleSortingFields: string[]) => {
 
   return z.object({
     sort: z.enum(possibleSortingFields as [string, ...string[]]).optional(),
-    order: z
+    direction: z
       .nativeEnum(SortingDirection)
       .optional()
       .default(SortingDirection.Asc),
