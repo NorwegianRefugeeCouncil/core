@@ -274,7 +274,7 @@ describe('Participants', () => {
       expect(res.data).toEqual({
         startIndex: 0,
         pageSize: 50,
-        totalCount: expect.any(Number),
+        totalCount: expect.any(Number), // TODO: once tests are isolated, expect 1
         items: expect.arrayContaining([expectedListItem]),
       });
     });
@@ -288,7 +288,7 @@ describe('Participants', () => {
       expect(res.data).toEqual({
         startIndex: 1,
         pageSize: 25,
-        totalCount: expect.any(Number),
+        totalCount: expect.any(Number), // TODO: once tests are isolated, expect 1
         items: expect.arrayContaining([expect.objectContaining({})]),
       });
     });
