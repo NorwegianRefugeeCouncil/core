@@ -2,8 +2,10 @@ import {
   ContactDetails,
   ContactDetailsDefinition,
   Identification,
+  Pagination,
   Participant,
   ParticipantDefinition,
+  ParticipantListItem,
   ParticipantUpdate,
 } from '@nrcno/core-models';
 import { NotFoundError } from '@nrcno/core-errors';
@@ -15,14 +17,23 @@ import { PrmService } from './base.service';
 export const ParticipantService: PrmService<
   ParticipantDefinition,
   Participant,
-  ParticipantUpdate
+  ParticipantUpdate,
+  ParticipantListItem
 > = {
+  count: async () => {
+    return ParticipantStore.count();
+  },
+
   create: async (participant: ParticipantDefinition) => {
     return ParticipantStore.create(participant);
   },
 
   get: async (id: string) => {
     return ParticipantStore.get(id);
+  },
+
+  list: async (pagination: Pagination) => {
+    return ParticipantStore.list(pagination);
   },
 
   update: async (id: string, participant: ParticipantUpdate) => {

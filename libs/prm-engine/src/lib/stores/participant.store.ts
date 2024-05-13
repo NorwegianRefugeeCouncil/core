@@ -1,10 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
 import { ulid } from 'ulidx';
+import { z } from 'zod';
 
 import {
   ContactDetailType,
+  Pagination,
   Participant,
   ParticipantDefinition,
+  ParticipantListItem,
+  ParticipantListItemSchema,
   ParticipantPartialUpdate,
   ParticipantSchema,
 } from '@nrcno/core-models';
@@ -12,6 +16,14 @@ import { PostgresError, PostgresErrorCode, getDb } from '@nrcno/core-db';
 import { AlreadyExistsError, NotFoundError } from '@nrcno/core-errors';
 
 import { BaseStore } from './base.store';
+
+const count = async (): Promise<number> => {
+  const db = getDb();
+
+  const [{ count }] = await db('participants').count();
+
+  return typeof count === 'string' ? parseInt(count, 10) : count;
+};
 
 const create = async (
   participantDefinition: ParticipantDefinition,
@@ -209,6 +221,102 @@ const get = async (id: string): Promise<Participant | null> => {
   return participantResult;
 };
 
+const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
+  const db = getDb();
+
+  const participantFields = [
+    'participants.id',
+    'firstName',
+    'lastName',
+    'sex',
+    'dateOfBirth',
+    'displacementStatus',
+  ];
+  const identificationFields = ['identificationType', 'identificationNumber'];
+
+  const participants = await db('participants')
+    .select([...participantFields, ...identificationFields])
+    .leftJoin('participant_identifications', function () {
+      this.on(
+        'participants.id',
+        '=',
+        'participant_identifications.participantId',
+      ).andOn(
+        'participant_identifications.isPrimary',
+        '=',
+        db.raw('?', [true]),
+      );
+    })
+    .limit(pagination.pageSize)
+    .offset(pagination.startIndex)
+    .orderBy('lastName', 'asc');
+
+  const participantIds = participants.map((participant) => participant.id);
+
+  const nationalities = (
+    await db('participant_nationalities')
+      .select(
+        'participantId',
+        db.raw(
+          'array_agg(nationality_iso_code ORDER BY created_at ASC) as nationalities',
+        ),
+      )
+      .whereIn('participantId', participantIds)
+      .groupBy('participantId')
+  ).reduce(
+    (map, entry) => ({
+      ...map,
+      [entry.participantId]: entry.nationalities[0],
+    }),
+    {},
+  );
+
+  const phones = (
+    await db('participant_contact_details')
+      .select(
+        'participantId',
+        db.raw('array_agg(raw_value ORDER BY created_at ASC) as raw_values'),
+      )
+      .where('contactDetailType', ContactDetailType.PhoneNumber)
+      .whereIn('participantId', participantIds)
+      .groupBy('participantId')
+  ).reduce(
+    (map, entry) => ({
+      ...map,
+      [entry.participantId]: entry.rawValues[0],
+    }),
+    {},
+  );
+
+  const emails = (
+    await db('participant_contact_details')
+      .select(
+        'participantId',
+        db.raw('array_agg(raw_value ORDER BY created_at ASC) as raw_values'),
+      )
+      .where('contactDetailType', ContactDetailType.Email)
+      .whereIn('participantId', participantIds)
+      .groupBy('participantId')
+  ).reduce(
+    (map, entry) => ({
+      ...map,
+      [entry.participantId]: entry.rawValues[0],
+    }),
+    {},
+  );
+
+  return z.array(ParticipantListItemSchema).parse(
+    participants.map((participant) => ({
+      ...participant,
+      primaryIdentificationType: participant.identificationType,
+      primaryIdentificationNumber: participant.identificationNumber,
+      nationality: nationalities[participant.id] || null,
+      email: emails[participant.id] || null,
+      phone: phones[participant.id] || null,
+    })),
+  );
+};
+
 const update = async (
   participantId: string,
   participantUpdate: ParticipantPartialUpdate,
@@ -376,9 +484,12 @@ const update = async (
 export const ParticipantStore: BaseStore<
   ParticipantDefinition,
   Participant,
-  ParticipantPartialUpdate
+  ParticipantPartialUpdate,
+  ParticipantListItem
 > = {
+  count,
   create,
   get,
+  list,
   update,
 };

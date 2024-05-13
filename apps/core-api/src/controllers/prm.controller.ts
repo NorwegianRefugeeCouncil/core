@@ -6,6 +6,9 @@ import {
   EntityIdSchema,
   getEntityDefinitionSchema,
   getEntityUpdateSchema,
+  PaginatedResponse,
+  EntityListItem,
+  PaginationSchema,
 } from '@nrcno/core-models';
 
 // This is exported for testing purposes (not great)
@@ -90,8 +93,41 @@ export const updateEntity = async (
   }
 };
 
+export const listEntities = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const entityType = EntityTypeSchema.safeParse(req.params.entityType);
+
+    if (entityType.success === false) {
+      res.sendStatus(404);
+      return;
+    }
+    const pagination = PaginationSchema.parse(req.query);
+
+    const prmService = PrmService[entityType.data];
+
+    const entities = await prmService.list(pagination);
+    const totalCount = await prmService.count();
+
+    const response: PaginatedResponse<EntityListItem> = {
+      startIndex: pagination.startIndex,
+      pageSize: pagination.pageSize,
+      totalCount,
+      items: entities,
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const router = Router();
 router.post('/prm/:entityType', createEntity);
+router.get('/prm/:entityType', listEntities);
 router.get('/prm/:entityType/:entityId', getEntity);
 router.put('/prm/:entityType/:entityId', updateEntity);
 

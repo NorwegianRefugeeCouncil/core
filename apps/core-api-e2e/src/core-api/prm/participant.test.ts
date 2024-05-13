@@ -2,7 +2,10 @@ import axios from 'axios';
 import { faker } from '@faker-js/faker';
 import { ulid } from 'ulidx';
 
-import { ParticipantGenerator } from '@nrcno/core-test-utils';
+import {
+  IdentificationGenerator,
+  ParticipantGenerator,
+} from '@nrcno/core-test-utils';
 import {
   ParticipantSchema,
   ParticipantDefinition,
@@ -107,6 +110,7 @@ const participantDefinitionWithIds = {
   ),
 };
 
+// TODO: make tests independent by running them against a clean database
 describe('Participants', () => {
   describe('POST /api/prm/participants', () => {
     it('should create a participant with every field', async () => {
@@ -230,6 +234,79 @@ describe('Participants', () => {
       const response = await axiosInstance.get(`/api/prm/participants/invalid`);
 
       expect(response.status).toBe(404);
+    });
+  });
+
+  describe('GET /api/prm/participants', () => {
+    const primaryIdentification = IdentificationGenerator.generateDefinition({
+      isPrimary: true,
+    });
+    const participantDefinition = ParticipantGenerator.generateDefinition({
+      identification: [primaryIdentification],
+    });
+    let participantId: string;
+    beforeAll(async () => {
+      const res = await axiosInstance.post(
+        `/api/prm/participants`,
+        participantDefinition,
+      );
+      participantId = res.data.id;
+    });
+
+    it('should return a list of participants', async () => {
+      const res = await axiosInstance.get(`/api/prm/participants`);
+
+      const expectedListItem = {
+        id: participantId,
+        firstName: participantDefinition.firstName,
+        lastName: participantDefinition.lastName,
+        dateOfBirth: participantDefinition.dateOfBirth?.toISOString(),
+        sex: participantDefinition.sex,
+        displacementStatus: participantDefinition.displacementStatus,
+        primaryIdentificationType: primaryIdentification.identificationType,
+        primaryIdentificationNumber: primaryIdentification.identificationNumber,
+        nationality: participantDefinition.nationalities[0],
+        email: participantDefinition.contactDetails.emails[0].value,
+        phone: participantDefinition.contactDetails.phones[0].value,
+      };
+
+      expect(res.status).toBe(200);
+      expect(res.data).toEqual({
+        startIndex: 0,
+        pageSize: 50,
+        totalCount: expect.any(Number), // TODO: once tests are isolated, expect 1
+        items: expect.arrayContaining([expectedListItem]),
+      });
+    });
+
+    it('should return a list of participants with pagination', async () => {
+      const res = await axiosInstance.get(
+        `/api/prm/participants?startIndex=1&pageSize=25`,
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data).toEqual({
+        startIndex: 1,
+        pageSize: 25,
+        totalCount: expect.any(Number), // TODO: once tests are isolated, expect 1
+        items: expect.arrayContaining([expect.objectContaining({})]),
+      });
+    });
+
+    it('should return an error if the startIndex is invalid', async () => {
+      const response = await axiosInstance.get(
+        `/api/prm/participants?startIndex=invalid`,
+      );
+
+      expect(response.status).toBe(400);
+    });
+
+    it('should return an error if the pageSize is invalid', async () => {
+      const response = await axiosInstance.get(
+        `/api/prm/participants?pageSize=invalid`,
+      );
+
+      expect(response.status).toBe(400);
     });
   });
 

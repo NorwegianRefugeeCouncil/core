@@ -39,6 +39,13 @@ describe('Participant store', () => {
     getDb(undefined, (global as any).db);
   });
 
+  afterEach(async () => {
+    // TODO: implement cleaning up the database after each test in a better way.
+    // Either move this to a global jest test setup or use a transaction for each test
+    const db = getDb();
+    await db.raw('TRUNCATE TABLE participants CASCADE');
+  });
+
   describe('create', () => {
     test('should throw an AlredyExistsError when creating a participant that already exists', async () => {
       const participantDefinition = ParticipantGenerator.generateDefinition();
@@ -114,6 +121,115 @@ describe('Participant store', () => {
       const participant = await ParticipantStore.get('non-existing-id');
 
       expect(participant).toBeNull();
+    });
+  });
+
+  describe('count', () => {
+    beforeAll(() => {
+      (ulid as jest.Mock).mockImplementation(() =>
+        jest.requireActual('ulidx').ulid(),
+      );
+      (v4 as jest.Mock).mockImplementation(() =>
+        jest.requireActual('uuid').v4(),
+      );
+    });
+    test('should return the number of participants', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition();
+
+      await ParticipantStore.create(participantDefinition);
+
+      const count = await ParticipantStore.count();
+
+      expect(count).toBe(1);
+    });
+  });
+
+  describe('list', () => {
+    beforeAll(() => {
+      (ulid as jest.Mock).mockImplementation(() =>
+        jest.requireActual('ulidx').ulid(),
+      );
+      (v4 as jest.Mock).mockImplementation(() =>
+        jest.requireActual('uuid').v4(),
+      );
+    });
+
+    test('should return a list of participants', async () => {
+      const primaryIdentification = IdentificationGenerator.generateDefinition({
+        isPrimary: true,
+      });
+      const participantDefinition = ParticipantGenerator.generateDefinition({
+        identification: [primaryIdentification],
+      });
+      const participant = await ParticipantStore.create(participantDefinition);
+
+      const participants = await ParticipantStore.list({
+        startIndex: 0,
+        pageSize: 50,
+      });
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(1);
+      expect(participants[0]).toEqual({
+        id: participant.id,
+        firstName: participant.firstName,
+        lastName: participant.lastName,
+        dateOfBirth: participant.dateOfBirth,
+        sex: participant.sex,
+        displacementStatus: participant.displacementStatus,
+        primaryIdentificationType: primaryIdentification.identificationType,
+        primaryIdentificationNumber: primaryIdentification.identificationNumber,
+        nationality: participant.nationalities[0],
+        email: participant.contactDetails.emails[0].value,
+        phone: participant.contactDetails.phones[0].value,
+      });
+    });
+
+    test('should return a paginated list of participants, sorted by lastname', async () => {
+      const firstParticipantDefinition =
+        ParticipantGenerator.generateDefinition({ lastName: 'Allende' });
+      const secondParticipantDefinition =
+        ParticipantGenerator.generateDefinition({ lastName: 'Bach' });
+      const firstParticipant = await ParticipantStore.create(
+        firstParticipantDefinition,
+      );
+      await ParticipantStore.create(secondParticipantDefinition);
+
+      const participants = await ParticipantStore.list({
+        startIndex: 0,
+        pageSize: 1,
+      });
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(1);
+      expect(participants[0].id).toEqual(firstParticipant.id);
+    });
+
+    test('should return null for values not defined', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition({
+        identification: [],
+        nationalities: [],
+        contactDetails: { emails: [], phones: [] },
+      });
+      const participant = await ParticipantStore.create(participantDefinition);
+
+      const participants = await ParticipantStore.list({
+        startIndex: 0,
+        pageSize: 50,
+      });
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(1);
+      expect(participants[0]).toEqual(
+        expect.objectContaining({
+          id: participant.id,
+          primaryIdentificationType: null,
+          primaryIdentificationNumber: null,
+          nationality: null,
+          email: null,
+          phone: null,
+        }),
+      );
     });
   });
 
