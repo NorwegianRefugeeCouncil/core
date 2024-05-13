@@ -1,10 +1,10 @@
-import { Heading, Spinner, Flex } from '@chakra-ui/react';
+import { useEffect } from 'react';
+import { Heading, Flex, Skeleton, Alert, AlertIcon } from '@chakra-ui/react';
 import {
   DisplacementStatus,
   IdentificationType,
   Sex,
 } from '@nrcno/core-models';
-import { useEffect } from 'react';
 
 import { EntityList } from '../../components';
 import { useEntityListPage } from '../../hooks/useEntityListPage.hook';
@@ -24,7 +24,7 @@ export const EntityListPage: React.FC = () => {
     updateFromPaginationResponse,
   } = usePagination();
 
-  const { entityType, config, isLoading, isError, isSuccess, error, data } =
+  const { entityType, config, isError, isLoading, error, data } =
     useEntityListPage(pagination);
 
   useEffect(() => {
@@ -34,13 +34,16 @@ export const EntityListPage: React.FC = () => {
   return (
     <Flex height="100%" direction="column">
       <Heading pb="8">{entityType}</Heading>
-      {isLoading && <Spinner colorScheme="primary" size="xl" />}
-      {isError && <div>{error?.message}</div>}
-      {isSuccess && <div>Success</div>}
-      <Flex flex={1} overflow="hidden">
-        <EntityList
-          config={config}
-          entityList={new Array(100).fill({
+      {isError ? (
+        <Alert status="error" mb={4}>
+          <AlertIcon />
+          {error?.message}
+        </Alert>
+      ) : (
+        <>
+          <Flex flex={1} overflow="hidden">
+            <Skeleton isLoaded={!isLoading}>
+              <EntityList config={config} entityList={new Array(100).fill({
             dateOfBirth: new Date('2006-10-12'),
             displacementStatus: DisplacementStatus.AsylumSeeker,
             firstName: 'first name',
@@ -70,21 +73,23 @@ export const EntityListPage: React.FC = () => {
               ],
             },
             sex: Sex.Female,
-          })}
-        />
-      </Flex>
-      <Flex justifyContent="flex-end">
-        <Pagination
-          pagination={pagination}
-          setPageSize={setPageSize}
-          nextPage={nextPage}
-          prevPage={prevPage}
-          isFirstPage={isFirstPage}
-          isLastPage={isLastPage}
-          totalCount={totalCount}
-          totalPages={totalPages}
-        />
-      </Flex>
+          })}} />
+            </Skeleton>
+          </Flex>
+          <Flex justifyContent="flex-end">
+            <Pagination
+              pagination={pagination}
+              setPageSize={setPageSize}
+              nextPage={nextPage}
+              prevPage={prevPage}
+              isFirstPage={isFirstPage}
+              isLastPage={isLastPage}
+              totalCount={totalCount}
+              totalPages={totalPages}
+            />
+          </Flex>
+        </>
+      )}
     </Flex>
   );
 };
