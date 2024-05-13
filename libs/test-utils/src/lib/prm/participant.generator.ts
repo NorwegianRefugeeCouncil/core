@@ -134,24 +134,6 @@ const generateListItem = (
   };
 };
 
-const generateListItem = (
-  overrides?: Partial<ParticipantListItem>,
-): ParticipantListItem => {
-  return {
-    id: ulid(),
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-    dateOfBirth: faker.date.past(),
-    sex: faker.helpers.enumValue(Sex),
-    displacementStatus: faker.helpers.enumValue(DisplacementStatus),
-    nationality: faker.helpers.arrayElement(['en', 'es', 'fr', 'ar']),
-    email: faker.internet.email(),
-    phone: faker.phone.number(),
-    ...IdentificationGenerator.generateListItem(),
-    ...overrides,
-  };
-};
-
 export const ParticipantGenerator: BaseTestEntityGenerator<
   ParticipantDefinition,
   Participant,
