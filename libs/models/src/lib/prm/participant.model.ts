@@ -276,7 +276,7 @@ export const ParticipantListItemSchema = z.object({
   nationalities: z
     .array(IsoCodeSchema)
     .refine((data) => data.length <= 1, {
-      message: 'Nationalities can have at most one element',
+      message: 'Only main nationality',
     })
     .optional()
     .default([]),
@@ -285,14 +285,14 @@ export const ParticipantListItemSchema = z.object({
       emails: z
         .array(ContactDetailsSchema)
         .refine((data) => data.length <= 1, {
-          message: 'Emails can have at most one element',
+          message: 'Only main email',
         })
         .optional()
         .default([]),
       phones: z
         .array(ContactDetailsSchema)
         .refine((data) => data.length <= 1, {
-          message: 'Phones can have at most one element',
+          message: 'Only main phone number',
         })
         .optional()
         .default([]),
@@ -305,7 +305,7 @@ export const ParticipantListItemSchema = z.object({
   identification: z
     .array(IdentificationSchema)
     .refine((data) => data.length <= 1, {
-      message: 'Identification can have at most one element',
+      message: 'Only primary identification',
     })
     .optional()
     .default([]),
