@@ -57,7 +57,7 @@ export type Section = {
 };
 
 export type TableColumn = {
-  field: EntityListItemField;
+  path: (string | number)[];
   title: string;
   width?: number;
   isID?: boolean;
@@ -68,7 +68,9 @@ export type EntityUIConfig = {
   detail: {
     sections: Section[];
   };
-  list: TableColumn[];
+  list: {
+    fields: TableColumn[];
+  };
   search: unknown;
 };
 
