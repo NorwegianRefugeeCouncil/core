@@ -25,10 +25,14 @@ export const Pagination: React.FC<Props> = ({
   totalCount,
   totalPages,
 }) => {
+  const currentPage =
+    Math.floor(pagination.startIndex / pagination.pageSize) + 1;
   return (
     <Flex direction="column" gap={2}>
       <Flex gap={2} justifyContent="flex-end">
-        <Text>Page 0 / {totalPages}</Text>
+        <Text>
+          Page {currentPage} / {totalPages}
+        </Text>
         <Text>|</Text>
         <Text>{totalCount} total</Text>
       </Flex>
