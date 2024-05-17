@@ -5,6 +5,7 @@ import {
   DisplacementStatus,
   EngagementContext,
   IdentificationType,
+  Participant,
   Sex,
   YesNoUnknown,
 } from '@nrcno/core-models';
@@ -418,48 +419,51 @@ export const participantConfig: EntityUIConfig = {
       },
     ],
   },
-  list: [
-    {
-      field: 'id',
-      title: 'ID',
-      isID: true,
-      width: 4,
-    },
-    { field: 'firstName', title: 'Name', width: 2 },
-    { field: 'lastName', title: 'Surname', width: 2 },
-    { field: 'sex', title: 'Sex', width: 2 },
-    {
-      field: 'dateOfBirth',
-      title: 'Date of Birth',
-      width: 2,
-      format: (date: Date) => date.toLocaleDateString(),
-    },
-    {
-      field: 'nationality',
-      title: 'Nationality',
-    },
-    {
-      field: 'primaryIdentificationNumber',
-      title: 'Primary Identification number',
-      width: 2,
-    },
-    {
-      field: 'primaryIdentificationType',
-      title: 'Primary Identification number',
-      width: 2,
-    },
-    {
-      field: 'phone',
-      title: 'Phone Number #1',
-    },
-    {
-      field: 'email',
-      title: 'Email Address #1',
-    },
-    {
-      field: 'displacementStatus',
-      title: 'Displacement Status',
-    },
-  ],
+  list: {
+    fields: [
+      {
+        path: ['id'],
+        title: 'ID',
+        isID: true,
+        width: 4,
+      },
+      { path: ['firstName'], title: 'Name', width: 2 },
+      { path: ['lastName'], title: 'Surname', width: 2 },
+      { path: ['sex'], title: 'Sex', width: 2 },
+      {
+        path: ['dateOfBirth'],
+        title: 'Date of Birth',
+        width: 2,
+        format: (date: Date) => date.toLocaleDateString(),
+      },
+      {
+        path: ['nationalities', 0],
+        title: 'Nationality',
+      },
+      {
+        path: ['identification', 0],
+        title: 'Primary Identification',
+        format: (id: Participant['identification'][0]) => {
+          if (id) {
+            return `${id.identificationNumber} (${id.identificationType})`;
+          }
+          return '';
+        },
+        width: 2,
+      },
+      {
+        path: ['contactDetails', 'phones', 0, 'value'],
+        title: 'Phone Number #1',
+      },
+      {
+        path: ['contactDetails', 'emails', 0, 'value'],
+        title: 'Email Address #1',
+      },
+      {
+        path: ['displacementStatus'],
+        title: 'Displacement Status',
+      },
+    ],
+  },
   search: {},
 };
