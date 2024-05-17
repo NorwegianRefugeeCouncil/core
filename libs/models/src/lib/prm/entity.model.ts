@@ -5,7 +5,6 @@ import {
   ParticipantSchema,
   ParticipantUpdateSchema,
   ParticipantDefinition,
-  ParticipantListItemFieldSchema,
   ParticipantListItemSchema,
   ParticipantFilteringSchema,
 } from './participant.model';
@@ -26,9 +25,6 @@ export type EntityDefinition = ParticipantDefinition;
 
 export const EntityFieldSchema = EntitySchema.keyof();
 export type EntityField = z.infer<typeof EntityFieldSchema>;
-
-export const EntityListItemFieldSchema = ParticipantListItemFieldSchema;
-export type EntityListItemField = z.infer<typeof EntityListItemFieldSchema>;
 
 export const EntityListItemSchema = ParticipantListItemSchema;
 export type EntityListItem = z.infer<typeof EntityListItemSchema>;
