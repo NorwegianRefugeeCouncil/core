@@ -1,5 +1,13 @@
 import { useEffect } from 'react';
-import { Heading, Flex, Skeleton, Alert, AlertIcon } from '@chakra-ui/react';
+import {
+  Heading,
+  Flex,
+  Skeleton,
+  Alert,
+  AlertIcon,
+  Button,
+} from '@chakra-ui/react';
+import { Link } from 'react-router-dom';
 import {
   DisplacementStatus,
   IdentificationType,
@@ -33,47 +41,60 @@ export const EntityListPage: React.FC = () => {
 
   return (
     <Flex height="100%" direction="column">
-      <Heading pb="8">{entityType}</Heading>
+      <Flex justifyContent="space-between" alignItems="center">
+        <Heading pb="8">{entityType}</Heading>
+        <Link to="new">
+          <Button colorScheme="primary">New</Button>
+        </Link>
+      </Flex>
       {isError ? (
         <Alert status="error" mb={4}>
           <AlertIcon />
           {error?.message}
         </Alert>
+      ) : data?.totalCount === 0 ? (
+        <Alert status="info" mb={4}>
+          <AlertIcon />
+          No {entityType} found
+        </Alert>
       ) : (
         <>
           <Flex flex={1} overflow="hidden">
             <Skeleton isLoaded={!isLoading}>
-              <EntityList config={config} entityList={new Array(100).fill({
-            dateOfBirth: new Date('2006-10-12'),
-            displacementStatus: DisplacementStatus.AsylumSeeker,
-            firstName: 'first name',
-            id: 'id1',
-            lastName: 'lastname',
-            nationalities: ['en'],
-            identification: [
-              {
-                id: 'id1',
-                identificationType: IdentificationType.Passport,
-                identificationNumber: '123456789',
-                isPrimary: true,
-              },
-            ],
-            contactDetails: {
-              phones: [
-                {
-                  id: 'phone1',
-                  value: '12345678',
-                },
-              ],
-              emails: [
-                {
-                  id: 'email1',
-                  value: 'email@email.com',
-                },
-              ],
-            },
-            sex: Sex.Female,
-          })}} />
+              <EntityList
+                config={config}
+                entityList={new Array(100).fill({
+                  dateOfBirth: new Date('2006-10-12'),
+                  displacementStatus: DisplacementStatus.AsylumSeeker,
+                  firstName: 'first name',
+                  id: 'id1',
+                  lastName: 'lastname',
+                  nationalities: ['en'],
+                  identification: [
+                    {
+                      id: 'id1',
+                      identificationType: IdentificationType.Passport,
+                      identificationNumber: '123456789',
+                      isPrimary: true,
+                    },
+                  ],
+                  contactDetails: {
+                    phones: [
+                      {
+                        id: 'phone1',
+                        value: '12345678',
+                      },
+                    ],
+                    emails: [
+                      {
+                        id: 'email1',
+                        value: 'email@email.com',
+                      },
+                    ],
+                  },
+                  sex: Sex.Female,
+                })}
+              />
             </Skeleton>
           </Flex>
           <Flex justifyContent="flex-end">
