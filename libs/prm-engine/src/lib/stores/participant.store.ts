@@ -232,7 +232,11 @@ const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
     'dateOfBirth',
     'displacementStatus',
   ];
-  const identificationFields = ['identificationType', 'identificationNumber'];
+  const identificationFields = [
+    'participant_identifications.id as identificationId',
+    'identificationType',
+    'identificationNumber',
+  ];
 
   const participants = await db('participants')
     .select([...participantFields, ...identificationFields])
@@ -275,7 +279,14 @@ const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
     await db('participant_contact_details')
       .select(
         'participantId',
-        db.raw('array_agg(raw_value ORDER BY created_at ASC) as raw_values'),
+        db.raw(`
+        array_agg(
+          json_build_object(
+            'id', id,
+            'value', clean_value
+          ) ORDER BY created_at ASC
+        ) as details
+      `),
       )
       .where('contactDetailType', ContactDetailType.PhoneNumber)
       .whereIn('participantId', participantIds)
@@ -283,7 +294,7 @@ const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
   ).reduce(
     (map, entry) => ({
       ...map,
-      [entry.participantId]: entry.rawValues[0],
+      [entry.participantId]: entry.details[0],
     }),
     {},
   );
@@ -292,7 +303,14 @@ const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
     await db('participant_contact_details')
       .select(
         'participantId',
-        db.raw('array_agg(raw_value ORDER BY created_at ASC) as raw_values'),
+        db.raw(`
+        array_agg(
+          json_build_object(
+            'id', id,
+            'value', clean_value
+          ) ORDER BY created_at ASC
+        ) as details
+      `),
       )
       .where('contactDetailType', ContactDetailType.Email)
       .whereIn('participantId', participantIds)
@@ -300,7 +318,7 @@ const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
   ).reduce(
     (map, entry) => ({
       ...map,
-      [entry.participantId]: entry.rawValues[0],
+      [entry.participantId]: entry.details[0],
     }),
     {},
   );
@@ -308,11 +326,23 @@ const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
   return z.array(ParticipantListItemSchema).parse(
     participants.map((participant) => ({
       ...participant,
-      primaryIdentificationType: participant.identificationType,
-      primaryIdentificationNumber: participant.identificationNumber,
-      nationality: nationalities[participant.id] || null,
-      email: emails[participant.id] || null,
-      phone: phones[participant.id] || null,
+      identification: participant.identificationId
+        ? [
+            {
+              id: participant.identificationId,
+              identificationType: participant.identificationType,
+              identificationNumber: participant.identificationNumber,
+              isPrimary: true,
+            },
+          ]
+        : [],
+      nationalities: nationalities[participant.id]
+        ? [nationalities[participant.id]]
+        : [],
+      contactDetails: {
+        emails: emails[participant.id] ? [emails[participant.id]] : [],
+        phones: phones[participant.id] ? [phones[participant.id]] : [],
+      },
     })),
   );
 };

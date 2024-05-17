@@ -273,10 +273,41 @@ export const ParticipantListItemSchema = z.object({
   dateOfBirth: z.coerce.date().nullable(),
   sex: SexSchema.nullable(),
   displacementStatus: DisplacementStatusSchema.nullable(),
-  primaryIdentificationType: IdentificationTypeSchema.nullable(),
-  primaryIdentificationNumber: z.string().nullable(),
-  nationality: IsoCodeSchema.nullable(),
-  email: z.string().nullable(),
-  phone: z.string().nullable(),
+  nationalities: z
+    .array(IsoCodeSchema)
+    .refine((data) => data.length <= 1, {
+      message: 'Nationalities can have at most one element',
+    })
+    .optional()
+    .default([]),
+  contactDetails: z
+    .object({
+      emails: z
+        .array(ContactDetailsSchema)
+        .refine((data) => data.length <= 1, {
+          message: 'Emails can have at most one element',
+        })
+        .optional()
+        .default([]),
+      phones: z
+        .array(ContactDetailsSchema)
+        .refine((data) => data.length <= 1, {
+          message: 'Phones can have at most one element',
+        })
+        .optional()
+        .default([]),
+    })
+    .optional()
+    .default({
+      emails: [],
+      phones: [],
+    }),
+  identification: z
+    .array(IdentificationSchema)
+    .refine((data) => data.length <= 1, {
+      message: 'Identification can have at most one element',
+    })
+    .optional()
+    .default([]),
 });
 export type ParticipantListItem = z.infer<typeof ParticipantListItemSchema>;
