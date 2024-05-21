@@ -1,4 +1,4 @@
-import { Pagination } from '@nrcno/core-models';
+import { Pagination, Sorting } from '@nrcno/core-models';
 
 export interface BaseStore<
   TDefinition,
@@ -9,6 +9,9 @@ export interface BaseStore<
   count: () => Promise<number>;
   create: (entity: TDefinition) => Promise<TEntity>;
   get: (id: string) => Promise<TEntity | null>;
-  list: (pagination: Pagination) => Promise<TEntityListItem[]>;
+  list: (
+    pagination: Pagination,
+    sorting?: Sorting,
+  ) => Promise<TEntityListItem[]>;
   update: (id: string, entity: TPartialUpdateDefinition) => Promise<TEntity>;
 }

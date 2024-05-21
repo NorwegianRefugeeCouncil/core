@@ -5,6 +5,7 @@ import {
   ParticipantDefinition,
   ParticipantListItem,
   ParticipantUpdate,
+  Sorting,
 } from '@nrcno/core-models';
 
 import { PrmStore } from '../stores';
@@ -19,7 +20,10 @@ export type PrmService<
   create: (entity: TDefinition) => Promise<TEntity>;
   get: (id: string) => Promise<TEntity | null>;
   update: (id: string, entity: TUpdateDefinition) => Promise<TEntity>;
-  list: (pagination: Pagination) => Promise<TEntityListItem[]>;
+  list: (
+    pagination: Pagination,
+    sorting: Sorting,
+  ) => Promise<TEntityListItem[]>;
 };
 
 export function getPrmService(
@@ -55,8 +59,8 @@ export function getPrmService(
     return Store.update(id, entity);
   };
 
-  const list = async (pagination: Pagination) => {
-    return Store.list(pagination);
+  const list = async (pagination: Pagination, sorting: Sorting) => {
+    return Store.list(pagination, sorting);
   };
 
   return { count, create, get, update, list };

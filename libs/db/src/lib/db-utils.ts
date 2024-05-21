@@ -1,10 +1,10 @@
-const toCamelCase = (str: string): string => {
+export const toCamelCase = (str: string): string => {
   return str.replace(/([-_][a-z])/g, (group) =>
     group.toUpperCase().replace('-', '').replace('_', ''),
   );
 };
 
-const toSnakeCase = (str: string): string => {
+export const toSnakeCase = (str: string): string => {
   return str.replace(/([A-Z])/g, '_$1').toLowerCase();
 };
 

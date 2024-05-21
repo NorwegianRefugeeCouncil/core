@@ -11,9 +11,12 @@ import {
   ParticipantListItemSchema,
   ParticipantPartialUpdate,
   ParticipantSchema,
+  Sorting,
+  SortingDirection,
 } from '@nrcno/core-models';
 import { PostgresError, PostgresErrorCode, getDb } from '@nrcno/core-db';
 import { AlreadyExistsError, NotFoundError } from '@nrcno/core-errors';
+import { toSnakeCase } from 'libs/db/src/lib/db-utils';
 
 import { BaseStore } from './base.store';
 
@@ -221,8 +224,15 @@ const get = async (id: string): Promise<Participant | null> => {
   return participantResult;
 };
 
-const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
+const list = async (
+  pagination: Pagination,
+  { sort = 'lastName', direction = SortingDirection.Asc }: Sorting = {
+    direction: SortingDirection.Asc,
+  },
+): Promise<ParticipantListItem[]> => {
   const db = getDb();
+
+  const sortColumn = toSnakeCase(sort);
 
   const participantFields = [
     'participants.id',
@@ -238,8 +248,56 @@ const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
     'identificationNumber',
   ];
 
+  const nationalitiesSubquery = db('participant_nationalities')
+    .select(
+      'participantId',
+      db.raw(
+        'array_agg(nationality_iso_code ORDER BY created_at ASC) as nationalities',
+      ),
+    )
+    .groupBy('participantId')
+    .as('nationalities');
+
+  const phonesSubquery = db('participant_contact_details')
+    .select(
+      'participantId',
+      db.raw(`
+        array_agg(
+          json_build_object(
+            'id', id,
+            'value', clean_value
+          ) ORDER BY created_at ASC
+        ) as phone_details
+      `),
+    )
+    .where('contactDetailType', ContactDetailType.PhoneNumber)
+    .groupBy('participantId')
+    .as('phones');
+
+  const emailsSubquery = db('participant_contact_details')
+    .select(
+      'participantId',
+      db.raw(`
+        array_agg(
+          json_build_object(
+            'id', id,
+            'value', clean_value
+          ) ORDER BY created_at ASC
+        ) as email_details
+      `),
+    )
+    .where('contactDetailType', ContactDetailType.Email)
+    .groupBy('participantId')
+    .as('emails');
+
   const participants = await db('participants')
-    .select([...participantFields, ...identificationFields])
+    .select([
+      ...participantFields,
+      ...identificationFields,
+      'nationalities.nationalities',
+      'phones.phone_details',
+      'emails.email_details',
+    ])
     .leftJoin('participant_identifications', function () {
       this.on(
         'participants.id',
@@ -251,77 +309,21 @@ const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
         db.raw('?', [true]),
       );
     })
+    .leftJoin(
+      nationalitiesSubquery,
+      'participants.id',
+      'nationalities.participantId',
+    )
+    .leftJoin(phonesSubquery, 'participants.id', 'phones.participantId')
+    .leftJoin(emailsSubquery, 'participants.id', 'emails.participantId')
     .limit(pagination.pageSize)
     .offset(pagination.startIndex)
-    .orderBy('lastName', 'asc');
-
-  const participantIds = participants.map((participant) => participant.id);
-
-  const nationalities = (
-    await db('participant_nationalities')
-      .select(
-        'participantId',
-        db.raw(
-          'array_agg(nationality_iso_code ORDER BY created_at ASC) as nationalities',
-        ),
-      )
-      .whereIn('participantId', participantIds)
-      .groupBy('participantId')
-  ).reduce(
-    (map, entry) => ({
-      ...map,
-      [entry.participantId]: entry.nationalities[0],
-    }),
-    {},
-  );
-
-  const phones = (
-    await db('participant_contact_details')
-      .select(
-        'participantId',
-        db.raw(`
-        array_agg(
-          json_build_object(
-            'id', id,
-            'value', clean_value
-          ) ORDER BY created_at ASC
-        ) as details
-      `),
-      )
-      .where('contactDetailType', ContactDetailType.PhoneNumber)
-      .whereIn('participantId', participantIds)
-      .groupBy('participantId')
-  ).reduce(
-    (map, entry) => ({
-      ...map,
-      [entry.participantId]: entry.details[0],
-    }),
-    {},
-  );
-
-  const emails = (
-    await db('participant_contact_details')
-      .select(
-        'participantId',
-        db.raw(`
-        array_agg(
-          json_build_object(
-            'id', id,
-            'value', clean_value
-          ) ORDER BY created_at ASC
-        ) as details
-      `),
-      )
-      .where('contactDetailType', ContactDetailType.Email)
-      .whereIn('participantId', participantIds)
-      .groupBy('participantId')
-  ).reduce(
-    (map, entry) => ({
-      ...map,
-      [entry.participantId]: entry.details[0],
-    }),
-    {},
-  );
+    .orderByRaw(`CASE WHEN '${sortColumn}' = 'nationalities' THEN nationalities.nationalities[1]
+                      WHEN '${sortColumn}' = 'emails' THEN email_details[1]->>'value'
+                      WHEN '${sortColumn}' = 'phones' THEN phone_details[1]->>'value'
+                      WHEN '${sortColumn}' = 'id' THEN participants.id
+                      ELSE "${sortColumn}"
+                  END ${direction}`);
 
   return z.array(ParticipantListItemSchema).parse(
     participants.map((participant) => ({
@@ -336,12 +338,16 @@ const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
             },
           ]
         : [],
-      nationalities: nationalities[participant.id]
-        ? [nationalities[participant.id]]
+      nationalities: participant.nationalities[0]
+        ? [participant.nationalities[0]]
         : [],
       contactDetails: {
-        emails: emails[participant.id] ? [emails[participant.id]] : [],
-        phones: phones[participant.id] ? [phones[participant.id]] : [],
+        emails: participant.emailDetails[0]
+          ? [participant.emailDetails[0]]
+          : [],
+        phones: participant.phoneDetails[0]
+          ? [participant.phoneDetails[0]]
+          : [],
       },
     })),
   );

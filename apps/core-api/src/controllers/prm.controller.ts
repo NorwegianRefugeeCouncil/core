@@ -9,6 +9,9 @@ import {
   PaginatedResponse,
   EntityListItem,
   PaginationSchema,
+  createSortingSchema,
+  getEntityListItemSchema,
+  getEntityListSortingFields,
 } from '@nrcno/core-models';
 
 // This is exported for testing purposes (not great)
@@ -107,9 +110,13 @@ export const listEntities = async (
     }
     const pagination = PaginationSchema.parse(req.query);
 
+    const possibleSortingFields = getEntityListSortingFields(entityType.data);
+    const sortingSchema = createSortingSchema(possibleSortingFields);
+    const sorting = sortingSchema.parse(req.query);
+
     const prmService = PrmService[entityType.data];
 
-    const entities = await prmService.list(pagination);
+    const entities = await prmService.list(pagination, sorting);
     const totalCount = await prmService.count();
 
     const response: PaginatedResponse<EntityListItem> = {

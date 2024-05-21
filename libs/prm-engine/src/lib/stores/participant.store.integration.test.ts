@@ -7,7 +7,11 @@ import {
   ParticipantGenerator,
 } from '@nrcno/core-test-utils';
 import { getDb } from '@nrcno/core-db';
-import { ParticipantPartialUpdate } from '@nrcno/core-models';
+import {
+  IdentificationType,
+  ParticipantPartialUpdate,
+  SortingDirection,
+} from '@nrcno/core-models';
 
 import { ParticipantStore } from './participant.store';
 
@@ -186,7 +190,7 @@ describe('Participant store', () => {
       });
     });
 
-    test('should return a paginated list of participants, sorted by lastname', async () => {
+    test('should return a paginated list of participants, sorted by lastname by default', async () => {
       const firstParticipantDefinition =
         ParticipantGenerator.generateDefinition({ lastName: 'Allende' });
       const secondParticipantDefinition =
@@ -200,6 +204,118 @@ describe('Participant store', () => {
         startIndex: 0,
         pageSize: 1,
       });
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(1);
+      expect(participants[0].id).toEqual(firstParticipant.id);
+    });
+
+    test('should return a paginated list of participants, sorted by nationality descending', async () => {
+      const firstParticipantDefinition =
+        ParticipantGenerator.generateDefinition({ nationalities: ['es'] });
+      const secondParticipantDefinition =
+        ParticipantGenerator.generateDefinition({ nationalities: ['ar'] });
+      const firstParticipant = await ParticipantStore.create(
+        firstParticipantDefinition,
+      );
+      await ParticipantStore.create(secondParticipantDefinition);
+
+      const participants = await ParticipantStore.list(
+        {
+          startIndex: 0,
+          pageSize: 1,
+        },
+        {
+          sort: 'nationalities',
+          direction: SortingDirection.Desc,
+        },
+      );
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(1);
+      expect(participants[0].id).toEqual(firstParticipant.id);
+    });
+
+    test('should return a paginated list of participants, sorted by email ascending', async () => {
+      const firstParticipantDefinition =
+        ParticipantGenerator.generateDefinition({
+          contactDetails: {
+            emails: [{ value: 'a@test.com' }],
+            phones: [],
+          },
+        });
+      const secondParticipantDefinition =
+        ParticipantGenerator.generateDefinition({
+          contactDetails: {
+            emails: [{ value: 'b@test.com' }],
+            phones: [],
+          },
+        });
+      const firstParticipant = await ParticipantStore.create(
+        firstParticipantDefinition,
+      );
+      await ParticipantStore.create(secondParticipantDefinition);
+      const participants = await ParticipantStore.list(
+        {
+          startIndex: 0,
+          pageSize: 1,
+        },
+        {
+          sort: 'emails',
+          direction: SortingDirection.Asc,
+        },
+      );
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(1);
+      expect(participants[0].id).toEqual(firstParticipant.id);
+    });
+
+    test('should return a paginated list of participants, sorted by primary identification number descending', async () => {
+      const firstParticipantDefinition =
+        ParticipantGenerator.generateDefinition({
+          identification: [
+            {
+              identificationNumber: '456',
+              identificationType: IdentificationType.NationalId,
+              isPrimary: true,
+            },
+            {
+              identificationNumber: '999',
+              identificationType: IdentificationType.NationalId,
+              isPrimary: false,
+            },
+          ],
+        });
+      const secondParticipantDefinition =
+        ParticipantGenerator.generateDefinition({
+          identification: [
+            {
+              identificationNumber: '123',
+              identificationType: IdentificationType.NationalId,
+              isPrimary: true,
+            },
+            {
+              identificationNumber: '111',
+              identificationType: IdentificationType.NationalId,
+              isPrimary: false,
+            },
+          ],
+        });
+      const firstParticipant = await ParticipantStore.create(
+        firstParticipantDefinition,
+      );
+      await ParticipantStore.create(secondParticipantDefinition);
+      const participants = await ParticipantStore.list(
+        {
+          startIndex: 0,
+          pageSize: 1,
+        },
+        {
+          sort: 'identificationNumber',
+          direction: SortingDirection.Desc,
+        },
+      );
 
       expect(participants).toBeDefined();
       expect(participants).toHaveLength(1);
