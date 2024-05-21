@@ -273,41 +273,17 @@ export const ParticipantListItemSchema = z.object({
   dateOfBirth: z.coerce.date().nullable(),
   sex: SexSchema.nullable(),
   displacementStatus: DisplacementStatusSchema.nullable(),
-  nationalities: z
-    .array(IsoCodeSchema)
-    .refine((data) => data.length <= 1, {
-      message: 'Only main nationality',
-    })
-    .optional()
-    .default([]),
+  nationalities: z.array(IsoCodeSchema).max(1).optional().default([]),
   contactDetails: z
     .object({
-      emails: z
-        .array(ContactDetailsSchema)
-        .refine((data) => data.length <= 1, {
-          message: 'Only main email',
-        })
-        .optional()
-        .default([]),
-      phones: z
-        .array(ContactDetailsSchema)
-        .refine((data) => data.length <= 1, {
-          message: 'Only main phone number',
-        })
-        .optional()
-        .default([]),
+      emails: z.array(ContactDetailsSchema).max(1).optional().default([]),
+      phones: z.array(ContactDetailsSchema).max(1).optional().default([]),
     })
     .optional()
     .default({
       emails: [],
       phones: [],
     }),
-  identification: z
-    .array(IdentificationSchema)
-    .refine((data) => data.length <= 1, {
-      message: 'Only primary identification',
-    })
-    .optional()
-    .default([]),
+  identification: z.array(IdentificationSchema).max(1).optional().default([]),
 });
 export type ParticipantListItem = z.infer<typeof ParticipantListItemSchema>;
