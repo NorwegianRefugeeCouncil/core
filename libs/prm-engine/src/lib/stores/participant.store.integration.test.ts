@@ -177,11 +177,12 @@ describe('Participant store', () => {
         dateOfBirth: participant.dateOfBirth,
         sex: participant.sex,
         displacementStatus: participant.displacementStatus,
-        primaryIdentificationType: primaryIdentification.identificationType,
-        primaryIdentificationNumber: primaryIdentification.identificationNumber,
-        nationality: participant.nationalities[0],
-        email: participant.contactDetails.emails[0].value,
-        phone: participant.contactDetails.phones[0].value,
+        identification: participant.identification,
+        nationalities: [participant.nationalities[0]],
+        contactDetails: {
+          emails: [participant.contactDetails.emails[0]],
+          phones: [participant.contactDetails.phones[0]],
+        },
       });
     });
 
@@ -203,33 +204,6 @@ describe('Participant store', () => {
       expect(participants).toBeDefined();
       expect(participants).toHaveLength(1);
       expect(participants[0].id).toEqual(firstParticipant.id);
-    });
-
-    test('should return null for values not defined', async () => {
-      const participantDefinition = ParticipantGenerator.generateDefinition({
-        identification: [],
-        nationalities: [],
-        contactDetails: { emails: [], phones: [] },
-      });
-      const participant = await ParticipantStore.create(participantDefinition);
-
-      const participants = await ParticipantStore.list({
-        startIndex: 0,
-        pageSize: 50,
-      });
-
-      expect(participants).toBeDefined();
-      expect(participants).toHaveLength(1);
-      expect(participants[0]).toEqual(
-        expect.objectContaining({
-          id: participant.id,
-          primaryIdentificationType: null,
-          primaryIdentificationNumber: null,
-          nationality: null,
-          email: null,
-          phone: null,
-        }),
-      );
     });
   });
 

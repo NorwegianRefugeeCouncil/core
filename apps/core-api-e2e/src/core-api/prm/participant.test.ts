@@ -263,11 +263,29 @@ describe('Participants', () => {
         dateOfBirth: participantDefinition.dateOfBirth?.toISOString(),
         sex: participantDefinition.sex,
         displacementStatus: participantDefinition.displacementStatus,
-        primaryIdentificationType: primaryIdentification.identificationType,
-        primaryIdentificationNumber: primaryIdentification.identificationNumber,
-        nationality: participantDefinition.nationalities[0],
-        email: participantDefinition.contactDetails.emails[0].value,
-        phone: participantDefinition.contactDetails.phones[0].value,
+        identification: [
+          {
+            id: expect.any(String),
+            identificationType: primaryIdentification.identificationType,
+            identificationNumber: primaryIdentification.identificationNumber,
+            isPrimary: true,
+          },
+        ],
+        nationalities: [participantDefinition.nationalities[0]],
+        contactDetails: {
+          emails: [
+            {
+              value: participantDefinition.contactDetails.emails[0].value,
+              id: expect.any(String),
+            },
+          ],
+          phones: [
+            {
+              value: participantDefinition.contactDetails.phones[0].value,
+              id: expect.any(String),
+            },
+          ],
+        },
       };
 
       expect(res.status).toBe(200);

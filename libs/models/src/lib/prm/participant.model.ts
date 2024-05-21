@@ -273,10 +273,17 @@ export const ParticipantListItemSchema = z.object({
   dateOfBirth: z.coerce.date().nullable(),
   sex: SexSchema.nullable(),
   displacementStatus: DisplacementStatusSchema.nullable(),
-  primaryIdentificationType: IdentificationTypeSchema.nullable(),
-  primaryIdentificationNumber: z.string().nullable(),
-  nationality: IsoCodeSchema.nullable(),
-  email: z.string().nullable(),
-  phone: z.string().nullable(),
+  nationalities: z.array(IsoCodeSchema).max(1).optional().default([]),
+  contactDetails: z
+    .object({
+      emails: z.array(ContactDetailsSchema).max(1).optional().default([]),
+      phones: z.array(ContactDetailsSchema).max(1).optional().default([]),
+    })
+    .optional()
+    .default({
+      emails: [],
+      phones: [],
+    }),
+  identification: z.array(IdentificationSchema).max(1).optional().default([]),
 });
 export type ParticipantListItem = z.infer<typeof ParticipantListItemSchema>;

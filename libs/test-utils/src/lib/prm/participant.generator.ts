@@ -126,10 +126,12 @@ const generateListItem = (
     dateOfBirth: faker.date.past(),
     sex: faker.helpers.enumValue(Sex),
     displacementStatus: faker.helpers.enumValue(DisplacementStatus),
-    nationality: faker.helpers.arrayElement(['en', 'es', 'fr', 'ar']),
-    email: faker.internet.email(),
-    phone: faker.phone.number(),
-    ...IdentificationGenerator.generateListItem(),
+    nationalities: [faker.helpers.arrayElement(['en', 'es', 'fr', 'ar'])],
+    contactDetails: {
+      emails: [{ value: faker.internet.email(), id: faker.string.uuid() }],
+      phones: [{ value: faker.phone.number(), id: faker.string.uuid() }],
+    },
+    identification: [IdentificationGenerator.generateListItem()],
     ...overrides,
   };
 };
