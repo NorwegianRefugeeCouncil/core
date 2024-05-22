@@ -19,7 +19,6 @@ export const TextInput: React.FC<Props> = ({ config }) => {
     name: config.path.join('.'),
     control,
   });
-  console.log('TEXTINPUT', field, control);
 
   const value = (() => {
     switch (config.dataType) {

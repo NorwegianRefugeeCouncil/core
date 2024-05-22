@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { Grid, GridItem, Container } from '@chakra-ui/react';
+import { Grid, GridItem } from '@chakra-ui/react';
 
 import { Navigation, Header } from '../components';
 import { useUserContext } from '../contexts';
@@ -28,7 +28,7 @@ export const App: React.FC = () => {
       <GridItem p="4" bg="bgLight" area="menu">
         <Navigation />
       </GridItem>
-      <GridItem m="4" area="main" overflowY={'scroll'}>
+      <GridItem m="4" area="main" overflowY="auto">
         <Outlet />
       </GridItem>
     </Grid>

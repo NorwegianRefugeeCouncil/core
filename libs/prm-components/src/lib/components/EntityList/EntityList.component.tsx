@@ -17,9 +17,9 @@ export const EntityList: React.FC<Props> = ({
   entityList,
 }) => {
   return (
-    <TableContainer>
+    <TableContainer overflowY="auto" height="100%">
       <Table variant="striped" size="sm">
-        <Thead zIndex={'docked'} position={'sticky'} top={'0'}>
+        <Thead zIndex={'docked'} position={'sticky'} top={'0'} bg="white">
           <Tr textStyle="bold">
             {fields.map((field) => (
               <ColumnHeader key={field.path.join('.')} field={field} />

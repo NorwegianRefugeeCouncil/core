@@ -1,66 +1,116 @@
-import { Heading, Spinner, Box } from '@chakra-ui/react';
+import { useEffect } from 'react';
+import {
+  Heading,
+  Flex,
+  Skeleton,
+  Alert,
+  AlertIcon,
+  Button,
+} from '@chakra-ui/react';
+import { Link } from 'react-router-dom';
 import {
   DisplacementStatus,
   IdentificationType,
   Sex,
 } from '@nrcno/core-models';
-import { theme } from '@nrcno/core-theme';
 
 import { EntityList } from '../../components';
 import { useEntityListPage } from '../../hooks/useEntityListPage.hook';
+import { usePagination } from '../../hooks/usePagination';
+import { Pagination } from '../../components/Pagination.component';
 
 export const EntityListPage: React.FC = () => {
-  const { entityType, config, isLoading, isError, isSuccess, error, data } =
-    useEntityListPage();
+  const {
+    pagination,
+    setPageSize,
+    nextPage,
+    prevPage,
+    isFirstPage,
+    isLastPage,
+    totalCount,
+    totalPages,
+    updateFromPaginationResponse,
+  } = usePagination();
+
+  const { entityType, config, isError, isLoading, error, data } =
+    useEntityListPage(pagination);
+
+  useEffect(() => {
+    if (data) updateFromPaginationResponse(data);
+  }, [JSON.stringify(data)]);
 
   return (
-    <Box>
-      <Heading
-        pb="8"
-        bg={theme.colors.white}
-        top="0"
-        position="sticky"
-        zIndex={'docked'}
-      >
-        {entityType}
-      </Heading>
-      {isLoading && <Spinner colorScheme="primary" size="xl" />}
-      {isError && <div>{error?.message}</div>}
-      {isSuccess && <div>Success</div>}
-      <EntityList
-        config={config}
-        entityList={new Array(100).fill({
-          dateOfBirth: new Date('2006-10-12'),
-          displacementStatus: DisplacementStatus.AsylumSeeker,
-          firstName: 'first name',
-          id: 'id1',
-          lastName: 'lastname',
-          nationalities: ['en'],
-          identification: [
-            {
-              id: 'id1',
-              identificationType: IdentificationType.Passport,
-              identificationNumber: '123456789',
-              isPrimary: true,
-            },
-          ],
-          contactDetails: {
-            phones: [
-              {
-                id: 'phone1',
-                value: '12345678',
-              },
-            ],
-            emails: [
-              {
-                id: 'email1',
-                value: 'email@email.com',
-              },
-            ],
-          },
-          sex: Sex.Female,
-        })}
-      />
-    </Box>
+    <Flex height="100%" direction="column">
+      <Flex justifyContent="space-between" alignItems="center">
+        <Heading pb="8">{entityType}</Heading>
+        <Link to="new">
+          <Button colorScheme="primary">New</Button>
+        </Link>
+      </Flex>
+      {isError ? (
+        <Alert status="error" mb={4}>
+          <AlertIcon />
+          {error?.message}
+        </Alert>
+      ) : data?.totalCount === 0 ? (
+        <Alert status="info" mb={4}>
+          <AlertIcon />
+          No {entityType} found
+        </Alert>
+      ) : (
+        <>
+          <Flex flex={1} overflow="hidden">
+            <Skeleton isLoaded={!isLoading}>
+              <EntityList
+                config={config}
+                entityList={new Array(100).fill({
+                  dateOfBirth: new Date('2006-10-12'),
+                  displacementStatus: DisplacementStatus.AsylumSeeker,
+                  firstName: 'first name',
+                  id: 'id1',
+                  lastName: 'lastname',
+                  nationalities: ['en'],
+                  identification: [
+                    {
+                      id: 'id1',
+                      identificationType: IdentificationType.Passport,
+                      identificationNumber: '123456789',
+                      isPrimary: true,
+                    },
+                  ],
+                  contactDetails: {
+                    phones: [
+                      {
+                        id: 'phone1',
+                        value: '12345678',
+                      },
+                    ],
+                    emails: [
+                      {
+                        id: 'email1',
+                        value: 'email@email.com',
+                      },
+                    ],
+                  },
+                  sex: Sex.Female,
+                })}
+              />
+            </Skeleton>
+          </Flex>
+          <Flex justifyContent="flex-end">
+            <Pagination
+              pagination={pagination}
+              setPageSize={setPageSize}
+              nextPage={nextPage}
+              prevPage={prevPage}
+              isFirstPage={isFirstPage}
+              isLastPage={isLastPage}
+              totalCount={totalCount}
+              totalPages={totalPages}
+            />
+          </Flex>
+        </>
+      )}
+    </Flex>
   );
 };
