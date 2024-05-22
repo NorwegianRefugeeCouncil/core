@@ -321,6 +321,29 @@ describe('Participant store', () => {
       expect(participants).toHaveLength(1);
       expect(participants[0].id).toEqual(firstParticipant.id);
     });
+
+    test('should return a paginated list of participants, sorted by id ascending', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition();
+      const participant1 = await ParticipantStore.create(participantDefinition);
+      const participant2 = await ParticipantStore.create(participantDefinition);
+      const expectedFirstParticipantId =
+        participant1.id < participant2.id ? participant1.id : participant2.id;
+
+      const participants = await ParticipantStore.list(
+        {
+          startIndex: 0,
+          pageSize: 1,
+        },
+        {
+          sort: 'id',
+          direction: SortingDirection.Asc,
+        },
+      );
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(1);
+      expect(participants[0].id).toEqual(expectedFirstParticipantId);
+    });
   });
 
   describe('update', () => {

@@ -236,7 +236,7 @@ const list = async (
 ): Promise<ParticipantListItem[]> => {
   const db = getDb();
 
-  const sortColumn = toSnakeCase(sort);
+  const sortColumn = sort === 'id' ? 'participants.id' : toSnakeCase(sort);
 
   const participantFields = [
     'participants.id',
@@ -349,8 +349,7 @@ const list = async (
   CASE WHEN '${sortColumn}' = 'nationalities' THEN nationalities END ${direction},
   CASE WHEN '${sortColumn}' = 'emails' THEN email_value END ${direction},
   CASE WHEN '${sortColumn}' = 'phones' THEN phone_value END ${direction},
-  CASE WHEN '${sortColumn}' = 'id' THEN participants.id END ${direction},
-  CASE WHEN '${sortColumn}' NOT IN ('nationalities', 'emails', 'phones', 'id') THEN "${sortColumn}" END ${direction}
+  CASE WHEN '${sortColumn}' NOT IN ('nationalities', 'emails', 'phones') THEN ${sortColumn} END ${direction}
 `);
 
   return z.array(ParticipantListItemSchema).parse(
