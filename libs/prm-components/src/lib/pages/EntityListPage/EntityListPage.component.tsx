@@ -60,7 +60,7 @@ export const EntityListPage: React.FC = () => {
       ) : (
         <>
           <Flex flex={1} overflow="hidden">
-            <Skeleton isLoaded={!isLoading}>
+            <Skeleton isLoaded={!isLoading} width="100%">
               <EntityList config={config} entityList={data?.items} />
             </Skeleton>
           </Flex>
