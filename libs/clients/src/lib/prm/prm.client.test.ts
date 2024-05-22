@@ -7,7 +7,7 @@ import { ulid } from 'ulidx';
 import { ParticipantGenerator } from '@nrcno/core-test-utils';
 import { EntityType, Pagination } from '@nrcno/core-models';
 
-import { PrmClient } from './prm.client';
+import { PrmClient } from '.';
 
 describe('PRM client', () => {
   describe('Participant', () => {
