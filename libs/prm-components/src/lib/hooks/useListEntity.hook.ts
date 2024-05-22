@@ -32,7 +32,7 @@ export const useListEntity = (
   const [state, actions] = useApiReducer<PaginatedResponse<EntityListItem>>();
 
   const listEntities = async (pagination: Pagination) => {
-    if (!client) {
+    if (!client || 'list' in client === false) {
       throw new Error('Client is not defined');
     }
     try {

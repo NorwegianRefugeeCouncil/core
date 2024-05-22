@@ -29,7 +29,7 @@ export const useCreateEntity = (
   const onCreateEntity = async (
     entityDefinition: EntityDefinition,
   ): Promise<Entity> => {
-    if (!client) {
+    if (!client || 'create' in client === false) {
       throw new Error('Client is not defined');
     }
     try {

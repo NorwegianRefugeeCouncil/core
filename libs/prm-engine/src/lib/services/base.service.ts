@@ -61,11 +61,12 @@ export const ListMixin =
       public list(
         pagination: Pagination,
         sorting: Sorting,
+        filter: TEntityFiltering,
       ): Promise<TEntityListItem[]> {
         if (!this.store.list) {
           throw new Error('Method not implemented');
         }
-        return this.store.list(pagination, sorting);
+        return this.store.list(pagination, sorting, filter);
       }
 
       public count(filter: TEntityFiltering): Promise<number> {

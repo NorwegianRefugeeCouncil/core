@@ -30,7 +30,7 @@ export const useEditEntity = (
     entityId: string,
     entityDefinition: any,
   ): Promise<Entity> => {
-    if (!client) {
+    if (!client || 'update' in client === false) {
       throw new Error('Client is not defined');
     }
     try {

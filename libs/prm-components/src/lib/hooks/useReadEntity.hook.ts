@@ -27,7 +27,7 @@ export const useReadEntity = (
   const [state, actions] = useApiReducer<Entity>();
 
   const loadEntity = async (entityId: string) => {
-    if (!client) {
+    if (!client || 'read' in client === false) {
       throw new Error('Client is not defined');
     }
     try {
