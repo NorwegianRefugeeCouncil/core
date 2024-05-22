@@ -1,4 +1,4 @@
-import { EntityListItemField, EntityType } from '@nrcno/core-models';
+import { EntityType } from '@nrcno/core-models';
 
 export enum Component {
   List = 'list',

@@ -61,40 +61,7 @@ export const EntityListPage: React.FC = () => {
         <>
           <Flex flex={1} overflow="hidden">
             <Skeleton isLoaded={!isLoading}>
-              <EntityList
-                config={config}
-                entityList={new Array(100).fill({
-                  dateOfBirth: new Date('2006-10-12'),
-                  displacementStatus: DisplacementStatus.AsylumSeeker,
-                  firstName: 'first name',
-                  id: 'id1',
-                  lastName: 'lastname',
-                  nationalities: ['en'],
-                  identification: [
-                    {
-                      id: 'id1',
-                      identificationType: IdentificationType.Passport,
-                      identificationNumber: '123456789',
-                      isPrimary: true,
-                    },
-                  ],
-                  contactDetails: {
-                    phones: [
-                      {
-                        id: 'phone1',
-                        value: '12345678',
-                      },
-                    ],
-                    emails: [
-                      {
-                        id: 'email1',
-                        value: 'email@email.com',
-                      },
-                    ],
-                  },
-                  sex: Sex.Female,
-                })}
-              />
+              <EntityList config={config} entityList={data?.items} />
             </Skeleton>
           </Flex>
           <Flex justifyContent="flex-end">

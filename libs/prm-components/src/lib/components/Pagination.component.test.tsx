@@ -36,7 +36,7 @@ describe('Pagination', () => {
       />,
     );
 
-    expect(getByText('Page 0 / 5')).toBeTruthy();
+    expect(getByText('Page 1 / 5')).toBeTruthy();
     expect(getByText('100 total')).toBeTruthy();
   });
 
