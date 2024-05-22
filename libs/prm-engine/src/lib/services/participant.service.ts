@@ -2,47 +2,32 @@ import {
   ContactDetails,
   ContactDetailsDefinition,
   Identification,
-  Pagination,
   Participant,
   ParticipantDefinition,
   ParticipantFiltering,
   ParticipantListItem,
+  ParticipantPartialUpdate,
   ParticipantUpdate,
-  Sorting,
 } from '@nrcno/core-models';
 import { NotFoundError } from '@nrcno/core-errors';
 
 import { ParticipantStore } from '../stores/participant.store';
 
-import { PrmService } from './base.service';
+import { CRUDMixin } from './base.service';
 
-export const ParticipantService: PrmService<
+export class ParticipantService extends CRUDMixin<
   ParticipantDefinition,
   Participant,
   ParticipantUpdate,
-  ParticipantListItem
-> = {
-  count: async (filtering: ParticipantFiltering) => {
-    return ParticipantStore.count(filtering);
+  ParticipantPartialUpdate,
+  ParticipantListItem,
+  ParticipantFiltering
+>()(
+  class {
+    public store = ParticipantStore;
   },
-
-  create: async (participant: ParticipantDefinition) => {
-    return ParticipantStore.create(participant);
-  },
-
-  get: async (id: string) => {
-    return ParticipantStore.get(id);
-  },
-
-  list: async (
-    pagination: Pagination,
-    sorting: Sorting,
-    filtering: ParticipantFiltering,
-  ) => {
-    return ParticipantStore.list(pagination, sorting, filtering);
-  },
-
-  update: async (id: string, participant: ParticipantUpdate) => {
+) {
+  mapUpdateToPartial = async (id: string, participant: ParticipantUpdate) => {
     const {
       disabilities,
       contactDetails,
@@ -138,13 +123,13 @@ export const ParticipantService: PrmService<
       ),
     };
 
-    return ParticipantStore.update(id, {
+    return {
       ...participantDetails,
       disabilities,
       contactDetails: contactDetailUpdates,
       identification: identificationUpdates,
       languages: languageUpdates,
       nationalities: nationalityUpdates,
-    });
-  },
-};
+    };
+  };
+}
