@@ -14,9 +14,13 @@ import {
   Sorting,
   SortingDirection,
 } from '@nrcno/core-models';
-import { PostgresError, PostgresErrorCode, getDb } from '@nrcno/core-db';
+import {
+  PostgresError,
+  PostgresErrorCode,
+  getDb,
+  toSnakeCase,
+} from '@nrcno/core-db';
 import { AlreadyExistsError, NotFoundError } from '@nrcno/core-errors';
-import { toSnakeCase } from 'libs/db/src/lib/db-utils';
 
 import { BaseStore } from './base.store';
 
@@ -252,7 +256,7 @@ const list = async (
     .select(
       'participantId',
       db.raw(
-        'array_agg(nationality_iso_code ORDER BY created_at ASC) as nationalities',
+        '(array_agg(nationality_iso_code ORDER BY created_at ASC))[1] as nationalities',
       ),
     )
     .groupBy('participantId')
@@ -262,12 +266,12 @@ const list = async (
     .select(
       'participantId',
       db.raw(`
-        array_agg(
+        (array_agg(
           json_build_object(
             'id', id,
             'value', clean_value
           ) ORDER BY created_at ASC
-        ) as phone_details
+        ))[1] as phone_details
       `),
     )
     .where('contactDetailType', ContactDetailType.PhoneNumber)
@@ -278,12 +282,12 @@ const list = async (
     .select(
       'participantId',
       db.raw(`
-        array_agg(
+        (array_agg(
           json_build_object(
             'id', id,
             'value', clean_value
           ) ORDER BY created_at ASC
-        ) as email_details
+        ))[1] as email_details
       `),
     )
     .where('contactDetailType', ContactDetailType.Email)
@@ -318,9 +322,9 @@ const list = async (
     .leftJoin(emailsSubquery, 'participants.id', 'emails.participantId')
     .limit(pagination.pageSize)
     .offset(pagination.startIndex)
-    .orderByRaw(`CASE WHEN '${sortColumn}' = 'nationalities' THEN nationalities.nationalities[1]
-                      WHEN '${sortColumn}' = 'emails' THEN email_details[1]->>'value'
-                      WHEN '${sortColumn}' = 'phones' THEN phone_details[1]->>'value'
+    .orderByRaw(`CASE WHEN '${sortColumn}' = 'nationalities' THEN nationalities.nationalities
+                      WHEN '${sortColumn}' = 'emails' THEN email_details->>'value'
+                      WHEN '${sortColumn}' = 'phones' THEN phone_details->>'value'
                       WHEN '${sortColumn}' = 'id' THEN participants.id
                       ELSE "${sortColumn}"
                   END ${direction}`);
@@ -339,15 +343,11 @@ const list = async (
           ]
         : [],
       nationalities: participant.nationalities[0]
-        ? [participant.nationalities[0]]
+        ? [participant.nationalities]
         : [],
       contactDetails: {
-        emails: participant.emailDetails[0]
-          ? [participant.emailDetails[0]]
-          : [],
-        phones: participant.phoneDetails[0]
-          ? [participant.phoneDetails[0]]
-          : [],
+        emails: participant.emailDetails ? [participant.emailDetails] : [],
+        phones: participant.phoneDetails ? [participant.phoneDetails] : [],
       },
     })),
   );
