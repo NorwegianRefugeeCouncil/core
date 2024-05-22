@@ -205,7 +205,17 @@ const buildListQueryJoins = (db: Knex) => {
   return { applyJoins };
 };
 
-const count = async (filtering: ParticipantFiltering): Promise<number> => {
+export type IParticipantStore = BaseStore<
+  ParticipantDefinition,
+  Participant,
+  ParticipantPartialUpdate,
+  ParticipantListItem,
+  ParticipantFiltering
+>;
+
+const count: IParticipantStore['count'] = async (
+  filtering: ParticipantFiltering,
+): Promise<number> => {
   const db = getDb();
 
   const { equalityFilters, applyAdditionalFilters } =
@@ -221,7 +231,7 @@ const count = async (filtering: ParticipantFiltering): Promise<number> => {
   return typeof count === 'string' ? parseInt(count, 10) : count;
 };
 
-const create = async (
+const create: IParticipantStore['create'] = async (
   participantDefinition: ParticipantDefinition,
 ): Promise<Participant> => {
   const db = getDb();
@@ -355,7 +365,9 @@ const create = async (
   return result;
 };
 
-const get = async (id: string): Promise<Participant | null> => {
+const get: IParticipantStore['get'] = async (
+  id: string,
+): Promise<Participant | null> => {
   const db = getDb();
 
   const participant = await db('participants').where('id', id).first();
@@ -417,7 +429,7 @@ const get = async (id: string): Promise<Participant | null> => {
   return participantResult;
 };
 
-const list = async (
+const list: IParticipantStore['list'] = async (
   pagination: Pagination,
   { sort = 'lastName', direction = SortingDirection.Asc }: Sorting = {
     direction: SortingDirection.Asc,
@@ -522,7 +534,7 @@ const list = async (
   );
 };
 
-const update = async (
+const update: IParticipantStore['update'] = async (
   participantId: string,
   participantUpdate: ParticipantPartialUpdate,
 ): Promise<Participant> => {
@@ -686,12 +698,7 @@ const update = async (
   return updatedParticipant;
 };
 
-export const ParticipantStore: BaseStore<
-  ParticipantDefinition,
-  Participant,
-  ParticipantPartialUpdate,
-  ParticipantListItem
-> = {
+export const ParticipantStore: IParticipantStore = {
   count,
   create,
   get,
