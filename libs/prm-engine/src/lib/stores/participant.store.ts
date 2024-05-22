@@ -262,36 +262,58 @@ const list = async (
     .groupBy('participantId')
     .as('nationalities');
 
-  const phonesSubquery = db('participant_contact_details')
+  const phonesSubquery = db
     .select(
       'participantId',
       db.raw(`
-        (array_agg(
-          json_build_object(
-            'id', id,
-            'value', clean_value
-          ) ORDER BY created_at ASC
-        ))[1] as phone_details
+        phone_details->>'id' as phone_id,
+        phone_details->>'value' as phone_value
       `),
     )
-    .where('contactDetailType', ContactDetailType.PhoneNumber)
-    .groupBy('participantId')
+    .from(
+      db('participant_contact_details')
+        .select(
+          'participantId',
+          db.raw(`
+            (array_agg(
+              json_build_object(
+                'id', id,
+                'value', clean_value
+              ) ORDER BY created_at ASC
+            ))[1] as phone_details
+          `),
+        )
+        .where('contactDetailType', ContactDetailType.PhoneNumber)
+        .groupBy('participantId')
+        .as('phones_agg'),
+    )
     .as('phones');
 
-  const emailsSubquery = db('participant_contact_details')
+  const emailsSubquery = db
     .select(
       'participantId',
       db.raw(`
-        (array_agg(
-          json_build_object(
-            'id', id,
-            'value', clean_value
-          ) ORDER BY created_at ASC
-        ))[1] as email_details
+        email_details->>'id' as email_id,
+        email_details->>'value' as email_value
       `),
     )
-    .where('contactDetailType', ContactDetailType.Email)
-    .groupBy('participantId')
+    .from(
+      db('participant_contact_details')
+        .select(
+          'participantId',
+          db.raw(`
+            (array_agg(
+              json_build_object(
+                'id', id,
+                'value', clean_value
+              ) ORDER BY created_at ASC
+            ))[1] as email_details
+          `),
+        )
+        .where('contactDetailType', ContactDetailType.Email)
+        .groupBy('participantId')
+        .as('emails_agg'),
+    )
     .as('emails');
 
   const participants = await db('participants')
@@ -299,8 +321,10 @@ const list = async (
       ...participantFields,
       ...identificationFields,
       'nationalities.nationalities',
-      'phones.phone_details',
-      'emails.email_details',
+      'phones.phone_id',
+      'phones.phone_value',
+      'emails.email_id',
+      'emails.email_value',
     ])
     .leftJoin('participant_identifications', function () {
       this.on(
@@ -321,13 +345,13 @@ const list = async (
     .leftJoin(phonesSubquery, 'participants.id', 'phones.participantId')
     .leftJoin(emailsSubquery, 'participants.id', 'emails.participantId')
     .limit(pagination.pageSize)
-    .offset(pagination.startIndex)
-    .orderByRaw(`CASE WHEN '${sortColumn}' = 'nationalities' THEN nationalities.nationalities
-                      WHEN '${sortColumn}' = 'emails' THEN email_details->>'value'
-                      WHEN '${sortColumn}' = 'phones' THEN phone_details->>'value'
-                      WHEN '${sortColumn}' = 'id' THEN participants.id
-                      ELSE "${sortColumn}"
-                  END ${direction}`);
+    .offset(pagination.startIndex).orderByRaw(`
+  CASE WHEN '${sortColumn}' = 'nationalities' THEN nationalities END ${direction},
+  CASE WHEN '${sortColumn}' = 'emails' THEN email_value END ${direction},
+  CASE WHEN '${sortColumn}' = 'phones' THEN phone_value END ${direction},
+  CASE WHEN '${sortColumn}' = 'id' THEN participants.id END ${direction},
+  CASE WHEN '${sortColumn}' NOT IN ('nationalities', 'emails', 'phones', 'id') THEN "${sortColumn}" END ${direction}
+`);
 
   return z.array(ParticipantListItemSchema).parse(
     participants.map((participant) => ({
@@ -342,12 +366,16 @@ const list = async (
             },
           ]
         : [],
-      nationalities: participant.nationalities[0]
+      nationalities: participant.nationalities
         ? [participant.nationalities]
         : [],
       contactDetails: {
-        emails: participant.emailDetails ? [participant.emailDetails] : [],
-        phones: participant.phoneDetails ? [participant.phoneDetails] : [],
+        emails: participant.emailId
+          ? [{ id: participant.emailId, value: participant.emailValue }]
+          : [],
+        phones: participant.phoneId
+          ? [{ id: participant.phoneId, value: participant.phoneValue }]
+          : [],
       },
     })),
   );
