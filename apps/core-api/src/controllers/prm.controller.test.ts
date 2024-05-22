@@ -29,29 +29,41 @@ const fakeParticipantWithDefaults = {
   nationalities: [],
 };
 
+const ps = {
+  count: jest.fn().mockResolvedValue(0),
+  create: jest.fn().mockImplementation((entityDefinition) => ({
+    ...entityDefinition,
+    id: ulid(),
+  })),
+  get: jest.fn().mockImplementation((id) => ({
+    ...fakeParticipantWithDefaults,
+    id,
+  })),
+  list: jest.fn().mockResolvedValue([]),
+  update: jest.fn().mockImplementation((id, entityDefinition) => ({
+    ...entityDefinition,
+    id,
+  })),
+};
+
 jest.mock('@nrcno/core-prm-engine', () => ({
-  PrmService: {
-    [EntityType.Participant]: {
-      count: jest.fn().mockResolvedValue(0),
-      create: jest.fn().mockImplementation((entityDefinition) => ({
-        ...entityDefinition,
-        id: ulid(),
-      })),
-      get: jest
-        .fn()
-        .mockImplementation((id) => ({ ...fakeParticipantWithDefaults, id })),
-      list: jest.fn().mockResolvedValue([]),
-      update: jest.fn().mockImplementation((id, entityDefinition) => ({
-        ...entityDefinition,
-        id,
-      })),
-    },
-  },
+  getPrmService: jest.fn().mockImplementation((entityType) => {
+    switch (entityType) {
+      case EntityType.Participant:
+        return ps;
+      default:
+        throw new Error('Entity type not found');
+    }
+  }),
 }));
 
 describe('PRM Controller', () => {
   describe('Participant', () => {
-    const participantService = getPrmService(EntityType.Participant);
+    let participantService: any;
+
+    beforeEach(() => {
+      participantService = getPrmService(EntityType.Participant);
+    });
 
     describe('create', () => {
       it('should return 201 and the created entity', async () => {
