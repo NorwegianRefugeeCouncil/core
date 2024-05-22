@@ -6,9 +6,13 @@ import {
   ParticipantUpdateSchema,
   ParticipantDefinition,
   ParticipantListItemSchema,
+  ParticipantListItem,
   ParticipantFilteringSchema,
   ParticipantListSortingFields,
   ParticipantFiltering,
+  Participant,
+  ParticipantPartialUpdate,
+  ParticipantUpdate,
 } from './participant.model';
 
 export enum EntityType {
@@ -19,17 +23,12 @@ export const EntityTypeSchema = z.nativeEnum(EntityType);
 
 export const EntityIdSchema = z.string().ulid();
 
-// export const EntitySchema = z.union([ParticipantSchema]);
-export const EntitySchema = ParticipantSchema;
-export type Entity = z.infer<typeof EntitySchema>;
-
+export type Entity = Participant;
 export type EntityDefinition = ParticipantDefinition;
-
-export const EntityFieldSchema = EntitySchema.keyof();
-export type EntityField = z.infer<typeof EntityFieldSchema>;
-
-export const EntityListItemSchema = ParticipantListItemSchema;
-export type EntityListItem = z.infer<typeof EntityListItemSchema>;
+export type EntityListItem = ParticipantListItem;
+export type EntityUpdate = ParticipantUpdate;
+export type EntityPartialUpdate = ParticipantPartialUpdate;
+export type EntityFiltering = ParticipantFiltering;
 
 const entitySchemaMap = {
   [EntityType.Participant]: ParticipantSchema,
@@ -66,4 +65,3 @@ const entityFilteringSchemaMap = {
 };
 export const getEntityFilteringSchema = (entityType: EntityType) =>
   entityFilteringSchemaMap[entityType];
-export type EntityFiltering = ParticipantFiltering;
