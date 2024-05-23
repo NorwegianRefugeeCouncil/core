@@ -495,7 +495,7 @@ export const participantConfig: EntityUIConfig = {
       path: ['motherName'],
       dataType: DataType.String,
       component: Component.TextInput,
-      label: 'Mother Name',
+      label: "Mother's Name",
     },
     {
       path: ['sex'],
@@ -504,7 +504,7 @@ export const participantConfig: EntityUIConfig = {
       label: 'Sex',
     },
     {
-      path: ['birthdate'],
+      path: ['dateOfBirth'],
       dataType: DataType.Date,
       component: Component.TextInput,
       label: 'Birthdate',
@@ -513,13 +513,13 @@ export const participantConfig: EntityUIConfig = {
       path: ['age'],
       dataType: DataType.Number,
       component: Component.TextInput,
-      label: 'Mother Name',
+      label: 'Age',
     },
     {
       path: ['isMinor'],
       dataType: DataType.Boolean,
       component: Component.Checkbox,
-      label: 'Is minor',
+      label: 'Is a minor',
     },
     {
       path: ['nationalities'],
@@ -528,25 +528,25 @@ export const participantConfig: EntityUIConfig = {
       label: 'Nationality',
     },
     {
-      path: ['identifications'],
+      path: ['identificationNumber'],
       dataType: DataType.String,
       component: Component.TextInput,
       label: 'Primary Identification Number',
     },
     {
-      path: ['contactDetails.phones'],
+      path: ['phones'],
       dataType: DataType.String,
       component: Component.TextInput,
       label: 'Phone number',
     },
     {
-      path: ['contactDetails.emails'],
+      path: ['emails'],
       dataType: DataType.String,
       component: Component.TextInput,
       label: 'Emails',
     },
     {
-      path: ['address'],
+      path: ['residence'],
       dataType: DataType.String,
       component: Component.TextInput,
       label: 'Residence',
