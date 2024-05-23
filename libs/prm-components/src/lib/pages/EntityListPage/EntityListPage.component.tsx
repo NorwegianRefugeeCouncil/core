@@ -6,15 +6,18 @@ import {
   Alert,
   AlertIcon,
   Button,
+  useDisclosure,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
+  Box,
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
-import {
-  DisplacementStatus,
-  IdentificationType,
-  Sex,
-} from '@nrcno/core-models';
+import { SmallAddIcon, SearchIcon } from '@chakra-ui/icons';
 
-import { EntityList } from '../../components';
+import { EntityList, EntitySearchForm } from '../../components';
 import { useEntityListPage } from '../../hooks/useEntityListPage.hook';
 import { usePagination } from '../../hooks/usePagination';
 import { Pagination } from '../../components/Pagination.component';
@@ -32,8 +35,17 @@ export const EntityListPage: React.FC = () => {
     updateFromPaginationResponse,
   } = usePagination();
 
-  const { entityType, config, isError, isLoading, error, data } =
-    useEntityListPage(pagination);
+  const {
+    entityType,
+    listConfig,
+    searchConfig,
+    isError,
+    isLoading,
+    error,
+    data,
+  } = useEntityListPage(pagination);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     if (data) updateFromPaginationResponse(data);
@@ -43,9 +55,23 @@ export const EntityListPage: React.FC = () => {
     <Flex height="100%" direction="column">
       <Flex justifyContent="space-between" alignItems="center">
         <Heading pb="8">{entityType}</Heading>
-        <Link to="new">
-          <Button colorScheme="primary">New</Button>
-        </Link>
+        <Box>
+          <Link to="new">
+            <Button colorScheme="primary">
+              <SmallAddIcon me={2} />
+              New
+            </Button>
+          </Link>
+          <Button
+            colorScheme="primary"
+            variant="outline"
+            onClick={onOpen}
+            ms="2"
+          >
+            <SearchIcon me={2} />
+            Search
+          </Button>
+        </Box>
       </Flex>
       {isError ? (
         <Alert status="error" mb={4}>
@@ -61,7 +87,7 @@ export const EntityListPage: React.FC = () => {
         <>
           <Flex flex={1} overflow="hidden">
             <Skeleton isLoaded={!isLoading} width="100%">
-              <EntityList config={config} entityList={data?.items} />
+              <EntityList config={listConfig} entityList={data?.items} />
             </Skeleton>
           </Flex>
           <Flex justifyContent="flex-end">
@@ -78,6 +104,19 @@ export const EntityListPage: React.FC = () => {
           </Flex>
         </>
       )}
+      <Drawer placement="right" onClose={onClose} isOpen={isOpen} size={'md'}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerHeader>Search</DrawerHeader>
+          <DrawerBody>
+            <EntitySearchForm
+              id={`entity_search_${entityType}`}
+              config={searchConfig}
+              onCancel={onClose}
+            />
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </Flex>
   );
 };

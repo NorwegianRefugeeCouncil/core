@@ -18,10 +18,12 @@ export const useEntityListPage = (pagination: Pagination) => {
   }
 
   const listConfig = config[entityType].list;
+  const searchConfig = config[entityType].search;
 
   return {
     entityType: entityType,
-    config: listConfig,
+    listConfig,
+    searchConfig,
     isLoading: list.status === SubmitStatus.SUBMITTING,
     isError: list.status === SubmitStatus.ERROR,
     isSuccess: list.status === SubmitStatus.SUCCESS,
