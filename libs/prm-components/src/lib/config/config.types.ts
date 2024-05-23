@@ -71,7 +71,7 @@ export type EntityUIConfig = {
   list: {
     fields: TableColumn[];
   };
-  search: unknown;
+  search: Partial<EntityType>;
 };
 
 export type PrmUIConfig = Record<EntityType, EntityUIConfig>;
