@@ -297,6 +297,8 @@ export const ParticipantFilteringSchema = z.object({
   motherName: z.string().optional(),
   sex: SexSchema.optional(),
   dateOfBirth: z.coerce.date().optional(),
+  age: z.number().optional(),
+  isMinor: z.boolean().optional(),
   nationalities: z.string().optional(),
   identificationNumber: z.string().optional(),
   phones: z.string().optional(),
