@@ -19,7 +19,10 @@ module.exports = async function () {
     composeFilePath,
     composeFile,
   )
-    .withWaitStrategy('db', Wait.forHealthCheck())
+    .withWaitStrategy(
+      'db',
+      Wait.forLogMessage('database system is ready to accept connections'),
+    )
     .withStartupTimeout(120 * 1000)
     .up();
 
