@@ -7,6 +7,7 @@ import {
   ParticipantDefinition,
   ParticipantListItem,
   ParticipantListItemSchema,
+  ParticipantFilteringSchema,
 } from './participant.model';
 
 export enum EntityType {
@@ -46,3 +47,9 @@ const entityListItemSchemaMap = {
 };
 export const getEntityListItemSchema = (entityType: EntityType) =>
   entityListItemSchemaMap[entityType];
+
+const entityFilteringSchemaMap = {
+  [EntityType.Participant]: ParticipantFilteringSchema,
+};
+export const getEntityFilteringSchema = (entityType: EntityType) =>
+  entityFilteringSchemaMap[entityType];
