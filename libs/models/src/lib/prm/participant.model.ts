@@ -298,7 +298,6 @@ export const ParticipantListSortingFields = [
   'nationalities',
   'emails',
   'phones',
-  'identificationType',
   'identificationNumber',
 ];
 
