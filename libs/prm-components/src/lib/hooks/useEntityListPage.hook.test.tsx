@@ -69,7 +69,8 @@ describe('useEntityListPage', () => {
 
       expect(result.current).toEqual({
         entityType: EntityType.Participant,
-        config: config[EntityType.Participant].list,
+        listConfig: config[EntityType.Participant].list,
+        searchConfig: config[EntityType.Participant].search,
         isLoading: false,
         isError: false,
         isSuccess: false,
