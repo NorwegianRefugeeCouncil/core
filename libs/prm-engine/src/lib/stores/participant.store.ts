@@ -321,10 +321,10 @@ const list = async (
       ...participantFields,
       ...identificationFields,
       'nationalities.nationalities',
-      'phones.phone_id',
-      'phones.phone_value',
-      'emails.email_id',
-      'emails.email_value',
+      'phones.phoneId',
+      'phones.phoneValue',
+      'emails.emailId',
+      'emails.emailValue',
     ])
     .leftJoin('participant_identifications', function () {
       this.on(
