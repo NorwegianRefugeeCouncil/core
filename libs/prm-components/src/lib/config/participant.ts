@@ -504,16 +504,28 @@ export const participantConfig: EntityUIConfig = {
       label: 'Sex',
     },
     {
-      path: ['dateOfBirth'],
+      path: ['dateOfBirthMin'],
       dataType: DataType.Date,
       component: Component.TextInput,
-      label: 'Birthdate',
+      label: 'Birthdate - Start',
     },
     {
-      path: ['age'],
+      path: ['dateOfBirthMax'],
+      dataType: DataType.Date,
+      component: Component.TextInput,
+      label: 'Birthdate - End',
+    },
+    {
+      path: ['ageMin'],
       dataType: DataType.Number,
       component: Component.TextInput,
-      label: 'Age',
+      label: 'Age - Start',
+    },
+    {
+      path: ['ageMax'],
+      dataType: DataType.Number,
+      component: Component.TextInput,
+      label: 'Age - End',
     },
     {
       path: ['isMinor'],
