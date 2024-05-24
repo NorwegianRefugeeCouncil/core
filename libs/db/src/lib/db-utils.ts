@@ -29,5 +29,5 @@ export const wrapIdentifier = (
   value: string,
   origImpl: (value: string) => string,
 ) => {
-  return origImpl(snakeCase(value));
+  return value === '*' ? origImpl(value) : origImpl(snakeCase(value));
 };
