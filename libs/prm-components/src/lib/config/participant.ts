@@ -441,14 +441,8 @@ export const participantConfig: EntityUIConfig = {
         title: 'Nationality',
       },
       {
-        path: ['identification', 0],
+        path: ['identification', 0, 'identificationNumber'],
         title: 'Primary Identification',
-        format: (id: Participant['identification'][0]) => {
-          if (id) {
-            return `${id.identificationNumber} (${id.identificationType})`;
-          }
-          return '';
-        },
         width: 2,
       },
       {
