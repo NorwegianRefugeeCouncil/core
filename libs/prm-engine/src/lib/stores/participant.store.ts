@@ -1,3 +1,4 @@
+import { snakeCase } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { ulid } from 'ulidx';
 import { z } from 'zod';
@@ -14,12 +15,7 @@ import {
   Sorting,
   SortingDirection,
 } from '@nrcno/core-models';
-import {
-  PostgresError,
-  PostgresErrorCode,
-  getDb,
-  toSnakeCase,
-} from '@nrcno/core-db';
+import { PostgresError, PostgresErrorCode, getDb } from '@nrcno/core-db';
 import { AlreadyExistsError, NotFoundError } from '@nrcno/core-errors';
 
 import { BaseStore } from './base.store';
@@ -236,7 +232,7 @@ const list = async (
 ): Promise<ParticipantListItem[]> => {
   const db = getDb();
 
-  const sortColumn = sort === 'id' ? 'participants.id' : toSnakeCase(sort);
+  const sortColumn = sort === 'id' ? 'participants.id' : snakeCase(sort);
 
   const participantFields = [
     'participants.id',
