@@ -1,4 +1,5 @@
 import { AxiosInstance } from 'axios';
+import { z } from 'zod';
 
 import {
   EntityType,
@@ -55,7 +56,9 @@ const getPrmClient = (axiosInstance: AxiosInstance) => {
     };
 
     const list = async (pagination: Pagination) => {
-      const response = await baseClient.get(`/prm/${entityType}`, pagination);
+      const response = await baseClient.get(`/prm/${entityType}`, {
+        params: pagination,
+      });
       return entityListPaginationSchema.parse(response.data);
     };
 

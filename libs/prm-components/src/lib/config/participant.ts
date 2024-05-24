@@ -5,6 +5,7 @@ import {
   DisplacementStatus,
   EngagementContext,
   IdentificationType,
+  Participant,
   Sex,
   YesNoUnknown,
 } from '@nrcno/core-models';
@@ -418,6 +419,45 @@ export const participantConfig: EntityUIConfig = {
       },
     ],
   },
-  list: {},
+  list: {
+    fields: [
+      {
+        path: ['id'],
+        title: 'ID',
+        isID: true,
+        width: 4,
+      },
+      { path: ['firstName'], title: 'Name', width: 2 },
+      { path: ['lastName'], title: 'Surname', width: 2 },
+      { path: ['sex'], title: 'Sex', width: 2 },
+      {
+        path: ['dateOfBirth'],
+        title: 'Date of Birth',
+        width: 2,
+        format: (date: Date) => date.toLocaleDateString(),
+      },
+      {
+        path: ['nationalities', 0],
+        title: 'Nationality',
+      },
+      {
+        path: ['identification', 0, 'identificationNumber'],
+        title: 'Primary Identification',
+        width: 2,
+      },
+      {
+        path: ['contactDetails', 'phones', 0, 'value'],
+        title: 'Phone Number #1',
+      },
+      {
+        path: ['contactDetails', 'emails', 0, 'value'],
+        title: 'Email Address #1',
+      },
+      {
+        path: ['displacementStatus'],
+        title: 'Displacement Status',
+      },
+    ],
+  },
   search: {},
 };

@@ -49,6 +49,13 @@ describe('useEntityDetailPage', () => {
         error: undefined,
         reset: vi.fn(),
       },
+      list: {
+        listEntities: vi.fn(),
+        status: SubmitStatus.IDLE,
+        data: undefined,
+        error: undefined,
+        reset: vi.fn(),
+      },
     };
 
     it('should return the correct values', () => {
@@ -254,6 +261,13 @@ describe('useEntityDetailPage', () => {
         error: undefined,
         reset: vi.fn(),
       },
+      list: {
+        listEntities: vi.fn(),
+        status: SubmitStatus.IDLE,
+        data: undefined,
+        error: undefined,
+        reset: vi.fn(),
+      },
     };
 
     it('should return the correct values', () => {
@@ -383,6 +397,13 @@ describe('useEntityDetailPage', () => {
       },
       edit: {
         onEditEntity: vi.fn(),
+        status: SubmitStatus.IDLE,
+        data: undefined,
+        error: undefined,
+        reset: vi.fn(),
+      },
+      list: {
+        listEntities: vi.fn(),
         status: SubmitStatus.IDLE,
         data: undefined,
         error: undefined,

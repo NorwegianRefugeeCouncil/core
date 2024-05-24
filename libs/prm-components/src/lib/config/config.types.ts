@@ -56,11 +56,21 @@ export type Section = {
   fields: (FieldConfig | ListFieldConfig)[];
 };
 
+export type TableColumn = {
+  path: (string | number)[];
+  title: string;
+  width?: number;
+  isID?: boolean;
+  format?: (input: any) => string;
+};
+
 export type EntityUIConfig = {
   detail: {
     sections: Section[];
   };
-  list: unknown;
+  list: {
+    fields: TableColumn[];
+  };
   search: unknown;
 };
 

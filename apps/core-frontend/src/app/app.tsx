@@ -10,20 +10,25 @@ export const App: React.FC = () => {
   return (
     <Grid
       templateAreas={`"header header"
-                  "nav main"`}
-      gridTemplateRows="50px 1fr"
-      gridTemplateColumns="150px 1fr"
-      h="100vh"
+                  "menu main"`}
+      gridTemplateRows="auto 1fr"
+      gridTemplateColumns="8rem 1fr"
       color="neutrals.500"
-      fontWeight="bold"
+      height={'100vh'}
     >
-      <GridItem pl="2" bg="secondary.500" area="header" color="white">
+      <GridItem
+        p="2"
+        bg="secondary.500"
+        area="header"
+        color="white"
+        maxW="100vw"
+      >
         <Header user={me.data} />
       </GridItem>
-      <GridItem pl="2" bg="bgLight" area="nav">
+      <GridItem p="4" bg="bgLight" area="menu">
         <Navigation />
       </GridItem>
-      <GridItem pl="2" area="main">
+      <GridItem m="4" area="main" overflowY="auto">
         <Outlet />
       </GridItem>
     </Grid>

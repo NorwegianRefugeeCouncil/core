@@ -107,7 +107,7 @@ export const EntityDetailForm: React.FC<Props> = ({
           </Flex>
           <HStack>
             <Link to={defaultBackPath}>
-              <Button colorScheme="secondary" disabled={isSubmitting}>
+              <Button colorScheme="secondary" isDisabled={isSubmitting}>
                 {readOnly ? 'Back' : 'Cancel'}
               </Button>
             </Link>
@@ -119,7 +119,7 @@ export const EntityDetailForm: React.FC<Props> = ({
               <Button
                 colorScheme="primary"
                 type={'submit'}
-                disabled={!form.formState.isValid || isSubmitting}
+                isDisabled={!form.formState.isValid || isSubmitting}
               >
                 Save
               </Button>

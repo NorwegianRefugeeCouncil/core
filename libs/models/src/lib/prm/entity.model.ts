@@ -5,7 +5,6 @@ import {
   ParticipantSchema,
   ParticipantUpdateSchema,
   ParticipantDefinition,
-  ParticipantListItem,
   ParticipantListItemSchema,
   ParticipantFilteringSchema,
 } from './participant.model';
@@ -21,8 +20,14 @@ export const EntityIdSchema = z.string().ulid();
 // export const EntitySchema = z.union([ParticipantSchema]);
 export const EntitySchema = ParticipantSchema;
 export type Entity = z.infer<typeof EntitySchema>;
+
 export type EntityDefinition = ParticipantDefinition;
-export type EntityListItem = ParticipantListItem;
+
+export const EntityFieldSchema = EntitySchema.keyof();
+export type EntityField = z.infer<typeof EntityFieldSchema>;
+
+export const EntityListItemSchema = ParticipantListItemSchema;
+export type EntityListItem = z.infer<typeof EntityListItemSchema>;
 
 const entitySchemaMap = {
   [EntityType.Participant]: ParticipantSchema,

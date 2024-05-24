@@ -1,17 +1,13 @@
 import { vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react-hooks';
-import {
-  EntityListItem,
-  PaginatedResponse,
-  Pagination,
-} from '@nrcno/core-models';
+import { Pagination } from '@nrcno/core-models';
 
 import { useListEntity } from './useListEntity.hook';
 import { SubmitStatus } from './useApiReducer.hook';
 
 const pagination: Pagination = {
   startIndex: 0,
-  limit: 100,
+  pageSize: 100,
 };
 
 describe('useListEntity', () => {
@@ -41,7 +37,7 @@ describe('useListEntity', () => {
   it('should update status to "SUCCESS" and set data when entity list is loaded', async () => {
     const mockResponse = {
       startIndex: 0,
-      limit: 100,
+      pageSize: 100,
       totalCount: 1,
       items: [
         {
