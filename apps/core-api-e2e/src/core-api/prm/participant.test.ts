@@ -313,7 +313,7 @@ describe('Participants', () => {
 
     it('should return a sorted list of participants', async () => {
       const res = await axiosInstance.get(
-        `/api/prm/participants?sort=firstName&direction=desc`,
+        `/api/prm/participants?sort=emails&direction=desc`,
       );
 
       expect(res.status).toBe(200);
@@ -323,7 +323,7 @@ describe('Participants', () => {
         totalCount: expect.any(Number), // TODO: once tests are isolated, create extra entries and expect that number
         items: expect.arrayContaining([expect.objectContaining({})]),
       });
-      const firstNames = res.data.items.map((item: any) => item.firstName);
+      const emails = res.data.items.map((item: any) => item.emails?.[0]?.value);
 
       const isSorted = (array: string[]) => {
         for (let i = 1; i < array.length; i++) {
@@ -333,7 +333,7 @@ describe('Participants', () => {
         }
         return true;
       };
-      expect(isSorted(firstNames)).toBe(true);
+      expect(isSorted(emails)).toBe(true);
     });
 
     it('should return an error if the startIndex is invalid', async () => {
