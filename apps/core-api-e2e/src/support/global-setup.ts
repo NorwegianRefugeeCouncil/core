@@ -4,6 +4,10 @@ import { spawn } from 'child_process';
 import { config as dotenvConfig } from 'dotenv';
 import waitOn from 'wait-on';
 import { DockerComposeEnvironment, Wait } from 'testcontainers';
+import { registerTsProject } from '@nx/js/src/internal';
+const cleanupRegisteredPaths = registerTsProject('./tsconfig.base.json');
+
+import { getDb } from '@nrcno/core-db';
 
 module.exports = async function () {
   // Start services that the app needs to run (e.g. database, docker-compose, etc.).
@@ -42,6 +46,26 @@ module.exports = async function () {
   });
   console.log('Server is ready!');
 
+  const checkSessionsTableExists = async (db: any) => {
+    const result = await db.raw(
+      "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'sessions')",
+    );
+    return result.rows[0].exists;
+  };
+
+  const config = {
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+  };
+  const db = getDb(config);
+  while (!(await checkSessionsTableExists(db))) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
   // Hint: Use `globalThis` to pass variables to global teardown.
   (globalThis as any).__TEARDOWN_MESSAGE__ = '\nTearing down...\n';
 };
+
+cleanupRegisteredPaths();
