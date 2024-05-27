@@ -143,7 +143,19 @@ describe('Participant store', () => {
 
       await ParticipantStore.create(participantDefinition);
 
-      const count = await ParticipantStore.count();
+      const count = await ParticipantStore.count({});
+
+      expect(count).toBe(1);
+    });
+
+    test('should return the number of participants, filtered by id', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition();
+      const participant = await ParticipantStore.create(participantDefinition);
+      await ParticipantStore.create(ParticipantGenerator.generateDefinition());
+
+      const count = await ParticipantStore.count({
+        id: participant.id,
+      });
 
       expect(count).toBe(1);
     });

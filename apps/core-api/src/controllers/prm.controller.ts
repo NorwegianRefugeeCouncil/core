@@ -121,7 +121,7 @@ export const listEntities = async (
     const prmService = PrmService[entityType.data];
 
     const entities = await prmService.list(pagination, sorting, filtering);
-    const totalCount = await prmService.count();
+    const totalCount = await prmService.count(filtering);
 
     const response: PaginatedResponse<EntityListItem> = {
       startIndex: pagination.startIndex,

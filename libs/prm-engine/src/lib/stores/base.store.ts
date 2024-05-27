@@ -6,7 +6,7 @@ export interface BaseStore<
   TPartialUpdateDefinition,
   TEntityListItem,
 > {
-  count: () => Promise<number>;
+  count: (filtering: EntityFiltering) => Promise<number>;
   create: (entity: TDefinition) => Promise<TEntity>;
   get: (id: string) => Promise<TEntity | null>;
   list: (

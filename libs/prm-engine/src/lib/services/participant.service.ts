@@ -22,8 +22,8 @@ export const ParticipantService: PrmService<
   ParticipantUpdate,
   ParticipantListItem
 > = {
-  count: async () => {
-    return ParticipantStore.count();
+  count: async (filtering: ParticipantFiltering) => {
+    return ParticipantStore.count(filtering);
   },
 
   create: async (participant: ParticipantDefinition) => {

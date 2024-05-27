@@ -17,7 +17,7 @@ export type PrmService<
   TUpdateDefinition,
   TEntityListItem,
 > = {
-  count: () => Promise<number>;
+  count: (filtering: EntityFiltering) => Promise<number>;
   create: (entity: TDefinition) => Promise<TEntity>;
   get: (id: string) => Promise<TEntity | null>;
   update: (id: string, entity: TUpdateDefinition) => Promise<TEntity>;
@@ -45,8 +45,8 @@ export function getPrmService(
     throw new Error(`Entity type "${entityType}" is not supported`);
   }
 
-  const count = async () => {
-    return Store.count();
+  const count = async (filtering: EntityFiltering) => {
+    return Store.count(filtering);
   };
 
   const create = async (entity: any) => {
