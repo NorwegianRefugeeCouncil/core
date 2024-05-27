@@ -1,4 +1,5 @@
 import {
+  EntityFiltering,
   EntityType,
   Pagination,
   Participant,
@@ -23,6 +24,7 @@ export type PrmService<
   list: (
     pagination: Pagination,
     sorting: Sorting,
+    filtering: EntityFiltering,
   ) => Promise<TEntityListItem[]>;
 };
 
@@ -59,8 +61,12 @@ export function getPrmService(
     return Store.update(id, entity);
   };
 
-  const list = async (pagination: Pagination, sorting: Sorting) => {
-    return Store.list(pagination, sorting);
+  const list = async (
+    pagination: Pagination,
+    sorting: Sorting,
+    filtering: EntityFiltering,
+  ) => {
+    return Store.list(pagination, sorting, filtering);
   };
 
   return { count, create, get, update, list };

@@ -8,6 +8,7 @@ import {
   Pagination,
   Participant,
   ParticipantDefinition,
+  ParticipantFiltering,
   ParticipantListItem,
   ParticipantListItemSchema,
   ParticipantPartialUpdate,
@@ -229,8 +230,49 @@ const list = async (
   { sort = 'lastName', direction = SortingDirection.Asc }: Sorting = {
     direction: SortingDirection.Asc,
   },
+  filtering: ParticipantFiltering = {},
 ): Promise<ParticipantListItem[]> => {
   const db = getDb();
+
+  const equalityProperties: Array<keyof ParticipantFiltering> = [
+    'id',
+    'firstName',
+    'lastName',
+    'middleName',
+    'nativeName',
+    'motherName',
+    'sex',
+    'residence',
+    'displacementStatus',
+    'engagementContext',
+    'hasDisabilityPwd',
+    'hasDisabilityVision',
+    'hasDisabilityHearing',
+    'hasDisabilityMobility',
+    'hasDisabilityCognition',
+    'hasDisabilitySelfcare',
+    'hasDisabilityCommunication',
+    'isChildAtRisk',
+    'isElderAtRisk',
+    'isWomanAtRisk',
+    'isSingleParent',
+    'isSeparatedChild',
+    'isPregnant',
+    'isLactating',
+    'hasMedicalCondition',
+    'needsLegalPhysicalProtection',
+  ];
+  const propertyMapping: Partial<Record<keyof ParticipantFiltering, string>> = {
+    id: 'participants.id',
+  };
+  const equalityFilters: Partial<ParticipantFiltering> =
+    equalityProperties.reduce(
+      (obj, key) =>
+        filtering[key]
+          ? { ...obj, [propertyMapping[key] || key]: filtering[key] }
+          : obj,
+      {},
+    );
 
   const sortColumn = sort === 'id' ? 'participants.id' : snakeCase(sort);
 
@@ -251,9 +293,10 @@ const list = async (
   const nationalitiesSubquery = db('participant_nationalities')
     .select(
       'participantId',
-      db.raw(
-        '(array_agg(nationality_iso_code ORDER BY created_at ASC))[1] as nationalities',
-      ),
+      db.raw(`
+        (array_agg(nationality_iso_code ORDER BY created_at ASC))[1] as main_nationality,
+        array_agg(nationality_iso_code) as all_nationalities
+        `),
     )
     .groupBy('participantId')
     .as('nationalities');
@@ -262,22 +305,25 @@ const list = async (
     .select(
       'participantId',
       db.raw(`
-        phone_details->>'id' as phone_id,
-        phone_details->>'value' as phone_value
+        phone_details->>'id' as first_phone_id,
+        phone_details->>'value' as first_phone_value
       `),
+      'allPhones',
     )
     .from(
       db('participant_contact_details')
         .select(
           'participantId',
-          db.raw(`
+          db.raw(
+            `
             (array_agg(
               json_build_object(
                 'id', id,
                 'value', clean_value
               ) ORDER BY created_at ASC
-            ))[1] as phone_details
-          `),
+            ))[1] as phone_details,
+            array_agg(clean_value) as all_phones`,
+          ),
         )
         .where('contactDetailType', ContactDetailType.PhoneNumber)
         .groupBy('participantId')
@@ -289,22 +335,25 @@ const list = async (
     .select(
       'participantId',
       db.raw(`
-        email_details->>'id' as email_id,
-        email_details->>'value' as email_value
+        email_details->>'id' as first_email_id,
+        email_details->>'value' as first_email_value
       `),
+      'allEmails',
     )
     .from(
       db('participant_contact_details')
         .select(
           'participantId',
-          db.raw(`
+          db.raw(
+            `
             (array_agg(
               json_build_object(
                 'id', id,
                 'value', clean_value
               ) ORDER BY created_at ASC
-            ))[1] as email_details
-          `),
+            ))[1] as email_details,
+            array_agg(clean_value) as all_emails`,
+          ),
         )
         .where('contactDetailType', ContactDetailType.Email)
         .groupBy('participantId')
@@ -312,16 +361,27 @@ const list = async (
     )
     .as('emails');
 
+  const allIdentificationsSubquery = db('participant_identifications')
+    .select(
+      'participantId',
+      db.raw(
+        '(array_agg(identification_number)) as all_identification_numbers',
+      ),
+    )
+    .groupBy('participantId')
+    .as('all_identifications');
+
   const participants = await db('participants')
     .select([
       ...participantFields,
       ...identificationFields,
-      'nationalities.nationalities',
-      'phones.phoneId',
-      'phones.phoneValue',
-      'emails.emailId',
-      'emails.emailValue',
+      'nationalities.mainNationality',
+      'phones.firstPhoneId',
+      'phones.firstPhoneValue',
+      'emails.firstEmailId',
+      'emails.firstEmailValue',
     ])
+    .leftJoin('participant_disabilities', 'participants.id', 'participantId')
     .leftJoin('participant_identifications', function () {
       this.on(
         'participants.id',
@@ -334,17 +394,48 @@ const list = async (
       );
     })
     .leftJoin(
+      allIdentificationsSubquery,
+      'participants.id',
+      'all_identifications.participantId',
+    )
+    .leftJoin(
       nationalitiesSubquery,
       'participants.id',
       'nationalities.participantId',
     )
     .leftJoin(phonesSubquery, 'participants.id', 'phones.participantId')
     .leftJoin(emailsSubquery, 'participants.id', 'emails.participantId')
+    .where(equalityFilters)
+    .andWhere((builder) => {
+      if (filtering.dateOfBirthMin) {
+        builder.where('dateOfBirth', '>=', filtering.dateOfBirthMin);
+      }
+      if (filtering.dateOfBirthMax) {
+        builder.where('dateOfBirth', '<=', filtering.dateOfBirthMax);
+      }
+      if (filtering.nationalities) {
+        builder.whereRaw('? = ANY (nationalities.all_nationalities)', [
+          filtering.nationalities,
+        ]);
+      }
+      if (filtering.phones) {
+        builder.whereRaw('? = ANY (phones.all_phones)', [filtering.phones]);
+      }
+      if (filtering.emails) {
+        builder.whereRaw('? = ANY (emails.all_emails)', [filtering.emails]);
+      }
+      if (filtering.identificationNumber) {
+        builder.whereRaw(
+          '? = ANY (all_identifications.all_identification_numbers)',
+          [filtering.identificationNumber],
+        );
+      }
+    })
     .limit(pagination.pageSize)
     .offset(pagination.startIndex).orderByRaw(`
-  CASE WHEN '${sortColumn}' = 'nationalities' THEN nationalities END ${direction},
-  CASE WHEN '${sortColumn}' = 'emails' THEN email_value END ${direction},
-  CASE WHEN '${sortColumn}' = 'phones' THEN phone_value END ${direction},
+  CASE WHEN '${sortColumn}' = 'nationalities' THEN main_nationality END ${direction},
+  CASE WHEN '${sortColumn}' = 'emails' THEN first_email_value END ${direction},
+  CASE WHEN '${sortColumn}' = 'phones' THEN first_phone_value END ${direction},
   CASE WHEN '${sortColumn}' NOT IN ('nationalities', 'emails', 'phones') THEN ${sortColumn} END ${direction}
 `);
 
@@ -361,15 +452,25 @@ const list = async (
             },
           ]
         : [],
-      nationalities: participant.nationalities
-        ? [participant.nationalities]
+      nationalities: participant.mainNationality
+        ? [participant.mainNationality]
         : [],
       contactDetails: {
-        emails: participant.emailId
-          ? [{ id: participant.emailId, value: participant.emailValue }]
+        emails: participant.firstEmailId
+          ? [
+              {
+                id: participant.firstEmailId,
+                value: participant.firstEmailValue,
+              },
+            ]
           : [],
-        phones: participant.phoneId
-          ? [{ id: participant.phoneId, value: participant.phoneValue }]
+        phones: participant.firstPhoneId
+          ? [
+              {
+                id: participant.firstPhoneId,
+                value: participant.firstPhoneValue,
+              },
+            ]
           : [],
       },
     })),
