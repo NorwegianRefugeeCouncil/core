@@ -336,6 +336,24 @@ describe('Participants', () => {
       expect(isSorted(emails)).toBe(true);
     });
 
+    it('should return a filtered list of participants', async () => {
+      const res = await axiosInstance.get(
+        `/api/prm/participants?id=${participantId}`,
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data).toEqual({
+        startIndex: 0,
+        pageSize: 50,
+        totalCount: 1,
+        items: expect.arrayContaining([
+          expect.objectContaining({ id: participantId }),
+        ]),
+      });
+      expect(res.data.items.length).toBe(1);
+      expect(res.data.items[0].id).toBe(participantId);
+    });
+
     it('should return an error if the startIndex is invalid', async () => {
       const response = await axiosInstance.get(
         `/api/prm/participants?startIndex=invalid`,
