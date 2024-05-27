@@ -148,6 +148,12 @@ describe('Participant store', () => {
       expect(count).toBe(1);
     });
 
+    test('should return zero if there are no participants matching the filter', async () => {
+      const count = await ParticipantStore.count({ id: 'non-existing-id' });
+
+      expect(count).toBe(0);
+    });
+
     test('should return the number of participants, filtered by id', async () => {
       const participantDefinition = ParticipantGenerator.generateDefinition();
       const participant = await ParticipantStore.create(participantDefinition);
@@ -356,6 +362,25 @@ describe('Participant store', () => {
       expect(participants).toBeDefined();
       expect(participants).toHaveLength(1);
       expect(participants[0].id).toEqual(expectedFirstParticipantId);
+    });
+
+    test('should return an empty list if there are no participants matching the filters', async () => {
+      const participants = await ParticipantStore.list(
+        {
+          startIndex: 0,
+          pageSize: 50,
+        },
+        {
+          sort: 'id',
+          direction: SortingDirection.Asc,
+        },
+        {
+          id: 'non-existing-id',
+        },
+      );
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(0);
     });
 
     test('should return a list of participants, filtered by id', async () => {
