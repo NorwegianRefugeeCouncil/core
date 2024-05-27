@@ -1,16 +1,20 @@
+import { EntityFiltering, Pagination } from '@nrcno/core-models';
 import { useEffect } from 'react';
-import { Pagination } from '@nrcno/core-models';
 
 import { usePrmContext } from '../prm.context';
 
 import { SubmitStatus } from './useApiReducer.hook';
 
-export const useEntityListPage = (pagination: Pagination) => {
+export const useEntityListPage = (
+  pagination: Pagination,
+  filters: EntityFiltering,
+) => {
   const { entityType, list, config } = usePrmContext();
 
   useEffect(() => {
-    list.listEntities(pagination);
-  }, [JSON.stringify(pagination)]);
+    console.log('uselistpagehook', filters);
+    list.listEntities(pagination, filters);
+  }, [JSON.stringify(pagination), JSON.stringify(filters)]);
 
   if (!entityType) {
     throw new Error('Entity type is required');
@@ -21,12 +25,12 @@ export const useEntityListPage = (pagination: Pagination) => {
   }
 
   const listConfig = config[entityType].list;
-  const searchConfig = config[entityType].search;
+  const filterConfig = config[entityType].filtering;
 
   return {
     entityType: entityType,
     listConfig,
-    searchConfig,
+    filterConfig,
     isLoading: list.status === SubmitStatus.SUBMITTING,
     isError: list.status === SubmitStatus.ERROR,
     isSuccess: list.status === SubmitStatus.SUCCESS,

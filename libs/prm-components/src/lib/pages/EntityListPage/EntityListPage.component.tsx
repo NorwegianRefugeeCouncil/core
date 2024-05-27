@@ -1,28 +1,26 @@
-import { useEffect } from 'react';
+import { SearchIcon, SmallAddIcon } from '@chakra-ui/icons';
 import {
-  Heading,
-  Flex,
-  Skeleton,
   Alert,
   AlertIcon,
-  Button,
-  useDisclosure,
-  Drawer,
-  DrawerBody,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
   Box,
-  Text,
   CloseButton,
+  Button,
+  Flex,
+  Heading,
+  Skeleton,
+  useDisclosure,
 } from '@chakra-ui/react';
+import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { SmallAddIcon, SearchIcon } from '@chakra-ui/icons';
 
-import { EntityList, EntitySearchForm } from '../../components';
+import { EntityList } from '../../components';
+import { Pagination } from '../../components/Pagination.component';
 import { useEntityListPage } from '../../hooks/useEntityListPage.hook';
 import { usePagination } from '../../hooks/usePagination';
-import { Pagination } from '../../components/Pagination.component';
+import { useFilters } from '../../hooks/useFilters';
+
+import { FilterDrawer } from './FilterDrawer.component';
+import { FilterTags } from './FilterTags.component';
 
 export const EntityListPage: React.FC = () => {
   const {
@@ -37,15 +35,17 @@ export const EntityListPage: React.FC = () => {
     updateFromPaginationResponse,
   } = usePagination();
 
+  const { filters, parseFilters, deleteFilter } = useFilters();
+
   const {
     entityType,
     listConfig,
-    searchConfig,
+    filterConfig,
     isError,
     isLoading,
     error,
     data,
-  } = useEntityListPage(pagination);
+  } = useEntityListPage(pagination, filters);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -110,6 +110,9 @@ export const EntityListPage: React.FC = () => {
         </Alert>
       ) : (
         <>
+          <Box mb={4}>
+            <FilterTags filters={filters} deleteFilter={deleteFilter} />
+          </Box>
           <Flex flex={1} overflow="hidden">
             <Skeleton isLoaded={!isLoading} width="100%">
               <EntityList config={listConfig} entityList={data?.items} />
@@ -129,19 +132,14 @@ export const EntityListPage: React.FC = () => {
           </Flex>
         </>
       )}
-      <Drawer placement="right" onClose={onClose} isOpen={isOpen} size={'md'}>
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader>Search</DrawerHeader>
-          <DrawerBody>
-            <EntitySearchForm
-              id={`entity_search_${entityType}`}
-              config={searchConfig}
-              onCancel={onClose}
-            />
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+      <FilterDrawer
+        entityType={entityType}
+        filterConfig={filterConfig}
+        filters={filters}
+        isOpen={isOpen}
+        onClose={onClose}
+        parseFilters={parseFilters}
+      />
     </Flex>
   );
 };

@@ -460,7 +460,7 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
       },
     ],
   },
-  search: [
+  filtering: [
     {
       path: ['id'],
       dataType: DataType.String,
@@ -503,6 +503,7 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
       dataType: DataType.String,
       component: Component.Select,
       label: 'Sex',
+      options: optionsFromEnum(Sex),
     },
     {
       path: ['dateOfBirthMin'],
@@ -539,6 +540,12 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
       dataType: DataType.String,
       component: Component.Select,
       label: 'Nationality',
+      options: [
+        { value: 'en', label: 'English' },
+        { value: 'es', label: 'Spanish' },
+        { value: 'fr', label: 'French' },
+        { value: 'ar', label: 'Arabic' },
+      ],
     },
     {
       path: ['identificationNumber'],
@@ -569,12 +576,14 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
       dataType: DataType.String,
       component: Component.Select,
       label: 'Displacement Status',
+      options: optionsFromEnum(DisplacementStatus),
     },
     {
       path: ['engagementContext'],
       dataType: DataType.String,
       component: Component.Select,
       label: 'Engagement Context',
+      options: optionsFromEnum(EngagementContext),
     },
     {
       path: ['hasDisabilityPwd'],

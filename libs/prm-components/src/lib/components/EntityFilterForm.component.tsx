@@ -1,5 +1,5 @@
 import { Button, Flex, HStack, Heading, Spinner } from '@chakra-ui/react';
-import { Entity } from '@nrcno/core-models';
+import { EntityFiltering } from '@nrcno/core-models';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { EntityUIConfig } from '../config';
@@ -8,33 +8,28 @@ import { Field } from './Fields';
 
 type Props = {
   id: string;
-  config: EntityUIConfig['search'];
+  config: EntityUIConfig['filtering'];
   title?: string;
-  onSubmit?: (data: Entity) => void;
+  onSubmit: (data: EntityFiltering) => void;
   onCancel?: () => void;
   isSubmitting?: boolean;
+  filters: EntityFiltering;
 };
 
-export const EntitySearchForm: React.FC<Props> = ({
+export const EntityFilterForm: React.FC<Props> = ({
   id,
   config,
   title,
   onSubmit,
   onCancel,
   isSubmitting,
+  filters,
 }) => {
-  const form = useForm<Entity>();
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    if (onSubmit) {
-      form.handleSubmit(onSubmit)(event);
-      form.reset();
-    }
-  };
+  const form = useForm<EntityFiltering>({ defaultValues: filters });
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={handleSubmit} id={id}>
+      <form onSubmit={form.handleSubmit(onSubmit)} id={id}>
         {config.map((field) => {
           return <Field config={field} key={field.path.join('.')}></Field>;
         })}

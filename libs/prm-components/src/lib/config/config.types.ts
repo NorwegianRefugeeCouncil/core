@@ -73,7 +73,7 @@ export type EntityUIConfig = {
   list: {
     fields: TableColumn[];
   };
-  search: FieldConfig[];
+  filtering: FieldConfig[];
 };
 
 export type EntityUIConfigLoader = (staticData: StaticData) => EntityUIConfig;
