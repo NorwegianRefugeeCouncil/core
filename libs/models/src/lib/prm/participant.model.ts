@@ -288,6 +288,19 @@ export const ParticipantListItemSchema = z.object({
 });
 export type ParticipantListItem = z.infer<typeof ParticipantListItemSchema>;
 
+export const ParticipantListSortingFields = [
+  'id',
+  'firstName',
+  'lastName',
+  'dateOfBirth',
+  'sex',
+  'displacementStatus',
+  'nationalities',
+  'emails',
+  'phones',
+  'identificationNumber',
+];
+
 export const ParticipantFilteringSchema = z.object({
   id: z.string().optional(),
   firstName: z.string().optional(),

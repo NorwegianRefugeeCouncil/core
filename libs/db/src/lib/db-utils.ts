@@ -1,12 +1,4 @@
-const toCamelCase = (str: string): string => {
-  return str.replace(/([-_][a-z])/g, (group) =>
-    group.toUpperCase().replace('-', '').replace('_', ''),
-  );
-};
-
-const toSnakeCase = (str: string): string => {
-  return str.replace(/([A-Z])/g, '_$1').toLowerCase();
-};
+import { camelCase, snakeCase } from 'lodash';
 
 /**
  * Knex post-processes the response from the database by converting the keys to camelCase
@@ -16,14 +8,14 @@ export const postProcessResponse = (result: any) => {
     return result.map((row) => {
       const convertedRow: any = {};
       for (const key in row) {
-        convertedRow[toCamelCase(key)] = row[key];
+        convertedRow[camelCase(key)] = row[key];
       }
       return convertedRow;
     });
   } else if (typeof result === 'object') {
     const convertedResult: any = {};
     for (const key in result) {
-      convertedResult[toCamelCase(key)] = result[key];
+      convertedResult[camelCase(key)] = result[key];
     }
     return convertedResult;
   }
@@ -37,5 +29,5 @@ export const wrapIdentifier = (
   value: string,
   origImpl: (value: string) => string,
 ) => {
-  return origImpl(toSnakeCase(value));
+  return value === '*' ? origImpl(value) : origImpl(snakeCase(value));
 };

@@ -7,6 +7,7 @@ import {
   ParticipantDefinition,
   ParticipantListItem,
   ParticipantUpdate,
+  Sorting,
 } from '@nrcno/core-models';
 import { NotFoundError } from '@nrcno/core-errors';
 
@@ -32,8 +33,8 @@ export const ParticipantService: PrmService<
     return ParticipantStore.get(id);
   },
 
-  list: async (pagination: Pagination) => {
-    return ParticipantStore.list(pagination);
+  list: async (pagination: Pagination, sorting: Sorting) => {
+    return ParticipantStore.list(pagination, sorting);
   },
 
   update: async (id: string, participant: ParticipantUpdate) => {

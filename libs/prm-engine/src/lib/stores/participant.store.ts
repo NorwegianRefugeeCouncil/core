@@ -1,3 +1,4 @@
+import { snakeCase } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { ulid } from 'ulidx';
 import { z } from 'zod';
@@ -11,6 +12,8 @@ import {
   ParticipantListItemSchema,
   ParticipantPartialUpdate,
   ParticipantSchema,
+  Sorting,
+  SortingDirection,
 } from '@nrcno/core-models';
 import { PostgresError, PostgresErrorCode, getDb } from '@nrcno/core-db';
 import { AlreadyExistsError, NotFoundError } from '@nrcno/core-errors';
@@ -221,8 +224,15 @@ const get = async (id: string): Promise<Participant | null> => {
   return participantResult;
 };
 
-const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
+const list = async (
+  pagination: Pagination,
+  { sort = 'lastName', direction = SortingDirection.Asc }: Sorting = {
+    direction: SortingDirection.Asc,
+  },
+): Promise<ParticipantListItem[]> => {
   const db = getDb();
+
+  const sortColumn = sort === 'id' ? 'participants.id' : snakeCase(sort);
 
   const participantFields = [
     'participants.id',
@@ -238,8 +248,80 @@ const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
     'identificationNumber',
   ];
 
+  const nationalitiesSubquery = db('participant_nationalities')
+    .select(
+      'participantId',
+      db.raw(
+        '(array_agg(nationality_iso_code ORDER BY created_at ASC))[1] as nationalities',
+      ),
+    )
+    .groupBy('participantId')
+    .as('nationalities');
+
+  const phonesSubquery = db
+    .select(
+      'participantId',
+      db.raw(`
+        phone_details->>'id' as phone_id,
+        phone_details->>'value' as phone_value
+      `),
+    )
+    .from(
+      db('participant_contact_details')
+        .select(
+          'participantId',
+          db.raw(`
+            (array_agg(
+              json_build_object(
+                'id', id,
+                'value', clean_value
+              ) ORDER BY created_at ASC
+            ))[1] as phone_details
+          `),
+        )
+        .where('contactDetailType', ContactDetailType.PhoneNumber)
+        .groupBy('participantId')
+        .as('phones_agg'),
+    )
+    .as('phones');
+
+  const emailsSubquery = db
+    .select(
+      'participantId',
+      db.raw(`
+        email_details->>'id' as email_id,
+        email_details->>'value' as email_value
+      `),
+    )
+    .from(
+      db('participant_contact_details')
+        .select(
+          'participantId',
+          db.raw(`
+            (array_agg(
+              json_build_object(
+                'id', id,
+                'value', clean_value
+              ) ORDER BY created_at ASC
+            ))[1] as email_details
+          `),
+        )
+        .where('contactDetailType', ContactDetailType.Email)
+        .groupBy('participantId')
+        .as('emails_agg'),
+    )
+    .as('emails');
+
   const participants = await db('participants')
-    .select([...participantFields, ...identificationFields])
+    .select([
+      ...participantFields,
+      ...identificationFields,
+      'nationalities.nationalities',
+      'phones.phoneId',
+      'phones.phoneValue',
+      'emails.emailId',
+      'emails.emailValue',
+    ])
     .leftJoin('participant_identifications', function () {
       this.on(
         'participants.id',
@@ -251,77 +333,20 @@ const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
         db.raw('?', [true]),
       );
     })
+    .leftJoin(
+      nationalitiesSubquery,
+      'participants.id',
+      'nationalities.participantId',
+    )
+    .leftJoin(phonesSubquery, 'participants.id', 'phones.participantId')
+    .leftJoin(emailsSubquery, 'participants.id', 'emails.participantId')
     .limit(pagination.pageSize)
-    .offset(pagination.startIndex)
-    .orderBy('lastName', 'asc');
-
-  const participantIds = participants.map((participant) => participant.id);
-
-  const nationalities = (
-    await db('participant_nationalities')
-      .select(
-        'participantId',
-        db.raw(
-          'array_agg(nationality_iso_code ORDER BY created_at ASC) as nationalities',
-        ),
-      )
-      .whereIn('participantId', participantIds)
-      .groupBy('participantId')
-  ).reduce(
-    (map, entry) => ({
-      ...map,
-      [entry.participantId]: entry.nationalities[0],
-    }),
-    {},
-  );
-
-  const phones = (
-    await db('participant_contact_details')
-      .select(
-        'participantId',
-        db.raw(`
-        array_agg(
-          json_build_object(
-            'id', id,
-            'value', clean_value
-          ) ORDER BY created_at ASC
-        ) as details
-      `),
-      )
-      .where('contactDetailType', ContactDetailType.PhoneNumber)
-      .whereIn('participantId', participantIds)
-      .groupBy('participantId')
-  ).reduce(
-    (map, entry) => ({
-      ...map,
-      [entry.participantId]: entry.details[0],
-    }),
-    {},
-  );
-
-  const emails = (
-    await db('participant_contact_details')
-      .select(
-        'participantId',
-        db.raw(`
-        array_agg(
-          json_build_object(
-            'id', id,
-            'value', clean_value
-          ) ORDER BY created_at ASC
-        ) as details
-      `),
-      )
-      .where('contactDetailType', ContactDetailType.Email)
-      .whereIn('participantId', participantIds)
-      .groupBy('participantId')
-  ).reduce(
-    (map, entry) => ({
-      ...map,
-      [entry.participantId]: entry.details[0],
-    }),
-    {},
-  );
+    .offset(pagination.startIndex).orderByRaw(`
+  CASE WHEN '${sortColumn}' = 'nationalities' THEN nationalities END ${direction},
+  CASE WHEN '${sortColumn}' = 'emails' THEN email_value END ${direction},
+  CASE WHEN '${sortColumn}' = 'phones' THEN phone_value END ${direction},
+  CASE WHEN '${sortColumn}' NOT IN ('nationalities', 'emails', 'phones') THEN ${sortColumn} END ${direction}
+`);
 
   return z.array(ParticipantListItemSchema).parse(
     participants.map((participant) => ({
@@ -336,12 +361,16 @@ const list = async (pagination: Pagination): Promise<ParticipantListItem[]> => {
             },
           ]
         : [],
-      nationalities: nationalities[participant.id]
-        ? [nationalities[participant.id]]
+      nationalities: participant.nationalities
+        ? [participant.nationalities]
         : [],
       contactDetails: {
-        emails: emails[participant.id] ? [emails[participant.id]] : [],
-        phones: phones[participant.id] ? [phones[participant.id]] : [],
+        emails: participant.emailId
+          ? [{ id: participant.emailId, value: participant.emailValue }]
+          : [],
+        phones: participant.phoneId
+          ? [{ id: participant.phoneId, value: participant.phoneValue }]
+          : [],
       },
     })),
   );

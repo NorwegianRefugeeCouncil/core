@@ -311,6 +311,31 @@ describe('Participants', () => {
       });
     });
 
+    it('should return a sorted list of participants', async () => {
+      const res = await axiosInstance.get(
+        `/api/prm/participants?sort=emails&direction=desc`,
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data).toEqual({
+        startIndex: 0,
+        pageSize: 50,
+        totalCount: expect.any(Number), // TODO: once tests are isolated, create extra entries and expect that number
+        items: expect.arrayContaining([expect.objectContaining({})]),
+      });
+      const emails = res.data.items.map((item: any) => item.emails?.[0]?.value);
+
+      const isSorted = (array: string[]) => {
+        for (let i = 1; i < array.length; i++) {
+          if (array[i - 1] < array[i]) {
+            return false;
+          }
+        }
+        return true;
+      };
+      expect(isSorted(emails)).toBe(true);
+    });
+
     it('should return an error if the startIndex is invalid', async () => {
       const response = await axiosInstance.get(
         `/api/prm/participants?startIndex=invalid`,
