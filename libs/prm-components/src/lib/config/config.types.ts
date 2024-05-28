@@ -12,7 +12,7 @@ export enum Component {
   // Range = 'range',
   Select = 'select',
   Checkbox = 'checkbox',
-  // Radio = 'radio',
+  Radio = 'radio',
   Date = 'date',
   // Time = 'time',
   // DateTime = 'datetime',

@@ -13,6 +13,8 @@ type Props = {
 };
 
 export const FilterTags: React.FC<Props> = ({ filters, deleteFilter }) => {
+  const formatting = (filter: any) =>
+    filter.toLocaleDateString ? filter.toLocaleDateString() : filter.toString();
   return (
     <Wrap>
       {Object.keys(filters).map((filter: string) => (
@@ -24,7 +26,7 @@ export const FilterTags: React.FC<Props> = ({ filters, deleteFilter }) => {
             colorScheme="neutrals"
           >
             <TagLabel>
-              {filter}: {filters[filter as keyof EntityFiltering]?.toString()}
+              {filter}: {formatting(filters[filter as keyof EntityFiltering])}
             </TagLabel>
             <TagCloseButton onClick={() => deleteFilter(filter)} />
           </Tag>

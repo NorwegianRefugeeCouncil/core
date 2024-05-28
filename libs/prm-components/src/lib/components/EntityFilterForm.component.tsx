@@ -1,4 +1,4 @@
-import { Button, Flex, HStack, Heading, Spinner } from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Heading, Spinner } from '@chakra-ui/react';
 import { EntityFiltering } from '@nrcno/core-models';
 import { FormProvider, useForm } from 'react-hook-form';
 
@@ -11,7 +11,7 @@ type Props = {
   config: EntityUIConfig['filtering'];
   title?: string;
   onSubmit: (data: EntityFiltering) => void;
-  onCancel?: () => void;
+  onClear?: () => void;
   isSubmitting?: boolean;
   filters: EntityFiltering;
 };
@@ -21,7 +21,7 @@ export const EntityFilterForm: React.FC<Props> = ({
   config,
   title,
   onSubmit,
-  onCancel,
+  onClear,
   isSubmitting,
   filters,
 }) => {
@@ -30,43 +30,44 @@ export const EntityFilterForm: React.FC<Props> = ({
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} id={id}>
-        {config.map((field) => {
-          return <Field config={field} key={field.path.join('.')}></Field>;
-        })}
-        <Flex
-          direction="row"
-          justifyContent="space-between"
-          alignItems="flex-start"
-          zIndex="docked"
-          position="sticky"
-          bottom={0}
-          bg="white"
-          pt={2}
-        >
-          <Flex direction="row" gap={4} alignItems="flex-start">
+        <Flex direction="column">
+          <Flex direction="column" alignItems="flex-start">
             {title && <Heading mb={4}>{title}</Heading>}
             {isSubmitting && <Spinner colorScheme="primary" size="lg" />}
           </Flex>
 
-          <HStack>
+          <Flex direction="column">
+            {config.map((field) => {
+              return <Field config={field} key={field.path.join('.')}></Field>;
+            })}
+          </Flex>
+
+          <Flex
+            alignItems="flex-end"
+            bg="white"
+            bottom={-2}
+            direction="row"
+            gap={4}
+            position="sticky"
+            py={4}
+            zIndex="docked"
+          >
             <Button
               colorScheme="primary"
               variant="outline"
-              onClick={onCancel}
+              onClick={onClear}
               disabled={isSubmitting}
             >
-              Cancel
+              Clear
             </Button>
-            {
-              <Button
-                colorScheme="primary"
-                type={'submit'}
-                disabled={!form.formState.isValid || isSubmitting}
-              >
-                Search
-              </Button>
-            }
-          </HStack>
+            <Button
+              colorScheme="primary"
+              type="submit"
+              disabled={!form.formState.isValid || isSubmitting}
+            >
+              Search
+            </Button>
+          </Flex>
         </Flex>
       </form>
     </FormProvider>

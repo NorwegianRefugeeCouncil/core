@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 export interface UseFilters {
-  filters: EntityFiltering;
-  parseFilters: (filters: EntityFiltering) => void;
+  applyFilters: (filters: EntityFiltering) => void;
+  clearFilters: () => void;
   deleteFilter: (filter: string) => void;
+  filters: EntityFiltering;
 }
 
 export const useFilters = (): UseFilters => {
@@ -16,7 +17,7 @@ export const useFilters = (): UseFilters => {
     parseParams(searchParams);
   }, [JSON.stringify(searchParams)]);
 
-  const parseFilters = (filters: EntityFiltering) => {
+  const applyFilters = (filters: EntityFiltering) => {
     const params = filters;
     Object.keys(params).forEach((p) => {
       if (filters[p as keyof EntityFiltering] === undefined) {
@@ -28,8 +29,10 @@ export const useFilters = (): UseFilters => {
   };
 
   const parseParams = (params: URLSearchParams) => {
-    const f = EntityFilteringSchema.parse(Object.fromEntries(params));
-    setFilters(f);
+    const f = EntityFilteringSchema.safeParse(Object.fromEntries(params));
+    if (f.success) {
+      setFilters(f.data);
+    }
   };
 
   const deleteFilter = (filter: string) => {
@@ -38,9 +41,15 @@ export const useFilters = (): UseFilters => {
     parseParams(searchParams);
   };
 
+  const clearFilters = () => {
+    setSearchParams({});
+    setFilters({});
+  };
+
   return {
-    filters,
-    parseFilters,
+    applyFilters,
+    clearFilters,
     deleteFilter,
+    filters,
   };
 };

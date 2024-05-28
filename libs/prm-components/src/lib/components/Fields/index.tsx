@@ -1,6 +1,7 @@
 import { Component, FieldConfig, ListFieldConfig } from '../../config';
 
 import { Checkbox } from './Checkbox.component';
+import { Radio } from './Radio.component';
 import { Display } from './Display.component';
 import { List } from './List.component';
 import { Select } from './Select.component';
@@ -26,6 +27,8 @@ export const Field: React.FC<FieldProps> = ({ config }) => {
       return <Select config={config} />;
     case Component.Checkbox:
       return <Checkbox config={config} />;
+    case Component.Radio:
+      return <Radio config={config} />;
     case Component.List:
       return <List config={config} />;
     default:
