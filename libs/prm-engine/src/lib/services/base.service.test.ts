@@ -1,3 +1,5 @@
+import { SortingDirection } from '@nrcno/core-models';
+
 import { CreateMixin, GetMixin, ListMixin, UpdateMixin } from './base.service';
 
 describe('BaseService', () => {
@@ -97,7 +99,12 @@ describe('BaseService', () => {
         pageSize: 50,
       };
 
-      const result = await service.list(pagination);
+      const sorting = {
+        sort: 'field',
+        direction: SortingDirection.Asc,
+      };
+
+      const result = await service.list(pagination, sorting);
 
       expect(result).toEqual([
         {
