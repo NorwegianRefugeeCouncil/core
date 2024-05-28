@@ -11,6 +11,7 @@
     "src/**/*.ts",
     "knexfile.ts",
     "migrations/**/*.ts",
-    "seeds/**/*.ts"
+    "seeds/**/*.ts",
+    "constants/*.json"
   ]
 }
