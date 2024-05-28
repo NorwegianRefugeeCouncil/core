@@ -1,1 +1,1 @@
-export { PrmService } from './lib/services';
+export * from './lib/services';

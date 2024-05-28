@@ -13,13 +13,19 @@ jest.mock('../stores/participant.store', () => ({
 }));
 
 describe('Participant service', () => {
+  let participantService: ParticipantService;
+
+  beforeEach(() => {
+    participantService = new ParticipantService();
+  });
+
   describe('create', () => {
     it('should call the store create method', async () => {
       const participantDefinition = ParticipantGenerator.generateDefinition();
       const participant = ParticipantGenerator.generateEntity();
       ParticipantStore.create = jest.fn().mockResolvedValueOnce(participant);
 
-      const result = await ParticipantService.create(participantDefinition);
+      const result = await participantService.create(participantDefinition);
 
       expect(ParticipantStore.create).toHaveBeenCalledWith(
         participantDefinition,
@@ -35,7 +41,7 @@ describe('Participant service', () => {
         .mockRejectedValueOnce(new Error('Failed to create participant'));
 
       await expect(
-        ParticipantService.create(participantDefinition),
+        participantService.create(participantDefinition),
       ).rejects.toThrow('Failed to create participant');
 
       expect(ParticipantStore.create).toHaveBeenCalledWith(
@@ -49,7 +55,7 @@ describe('Participant service', () => {
       const participant = ParticipantGenerator.generateEntity();
       ParticipantStore.get = jest.fn().mockResolvedValueOnce(participant);
 
-      const result = await ParticipantService.get(participant.id);
+      const result = await participantService.get(participant.id);
 
       expect(ParticipantStore.get).toHaveBeenCalledWith(participant.id);
       expect(result).toEqual(participant);
@@ -58,7 +64,7 @@ describe('Participant service', () => {
     it('should return null if the store get method returns null', async () => {
       ParticipantStore.get = jest.fn().mockResolvedValueOnce(null);
 
-      const result = await ParticipantService.get('id');
+      const result = await participantService.get('id');
 
       expect(ParticipantStore.get).toHaveBeenCalledWith('id');
       expect(result).toBeNull();
@@ -69,7 +75,7 @@ describe('Participant service', () => {
         .fn()
         .mockRejectedValueOnce(new Error('Failed to get participant'));
 
-      await expect(ParticipantService.get('id')).rejects.toThrow(
+      await expect(participantService.get('id')).rejects.toThrow(
         'Failed to get participant',
       );
 
@@ -111,7 +117,7 @@ describe('Participant service', () => {
       ParticipantStore.get = jest.fn().mockResolvedValueOnce(participant);
       ParticipantStore.update = jest.fn().mockResolvedValueOnce(participant);
 
-      const result = await ParticipantService.update(
+      const result = await participantService.update(
         participant.id,
         participant,
       );
@@ -172,7 +178,7 @@ describe('Participant service', () => {
         .fn()
         .mockResolvedValueOnce(updatedParticipant);
 
-      const result = await ParticipantService.update(
+      const result = await participantService.update(
         originalParticipant.id,
         updatedParticipant,
       );
@@ -189,7 +195,7 @@ describe('Participant service', () => {
       ParticipantStore.get = jest.fn().mockResolvedValueOnce(null);
 
       await expect(
-        ParticipantService.update(
+        participantService.update(
           '12345',
           ParticipantGenerator.generateEntity(),
         ),
@@ -206,7 +212,7 @@ describe('Participant service', () => {
         .mockRejectedValueOnce(new Error('Failed to update participant'));
 
       await expect(
-        ParticipantService.update(participant.id, participant),
+        participantService.update(participant.id, participant),
       ).rejects.toThrow('Failed to update participant');
     });
   });

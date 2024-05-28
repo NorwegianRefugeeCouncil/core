@@ -1,6 +1,12 @@
 import { Router, Request, Response, NextFunction } from 'express';
 
-import { PrmService } from '@nrcno/core-prm-engine';
+import {
+  getPrmService,
+  hasCreateMixin,
+  hasGetMixin,
+  hasListMixin,
+  hasUpdateMixin,
+} from '@nrcno/core-prm-engine';
 import {
   EntityTypeSchema,
   EntityIdSchema,
@@ -10,7 +16,6 @@ import {
   EntityListItem,
   PaginationSchema,
   createSortingSchema,
-  getEntityListItemSchema,
   getEntityListSortingFields,
   getEntityFilteringSchema,
 } from '@nrcno/core-models';
@@ -29,7 +34,12 @@ export const createEntity = async (
       return;
     }
 
-    const prmService = PrmService[entityType.data];
+    const prmService = getPrmService(entityType.data);
+
+    if (!hasCreateMixin(prmService)) {
+      res.sendStatus(404);
+      return;
+    }
 
     const schema = getEntityDefinitionSchema(entityType.data);
     const entityDefinition = schema.parse(req.body);
@@ -56,7 +66,12 @@ export const getEntity = async (
       return;
     }
 
-    const prmService = PrmService[entityType.data];
+    const prmService = getPrmService(entityType.data);
+
+    if (!hasGetMixin(prmService)) {
+      res.sendStatus(404);
+      return;
+    }
 
     const entity = await prmService.get(entityId.data);
 
@@ -84,7 +99,12 @@ export const updateEntity = async (
       return;
     }
 
-    const prmService = PrmService[entityType.data];
+    const prmService = getPrmService(entityType.data);
+
+    if (!hasUpdateMixin(prmService)) {
+      res.sendStatus(404);
+      return;
+    }
 
     const schema = getEntityUpdateSchema(entityType.data);
     const entityUpdate = schema.parse(req.body);
@@ -118,7 +138,12 @@ export const listEntities = async (
     const filteringSchema = getEntityFilteringSchema(entityType.data);
     const filtering = filteringSchema.parse(req.query);
 
-    const prmService = PrmService[entityType.data];
+    const prmService = getPrmService(entityType.data);
+
+    if (!hasListMixin(prmService)) {
+      res.sendStatus(404);
+      return;
+    }
 
     const entities = await prmService.list(pagination, sorting, filtering);
     const totalCount = await prmService.count(filtering);

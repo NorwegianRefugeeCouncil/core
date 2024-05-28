@@ -1,110 +1,175 @@
-import { EntityType, ParticipantDefinition } from '@nrcno/core-models';
+import { SortingDirection } from '@nrcno/core-models';
 
-import { PrmStore } from '../stores';
+import { CreateMixin, GetMixin, ListMixin, UpdateMixin } from './base.service';
 
-import { getPrmService } from './base.service';
+describe('BaseService', () => {
+  describe('UpdateMixin', () => {
+    it('should update an entity', async () => {
+      const storeMock = {
+        update: jest.fn().mockResolvedValue({
+          updated: true,
+        }),
+      };
 
-jest.mock('../stores', () => ({
-  PrmStore: {
-    [EntityType.Participant]: {
-      create: jest
-        .fn()
-        .mockImplementation((entity: ParticipantDefinition) => entity),
-      get: jest.fn().mockImplementation((id: string) => ({ id })),
-    },
-  },
-}));
+      const mapUpdateToPartialMock = jest.fn().mockResolvedValue({
+        mapped: true,
+      });
 
-describe('Base PRM service', () => {
-  it('should error if the entity type is not supported', () => {
-    expect(() => getPrmService('unknown' as EntityType)).toThrow(
-      `Entity type "unknown" is not supported`,
-    );
+      const ServiceWithUpdateMixin = class Foo extends UpdateMixin<
+        any,
+        any,
+        any
+      >()(
+        class {
+          public store = storeMock;
+        },
+      ) {
+        mapUpdateToPartial(id: string, update: any) {
+          return mapUpdateToPartialMock(id, update);
+        }
+      };
+
+      const service = new ServiceWithUpdateMixin();
+
+      const id = '123';
+      const update = {
+        updated: false,
+        mapped: false,
+      };
+
+      const result = await service.update(id, update);
+
+      expect(result).toEqual({
+        updated: true,
+      });
+      expect(mapUpdateToPartialMock).toHaveBeenCalledWith(id, update);
+      expect(storeMock.update).toHaveBeenCalledWith(id, {
+        mapped: true,
+      });
+    });
   });
 
-  describe('Participant', () => {
-    it('should create a participant service', () => {
-      const entityType = EntityType.Participant;
+  describe('GetMixin', () => {
+    it('should get an entity', async () => {
+      const storeMock = {
+        get: jest.fn().mockResolvedValue({
+          id: '123',
+        }),
+      };
 
-      const service = getPrmService(entityType);
+      const ServiceWithGetMixin = class Foo extends GetMixin<any>()(
+        class {
+          public store = storeMock;
+        },
+      ) {};
 
-      expect(service).toBeDefined();
-      expect(service.create).toBeDefined();
-      expect(service.get).toBeDefined();
+      const service = new ServiceWithGetMixin();
+
+      const id = '123';
+
+      const result = await service.get(id);
+
+      expect(result).toEqual({
+        id: '123',
+      });
+      expect(storeMock.get).toHaveBeenCalledWith(id);
+    });
+  });
+
+  describe('ListMixin', () => {
+    it('should list entities', async () => {
+      const storeMock = {
+        list: jest.fn().mockResolvedValue([
+          {
+            id: '123',
+          },
+        ]),
+      };
+
+      const ServiceWithListMixin = class Foo extends ListMixin<any, any>()(
+        class {
+          public store = storeMock;
+        },
+      ) {};
+
+      const service = new ServiceWithListMixin();
+
+      const pagination = {
+        startIndex: 0,
+        pageSize: 50,
+      };
+
+      const sorting = {
+        sort: 'field',
+        direction: SortingDirection.Asc,
+      };
+
+      const filter = {
+        field: 'value',
+      };
+
+      const result = await service.list(pagination, sorting, filter);
+
+      expect(result).toEqual([
+        {
+          id: '123',
+        },
+      ]);
+      expect(storeMock.list).toHaveBeenCalledWith(pagination, sorting, filter);
     });
 
-    describe('create', () => {
-      it('should call the store create method', async () => {
-        const entityType = EntityType.Participant;
-        const service = getPrmService(entityType);
-        const participantDefinition: ParticipantDefinition = {
-          consentGdpr: true,
-          consentReferral: true,
-          languages: [],
-          nationalities: [],
-          contactDetails: { emails: [], phones: [] },
-          identification: [],
-        };
+    it('should count entities', async () => {
+      const storeMock = {
+        count: jest.fn().mockResolvedValue(123),
+      };
 
-        const result = await service.create(participantDefinition);
+      const ServiceWithListMixin = class Foo extends ListMixin<any, any>()(
+        class {
+          public store = storeMock;
+        },
+      ) {};
 
-        expect(PrmStore[entityType].create).toHaveBeenCalledWith(
-          participantDefinition,
-        );
-        expect(result).toEqual(participantDefinition);
-      });
+      const filter = {
+        field: 'value',
+      };
 
-      it('should throw an error if the store create method fails', async () => {
-        const entityType = EntityType.Participant;
-        const service = getPrmService(entityType);
-        const participantDefinition: ParticipantDefinition = {
-          consentGdpr: true,
-          consentReferral: true,
-          languages: [],
-          nationalities: [],
-          contactDetails: { emails: [], phones: [] },
-          identification: [],
-        };
+      const service = new ServiceWithListMixin();
 
-        jest
-          .spyOn(PrmStore[entityType], 'create')
-          .mockRejectedValue(new Error('Failed to create participant'));
+      const result = await service.count(filter);
 
-        await expect(service.create(participantDefinition)).rejects.toThrow(
-          'Failed to create participant',
-        );
-        expect(PrmStore[entityType].create).toHaveBeenCalledWith(
-          participantDefinition,
-        );
-      });
+      expect(result).toBe(123);
+      expect(storeMock.count).toHaveBeenCalledWith(filter);
     });
+  });
 
-    describe('get', () => {
-      it('should call the store get method', async () => {
-        const entityType = EntityType.Participant;
-        const service = getPrmService(entityType);
-        const participantId = '123';
+  describe('CreateMixin', () => {
+    it('should create an entity', async () => {
+      const storeMock = {
+        create: jest.fn().mockResolvedValue({
+          id: '123',
+          value: 'foo',
+        }),
+      };
 
-        const result = await service.get(participantId);
+      const ServiceWithCreateMixin = class Foo extends CreateMixin<any, any>()(
+        class {
+          public store = storeMock;
+        },
+      ) {};
 
-        expect(PrmStore[entityType].get).toHaveBeenCalledWith(participantId);
-        expect(result).toEqual({ id: participantId });
+      const service = new ServiceWithCreateMixin();
+
+      const entity = {
+        value: 'foo',
+      };
+
+      const result = await service.create(entity);
+
+      expect(result).toEqual({
+        id: '123',
+        value: 'foo',
       });
-
-      it('should throw an error if the store get method fails', async () => {
-        const entityType = EntityType.Participant;
-        const service = getPrmService(entityType);
-        const participantId = '123';
-
-        jest
-          .spyOn(PrmStore[entityType], 'get')
-          .mockRejectedValue(new Error('Failed to get participant'));
-
-        await expect(service.get(participantId)).rejects.toThrow(
-          'Failed to get participant',
-        );
-        expect(PrmStore[entityType].get).toHaveBeenCalledWith(participantId);
-      });
+      expect(storeMock.create).toHaveBeenCalledWith(entity);
     });
   });
 });

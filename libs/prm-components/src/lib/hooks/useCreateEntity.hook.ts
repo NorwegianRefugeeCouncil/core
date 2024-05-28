@@ -1,4 +1,4 @@
-import { PrmClient } from '@nrcno/core-clients';
+import { PrmClient, hasCreateMixin } from '@nrcno/core-clients';
 import { Entity, EntityDefinition, EntityType } from '@nrcno/core-models';
 
 import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
@@ -29,7 +29,7 @@ export const useCreateEntity = (
   const onCreateEntity = async (
     entityDefinition: EntityDefinition,
   ): Promise<Entity> => {
-    if (!client) {
+    if (!hasCreateMixin(client)) {
       throw new Error('Client is not defined');
     }
     try {

@@ -21,7 +21,7 @@ interface IClient {
 }
 
 export class BaseClient implements IClient {
-  private client: AxiosInstance;
+  public client: AxiosInstance;
 
   constructor(instance: AxiosInstance) {
     this.client = instance;

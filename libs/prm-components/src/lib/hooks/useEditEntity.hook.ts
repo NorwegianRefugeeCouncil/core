@@ -1,4 +1,4 @@
-import { PrmClient } from '@nrcno/core-clients';
+import { PrmClient, hasUpdateMixin } from '@nrcno/core-clients';
 import { Entity, EntityType } from '@nrcno/core-models';
 
 import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
@@ -30,7 +30,7 @@ export const useEditEntity = (
     entityId: string,
     entityDefinition: any,
   ): Promise<Entity> => {
-    if (!client) {
+    if (!hasUpdateMixin(client)) {
       throw new Error('Client is not defined');
     }
     try {
