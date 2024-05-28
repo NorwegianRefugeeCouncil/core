@@ -86,7 +86,7 @@ describe('BaseService', () => {
         ]),
       };
 
-      const ServiceWithListMixin = class Foo extends ListMixin<any>()(
+      const ServiceWithListMixin = class Foo extends ListMixin<any, any>()(
         class {
           public store = storeMock;
         },
@@ -104,14 +104,18 @@ describe('BaseService', () => {
         direction: SortingDirection.Asc,
       };
 
-      const result = await service.list(pagination, sorting);
+      const filter = {
+        field: 'value',
+      };
+
+      const result = await service.list(pagination, sorting, filter);
 
       expect(result).toEqual([
         {
           id: '123',
         },
       ]);
-      expect(storeMock.list).toHaveBeenCalledWith(pagination, sorting);
+      expect(storeMock.list).toHaveBeenCalledWith(pagination, sorting, filter);
     });
 
     it('should count entities', async () => {
@@ -119,18 +123,22 @@ describe('BaseService', () => {
         count: jest.fn().mockResolvedValue(123),
       };
 
-      const ServiceWithListMixin = class Foo extends ListMixin<any>()(
+      const ServiceWithListMixin = class Foo extends ListMixin<any, any>()(
         class {
           public store = storeMock;
         },
       ) {};
 
+      const filter = {
+        field: 'value',
+      };
+
       const service = new ServiceWithListMixin();
 
-      const result = await service.count();
+      const result = await service.count(filter);
 
       expect(result).toBe(123);
-      expect(storeMock.count).toHaveBeenCalled();
+      expect(storeMock.count).toHaveBeenCalledWith(filter);
     });
   });
 
