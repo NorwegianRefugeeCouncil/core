@@ -11,6 +11,7 @@ import {
   IdentificationType,
   ParticipantPartialUpdate,
   SortingDirection,
+  YesNoUnknown,
 } from '@nrcno/core-models';
 
 import { ParticipantStore } from './participant.store';
@@ -142,7 +143,25 @@ describe('Participant store', () => {
 
       await ParticipantStore.create(participantDefinition);
 
-      const count = await ParticipantStore.count();
+      const count = await ParticipantStore.count({});
+
+      expect(count).toBe(1);
+    });
+
+    test('should return zero if there are no participants matching the filter', async () => {
+      const count = await ParticipantStore.count({ id: 'non-existing-id' });
+
+      expect(count).toBe(0);
+    });
+
+    test('should return the number of participants, filtered by id', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition();
+      const participant = await ParticipantStore.create(participantDefinition);
+      await ParticipantStore.create(ParticipantGenerator.generateDefinition());
+
+      const count = await ParticipantStore.count({
+        id: participant.id,
+      });
 
       expect(count).toBe(1);
     });
@@ -343,6 +362,324 @@ describe('Participant store', () => {
       expect(participants).toBeDefined();
       expect(participants).toHaveLength(1);
       expect(participants[0].id).toEqual(expectedFirstParticipantId);
+    });
+
+    test('should return an empty list if there are no participants matching the filters', async () => {
+      const participants = await ParticipantStore.list(
+        {
+          startIndex: 0,
+          pageSize: 50,
+        },
+        {
+          sort: 'id',
+          direction: SortingDirection.Asc,
+        },
+        {
+          id: 'non-existing-id',
+        },
+      );
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(0);
+    });
+
+    test('should return a list of participants, filtered by id', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition();
+      const participant = await ParticipantStore.create(participantDefinition);
+      await ParticipantStore.create(ParticipantGenerator.generateDefinition());
+
+      const participants = await ParticipantStore.list(
+        {
+          startIndex: 0,
+          pageSize: 50,
+        },
+        {
+          sort: 'id',
+          direction: SortingDirection.Asc,
+        },
+        {
+          id: participant.id,
+        },
+      );
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(1);
+      expect(participants[0].id).toEqual(participant.id);
+    });
+
+    test('should return a list of participants, filtered by combination of names', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition();
+      const participant = await ParticipantStore.create(participantDefinition);
+      await ParticipantStore.create(ParticipantGenerator.generateDefinition());
+
+      const participants = await ParticipantStore.list(
+        {
+          startIndex: 0,
+          pageSize: 50,
+        },
+        {
+          sort: 'id',
+          direction: SortingDirection.Asc,
+        },
+        {
+          firstName: participant.firstName!,
+          lastName: participant.lastName!,
+          middleName: participant.middleName!,
+        },
+      );
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(1);
+      expect(participants[0].id).toEqual(participant.id);
+    });
+
+    test('should return a list of participants, filtered by date of birth range', async () => {
+      const dateOfBirthMin = new Date('2000-01-01');
+      const dateOfBirthMax = new Date('2000-12-31');
+      const dateOfBirthInRange = new Date('2000-06-15');
+      const dateOfBirthOutOfRange = new Date('2001-01-01');
+      const participantDefinition = ParticipantGenerator.generateDefinition({
+        dateOfBirth: dateOfBirthInRange,
+      });
+      const participant = await ParticipantStore.create(participantDefinition);
+      await ParticipantStore.create(
+        ParticipantGenerator.generateDefinition({
+          dateOfBirth: dateOfBirthOutOfRange,
+        }),
+      );
+
+      const participants = await ParticipantStore.list(
+        {
+          startIndex: 0,
+          pageSize: 50,
+        },
+        {
+          sort: 'id',
+          direction: SortingDirection.Asc,
+        },
+        {
+          dateOfBirthMin,
+          dateOfBirthMax,
+        },
+      );
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(1);
+      expect(participants[0].id).toEqual(participant.id);
+    });
+
+    test('should return a list of participants, filtered by disabilities', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition({
+        disabilities: {
+          hasDisabilityPwd: true,
+          hasDisabilityVision: true,
+          hasDisabilityHearing: true,
+          hasDisabilityMobility: true,
+          hasDisabilityCognition: true,
+          hasDisabilitySelfcare: true,
+          hasDisabilityCommunication: true,
+          isChildAtRisk: YesNoUnknown.Yes,
+          isElderAtRisk: YesNoUnknown.No,
+          isWomanAtRisk: YesNoUnknown.Unknown,
+        },
+      });
+      const participant = await ParticipantStore.create(participantDefinition);
+      await ParticipantStore.create(
+        ParticipantGenerator.generateDefinition({
+          disabilities: {
+            hasDisabilityPwd: false,
+            hasDisabilityVision: false,
+            hasDisabilityHearing: true,
+            hasDisabilityMobility: false,
+            hasDisabilityCognition: false,
+            hasDisabilitySelfcare: false,
+            hasDisabilityCommunication: false,
+            isChildAtRisk: YesNoUnknown.No,
+            isElderAtRisk: YesNoUnknown.No,
+            isWomanAtRisk: YesNoUnknown.Unknown,
+          },
+        }),
+      );
+
+      const participants = await ParticipantStore.list(
+        {
+          startIndex: 0,
+          pageSize: 50,
+        },
+        {
+          sort: 'id',
+          direction: SortingDirection.Asc,
+        },
+        {
+          hasDisabilityPwd: true,
+          hasDisabilityVision: true,
+          hasDisabilityHearing: true,
+          hasDisabilityMobility: true,
+          hasDisabilityCognition: true,
+          hasDisabilitySelfcare: true,
+          hasDisabilityCommunication: true,
+          isChildAtRisk: YesNoUnknown.Yes,
+        },
+      );
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(1);
+      expect(participants[0].id).toEqual(participant.id);
+    });
+
+    test('should return a list of participants, filtered by nationality', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition({
+        nationalities: ['es', 'en'],
+      });
+      const participant = await ParticipantStore.create(participantDefinition);
+      await ParticipantStore.create(
+        ParticipantGenerator.generateDefinition({
+          nationalities: ['ar', 'en'],
+        }),
+      );
+
+      const participants = await ParticipantStore.list(
+        {
+          startIndex: 0,
+          pageSize: 50,
+        },
+        {
+          sort: 'id',
+          direction: SortingDirection.Asc,
+        },
+        {
+          nationalities: 'es',
+        },
+      );
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(1);
+      expect(participants[0].id).toEqual(participant.id);
+    });
+
+    test('should return a list of participants, filtered by phone', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition({
+        contactDetails: {
+          phones: [{ value: '123' }, { value: '456' }],
+          emails: [],
+        },
+      });
+      const participant = await ParticipantStore.create(participantDefinition);
+      const anotherParticipantSamePhone = await ParticipantStore.create(
+        ParticipantGenerator.generateDefinition({
+          contactDetails: {
+            phones: [{ value: '456' }, { value: '789' }],
+            emails: [],
+          },
+        }),
+      );
+
+      const participants = await ParticipantStore.list(
+        {
+          startIndex: 0,
+          pageSize: 50,
+        },
+        {
+          sort: 'id',
+          direction: SortingDirection.Asc,
+        },
+        {
+          phones: '456',
+        },
+      );
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(2);
+      const participantIds = participants.map((p) => p.id);
+      expect(participantIds).toContain(participant.id);
+      expect(participantIds).toContain(anotherParticipantSamePhone.id);
+    });
+
+    test('should return a list of participants, filtered by email', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition({
+        contactDetails: {
+          phones: [],
+          emails: [{ value: 'test@nrc.no' }, { value: 'test2@nrc.no' }],
+        },
+      });
+      const participant = await ParticipantStore.create(participantDefinition);
+      await ParticipantStore.create(
+        ParticipantGenerator.generateDefinition({
+          contactDetails: {
+            phones: [],
+            emails: [{ value: 'test3@nrc.no' }],
+          },
+        }),
+      );
+      const participants = await ParticipantStore.list(
+        {
+          startIndex: 0,
+          pageSize: 50,
+        },
+        {
+          sort: 'id',
+          direction: SortingDirection.Asc,
+        },
+        {
+          emails: 'test@nrc.no',
+        },
+      );
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(1);
+      expect(participants[0].id).toEqual(participant.id);
+    });
+
+    test('should return a list of participants, filtered by identification number', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition({
+        identification: [
+          {
+            identificationNumber: '123',
+            identificationType: IdentificationType.NationalId,
+            isPrimary: true,
+          },
+          {
+            identificationNumber: '456',
+            identificationType: IdentificationType.NationalId,
+            isPrimary: false,
+          },
+        ],
+      });
+      const participant = await ParticipantStore.create(participantDefinition);
+      await ParticipantStore.create(
+        ParticipantGenerator.generateDefinition({
+          identification: [
+            {
+              identificationNumber: '789',
+              identificationType: IdentificationType.NationalId,
+              isPrimary: true,
+            },
+            {
+              identificationNumber: '012',
+              identificationType: IdentificationType.NationalId,
+              isPrimary: false,
+            },
+          ],
+        }),
+      );
+
+      const participants = await ParticipantStore.list(
+        {
+          startIndex: 0,
+          pageSize: 50,
+        },
+        {
+          sort: 'id',
+          direction: SortingDirection.Asc,
+        },
+        {
+          identificationNumber: '456',
+        },
+      );
+
+      expect(participants).toBeDefined();
+      expect(participants).toHaveLength(1);
+      expect(participants[0].id).toEqual(participant.id);
     });
   });
 

@@ -12,6 +12,7 @@ import {
   createSortingSchema,
   getEntityListItemSchema,
   getEntityListSortingFields,
+  getEntityFilteringSchema,
 } from '@nrcno/core-models';
 
 // This is exported for testing purposes (not great)
@@ -114,10 +115,13 @@ export const listEntities = async (
     const sortingSchema = createSortingSchema(possibleSortingFields);
     const sorting = sortingSchema.parse(req.query);
 
+    const filteringSchema = getEntityFilteringSchema(entityType.data);
+    const filtering = filteringSchema.parse(req.query);
+
     const prmService = PrmService[entityType.data];
 
-    const entities = await prmService.list(pagination, sorting);
-    const totalCount = await prmService.count();
+    const entities = await prmService.list(pagination, sorting, filtering);
+    const totalCount = await prmService.count(filtering);
 
     const response: PaginatedResponse<EntityListItem> = {
       startIndex: pagination.startIndex,

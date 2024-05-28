@@ -274,6 +274,44 @@ describe('PRM Controller', () => {
 
         expect(next).toHaveBeenCalledWith(new Error('Test error'));
       });
+
+      it('should call next with error if sorting field is invalid', async () => {
+        const req = httpMocks.createRequest({
+          params: {
+            entityType: EntityType.Participant,
+          },
+          query: {
+            startIndex: 0,
+            pageSize: 2,
+            sort: 'invalid',
+          },
+        });
+        const res = httpMocks.createResponse();
+        const next = jest.fn();
+
+        await listEntities(req, res, next);
+
+        expect(next).toHaveBeenCalled();
+      });
+
+      it('should call next with error if filtering field is invalid', async () => {
+        const req = httpMocks.createRequest({
+          params: {
+            entityType: EntityType.Participant,
+          },
+          query: {
+            startIndex: 0,
+            pageSize: 2,
+            hasDisabilityPwd: 'invalid',
+          },
+        });
+        const res = httpMocks.createResponse();
+        const next = jest.fn();
+
+        await listEntities(req, res, next);
+
+        expect(next).toHaveBeenCalled();
+      });
     });
 
     describe('update', () => {

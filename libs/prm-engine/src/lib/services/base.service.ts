@@ -1,4 +1,5 @@
 import {
+  EntityFiltering,
   EntityType,
   Pagination,
   Participant,
@@ -16,13 +17,14 @@ export type PrmService<
   TUpdateDefinition,
   TEntityListItem,
 > = {
-  count: () => Promise<number>;
+  count: (filtering: EntityFiltering) => Promise<number>;
   create: (entity: TDefinition) => Promise<TEntity>;
   get: (id: string) => Promise<TEntity | null>;
   update: (id: string, entity: TUpdateDefinition) => Promise<TEntity>;
   list: (
     pagination: Pagination,
     sorting: Sorting,
+    filtering: EntityFiltering,
   ) => Promise<TEntityListItem[]>;
 };
 
@@ -43,8 +45,8 @@ export function getPrmService(
     throw new Error(`Entity type "${entityType}" is not supported`);
   }
 
-  const count = async () => {
-    return Store.count();
+  const count = async (filtering: EntityFiltering) => {
+    return Store.count(filtering);
   };
 
   const create = async (entity: any) => {
@@ -59,8 +61,12 @@ export function getPrmService(
     return Store.update(id, entity);
   };
 
-  const list = async (pagination: Pagination, sorting: Sorting) => {
-    return Store.list(pagination, sorting);
+  const list = async (
+    pagination: Pagination,
+    sorting: Sorting,
+    filtering: EntityFiltering,
+  ) => {
+    return Store.list(pagination, sorting, filtering);
   };
 
   return { count, create, get, update, list };

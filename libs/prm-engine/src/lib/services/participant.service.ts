@@ -5,6 +5,7 @@ import {
   Pagination,
   Participant,
   ParticipantDefinition,
+  ParticipantFiltering,
   ParticipantListItem,
   ParticipantUpdate,
   Sorting,
@@ -21,8 +22,8 @@ export const ParticipantService: PrmService<
   ParticipantUpdate,
   ParticipantListItem
 > = {
-  count: async () => {
-    return ParticipantStore.count();
+  count: async (filtering: ParticipantFiltering) => {
+    return ParticipantStore.count(filtering);
   },
 
   create: async (participant: ParticipantDefinition) => {
@@ -33,8 +34,12 @@ export const ParticipantService: PrmService<
     return ParticipantStore.get(id);
   },
 
-  list: async (pagination: Pagination, sorting: Sorting) => {
-    return ParticipantStore.list(pagination, sorting);
+  list: async (
+    pagination: Pagination,
+    sorting: Sorting,
+    filtering: ParticipantFiltering,
+  ) => {
+    return ParticipantStore.list(pagination, sorting, filtering);
   },
 
   update: async (id: string, participant: ParticipantUpdate) => {
