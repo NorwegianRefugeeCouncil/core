@@ -1,6 +1,12 @@
 import { Router, Request, Response, NextFunction } from 'express';
 
-import { getPrmService } from '@nrcno/core-prm-engine';
+import {
+  getPrmService,
+  hasCreateMixin,
+  hasGetMixin,
+  hasListMixin,
+  hasUpdateMixin,
+} from '@nrcno/core-prm-engine';
 import {
   EntityTypeSchema,
   EntityIdSchema,
@@ -30,7 +36,7 @@ export const createEntity = async (
 
     const prmService = getPrmService(entityType.data);
 
-    if (!('create' in prmService)) {
+    if (!hasCreateMixin(prmService)) {
       res.sendStatus(404);
       return;
     }
@@ -62,7 +68,7 @@ export const getEntity = async (
 
     const prmService = getPrmService(entityType.data);
 
-    if (!('get' in prmService)) {
+    if (!hasGetMixin(prmService)) {
       res.sendStatus(404);
       return;
     }
@@ -95,7 +101,7 @@ export const updateEntity = async (
 
     const prmService = getPrmService(entityType.data);
 
-    if (!('update' in prmService)) {
+    if (!hasUpdateMixin(prmService)) {
       res.sendStatus(404);
       return;
     }
@@ -134,7 +140,7 @@ export const listEntities = async (
 
     const prmService = getPrmService(entityType.data);
 
-    if (!('list' in prmService) || !('count' in prmService)) {
+    if (!hasListMixin(prmService)) {
       res.sendStatus(404);
       return;
     }

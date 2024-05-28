@@ -101,3 +101,33 @@ export const CRUDMixin =
         ReadMixin<TEntity>()(CreateMixin<TEntity, TEntityDefinition>()(Base)),
       ),
     );
+
+export const hasListMixin = <T>(
+  client:
+    | {
+        list?: T;
+      }
+    | undefined,
+): client is {
+  list: T;
+} => {
+  return client !== undefined && 'list' in client;
+};
+
+export const hasReadMixin = <T>(
+  client: { read?: T } | undefined,
+): client is { read: T } => {
+  return client !== undefined && 'read' in client;
+};
+
+export const hasCreateMixin = <T>(
+  client: { create?: T } | undefined,
+): client is { create: T } => {
+  return client !== undefined && 'create' in client;
+};
+
+export const hasUpdateMixin = <T>(
+  client: { update?: T } | undefined,
+): client is { update: T } => {
+  return client !== undefined && 'update' in client;
+};

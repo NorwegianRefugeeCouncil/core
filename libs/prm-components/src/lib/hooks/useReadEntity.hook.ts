@@ -1,4 +1,4 @@
-import { PrmClient } from '@nrcno/core-clients';
+import { PrmClient, hasReadMixin } from '@nrcno/core-clients';
 import { EntityType, Entity } from '@nrcno/core-models';
 
 import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
@@ -27,7 +27,7 @@ export const useReadEntity = (
   const [state, actions] = useApiReducer<Entity>();
 
   const loadEntity = async (entityId: string) => {
-    if (!client || 'read' in client === false) {
+    if (!hasReadMixin(client)) {
       throw new Error('Client is not defined');
     }
     try {

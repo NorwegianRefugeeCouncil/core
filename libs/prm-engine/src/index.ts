@@ -1,1 +1,1 @@
-export { getPrmService } from './lib/services';
+export * from './lib/services';

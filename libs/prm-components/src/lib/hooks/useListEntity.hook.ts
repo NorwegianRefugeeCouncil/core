@@ -1,4 +1,4 @@
-import { PrmClient } from '@nrcno/core-clients';
+import { PrmClient, hasListMixin } from '@nrcno/core-clients';
 import {
   EntityType,
   Pagination,
@@ -32,7 +32,7 @@ export const useListEntity = (
   const [state, actions] = useApiReducer<PaginatedResponse<EntityListItem>>();
 
   const listEntities = async (pagination: Pagination) => {
-    if (!client || 'list' in client === false) {
+    if (!hasListMixin(client)) {
       throw new Error('Client is not defined');
     }
     try {

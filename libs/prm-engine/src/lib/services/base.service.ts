@@ -168,3 +168,35 @@ export const CRUDMixin =
         ),
       ),
     );
+
+export const hasListMixin = <T, U>(
+  service:
+    | {
+        list?: T;
+        count?: U;
+      }
+    | undefined,
+): service is {
+  list: T;
+  count: U;
+} => {
+  return service !== undefined && 'list' in service && 'count' in service;
+};
+
+export const hasGetMixin = <T>(
+  service: { get?: T } | undefined,
+): service is { get: T } => {
+  return service !== undefined && 'get' in service;
+};
+
+export const hasCreateMixin = <T>(
+  service: { create?: T } | undefined,
+): service is { create: T } => {
+  return service !== undefined && 'create' in service;
+};
+
+export const hasUpdateMixin = <T>(
+  service: { update?: T } | undefined,
+): service is { update: T } => {
+  return service !== undefined && 'update' in service;
+};
