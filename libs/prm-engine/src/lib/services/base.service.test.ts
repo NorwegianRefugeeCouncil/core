@@ -111,7 +111,7 @@ describe('BaseService', () => {
           id: '123',
         },
       ]);
-      expect(storeMock.list).toHaveBeenCalledWith(pagination);
+      expect(storeMock.list).toHaveBeenCalledWith(pagination, sorting);
     });
 
     it('should count entities', async () => {
