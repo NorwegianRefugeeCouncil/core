@@ -4,10 +4,78 @@ import { faker } from '@faker-js/faker';
 import { ZodError } from 'zod';
 import { ulid } from 'ulidx';
 
-import { ParticipantGenerator } from '@nrcno/core-test-utils';
+import {
+  ParticipantGenerator,
+  getListItemGenerator,
+} from '@nrcno/core-test-utils';
 import { EntityType, Pagination } from '@nrcno/core-models';
 
 import { PrmClient } from '.';
+
+const buildListTests = (entityType: EntityType) => {
+  describe('list', () => {
+    let client: PrmClient[EntityType];
+    let mock: any;
+
+    beforeEach(() => {
+      const axiosInstance = axios.create();
+      mock = new MockAdapter(axiosInstance);
+      const prmClient = new PrmClient(axiosInstance);
+      client = prmClient[entityType];
+    });
+
+    afterEach(() => {
+      mock.restore();
+    });
+
+    const pagination: Pagination = {
+      startIndex: 0,
+      pageSize: 100,
+    };
+
+    it(`should list ${entityType}`, async () => {
+      if (!('list' in client)) {
+        throw new Error(`Client does not have a read method`);
+      }
+
+      const listItemGenerator = getListItemGenerator(entityType);
+      const participants = new Array(5)
+        .fill(null)
+        .map(() => listItemGenerator());
+      const responsePayload = {
+        startIndex: 0,
+        pageSize: 100,
+        totalCount: 5,
+        items: participants,
+      };
+      mock.onGet(`/prm/${entityType}`).reply(200, responsePayload);
+      const res = await client.list(pagination);
+      expect(res).toEqual(responsePayload);
+      expect(mock.history.get.length).toBe(1);
+      expect(mock.history.get[0].url).toBe(`/prm/${entityType}`);
+    });
+
+    it('should fail when receiving an invalid response from the api', () => {
+      if (!('list' in client)) {
+        throw new Error(`Client does not have a read method`);
+      }
+
+      mock.onGet(`/prm/${entityType}`).reply(200, { foo: 'bar' });
+      expect(client.list(pagination)).rejects.toThrow(expect.any(ZodError));
+    });
+
+    it('should fail if the api returns an error', () => {
+      if (!('list' in client)) {
+        throw new Error(`Client does not have a read method`);
+      }
+
+      mock.onGet(`/prm/${entityType}`).reply(500);
+      expect(client.list(pagination)).rejects.toThrow(
+        'Request failed with status code 500',
+      );
+    });
+  });
+};
 
 describe('PRM client', () => {
   describe('Participant', () => {
@@ -177,40 +245,10 @@ describe('PRM client', () => {
       });
     });
 
-    describe('list', () => {
-      const pagination: Pagination = {
-        startIndex: 0,
-        pageSize: 100,
-      };
+    buildListTests(EntityType.Participant);
+  });
 
-      it('should list participants', async () => {
-        const participants = new Array(5)
-          .fill(null)
-          .map(() => ParticipantGenerator.generateListItem());
-        const responsePayload = {
-          startIndex: 0,
-          pageSize: 100,
-          totalCount: 5,
-          items: participants,
-        };
-        mock.onGet('/prm/participants').reply(200, responsePayload);
-        const res = await client.list(pagination);
-        expect(res).toEqual(responsePayload);
-        expect(mock.history.get.length).toBe(1);
-        expect(mock.history.get[0].url).toBe('/prm/participants');
-      });
-
-      it('should fail when receiving an invalid response from the api', () => {
-        mock.onGet('/prm/participants').reply(200, { foo: 'bar' });
-        expect(client.list(pagination)).rejects.toThrow(expect.any(ZodError));
-      });
-
-      it('should fail if the api returns an error', () => {
-        mock.onGet('/prm/participants').reply(500);
-        expect(client.list(pagination)).rejects.toThrow(
-          'Request failed with status code 500',
-        );
-      });
-    });
+  describe('Language', () => {
+    buildListTests(EntityType.Language);
   });
 });
