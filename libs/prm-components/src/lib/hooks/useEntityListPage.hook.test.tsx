@@ -65,7 +65,11 @@ describe('useEntityListPage', () => {
       (usePrmContext as Mock).mockReturnValue(prmContextData);
 
       const { result } = renderHook(
-        () => useEntityListPage({ pageSize: 10, startIndex: 0 }, {}),
+        () =>
+          useEntityListPage(
+            { pageSize: 10, startIndex: 0 },
+            { firstName: 'John' },
+          ),
         renderHookOptions,
       );
 
@@ -108,7 +112,11 @@ describe('useEntityListPage', () => {
       });
 
       const { result } = renderHook(
-        () => useEntityListPage({ pageSize: 10, startIndex: 0 }),
+        () =>
+          useEntityListPage(
+            { pageSize: 10, startIndex: 0 },
+            { firstName: 'John' },
+          ),
         renderHookOptions,
       );
 
@@ -125,7 +133,11 @@ describe('useEntityListPage', () => {
       });
 
       const { result } = renderHook(
-        () => useEntityListPage({ pageSize: 10, startIndex: 0 }),
+        () =>
+          useEntityListPage(
+            { pageSize: 10, startIndex: 0 },
+            { firstName: 'John' },
+          ),
         renderHookOptions,
       );
 
@@ -148,7 +160,11 @@ describe('useEntityListPage', () => {
       });
 
       const { result } = renderHook(
-        () => useEntityListPage({ pageSize: 10, startIndex: 0 }),
+        () =>
+          useEntityListPage(
+            { pageSize: 10, startIndex: 0 },
+            { firstName: 'John' },
+          ),
         renderHookOptions,
       );
 

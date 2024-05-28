@@ -8,7 +8,7 @@ import {
   ParticipantGenerator,
   getListItemGenerator,
 } from '@nrcno/core-test-utils';
-import { EntityType, Pagination } from '@nrcno/core-models';
+import { EntityFiltering, EntityType, Pagination } from '@nrcno/core-models';
 
 import { PrmClient, hasListMixin } from '.';
 

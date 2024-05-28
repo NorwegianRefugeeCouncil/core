@@ -4,7 +4,6 @@ import { useSearchParams } from 'react-router-dom';
 
 export interface UseFilters {
   filters: EntityFiltering;
-  searchParams: URLSearchParams;
   parseFilters: (filters: EntityFiltering) => void;
   deleteFilter: (filter: string) => void;
 }
@@ -41,7 +40,6 @@ export const useFilters = (): UseFilters => {
 
   return {
     filters,
-    searchParams,
     parseFilters,
     deleteFilter,
   };
