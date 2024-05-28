@@ -47,6 +47,7 @@ const ps = {
 };
 
 jest.mock('@nrcno/core-prm-engine', () => ({
+  ...jest.requireActual('@nrcno/core-prm-engine'),
   getPrmService: jest.fn().mockImplementation((entityType) => {
     switch (entityType) {
       case EntityType.Participant:
