@@ -28,7 +28,10 @@ export const FilterTags: React.FC<Props> = ({ filters, deleteFilter }) => {
             <TagLabel>
               {filter}: {formatting(filters[filter as keyof EntityFiltering])}
             </TagLabel>
-            <TagCloseButton onClick={() => deleteFilter(filter)} />
+            <TagCloseButton
+              data-testid="close-button"
+              onClick={() => deleteFilter(filter)}
+            />
           </Tag>
         </WrapItem>
       ))}
