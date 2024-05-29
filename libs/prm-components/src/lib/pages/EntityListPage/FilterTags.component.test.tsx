@@ -1,7 +1,6 @@
-import { render, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 
 import { FilterTags } from './FilterTags.component';
-import exp from 'constants';
 
 const mockDeleteFilter: (filter: string) => void = vi.fn();
 
