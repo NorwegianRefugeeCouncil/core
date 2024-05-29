@@ -1,6 +1,8 @@
-import { EntityFiltering, EntityFilteringSchema } from '@nrcno/core-models';
+import { EntityFiltering, getEntityFilteringSchema } from '@nrcno/core-models';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+
+import { usePrmContext } from '../prm.context';
 
 export interface UseFilters {
   applyFilters: (filters: EntityFiltering) => void;
@@ -12,6 +14,7 @@ export interface UseFilters {
 export const useFilters = (): UseFilters => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState<EntityFiltering>({});
+  const { entityType } = usePrmContext();
 
   useEffect(() => {
     parseParams(searchParams);
@@ -29,9 +32,12 @@ export const useFilters = (): UseFilters => {
   };
 
   const parseParams = (params: URLSearchParams) => {
-    const f = EntityFilteringSchema.safeParse(Object.fromEntries(params));
-    if (f.success) {
-      setFilters(f.data);
+    if (entityType) {
+      const schema = getEntityFilteringSchema(entityType);
+      const f = schema.safeParse(Object.fromEntries(params));
+      if (f.success) {
+        setFilters(f.data);
+      }
     }
   };
 

@@ -12,7 +12,7 @@ import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
 export type ListEntityState = {
   listEntities: (
     pagination: Pagination,
-    filters: EntityFiltering,
+    filters?: EntityFiltering,
   ) => Promise<void>;
   reset: () => void;
   status: SubmitStatus;
@@ -21,7 +21,7 @@ export type ListEntityState = {
 };
 
 export const defaultListEntityState: ListEntityState = {
-  listEntities: async (pagination: Pagination, filters: EntityFiltering) =>
+  listEntities: async (pagination: Pagination, filters?: EntityFiltering) =>
     Promise.resolve(),
   reset: () => {
     return;
@@ -38,7 +38,7 @@ export const useListEntity = (
 
   const listEntities = async (
     pagination: Pagination,
-    filters: EntityFiltering,
+    filters?: EntityFiltering,
   ) => {
     if (!hasListMixin(client)) {
       throw new Error('Client is not defined');

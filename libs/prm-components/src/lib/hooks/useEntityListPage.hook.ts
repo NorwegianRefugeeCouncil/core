@@ -7,7 +7,7 @@ import { SubmitStatus } from './useApiReducer.hook';
 
 export const useEntityListPage = (
   pagination: Pagination,
-  filters: EntityFiltering,
+  filters?: EntityFiltering,
 ) => {
   const { entityType, list, config } = usePrmContext();
 
