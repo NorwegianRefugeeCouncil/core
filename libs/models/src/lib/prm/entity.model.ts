@@ -86,7 +86,7 @@ export const getEntityListSortingFields = (entityType: EntityType) => {
     case EntityType.Language:
       return LanguageSortingFields;
     default:
-      throw new Error(`No sorting fields found for ${entityType}`);
+      return [];
   }
 };
 
@@ -94,9 +94,7 @@ export const getEntityFilteringSchema = (entityType: EntityType) => {
   switch (entityType) {
     case EntityType.Participant:
       return ParticipantFilteringSchema;
-    case EntityType.Language:
-      return EmptyFilterSchema;
     default:
-      throw new Error(`No filtering schema found for ${entityType}`);
+      return EmptyFilterSchema;
   }
 };
