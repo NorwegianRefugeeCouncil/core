@@ -27,6 +27,7 @@ export const EntityFilterForm: React.FC<Props> = ({
 }) => {
   const form = useForm<EntityFiltering>({ defaultValues: filters });
 
+  const { fields } = config;
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} id={id}>
@@ -37,7 +38,7 @@ export const EntityFilterForm: React.FC<Props> = ({
           </Flex>
 
           <Flex direction="column">
-            {config.map((field) => {
+            {fields.map((field) => {
               return <Field config={field} key={field.path.join('.')}></Field>;
             })}
           </Flex>
