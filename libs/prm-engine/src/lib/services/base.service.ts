@@ -169,34 +169,30 @@ export const CRUDMixin =
       ),
     );
 
-export const hasListMixin = <T, U>(
-  service:
-    | {
-        list?: T;
-        count?: U;
-      }
-    | undefined,
-): service is {
-  list: T;
-  count: U;
-} => {
-  return service !== undefined && 'list' in service && 'count' in service;
+export const hasListMixin = (
+  obj: any | undefined,
+): obj is { list: Function; count: Function } => {
+  return (
+    obj !== undefined &&
+    typeof obj.list === 'function' &&
+    typeof obj.count === 'function'
+  );
 };
 
-export const hasGetMixin = <T>(
-  service: { get?: T } | undefined,
-): service is { get: T } => {
-  return service !== undefined && 'get' in service;
+export const hasGetMixin = (
+  obj: any | undefined,
+): obj is { create: Function } => {
+  return obj !== undefined && typeof obj.create === 'function';
 };
 
-export const hasCreateMixin = <T>(
-  service: { create?: T } | undefined,
-): service is { create: T } => {
-  return service !== undefined && 'create' in service;
+export const hasCreateMixin = (
+  obj: any | undefined,
+): obj is { create: Function } => {
+  return obj !== undefined && typeof obj.create === 'function';
 };
 
-export const hasUpdateMixin = <T>(
-  service: { update?: T } | undefined,
-): service is { update: T } => {
-  return service !== undefined && 'update' in service;
+export const hasUpdateMixin = (
+  obj: any | undefined,
+): obj is { update: Function } => {
+  return obj !== undefined && typeof obj.update === 'function';
 };
