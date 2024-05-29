@@ -16,6 +16,8 @@ import {
 } from './participant.model';
 import {
   Language,
+  LanguageFilter,
+  LanguageFilterSchema,
   LanguageSchema,
   LanguageSortingFields,
 } from './language.model';
@@ -37,7 +39,10 @@ export type EntityDefinition = ParticipantDefinition;
 export type EntityListItem = ParticipantListItem | Language;
 export type EntityUpdate = ParticipantUpdate;
 export type EntityPartialUpdate = ParticipantPartialUpdate;
-export type EntityFiltering = ParticipantFiltering | EmptyFilter;
+export type EntityFiltering =
+  | ParticipantFiltering
+  | LanguageFilter
+  | EmptyFilter;
 
 export const getEntitySchema = (entityType: EntityType) => {
   switch (entityType) {
@@ -94,6 +99,8 @@ export const getEntityFilteringSchema = (entityType: EntityType) => {
   switch (entityType) {
     case EntityType.Participant:
       return ParticipantFilteringSchema;
+    case EntityType.Language:
+      return LanguageFilterSchema;
     default:
       return EmptyFilterSchema;
   }
