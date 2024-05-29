@@ -41,8 +41,8 @@ export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
     case 'create': {
       const onSubmit = async (data: Entity) => {
         try {
-          const entity = await create.onCreateEntity(data);
-          navigate(`/prm/${entityType}/${entity.id}`);
+          await create.onCreateEntity(data);
+          navigate(`/prm/${entityType}`);
         } catch {
           // Do nothing - error handled via state
         }
