@@ -33,6 +33,7 @@ export const useListEntity = (
 
   const listEntities = async (pagination: Pagination) => {
     if (!hasListMixin(client)) {
+      console.log('CLIENT', client);
       throw new Error('Client is not defined');
     }
     try {
