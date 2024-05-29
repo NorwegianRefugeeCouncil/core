@@ -1,11 +1,16 @@
 import { z } from 'zod';
 
-import { Language, LanguageSchema, Pagination } from '@nrcno/core-models';
+import {
+  EmptyFilter,
+  Language,
+  LanguageSchema,
+  Pagination,
+} from '@nrcno/core-models';
 import { getDb } from '@nrcno/core-db';
 
 import { ListStore } from './base.store';
 
-export type ILanguageStore = ListStore<Language>;
+export type ILanguageStore = ListStore<Language, EmptyFilter>;
 
 const list: ILanguageStore['list'] = async (
   pagination: Pagination,

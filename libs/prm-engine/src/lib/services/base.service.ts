@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import {
   Entity,
   EntityDefinition,
@@ -7,6 +8,8 @@ import {
   EntityFiltering,
   Pagination,
   Sorting,
+  EntityType,
+  createSortingSchema,
 } from '@nrcno/core-models';
 
 import { BaseStore } from '../stores/base.store';
@@ -20,6 +23,8 @@ export class BaseService<
   TEntityListItem,
   TEntityFiltering,
 > {
+  public entityType: EntityType;
+
   public store: Partial<
     BaseStore<
       TDefinition,
@@ -31,6 +36,7 @@ export class BaseService<
   >;
 
   constructor(
+    entityType: EntityType,
     store: Partial<
       BaseStore<
         TDefinition,
@@ -41,6 +47,7 @@ export class BaseService<
       >
     >,
   ) {
+    this.entityType = entityType;
     this.store = store;
   }
 }
@@ -60,8 +67,8 @@ export const ListMixin =
     class extends Base {
       public list(
         pagination: Pagination,
-        sorting: Sorting,
-        filter: TEntityFiltering,
+        sorting: Sorting = createSortingSchema(this.entityType).parse({}),
+        filter: TEntityFiltering = {} as TEntityFiltering,
       ): Promise<TEntityListItem[]> {
         if (!this.store.list) {
           throw new Error('Method not implemented');
@@ -69,7 +76,9 @@ export const ListMixin =
         return this.store.list(pagination, sorting, filter);
       }
 
-      public count(filter: TEntityFiltering): Promise<number> {
+      public count(
+        filter: TEntityFiltering = {} as TEntityFiltering,
+      ): Promise<number> {
         if (!this.store.count) {
           throw new Error('Method not implemented');
         }

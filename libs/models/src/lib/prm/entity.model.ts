@@ -14,7 +14,11 @@ import {
   ParticipantPartialUpdate,
   ParticipantUpdate,
 } from './participant.model';
-import { Language, LanguageSchema } from './language.model';
+import {
+  Language,
+  LanguageSchema,
+  LanguageSortingFields,
+} from './language.model';
 
 export enum EntityType {
   Participant = 'participants',
@@ -25,12 +29,15 @@ export const EntityTypeSchema = z.nativeEnum(EntityType);
 
 export const EntityIdSchema = z.string().ulid();
 
+export const EmptyFilterSchema = z.object({});
+export type EmptyFilter = z.infer<typeof EmptyFilterSchema>;
+
 export type Entity = Participant | Language;
 export type EntityDefinition = ParticipantDefinition;
 export type EntityListItem = ParticipantListItem | Language;
 export type EntityUpdate = ParticipantUpdate;
 export type EntityPartialUpdate = ParticipantPartialUpdate;
-export type EntityFiltering = ParticipantFiltering;
+export type EntityFiltering = ParticipantFiltering | EmptyFilter;
 
 export const getEntitySchema = (entityType: EntityType) => {
   switch (entityType) {
@@ -76,6 +83,8 @@ export const getEntityListSortingFields = (entityType: EntityType) => {
   switch (entityType) {
     case EntityType.Participant:
       return ParticipantListSortingFields;
+    case EntityType.Language:
+      return LanguageSortingFields;
     default:
       throw new Error(`No sorting fields found for ${entityType}`);
   }
@@ -85,6 +94,8 @@ export const getEntityFilteringSchema = (entityType: EntityType) => {
   switch (entityType) {
     case EntityType.Participant:
       return ParticipantFilteringSchema;
+    case EntityType.Language:
+      return EmptyFilterSchema;
     default:
       throw new Error(`No filtering schema found for ${entityType}`);
   }

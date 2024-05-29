@@ -1,6 +1,7 @@
 import {
   ContactDetails,
   ContactDetailsDefinition,
+  EntityType,
   Identification,
   Participant,
   ParticipantDefinition,
@@ -24,6 +25,7 @@ export class ParticipantService extends CRUDMixin<
   ParticipantFiltering
 >()(
   class {
+    public entityType = EntityType.Participant;
     public store = ParticipantStore;
   },
 ) {

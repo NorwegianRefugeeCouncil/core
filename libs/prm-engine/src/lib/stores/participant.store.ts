@@ -6,6 +6,7 @@ import { Knex } from 'knex';
 
 import {
   ContactDetailType,
+  EntityType,
   Pagination,
   Participant,
   ParticipantDefinition,
@@ -15,7 +16,7 @@ import {
   ParticipantPartialUpdate,
   ParticipantSchema,
   Sorting,
-  SortingDirection,
+  createSortingSchema,
 } from '@nrcno/core-models';
 import { PostgresError, PostgresErrorCode, getDb } from '@nrcno/core-db';
 import { AlreadyExistsError, NotFoundError } from '@nrcno/core-errors';
@@ -214,7 +215,7 @@ export type IParticipantStore = BaseStore<
 >;
 
 const count: IParticipantStore['count'] = async (
-  filtering: ParticipantFiltering,
+  filtering: ParticipantFiltering = {},
 ): Promise<number> => {
   const db = getDb();
 
@@ -431,9 +432,9 @@ const get: IParticipantStore['get'] = async (
 
 const list: IParticipantStore['list'] = async (
   pagination: Pagination,
-  { sort = 'lastName', direction = SortingDirection.Asc }: Sorting = {
-    direction: SortingDirection.Asc,
-  },
+  { sort, direction }: Sorting = createSortingSchema(
+    EntityType.Participant,
+  ).parse({}),
   filtering: ParticipantFiltering = {},
 ): Promise<ParticipantListItem[]> => {
   const db = getDb();

@@ -1,7 +1,7 @@
 import { Pagination, Sorting } from '@nrcno/core-models';
 
 export interface ListStore<TEntityListItem, TEntityFiltering> {
-  count: (filtering: TEntityFiltering) => Promise<number>;
+  count: (filtering?: TEntityFiltering) => Promise<number>;
   list: (
     pagination: Pagination,
     sorting?: Sorting,
