@@ -11,7 +11,9 @@ export const config: PrmUIConfig = {
     detail: {
       sections: [],
     },
-    list: {},
-    search: {},
+    list: {
+      fields: [],
+    },
+    search: [],
   },
 };
