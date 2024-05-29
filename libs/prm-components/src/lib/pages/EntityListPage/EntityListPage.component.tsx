@@ -13,8 +13,10 @@ import {
   DrawerHeader,
   DrawerOverlay,
   Box,
+  Text,
+  CloseButton,
 } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { SmallAddIcon, SearchIcon } from '@chakra-ui/icons';
 
 import { EntityList, EntitySearchForm } from '../../components';
@@ -45,11 +47,18 @@ export const EntityListPage: React.FC = () => {
     data,
   } = useEntityListPage(pagination);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     if (data) updateFromPaginationResponse(data);
   }, [JSON.stringify(data)]);
+
+  const handleAlertCloseButtonClick = () => {
+    searchParams.delete('success');
+    setSearchParams(searchParams);
+  };
 
   return (
     <Flex height="100%" direction="column">
@@ -73,6 +82,22 @@ export const EntityListPage: React.FC = () => {
           </Button>
         </Box>
       </Flex>
+      {searchParams.get('success') && (
+        <Alert status="success" mb={4}>
+          <Flex
+            w={'100%'}
+            direction={'row'}
+            alignItems={'center'}
+            justify={'space-between'}
+          >
+            <Flex>
+              <AlertIcon />
+              {entityType}: {searchParams.get('success')}
+            </Flex>
+            <CloseButton onClick={handleAlertCloseButtonClick} />
+          </Flex>
+        </Alert>
+      )}
       {isError ? (
         <Alert status="error" mb={4}>
           <AlertIcon />
