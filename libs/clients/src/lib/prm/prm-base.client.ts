@@ -106,11 +106,7 @@ export const CRUDMixin =
 export const hasListMixin = (
   obj: any | undefined,
 ): obj is { list: Function; count: Function } => {
-  return (
-    obj !== undefined &&
-    typeof obj.list === 'function' &&
-    typeof obj.count === 'function'
-  );
+  return obj !== undefined && typeof obj.list === 'function';
 };
 
 export const hasReadMixin = (
