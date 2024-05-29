@@ -20,15 +20,33 @@ export const buildListTests = (
 
       const service = new Service();
 
-      const result = await service.list({
-        startIndex: 0,
-        pageSize: 10,
-      });
+      const result = await service.list(
+        {
+          startIndex: 0,
+          pageSize: 10,
+        },
+        {
+          sort: 'field',
+          direction: 'asc',
+        },
+        {
+          field: 'value',
+        },
+      );
 
-      expect(Store.list).toHaveBeenCalledWith({
-        startIndex: 0,
-        pageSize: 10,
-      });
+      expect(Store.list).toHaveBeenCalledWith(
+        {
+          startIndex: 0,
+          pageSize: 10,
+        },
+        {
+          sort: 'field',
+          direction: 'asc',
+        },
+        {
+          field: 'value',
+        },
+      );
       expect(result).toEqual(entityList);
     });
   });
@@ -41,14 +59,27 @@ export const buildListTests = (
 
     const service = new Service();
 
-    await expect(service.list({ startIndex: 0, pageSize: 10 })).rejects.toThrow(
-      'Failed to list entities',
-    );
+    await expect(
+      service.list(
+        { startIndex: 0, pageSize: 10 },
+        { sort: 'field', direction: 'asc' },
+        { field: 'value' },
+      ),
+    ).rejects.toThrow('Failed to list entities');
 
-    expect(Store.list).toHaveBeenCalledWith({
-      startIndex: 0,
-      pageSize: 10,
-    });
+    expect(Store.list).toHaveBeenCalledWith(
+      {
+        startIndex: 0,
+        pageSize: 10,
+      },
+      {
+        sort: 'field',
+        direction: 'asc',
+      },
+      {
+        field: 'value',
+      },
+    );
   });
 };
 

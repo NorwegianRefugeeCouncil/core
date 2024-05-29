@@ -16,7 +16,6 @@ import {
   EntityListItem,
   PaginationSchema,
   createSortingSchema,
-  getEntityListSortingFields,
   getEntityFilteringSchema,
 } from '@nrcno/core-models';
 

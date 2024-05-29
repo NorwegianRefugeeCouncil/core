@@ -188,10 +188,8 @@ export const hasListMixin = (
   );
 };
 
-export const hasGetMixin = (
-  obj: any | undefined,
-): obj is { create: Function } => {
-  return obj !== undefined && typeof obj.create === 'function';
+export const hasGetMixin = (obj: any | undefined): obj is { get: Function } => {
+  return obj !== undefined && typeof obj.get === 'function';
 };
 
 export const hasCreateMixin = (
