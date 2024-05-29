@@ -42,7 +42,7 @@ export const TextInput: React.FC<Props> = ({ config }) => {
         placeholder={config.placeholder}
         type={config.dataType}
         {...field}
-        value={value}
+        value={value || ''}
       />
       {config.description && (
         <FormHelperText>{config.description}</FormHelperText>

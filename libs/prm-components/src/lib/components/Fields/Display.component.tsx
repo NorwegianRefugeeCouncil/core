@@ -17,7 +17,11 @@ export const Display: React.FC<Props> = ({ config }) => {
   return (
     <FormControl>
       <FormLabel>{config.label}</FormLabel>
-      <Text>{field.value}</Text>
+      <Text>
+        {config.dataType === 'date' && field.value
+          ? field.value.toLocaleDateString()
+          : field.value || ''}
+      </Text>
       {config.description && (
         <FormHelperText>{config.description}</FormHelperText>
       )}

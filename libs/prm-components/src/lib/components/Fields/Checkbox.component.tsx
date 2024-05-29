@@ -26,8 +26,9 @@ export const Checkbox: React.FC<Props> = ({ config }) => {
         isRequired={config.required}
         placeholder={config.placeholder}
         type={config.dataType}
-        isChecked={field.value}
+        isChecked={field.value || false}
         {...field}
+        value={field.value || false}
       >
         {config.label}
       </CB>

@@ -83,6 +83,7 @@ const ParticipantDetailsSchema = z.object({
   preferredContactMeans: ContactMeansSchema.optional().nullable(),
   displacementStatus: DisplacementStatusSchema.optional().nullable(),
   engagementContext: EngagementContextSchema.optional().nullable(),
+  createdAt: z.coerce.date(),
 });
 
 const ParticipantDisabilitySchema = z.object({

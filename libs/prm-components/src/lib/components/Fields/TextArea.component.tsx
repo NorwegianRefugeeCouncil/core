@@ -28,6 +28,7 @@ export const TextArea: React.FC<Props> = ({ config }) => {
         isRequired={config.required}
         placeholder={config.placeholder}
         {...field}
+        value={field.value || ''}
       />
       {config.description && (
         <FormHelperText>{config.description}</FormHelperText>

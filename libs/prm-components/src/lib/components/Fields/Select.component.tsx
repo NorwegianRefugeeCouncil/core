@@ -33,6 +33,7 @@ export const Select: React.FC<Props> = ({ config }) => {
         isRequired={config.required}
         placeholder={config.placeholder}
         {...field}
+        value={field.value || ''}
       >
         <option value={undefined}>
           {!disabled ? `Select ${config.label ? config.label : 'value'}` : ''}
