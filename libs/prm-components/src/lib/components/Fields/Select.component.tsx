@@ -35,7 +35,7 @@ export const Select: React.FC<Props> = ({ config }) => {
         {...field}
       >
         <option value={undefined}>
-          {!disabled ? `Select ${config.label}` : ''}
+          {!disabled ? `Select ${config.label ? config.label : 'value'}` : ''}
         </option>
         {config.options &&
           config.options.map((option) => (
