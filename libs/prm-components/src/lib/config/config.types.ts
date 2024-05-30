@@ -41,12 +41,15 @@ export type Option = {
   label: string;
 };
 
+type OptionsLoader = () => Promise<Option[]>;
+
 export type FieldConfig = {
   component: Exclude<Component, Component.List>;
   dataType: DataType;
   description?: string;
   label?: string;
   options?: Option[];
+  optionsLoader?: OptionsLoader;
   path: string[];
   placeholder?: string;
   required?: boolean;
