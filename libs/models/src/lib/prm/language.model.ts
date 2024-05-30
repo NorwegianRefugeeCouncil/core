@@ -10,6 +10,7 @@ export const LanguageSchema = z.object({
 export type Language = z.infer<typeof LanguageSchema>;
 
 export const LanguageSortingFields = ['id'] as const;
+export const LanguageDefaultSorting = 'id';
 
 export const LanguageFilterSchema = z.object({
   enabled: z.boolean().optional(),

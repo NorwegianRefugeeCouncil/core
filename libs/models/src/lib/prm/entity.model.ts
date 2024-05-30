@@ -13,9 +13,11 @@ import {
   Participant,
   ParticipantPartialUpdate,
   ParticipantUpdate,
+  ParticipantDefaultSorting,
 } from './participant.model';
 import {
   Language,
+  LanguageDefaultSorting,
   LanguageFilter,
   LanguageFilterSchema,
   LanguageSchema,
@@ -92,6 +94,17 @@ export const getEntityListSortingFields = (entityType: EntityType) => {
       return LanguageSortingFields;
     default:
       return [];
+  }
+};
+
+export const getEntityDefaultSorting = (entityType: EntityType) => {
+  switch (entityType) {
+    case EntityType.Participant:
+      return ParticipantDefaultSorting;
+    case EntityType.Language:
+      return LanguageDefaultSorting;
+    default:
+      throw new Error(`No default sorting found for ${entityType}`);
   }
 };
 
