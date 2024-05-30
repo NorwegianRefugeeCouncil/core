@@ -39,6 +39,12 @@ export const participantConfig: EntityUIConfig = {
         title: 'Personal Information',
         fields: [
           {
+            path: ['id'],
+            dataType: DataType.String,
+            component: Component.Display,
+            label: 'ID',
+          },
+          {
             path: ['firstName'],
             dataType: DataType.String,
             component: Component.TextInput,
