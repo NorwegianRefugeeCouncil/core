@@ -23,6 +23,8 @@ import {
   defaultListEntityState,
   useListEntity,
 } from './hooks/useListEntity.hook';
+import { PrmUIConfig, configLoader } from './config';
+import { useLoadStaticData } from './hooks/useLoadStaticData.hook';
 
 type Props = {
   axiosInstance: AxiosInstance;
@@ -32,6 +34,7 @@ type Props = {
 };
 
 export type PrmContextData = {
+  config: PrmUIConfig | undefined;
   entityType: EntityType | undefined;
   entityId: string | undefined;
   create: CreateEntityState;
@@ -41,6 +44,7 @@ export type PrmContextData = {
 };
 
 export const PrmContext = React.createContext<PrmContextData>({
+  config: undefined,
   entityType: undefined,
   entityId: undefined,
   create: defaultCreateEntityState,
@@ -69,14 +73,19 @@ export const PrmProvider: React.FC<Props> = ({
     [prmClient, validEntityType],
   );
 
+  const staticData = useLoadStaticData(prmClient);
+
   const create = useCreateEntity(client);
   const read = useReadEntity(client);
   const edit = useEditEntity(client);
   const list = useListEntity(client);
 
+  const config = configLoader(staticData.data ?? { languages: [] });
+
   return (
     <PrmContext.Provider
       value={{
+        config,
         entityType: validEntityType,
         entityId,
         create,

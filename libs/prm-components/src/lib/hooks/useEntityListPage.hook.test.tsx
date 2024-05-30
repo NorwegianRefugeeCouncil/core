@@ -1,14 +1,15 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { vi, Mock } from 'vitest';
-import { DisabilityLevel, EntityType, YesNoUnknown } from '@nrcno/core-models';
+import { EntityType } from '@nrcno/core-models';
 import { MemoryRouter } from 'react-router-dom';
-import { da } from '@faker-js/faker';
 
 import { PrmContextData, usePrmContext } from '../prm.context';
-import { config } from '../config';
+import { configLoader } from '../config';
 
 import { SubmitStatus } from './useApiReducer.hook';
 import { useEntityListPage } from './useEntityListPage.hook';
+
+const config = configLoader({ languages: [] });
 
 const renderHookOptions = {
   wrapper: ({ children }: { children: any }) => (
@@ -27,6 +28,7 @@ describe('useEntityListPage', () => {
 
   describe('read', () => {
     const prmContextData: PrmContextData = {
+      config,
       entityType: EntityType.Participant,
       entityId: '1234',
       create: {

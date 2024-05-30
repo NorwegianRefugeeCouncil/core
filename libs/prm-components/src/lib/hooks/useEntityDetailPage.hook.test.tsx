@@ -4,10 +4,12 @@ import { DisabilityLevel, EntityType, YesNoUnknown } from '@nrcno/core-models';
 import { MemoryRouter } from 'react-router-dom';
 
 import { PrmContextData, usePrmContext } from '../prm.context';
-import { config } from '../config';
+import { configLoader } from '../config';
 
 import { SubmitStatus } from './useApiReducer.hook';
 import { useEntityDetailPage } from './useEntityDetailPage.hook';
+
+const config = configLoader({ languages: [] });
 
 const renderHookOptions = {
   wrapper: ({ children }: { children: any }) => (
@@ -26,6 +28,7 @@ describe('useEntityDetailPage', () => {
 
   describe('create', () => {
     const prmContextData: PrmContextData = {
+      config,
       entityType: EntityType.Participant,
       entityId: undefined,
       create: {
@@ -236,6 +239,7 @@ describe('useEntityDetailPage', () => {
 
   describe('read', () => {
     const prmContextData: PrmContextData = {
+      config,
       entityType: EntityType.Participant,
       entityId: '1234',
       create: {
@@ -377,6 +381,7 @@ describe('useEntityDetailPage', () => {
 
   describe('edit', () => {
     const prmContextData: PrmContextData = {
+      config,
       entityType: EntityType.Participant,
       entityId: '1234',
       create: {

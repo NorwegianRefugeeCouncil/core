@@ -1,5 +1,7 @@
 import { EntityType } from '@nrcno/core-models';
 
+import { StaticData } from '../hooks/useLoadStaticData.hook';
+
 export enum Component {
   List = 'list',
   Hidden = 'hidden',
@@ -34,10 +36,12 @@ export type ListFieldConfig = {
   children: FieldConfig[];
 };
 
-type Option = {
+export type Option = {
   value: string;
   label: string;
 };
+
+type OptionsLoader = () => Promise<Option[]>;
 
 export type FieldConfig = {
   component: Exclude<Component, Component.List>;
@@ -45,6 +49,7 @@ export type FieldConfig = {
   description?: string;
   label?: string;
   options?: Option[];
+  optionsLoader?: OptionsLoader;
   path: string[];
   placeholder?: string;
   required?: boolean;
@@ -74,4 +79,8 @@ export type EntityUIConfig = {
   search: FieldConfig[];
 };
 
+export type EntityUIConfigLoader = (staticData: StaticData) => EntityUIConfig;
+
 export type PrmUIConfig = Record<EntityType, EntityUIConfig>;
+
+export type PrmUIConfigLoader = (staticData: StaticData) => PrmUIConfig;

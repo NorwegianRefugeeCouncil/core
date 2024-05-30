@@ -1,12 +1,12 @@
 import { EntityType } from '@nrcno/core-models';
 
-import { PrmUIConfig } from './config.types';
+import { PrmUIConfigLoader } from './config.types';
 import { participantConfig } from './participant';
 
 export * from './config.types';
 
-export const config: PrmUIConfig = {
-  [EntityType.Participant]: participantConfig,
+export const configLoader: PrmUIConfigLoader = (staticData) => ({
+  [EntityType.Participant]: participantConfig(staticData),
   [EntityType.Language]: {
     detail: {
       sections: [],
@@ -16,4 +16,4 @@ export const config: PrmUIConfig = {
     },
     search: [],
   },
-};
+});

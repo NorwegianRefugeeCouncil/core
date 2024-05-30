@@ -2,12 +2,11 @@ import { useEffect } from 'react';
 import { Pagination } from '@nrcno/core-models';
 
 import { usePrmContext } from '../prm.context';
-import { config } from '../config';
 
 import { SubmitStatus } from './useApiReducer.hook';
 
 export const useEntityListPage = (pagination: Pagination) => {
-  const { entityType, list } = usePrmContext();
+  const { entityType, list, config } = usePrmContext();
 
   useEffect(() => {
     list.listEntities(pagination);
@@ -15,6 +14,10 @@ export const useEntityListPage = (pagination: Pagination) => {
 
   if (!entityType) {
     throw new Error('Entity type is required');
+  }
+
+  if (!config?.[entityType]) {
+    throw new Error('Entity type not found in config');
   }
 
   const listConfig = config[entityType].list;
