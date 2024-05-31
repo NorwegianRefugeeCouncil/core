@@ -70,7 +70,7 @@ const generateDefinition = (
       needsLegalPhysicalProtection: faker.helpers.enumValue(YesNoUnknown),
       vulnerabilityComments: faker.lorem.sentence(),
     },
-    languages: [faker.helpers.arrayElement(['en', 'es', 'fr', 'ar'])],
+    languages: [faker.helpers.arrayElement(['aaa'])],
     nationalities: [faker.helpers.arrayElement(['en', 'es', 'fr', 'ar'])],
     contactDetails: {
       emails: [

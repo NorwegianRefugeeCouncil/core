@@ -24,9 +24,9 @@ const filter = (filtering: LanguageFilter) => (builder: Knex.QueryBuilder) => {
 
 const list: ILanguageStore['list'] = async (
   pagination: Pagination,
-  { sort, direction }: Sorting = createSortingSchema(
-    EntityType.Participant,
-  ).parse({}),
+  { sort, direction }: Sorting = createSortingSchema(EntityType.Language).parse(
+    {},
+  ),
   filtering: LanguageFilter = {},
 ): Promise<Language[]> => {
   const db = getDb();

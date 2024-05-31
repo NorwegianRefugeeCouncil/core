@@ -935,8 +935,8 @@ describe('Participant store', () => {
     });
 
     test('should update a participant languages', async () => {
-      const languageToKeep = 'en';
-      const languageToRemove = 'fr';
+      const languageToKeep = 'aaa';
+      const languageToRemove = 'aab';
       const participantDefinition = ParticipantGenerator.generateDefinition({
         languages: [languageToKeep, languageToRemove],
       });
@@ -944,7 +944,7 @@ describe('Participant store', () => {
         participantDefinition,
       );
 
-      const languageToAdd = 'ar';
+      const languageToAdd = 'aac';
 
       const languages = {
         add: [languageToAdd],
