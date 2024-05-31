@@ -9,7 +9,7 @@ import { configLoader } from '../config';
 import { SubmitStatus } from './useApiReducer.hook';
 import { useEntityDetailPage } from './useEntityDetailPage.hook';
 
-const config = configLoader({ languages: [] });
+const config = configLoader({ languages: [], nationalities: [] });
 
 const renderHookOptions = {
   wrapper: ({ children }: { children: any }) => (
