@@ -27,4 +27,3 @@ beforeAll(async () => {
 afterAll(async () => {
   await db.destroy();
 });
-
