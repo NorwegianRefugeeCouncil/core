@@ -10,7 +10,7 @@ import {
 } from '@nrcno/core-test-utils';
 import { EntityType, Pagination } from '@nrcno/core-models';
 
-import { PrmClient } from '.';
+import { PrmClient, hasListMixin } from '.';
 
 const buildListTests = (entityType: EntityType) => {
   describe('list', () => {
@@ -34,19 +34,17 @@ const buildListTests = (entityType: EntityType) => {
     };
 
     it(`should list ${entityType}`, async () => {
-      if (!('list' in client)) {
+      if (!hasListMixin(client)) {
         throw new Error(`Client does not have a read method`);
       }
 
       const listItemGenerator = getListItemGenerator(entityType);
-      const participants = new Array(5)
-        .fill(null)
-        .map(() => listItemGenerator());
+      const listItems = new Array(5).fill(null).map(() => listItemGenerator());
       const responsePayload = {
         startIndex: 0,
         pageSize: 100,
         totalCount: 5,
-        items: participants,
+        items: listItems,
       };
       mock.onGet(`/prm/${entityType}`).reply(200, responsePayload);
       const res = await client.list(pagination);
@@ -56,7 +54,7 @@ const buildListTests = (entityType: EntityType) => {
     });
 
     it('should fail when receiving an invalid response from the api', () => {
-      if (!('list' in client)) {
+      if (!hasListMixin(client)) {
         throw new Error(`Client does not have a read method`);
       }
 
@@ -65,7 +63,7 @@ const buildListTests = (entityType: EntityType) => {
     });
 
     it('should fail if the api returns an error', () => {
-      if (!('list' in client)) {
+      if (!hasListMixin(client)) {
         throw new Error(`Client does not have a read method`);
       }
 
