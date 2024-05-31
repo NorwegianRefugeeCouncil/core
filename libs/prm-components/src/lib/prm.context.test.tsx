@@ -59,7 +59,7 @@ describe('usePrmContext', () => {
     });
 
     expect(JSON.stringify(result.current.config)).toEqual(
-      JSON.stringify(configLoader({ languages: [] })),
+      JSON.stringify(configLoader({ languages: [], nationalities: [] })),
     );
 
     expect(result.current).toEqual({
