@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { BoolStr } from '../utils';
+
 import { IsoCodeSchema } from './common';
 
 export const NationalitySchema = z.object({
@@ -12,6 +14,6 @@ export const NationalitySortingFields = ['id'] as const;
 export const NationalityDefaultSorting = 'id';
 
 export const NationalityFilterSchema = z.object({
-  enabled: z.boolean().optional(),
+  enabled: BoolStr.optional(),
 });
 export type NationalityFilter = z.infer<typeof NationalityFilterSchema>;
