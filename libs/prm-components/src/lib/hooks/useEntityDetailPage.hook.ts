@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Entity } from '@nrcno/core-models';
+import { Entity, getEntityDefinitionSchema } from '@nrcno/core-models';
 import { useNavigate } from 'react-router-dom';
 
 import { usePrmContext } from '../prm.context';
@@ -41,7 +41,9 @@ export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
     case 'create': {
       const onSubmit = async (data: Entity) => {
         try {
-          await create.onCreateEntity(data);
+          const entityDefinition =
+            getEntityDefinitionSchema(entityType).parse(data);
+          await create.onCreateEntity(entityDefinition);
           navigate(`/prm/${entityType}?success=saved`);
         } catch {
           // Do nothing - error handled via state

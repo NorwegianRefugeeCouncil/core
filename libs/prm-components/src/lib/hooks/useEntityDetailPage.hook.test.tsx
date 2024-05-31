@@ -221,7 +221,6 @@ describe('useEntityDetailPage', () => {
           emails: [
             {
               value: '',
-              id: '',
             },
           ],
           phones: [],
@@ -231,7 +230,6 @@ describe('useEntityDetailPage', () => {
         languages: [],
         nationalities: [],
         identification: [],
-        id: '',
       });
     });
   });

@@ -16,7 +16,6 @@ import {
   EntityListItem,
   PaginationSchema,
   createSortingSchema,
-  getEntityListSortingFields,
   getEntityFilteringSchema,
 } from '@nrcno/core-models';
 
@@ -131,8 +130,7 @@ export const listEntities = async (
     }
     const pagination = PaginationSchema.parse(req.query);
 
-    const possibleSortingFields = getEntityListSortingFields(entityType.data);
-    const sortingSchema = createSortingSchema(possibleSortingFields);
+    const sortingSchema = createSortingSchema(entityType.data);
     const sorting = sortingSchema.parse(req.query);
 
     const filteringSchema = getEntityFilteringSchema(entityType.data);

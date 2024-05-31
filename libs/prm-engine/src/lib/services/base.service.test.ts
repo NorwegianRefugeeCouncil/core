@@ -1,4 +1,4 @@
-import { SortingDirection } from '@nrcno/core-models';
+import { EntityType, SortingDirection } from '@nrcno/core-models';
 
 import { CreateMixin, GetMixin, ListMixin, UpdateMixin } from './base.service';
 
@@ -21,6 +21,7 @@ describe('BaseService', () => {
         any
       >()(
         class {
+          public entityType = EntityType.Participant;
           public store = storeMock;
         },
       ) {
@@ -59,6 +60,7 @@ describe('BaseService', () => {
 
       const ServiceWithGetMixin = class Foo extends GetMixin<any>()(
         class {
+          public entityType = EntityType.Participant;
           public store = storeMock;
         },
       ) {};
@@ -88,6 +90,7 @@ describe('BaseService', () => {
 
       const ServiceWithListMixin = class Foo extends ListMixin<any, any>()(
         class {
+          public entityType = EntityType.Participant;
           public store = storeMock;
         },
       ) {};
@@ -125,6 +128,7 @@ describe('BaseService', () => {
 
       const ServiceWithListMixin = class Foo extends ListMixin<any, any>()(
         class {
+          public entityType = EntityType.Participant;
           public store = storeMock;
         },
       ) {};
@@ -153,6 +157,7 @@ describe('BaseService', () => {
 
       const ServiceWithCreateMixin = class Foo extends CreateMixin<any, any>()(
         class {
+          public entityType = EntityType.Participant;
           public store = storeMock;
         },
       ) {};

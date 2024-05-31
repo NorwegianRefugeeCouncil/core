@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "resolveJsonModule": true,
     "module": "commonjs",
     "outDir": "../../dist/out-tsc",
     "declaration": true,
@@ -11,6 +12,7 @@
     "src/**/*.ts",
     "knexfile.ts",
     "migrations/**/*.ts",
-    "seeds/**/*.ts"
+    "seeds/**/*.ts",
+    "constants/*.json"
   ]
 }

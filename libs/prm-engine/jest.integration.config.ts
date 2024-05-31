@@ -4,6 +4,7 @@ export default {
   preset: '../../jest.preset.js',
   globalSetup: '../../shared/jest.integration-tests-setup.ts',
   globalTeardown: '../../shared/jest.integration-tests-teardown.ts',
+  setupFilesAfterEnv: ['../../shared/jest.db-setup.ts'],
   testEnvironment: 'node',
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],

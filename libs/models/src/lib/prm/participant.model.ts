@@ -301,6 +301,8 @@ export const ParticipantListSortingFields = [
   'identificationNumber',
 ];
 
+export const ParticipantDefaultSorting = 'lastName';
+
 export const ParticipantFilteringSchema = z.object({
   id: z.string().optional(),
   firstName: z.string().optional(),
@@ -335,4 +337,5 @@ export const ParticipantFilteringSchema = z.object({
   hasMedicalCondition: YesNoUnknownSchema.optional(),
   needsLegalPhysicalProtection: YesNoUnknownSchema.optional(),
 });
+
 export type ParticipantFiltering = z.infer<typeof ParticipantFilteringSchema>;

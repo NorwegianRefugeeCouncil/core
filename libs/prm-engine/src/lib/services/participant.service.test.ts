@@ -1,14 +1,18 @@
 import { ParticipantGenerator } from '@nrcno/core-test-utils';
+import { EntityType } from '@nrcno/core-models';
 
 import { ParticipantStore } from '../stores/participant.store';
 
 import { ParticipantService } from './participant.service';
+import { buildCountTests, buildListTests } from './test-utils';
 
 jest.mock('../stores/participant.store', () => ({
   ParticipantStore: {
     create: jest.fn(),
     get: jest.fn(),
     update: jest.fn(),
+    list: jest.fn(),
+    count: jest.fn(),
   },
 }));
 
@@ -18,6 +22,9 @@ describe('Participant service', () => {
   beforeEach(() => {
     participantService = new ParticipantService();
   });
+
+  buildListTests(EntityType.Participant, ParticipantService, ParticipantStore);
+  buildCountTests(EntityType.Participant, ParticipantService, ParticipantStore);
 
   describe('create', () => {
     it('should call the store create method', async () => {

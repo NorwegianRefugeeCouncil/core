@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { AxiosInstance } from 'axios';
 
 import {
@@ -102,32 +103,26 @@ export const CRUDMixin =
       ),
     );
 
-export const hasListMixin = <T>(
-  client:
-    | {
-        list?: T;
-      }
-    | undefined,
-): client is {
-  list: T;
-} => {
-  return client !== undefined && 'list' in client;
+export const hasListMixin = (
+  obj: any | undefined,
+): obj is { list: Function; count: Function } => {
+  return obj !== undefined && typeof obj.list === 'function';
 };
 
-export const hasReadMixin = <T>(
-  client: { read?: T } | undefined,
-): client is { read: T } => {
-  return client !== undefined && 'read' in client;
+export const hasReadMixin = (
+  obj: any | undefined,
+): obj is { read: Function } => {
+  return obj !== undefined && typeof obj.read === 'function';
 };
 
-export const hasCreateMixin = <T>(
-  client: { create?: T } | undefined,
-): client is { create: T } => {
-  return client !== undefined && 'create' in client;
+export const hasCreateMixin = (
+  obj: any | undefined,
+): obj is { create: Function } => {
+  return obj !== undefined && typeof obj.create === 'function';
 };
 
-export const hasUpdateMixin = <T>(
-  client: { update?: T } | undefined,
-): client is { update: T } => {
-  return client !== undefined && 'update' in client;
+export const hasUpdateMixin = (
+  obj: any | undefined,
+): obj is { update: Function } => {
+  return obj !== undefined && typeof obj.update === 'function';
 };

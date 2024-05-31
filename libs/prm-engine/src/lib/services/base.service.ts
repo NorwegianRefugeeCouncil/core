@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import {
   Entity,
   EntityDefinition,
@@ -7,6 +8,8 @@ import {
   EntityFiltering,
   Pagination,
   Sorting,
+  EntityType,
+  createSortingSchema,
 } from '@nrcno/core-models';
 
 import { BaseStore } from '../stores/base.store';
@@ -20,6 +23,8 @@ export class BaseService<
   TEntityListItem,
   TEntityFiltering,
 > {
+  public entityType: EntityType;
+
   public store: Partial<
     BaseStore<
       TDefinition,
@@ -31,6 +36,7 @@ export class BaseService<
   >;
 
   constructor(
+    entityType: EntityType,
     store: Partial<
       BaseStore<
         TDefinition,
@@ -41,6 +47,7 @@ export class BaseService<
       >
     >,
   ) {
+    this.entityType = entityType;
     this.store = store;
   }
 }
@@ -60,8 +67,8 @@ export const ListMixin =
     class extends Base {
       public list(
         pagination: Pagination,
-        sorting: Sorting,
-        filter: TEntityFiltering,
+        sorting: Sorting = createSortingSchema(this.entityType).parse({}),
+        filter: TEntityFiltering = {} as TEntityFiltering,
       ): Promise<TEntityListItem[]> {
         if (!this.store.list) {
           throw new Error('Method not implemented');
@@ -69,7 +76,9 @@ export const ListMixin =
         return this.store.list(pagination, sorting, filter);
       }
 
-      public count(filter: TEntityFiltering): Promise<number> {
+      public count(
+        filter: TEntityFiltering = {} as TEntityFiltering,
+      ): Promise<number> {
         if (!this.store.count) {
           throw new Error('Method not implemented');
         }
@@ -169,34 +178,28 @@ export const CRUDMixin =
       ),
     );
 
-export const hasListMixin = <T, U>(
-  service:
-    | {
-        list?: T;
-        count?: U;
-      }
-    | undefined,
-): service is {
-  list: T;
-  count: U;
-} => {
-  return service !== undefined && 'list' in service && 'count' in service;
+export const hasListMixin = (
+  obj: any | undefined,
+): obj is { list: Function; count: Function } => {
+  return (
+    obj !== undefined &&
+    typeof obj.list === 'function' &&
+    typeof obj.count === 'function'
+  );
 };
 
-export const hasGetMixin = <T>(
-  service: { get?: T } | undefined,
-): service is { get: T } => {
-  return service !== undefined && 'get' in service;
+export const hasGetMixin = (obj: any | undefined): obj is { get: Function } => {
+  return obj !== undefined && typeof obj.get === 'function';
 };
 
-export const hasCreateMixin = <T>(
-  service: { create?: T } | undefined,
-): service is { create: T } => {
-  return service !== undefined && 'create' in service;
+export const hasCreateMixin = (
+  obj: any | undefined,
+): obj is { create: Function } => {
+  return obj !== undefined && typeof obj.create === 'function';
 };
 
-export const hasUpdateMixin = <T>(
-  service: { update?: T } | undefined,
-): service is { update: T } => {
-  return service !== undefined && 'update' in service;
+export const hasUpdateMixin = (
+  obj: any | undefined,
+): obj is { update: Function } => {
+  return obj !== undefined && typeof obj.update === 'function';
 };

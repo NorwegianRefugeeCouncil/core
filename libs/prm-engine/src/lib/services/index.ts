@@ -1,6 +1,7 @@
 import { EntityType } from '@nrcno/core-models';
 
 import { ParticipantService } from './participant.service';
+import { LanguageService } from './language.service';
 
 export {
   hasListMixin,
@@ -11,6 +12,7 @@ export {
 
 const prmServiceMap = {
   [EntityType.Participant]: new ParticipantService(),
+  [EntityType.Language]: new LanguageService(),
 };
 
 export const getPrmService = (entityType: EntityType) =>

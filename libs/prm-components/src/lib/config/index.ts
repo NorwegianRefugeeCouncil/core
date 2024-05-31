@@ -7,4 +7,13 @@ export * from './config.types';
 
 export const config: PrmUIConfig = {
   [EntityType.Participant]: participantConfig,
+  [EntityType.Language]: {
+    detail: {
+      sections: [],
+    },
+    list: {
+      fields: [],
+    },
+    search: [],
+  },
 };
