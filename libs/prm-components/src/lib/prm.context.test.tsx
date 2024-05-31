@@ -4,6 +4,15 @@ import { EntityType } from '@nrcno/core-models';
 
 import { PrmProvider, usePrmContext } from './prm.context';
 import { SubmitStatus } from './hooks/useApiReducer.hook';
+import { configLoader } from './config';
+
+vi.mock('./hooks/useLoadStaticData.hook', () => ({
+  useLoadStaticData: vi.fn().mockReturnValue({
+    loading: false,
+    error: undefined,
+    data: undefined,
+  }),
+}));
 
 describe('PrmProvider', () => {
   let axiosInstance: AxiosInstance;
@@ -49,7 +58,12 @@ describe('usePrmContext', () => {
       wrapper,
     });
 
+    expect(JSON.stringify(result.current.config)).toEqual(
+      JSON.stringify(configLoader({ languages: [] })),
+    );
+
     expect(result.current).toEqual({
+      config: expect.any(Object),
       entityType: EntityType.Participant,
       entityId: undefined,
       create: {

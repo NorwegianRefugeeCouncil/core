@@ -5,15 +5,14 @@ import {
   DisplacementStatus,
   EngagementContext,
   IdentificationType,
-  Participant,
   Sex,
   YesNoUnknown,
 } from '@nrcno/core-models';
 
-import { Component, DataType, EntityUIConfig } from './config.types';
+import { Component, DataType, EntityUIConfigLoader } from './config.types';
 import { optionsFromEnum } from './utils';
 
-export const participantConfig: EntityUIConfig = {
+export const participantConfig: EntityUIConfigLoader = (staticData) => ({
   detail: {
     sections: [
       {
@@ -159,12 +158,10 @@ export const participantConfig: EntityUIConfig = {
                 path: [],
                 dataType: DataType.String,
                 component: Component.Select,
-                options: [
-                  { value: 'en', label: 'English' },
-                  { value: 'es', label: 'Spanish' },
-                  { value: 'fr', label: 'French' },
-                  { value: 'ar', label: 'Arabic' },
-                ],
+                options: staticData.languages.map((language) => ({
+                  value: language.id,
+                  label: `language__${language.id}`,
+                })),
               },
             ],
           },
@@ -678,4 +675,4 @@ export const participantConfig: EntityUIConfig = {
       label: 'Needs legal or physical protection',
     },
   ],
-};
+});

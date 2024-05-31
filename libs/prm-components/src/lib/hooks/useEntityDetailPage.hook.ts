@@ -3,14 +3,13 @@ import { Entity, getEntityDefinitionSchema } from '@nrcno/core-models';
 import { useNavigate } from 'react-router-dom';
 
 import { usePrmContext } from '../prm.context';
-import { config } from '../config';
 
 import { SubmitStatus } from './useApiReducer.hook';
 
 export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
   const navigate = useNavigate();
 
-  const { entityType, entityId, create, read, edit } = usePrmContext();
+  const { entityType, entityId, create, read, edit, config } = usePrmContext();
 
   // Load entity when in read or edit mode
   React.useEffect(() => {
@@ -33,6 +32,10 @@ export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
 
   if (mode === 'read' && !entityId) {
     throw new Error('Entity ID is required');
+  }
+
+  if (!config?.[entityType]) {
+    throw new Error('Entity type not found in config');
   }
 
   const detailConfig = config[entityType].detail;
