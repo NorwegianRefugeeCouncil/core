@@ -80,7 +80,9 @@ export const PrmProvider: React.FC<Props> = ({
   const edit = useEditEntity(client);
   const list = useListEntity(client);
 
-  const config = configLoader(staticData.data ?? { languages: [] });
+  const config = configLoader(
+    staticData.data ?? { languages: [], nationalities: [] },
+  );
 
   return (
     <PrmContext.Provider

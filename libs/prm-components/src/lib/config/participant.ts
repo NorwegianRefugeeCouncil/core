@@ -140,12 +140,10 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
                 path: [],
                 dataType: DataType.String,
                 component: Component.Select,
-                options: [
-                  { value: 'en', label: 'English' },
-                  { value: 'es', label: 'Spanish' },
-                  { value: 'fr', label: 'French' },
-                  { value: 'ar', label: 'Arabic' },
-                ],
+                options: staticData.nationalities.map((nationality) => ({
+                  value: nationality.id,
+                  label: `nationality__${nationality.id}`,
+                })),
               },
             ],
           },
