@@ -43,7 +43,7 @@ export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
         try {
           const entityDefinition =
             getEntityDefinitionSchema(entityType).parse(data);
-          const entity = await create.onCreateEntity(entityDefinition);
+          await create.onCreateEntity(entityDefinition);
           navigate(`/prm/${entityType}?success=saved`);
         } catch {
           // Do nothing - error handled via state
