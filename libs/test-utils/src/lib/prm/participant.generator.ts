@@ -71,7 +71,7 @@ const generateDefinition = (
       vulnerabilityComments: faker.lorem.sentence(),
     },
     languages: [faker.helpers.arrayElement(['aaa'])],
-    nationalities: [faker.helpers.arrayElement(['en', 'es', 'fr', 'ar'])],
+    nationalities: [faker.helpers.arrayElement(['AFG'])],
     contactDetails: {
       emails: [
         {
