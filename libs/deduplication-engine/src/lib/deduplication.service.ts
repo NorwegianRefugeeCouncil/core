@@ -7,7 +7,7 @@ import {
   DenormalisedDeduplicationRecordSchema,
   Pagination,
 } from '@nrcno/core-models';
-import { PrmService } from '@nrcno/core-prm-engine';
+import { ParticipantService } from '@nrcno/core-prm-engine';
 
 import * as DeduplicationStore from './deduplication.store';
 import { config, totalWeight } from './config';
@@ -15,7 +15,7 @@ import { config, totalWeight } from './config';
 const cutoff = 0.1;
 const batchSize = 100;
 
-const ParticipantService = PrmService.participants;
+const participantService = new ParticipantService();
 
 interface IDeduplicationService {
   getDuplicatesForParticipant: (
@@ -101,9 +101,9 @@ const getDuplicatesForParticipant = async (
   const getDuplicatesForParticipantIdBatch = async (
     startIndex: number,
   ): Promise<DeduplicationRecordDefinition[]> => {
-    const participants = await ParticipantService.list({
+    const participants = await participantService.list({
       startIndex,
-      limit: batchSize,
+      pageSize: batchSize,
     });
     return participants.map((participantB) =>
       compareParticipants(participantA, participantB),
@@ -111,7 +111,7 @@ const getDuplicatesForParticipant = async (
   };
 
   const results: DeduplicationRecordDefinition[] = [];
-  const totalParticipants = await ParticipantService.count();
+  const totalParticipants = await participantService.count();
   const batches = Math.ceil(totalParticipants / batchSize);
 
   for (let i = 0; i < batches; i++) {
@@ -132,9 +132,9 @@ const compareAllParticipants = async (): Promise<void> => {
   const getDuplicatesForParticipantIdBatch = async (
     startIndex: number,
   ): Promise<DeduplicationRecordDefinition[]> => {
-    const participants = await ParticipantService.list({
+    const participants = await participantService.list({
       startIndex,
-      limit: batchSize,
+      pageSize: batchSize,
     });
     return participants.flatMap((participantA) =>
       participants.map((participantB) =>
@@ -143,7 +143,7 @@ const compareAllParticipants = async (): Promise<void> => {
     );
   };
 
-  const totalParticipants = await ParticipantService.count();
+  const totalParticipants = await participantService.count();
   const batches = Math.ceil(totalParticipants / batchSize);
   for (let i = 0; i < batches; i++) {
     const startIdx = i * batchSize;
@@ -170,7 +170,7 @@ const mergeDuplicate = async (
     'merge',
   );
 
-  const participant = await ParticipantService.update(
+  const participant = await participantService.update(
     participantId,
     resolvedParticipant,
   );
@@ -227,14 +227,15 @@ const denormaliseDuplicateRecords = async (
     .flatMap((d) => [d.participantIdA, d.participantIdB])
     .filter((id): id is string => id !== null && id !== undefined);
   const participantsMap = (
-    await Promise.all(
-      participantIds.map((id) => PrmService.participants.get(id)),
-    )
+    await Promise.all(participantIds.map((id) => participantService.get(id)))
   ).reduce<Record<string, Participant>>(
-    (acc, p) => ({
-      ...acc,
-      [p.id]: p,
-    }),
+    (acc, p) =>
+      p
+        ? {
+            ...acc,
+            [p.id]: p,
+          }
+        : acc,
     {},
   );
   return duplicates.map((d) =>
