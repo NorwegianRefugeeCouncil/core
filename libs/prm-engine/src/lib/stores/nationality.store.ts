@@ -16,7 +16,7 @@ import { ListStore } from './base.store';
 
 export type INationalityStore = ListStore<Nationality, NationalityFilter>;
 
-const filter =
+const buildFilterQuery =
   (filtering: NationalityFilter) => (builder: Knex.QueryBuilder) => {
     if (filtering.enabled !== undefined) {
       builder.where('enabled', filtering.enabled);
@@ -34,7 +34,7 @@ const list: INationalityStore['list'] = async (
 
   const nationalities = await db('nationalities')
     .select('*')
-    .where(filter(filtering))
+    .where(buildFilterQuery(filtering))
     .limit(pagination.pageSize)
     .offset(pagination.startIndex)
     .orderBy(sort, direction);
@@ -48,7 +48,7 @@ const count: INationalityStore['count'] = async (
   const db = getDb();
 
   const [{ count }] = await db('nationalities')
-    .where(filter(filtering))
+    .where(buildFilterQuery(filtering))
     .count();
 
   return typeof count === 'string' ? parseInt(count, 10) : count;
