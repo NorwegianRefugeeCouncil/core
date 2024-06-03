@@ -1,13 +1,19 @@
+import * as fs from 'fs';
+import * as path from 'path';
+
 import { Knex } from 'knex';
 
 export async function seed(knex: Knex): Promise<void> {
-  // TODO: Import nationalities from a JSON file
-  const nationalities = [
-    { id: 'en' },
-    { id: 'es' },
-    { id: 'fr' },
-    { id: 'ar' },
-  ];
+  const nationalities: {
+    id: string;
+  }[] = JSON.parse(
+    fs.readFileSync(
+      path.resolve(__dirname, '../../constants/', 'countries.json'),
+      'utf8',
+    ),
+  ).map((nat: any) => ({
+    id: nat.iso3166Alpha3,
+  }));
 
   // Upsert all rows in nationalities
   await knex('nationalities').insert(nationalities).onConflict('id').merge();

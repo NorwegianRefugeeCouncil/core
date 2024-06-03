@@ -231,9 +231,9 @@ describe('Participant store', () => {
 
     test('should return a paginated list of participants, sorted by nationality descending', async () => {
       const firstParticipantDefinition =
-        ParticipantGenerator.generateDefinition({ nationalities: ['es'] });
+        ParticipantGenerator.generateDefinition({ nationalities: ['ALA'] });
       const secondParticipantDefinition =
-        ParticipantGenerator.generateDefinition({ nationalities: ['ar'] });
+        ParticipantGenerator.generateDefinition({ nationalities: ['AFG'] });
       const firstParticipant = await ParticipantStore.create(
         firstParticipantDefinition,
       );
@@ -529,12 +529,12 @@ describe('Participant store', () => {
 
     test('should return a list of participants, filtered by nationality', async () => {
       const participantDefinition = ParticipantGenerator.generateDefinition({
-        nationalities: ['es', 'en'],
+        nationalities: ['AFG', 'ALA'],
       });
       const participant = await ParticipantStore.create(participantDefinition);
       await ParticipantStore.create(
         ParticipantGenerator.generateDefinition({
-          nationalities: ['ar', 'en'],
+          nationalities: ['ALB', 'ALA'],
         }),
       );
 
@@ -548,7 +548,7 @@ describe('Participant store', () => {
           direction: SortingDirection.Asc,
         },
         {
-          nationalities: 'es',
+          nationalities: 'AFG',
         },
       );
 
@@ -967,8 +967,8 @@ describe('Participant store', () => {
     });
 
     test('should update a participant nationalities', async () => {
-      const nationalityToKeep = 'en';
-      const nationalityToRemove = 'fr';
+      const nationalityToKeep = 'AFG';
+      const nationalityToRemove = 'ALA';
       const participantDefinition = ParticipantGenerator.generateDefinition({
         nationalities: [nationalityToKeep, nationalityToRemove],
       });
@@ -976,7 +976,7 @@ describe('Participant store', () => {
         participantDefinition,
       );
 
-      const nationalityToAdd = 'ar';
+      const nationalityToAdd = 'ALB';
       const nationalities = {
         add: [nationalityToAdd],
         remove: [nationalityToRemove],

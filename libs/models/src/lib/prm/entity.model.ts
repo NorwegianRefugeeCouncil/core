@@ -23,10 +23,19 @@ import {
   LanguageSchema,
   LanguageSortingFields,
 } from './language.model';
+import {
+  Nationality,
+  NationalityDefaultSorting,
+  NationalityFilter,
+  NationalityFilterSchema,
+  NationalitySchema,
+  NationalitySortingFields,
+} from './nationality.model';
 
 export enum EntityType {
   Participant = 'participants',
   Language = 'languages',
+  Nationality = 'nationalities',
 }
 
 export const EntityTypeSchema = z.nativeEnum(EntityType);
@@ -36,14 +45,15 @@ export const EntityIdSchema = z.string().ulid();
 export const EmptyFilterSchema = z.object({});
 export type EmptyFilter = z.infer<typeof EmptyFilterSchema>;
 
-export type Entity = Participant | Language;
+export type Entity = Participant | Language | Nationality;
 export type EntityDefinition = ParticipantDefinition;
-export type EntityListItem = ParticipantListItem | Language;
+export type EntityListItem = ParticipantListItem | Language | Nationality;
 export type EntityUpdate = ParticipantUpdate;
 export type EntityPartialUpdate = ParticipantPartialUpdate;
 export type EntityFiltering =
   | ParticipantFiltering
   | LanguageFilter
+  | NationalityFilter
   | EmptyFilter;
 
 export const getEntitySchema = (entityType: EntityType) => {
@@ -52,6 +62,8 @@ export const getEntitySchema = (entityType: EntityType) => {
       return ParticipantSchema;
     case EntityType.Language:
       return LanguageSchema;
+    case EntityType.Nationality:
+      return NationalitySchema;
     default:
       throw new Error(`No schema found for ${entityType}`);
   }
@@ -81,6 +93,8 @@ export const getEntityListItemSchema = (entityType: EntityType) => {
       return ParticipantListItemSchema;
     case EntityType.Language:
       return LanguageSchema;
+    case EntityType.Nationality:
+      return NationalitySchema;
     default:
       throw new Error(`No list item schema found for ${entityType}`);
   }
@@ -92,6 +106,8 @@ export const getEntityListSortingFields = (entityType: EntityType) => {
       return ParticipantListSortingFields;
     case EntityType.Language:
       return LanguageSortingFields;
+    case EntityType.Nationality:
+      return NationalitySortingFields;
     default:
       return [];
   }
@@ -103,6 +119,8 @@ export const getEntityDefaultSorting = (entityType: EntityType) => {
       return ParticipantDefaultSorting;
     case EntityType.Language:
       return LanguageDefaultSorting;
+    case EntityType.Nationality:
+      return NationalityDefaultSorting;
     default:
       throw new Error(`No default sorting found for ${entityType}`);
   }
@@ -114,6 +132,8 @@ export const getEntityFilteringSchema = (entityType: EntityType) => {
       return ParticipantFilteringSchema;
     case EntityType.Language:
       return LanguageFilterSchema;
+    case EntityType.Nationality:
+      return NationalityFilterSchema;
     default:
       return EmptyFilterSchema;
   }

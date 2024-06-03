@@ -71,7 +71,7 @@ const generateDefinition = (
       vulnerabilityComments: faker.lorem.sentence(),
     },
     languages: [faker.helpers.arrayElement(['aaa'])],
-    nationalities: [faker.helpers.arrayElement(['en', 'es', 'fr', 'ar'])],
+    nationalities: [faker.helpers.arrayElement(['AFG'])],
     contactDetails: {
       emails: [
         {
@@ -126,7 +126,7 @@ const generateListItem = (
     dateOfBirth: faker.date.past(),
     sex: faker.helpers.enumValue(Sex),
     displacementStatus: faker.helpers.enumValue(DisplacementStatus),
-    nationalities: [faker.helpers.arrayElement(['en', 'es', 'fr', 'ar'])],
+    nationalities: [faker.helpers.arrayElement(['AFG'])],
     contactDetails: {
       emails: [{ value: faker.internet.email(), id: faker.string.uuid() }],
       phones: [{ value: faker.phone.number(), id: faker.string.uuid() }],

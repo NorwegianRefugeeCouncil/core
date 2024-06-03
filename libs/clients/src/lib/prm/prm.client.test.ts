@@ -249,4 +249,8 @@ describe('PRM client', () => {
   describe('Language', () => {
     buildListTests(EntityType.Language);
   });
+
+  describe('Nationality', () => {
+    buildListTests(EntityType.Nationality);
+  });
 });
