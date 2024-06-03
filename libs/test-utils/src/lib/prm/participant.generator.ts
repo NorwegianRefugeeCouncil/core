@@ -16,6 +16,7 @@ import {
 import { BaseTestEntityGenerator } from '../base-test-entity-generator';
 
 import { IdentificationGenerator } from './identification.generator';
+import * as LanguageGenerator from './language.generator';
 
 const generateDefinition = (
   overrides?: Partial<ParticipantDefinition>,
@@ -26,6 +27,13 @@ const generateDefinition = (
     pastDate.getMonth(),
     pastDate.getDate(),
   );
+  const recentDate = faker.date.recent();
+  const dateOfRegistration = new Date(
+    recentDate.getFullYear(),
+    recentDate.getMonth(),
+    recentDate.getDate(),
+  );
+  const languageId = LanguageGenerator.generateListItem().id;
 
   return {
     firstName: faker.person.firstName(),
@@ -34,8 +42,10 @@ const generateDefinition = (
     nativeName: faker.person.firstName(),
     motherName: faker.person.lastName(),
     preferredName: faker.person.firstName(),
+    prefersToRemainAnonymous: faker.datatype.boolean(),
     dateOfBirth: pastDateWithoutTime,
     nrcId: faker.string.alphanumeric(),
+    preferredLanguage: languageId,
     residence: faker.location.streetAddress(),
     contactMeansComment: faker.lorem.sentence(),
     consentGdpr: faker.datatype.boolean(),
@@ -44,6 +54,7 @@ const generateDefinition = (
     preferredContactMeans: faker.helpers.enumValue(ContactMeans),
     displacementStatus: faker.helpers.enumValue(DisplacementStatus),
     engagementContext: faker.helpers.enumValue(EngagementContext),
+    dateOfRegistration,
     disabilities: {
       hasDisabilityPwd: faker.datatype.boolean(),
       disabilityPwdComment: faker.lorem.sentence(),
@@ -70,8 +81,8 @@ const generateDefinition = (
       needsLegalPhysicalProtection: faker.helpers.enumValue(YesNoUnknown),
       vulnerabilityComments: faker.lorem.sentence(),
     },
-    languages: [faker.helpers.arrayElement(['aaa'])],
-    nationalities: [faker.helpers.arrayElement(['AFG'])],
+    languages: [languageId],
+    nationalities: [faker.location.countryCode('alpha-3')],
     contactDetails: {
       emails: [
         {
@@ -126,7 +137,7 @@ const generateListItem = (
     dateOfBirth: faker.date.past(),
     sex: faker.helpers.enumValue(Sex),
     displacementStatus: faker.helpers.enumValue(DisplacementStatus),
-    nationalities: [faker.helpers.arrayElement(['AFG'])],
+    nationalities: [faker.location.countryCode('alpha-3')],
     contactDetails: {
       emails: [{ value: faker.internet.email(), id: faker.string.uuid() }],
       phones: [{ value: faker.phone.number(), id: faker.string.uuid() }],

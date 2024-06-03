@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+const IsoCodeSchema = z.string().max(20);
+
 export enum Sex {
   Male = 'male',
   Female = 'female',
@@ -73,16 +75,19 @@ const ParticipantDetailsSchema = z.object({
   nativeName: z.string().max(100).optional().nullable(),
   motherName: z.string().max(100).optional().nullable(),
   preferredName: z.string().max(100).optional().nullable(),
+  prefersToRemainAnonymous: z.boolean().optional().nullable(),
   dateOfBirth: z.coerce.date().optional().nullable(),
   nrcId: z.string().max(40).optional().nullable(),
+  preferredLanguage: IsoCodeSchema.optional().nullable(),
   residence: z.string().optional().nullable(),
   contactMeansComment: z.string().optional().nullable(),
-  consentGdpr: z.boolean(),
-  consentReferral: z.boolean(),
+  consentGdpr: z.boolean().optional().nullable(),
+  consentReferral: z.boolean().optional().nullable(),
   sex: SexSchema.optional().nullable(),
   preferredContactMeans: ContactMeansSchema.optional().nullable(),
   displacementStatus: DisplacementStatusSchema.optional().nullable(),
   engagementContext: EngagementContextSchema.optional().nullable(),
+  dateOfRegistration: z.coerce.date().optional().nullable(),
 });
 
 const ParticipantDisabilitySchema = z.object({
@@ -142,8 +147,6 @@ const IdentificationSchema = IdentificationDefinitionSchema.merge(
 );
 export type Identification = z.infer<typeof IdentificationSchema>;
 
-const IsoCodeSchema = z.string().max(20);
-
 export const ParticipantDefinitionSchema = ParticipantDetailsSchema.merge(
   z.object({
     disabilities: ParticipantDisabilitySchema.optional(),
@@ -168,8 +171,6 @@ export type ParticipantDefinition = z.infer<typeof ParticipantDefinitionSchema>;
 export const ParticipantSchema = ParticipantDefinitionSchema.merge(
   z.object({
     id: z.string().ulid(),
-    languages: z.array(IsoCodeSchema).optional().default([]),
-    nationalities: z.array(IsoCodeSchema).optional().default([]),
     contactDetails: z
       .object({
         emails: z.array(ContactDetailsSchema).optional().default([]),
@@ -221,8 +222,6 @@ export type ParticipantUpdate = z.infer<typeof ParticipantUpdateSchema>;
 
 const ParticipantPartialUpdateSchema = ParticipantUpdateSchema.merge(
   z.object({
-    consentGdpr: z.boolean().optional(),
-    consentReferral: z.boolean().optional(),
     languages: z
       .object({
         add: z.array(IsoCodeSchema).optional(),
