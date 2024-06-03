@@ -7,13 +7,6 @@ describe('Language store', () => {
     getDb(undefined, (global as any).db);
   });
 
-  afterEach(async () => {
-    // TODO: implement cleaning up the database after each test in a better way.
-    // Either move this to a global jest test setup or use a transaction for each test
-    const db = getDb();
-    await db.raw('TRUNCATE TABLE participants CASCADE');
-  });
-
   describe('list', () => {
     test('should return a list of languages', async () => {
       const result = await LanguageStore.list({
