@@ -231,9 +231,9 @@ describe('Participant store', () => {
 
     test('should return a paginated list of participants, sorted by nationality descending', async () => {
       const firstParticipantDefinition =
-        ParticipantGenerator.generateDefinition({ nationalities: ['AFG'] });
-      const secondParticipantDefinition =
         ParticipantGenerator.generateDefinition({ nationalities: ['ALA'] });
+      const secondParticipantDefinition =
+        ParticipantGenerator.generateDefinition({ nationalities: ['AFG'] });
       const firstParticipant = await ParticipantStore.create(
         firstParticipantDefinition,
       );
