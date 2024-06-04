@@ -144,7 +144,7 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
             options: staticData.languages.map((language) => ({
               value: language.id,
               label: `language__${language.id}`,
-            })), // TODO: make this a subset including only selected languages
+            })), // TODO: make this a subset including only selected languages - CORE24-360
           },
           {
             path: ['residence'],

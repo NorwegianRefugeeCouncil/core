@@ -12,7 +12,7 @@ const possibleLanguages = [
   'aag',
   'aah',
   'aai',
-]; // TODO: use list of languages from db seed file
+]; // this is a small subset of languages, but it's enough for testing
 
 export const generateListItem = (overrides?: Partial<Language>): Language => {
   return {
