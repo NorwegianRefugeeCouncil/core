@@ -1,4 +1,3 @@
-import * as path from 'path';
 import { Knex } from 'knex';
 
 import { getDb } from '@nrcno/core-db';
@@ -13,13 +12,6 @@ beforeAll(async () => {
     database: process.env.DB_NAME,
   };
   db = getDb(config);
-  await db.migrate.latest({
-    loadExtensions: ['.js'],
-  });
-  await db.seed.run({
-    loadExtensions: ['.js'],
-    directory: path.join(db.client.config.seeds.directory, 'common'),
-  });
 
   (global as any).db = db;
 });
