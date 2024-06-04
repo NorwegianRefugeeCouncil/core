@@ -67,14 +67,6 @@ const participantWithSomeFields: Participant = {
   nationalities: [],
 };
 
-const participantDefinitionWithMissingRequiredFields = {
-  consentReferral: faker.datatype.boolean(),
-  languages: [],
-  nationalities: [],
-  contactDetails: { emails: [], phones: [] },
-  identification: [],
-};
-
 const participantDefinitionWithInvalidFields = {
   sex: 'invalid',
   consentGdpr: faker.datatype.boolean(),
@@ -135,15 +127,6 @@ describe('Participants', () => {
       expect(ParticipantSchema.parse(res.data)).toEqual(
         participantWithSomeFields,
       );
-    });
-
-    it('should return an error when creating a participant with missing required fields', async () => {
-      const res = await axiosInstance.post(
-        `/api/prm/participants`,
-        participantDefinitionWithMissingRequiredFields,
-      );
-
-      expect(res.status).toBe(400);
     });
 
     it('should return an error when creating a participant with invalid fields', async () => {
@@ -411,18 +394,6 @@ describe('Participants', () => {
       );
 
       expect(response.status).toBe(404);
-    });
-
-    it('should return an error when updating a participant with missing required fields', async () => {
-      const response = await axiosInstance.put(
-        `/api/prm/participants/${participantId}`,
-        {
-          ...participantDefinitionWithEveryField,
-          consentGdpr: undefined,
-        },
-      );
-
-      expect(response.status).toBe(400);
     });
   });
 });

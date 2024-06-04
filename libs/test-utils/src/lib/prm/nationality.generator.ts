@@ -6,7 +6,7 @@ export const generateListItem = (
   overrides?: Partial<Nationality>,
 ): Nationality => {
   return {
-    id: faker.location.countryCode(),
+    id: faker.location.countryCode('alpha-3'),
     enabled: faker.datatype.boolean(),
     ...overrides,
   };
