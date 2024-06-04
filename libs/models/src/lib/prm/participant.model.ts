@@ -117,19 +117,27 @@ const ParticipantDisabilitySchema = z.object({
   vulnerabilityComments: z.string().optional().nullable(),
 });
 
-const ContactDetailsDefinitionSchema = z.object({
+const EmailContactDetailsDefinitionSchema = z.object({
+  value: z.string().email(),
+});
+const PhoneContactDetailsDefinitionSchema = z.object({
   value: z.string(),
 });
 export type ContactDetailsDefinition = z.infer<
-  typeof ContactDetailsDefinitionSchema
+  typeof EmailContactDetailsDefinitionSchema
 >;
 
-const ContactDetailsSchema = ContactDetailsDefinitionSchema.merge(
+const EmailContactDetailsSchema = EmailContactDetailsDefinitionSchema.merge(
   z.object({
     id: z.string().uuid(),
   }),
 );
-export type ContactDetails = z.infer<typeof ContactDetailsSchema>;
+const PhoneContactDetailsSchema = PhoneContactDetailsDefinitionSchema.merge(
+  z.object({
+    id: z.string().uuid(),
+  }),
+);
+export type ContactDetails = z.infer<typeof EmailContactDetailsSchema>;
 
 const IdentificationDefinitionSchema = z.object({
   identificationType: IdentificationTypeSchema,
@@ -154,8 +162,14 @@ export const ParticipantDefinitionSchema = ParticipantDetailsSchema.merge(
     nationalities: z.array(IsoCodeSchema).optional().default([]),
     contactDetails: z
       .object({
-        emails: z.array(ContactDetailsDefinitionSchema).optional().default([]),
-        phones: z.array(ContactDetailsDefinitionSchema).optional().default([]),
+        emails: z
+          .array(EmailContactDetailsDefinitionSchema)
+          .optional()
+          .default([]),
+        phones: z
+          .array(PhoneContactDetailsDefinitionSchema)
+          .optional()
+          .default([]),
       })
       .optional()
       .default({ emails: [], phones: [] }),
@@ -173,8 +187,8 @@ export const ParticipantSchema = ParticipantDefinitionSchema.merge(
     id: z.string().ulid(),
     contactDetails: z
       .object({
-        emails: z.array(ContactDetailsSchema).optional().default([]),
-        phones: z.array(ContactDetailsSchema).optional().default([]),
+        emails: z.array(EmailContactDetailsSchema).optional().default([]),
+        phones: z.array(PhoneContactDetailsSchema).optional().default([]),
       })
       .optional()
       .default({
@@ -187,11 +201,18 @@ export const ParticipantSchema = ParticipantDefinitionSchema.merge(
 
 export type Participant = z.infer<typeof ParticipantSchema>;
 
-const ContactDetailsWithOptionalIdSchema = ContactDetailsDefinitionSchema.merge(
-  z.object({
-    id: z.string().uuid().optional(),
-  }),
-);
+const EmailContactDetailsWithOptionalIdSchema =
+  EmailContactDetailsDefinitionSchema.merge(
+    z.object({
+      id: z.string().uuid().optional(),
+    }),
+  );
+const PhoneContactDetailsWithOptionalIdSchema =
+  PhoneContactDetailsDefinitionSchema.merge(
+    z.object({
+      id: z.string().uuid().optional(),
+    }),
+  );
 const IdentificationWithOptionalIdSchema = IdentificationDefinitionSchema.merge(
   z.object({
     id: z.string().uuid().optional(),
@@ -202,11 +223,11 @@ export const ParticipantUpdateSchema = ParticipantDefinitionSchema.merge(
     contactDetails: z
       .object({
         emails: z
-          .array(ContactDetailsWithOptionalIdSchema)
+          .array(EmailContactDetailsWithOptionalIdSchema)
           .optional()
           .default([]),
         phones: z
-          .array(ContactDetailsWithOptionalIdSchema)
+          .array(PhoneContactDetailsWithOptionalIdSchema)
           .optional()
           .default([]),
       })
@@ -238,15 +259,15 @@ const ParticipantPartialUpdateSchema = ParticipantUpdateSchema.merge(
       .object({
         phones: z
           .object({
-            add: z.array(ContactDetailsDefinitionSchema).optional(),
-            update: z.array(ContactDetailsSchema).optional(),
+            add: z.array(PhoneContactDetailsDefinitionSchema).optional(),
+            update: z.array(PhoneContactDetailsSchema).optional(),
             remove: z.array(z.string().uuid()).optional(),
           })
           .optional(),
         emails: z
           .object({
-            add: z.array(ContactDetailsDefinitionSchema).optional(),
-            update: z.array(ContactDetailsSchema).optional(),
+            add: z.array(EmailContactDetailsDefinitionSchema).optional(),
+            update: z.array(EmailContactDetailsSchema).optional(),
             remove: z.array(z.string().uuid()).optional(),
           })
           .optional(),
@@ -275,8 +296,8 @@ export const ParticipantListItemSchema = z.object({
   nationalities: z.array(IsoCodeSchema).max(1).optional().default([]),
   contactDetails: z
     .object({
-      emails: z.array(ContactDetailsSchema).max(1).optional().default([]),
-      phones: z.array(ContactDetailsSchema).max(1).optional().default([]),
+      emails: z.array(EmailContactDetailsSchema).max(1).optional().default([]),
+      phones: z.array(PhoneContactDetailsSchema).max(1).optional().default([]),
     })
     .optional()
     .default({
