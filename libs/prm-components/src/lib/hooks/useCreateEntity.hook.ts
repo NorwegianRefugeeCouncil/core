@@ -36,7 +36,6 @@ export const useCreateEntity = (
       actions.submitting();
       const entity = await client.create(entityDefinition);
       actions.success(entity);
-      actions.reset();
       return entity;
     } catch (error) {
       const err =
