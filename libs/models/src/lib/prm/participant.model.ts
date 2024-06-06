@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const IsoCodeSchema = z.string().max(20);
+import { IsoCodeSchema } from './common';
 
 export enum Sex {
   Male = 'male',

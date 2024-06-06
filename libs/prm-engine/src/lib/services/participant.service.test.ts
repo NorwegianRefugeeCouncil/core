@@ -16,6 +16,18 @@ jest.mock('../stores/participant.store', () => ({
   },
 }));
 
+jest.mock('./language.service', () => ({
+  LanguageService: jest.fn().mockImplementation(() => ({
+    validateIsoCode: jest.fn(),
+  })),
+}));
+
+jest.mock('./nationality.service', () => ({
+  NationalityService: jest.fn().mockImplementation(() => ({
+    validateIsoCode: jest.fn(),
+  })),
+}));
+
 describe('Participant service', () => {
   let participantService: ParticipantService;
 
