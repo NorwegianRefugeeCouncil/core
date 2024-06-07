@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Flex } from '@chakra-ui/react';
+import { Flex, Grid } from '@chakra-ui/react';
 
 import {
   DenormalisedDeduplicationRecord,
@@ -10,13 +10,15 @@ import { ParticipantMerge } from './ParticipantMerge.component';
 
 type Props = {
   duplicateRecord: DenormalisedDeduplicationRecord;
+  mergedParticipant: Partial<Participant>;
+  setMergedParticipant: (participant: Partial<Participant>) => void;
 };
 
-export const DuplicateMerger: React.FC<Props> = ({ duplicateRecord }) => {
-  const [mergedParticipant, setMergedParticipant] = useState<
-    Partial<Participant>
-  >({});
-
+export const DuplicateMerger: React.FC<Props> = ({
+  duplicateRecord,
+  mergedParticipant,
+  setMergedParticipant,
+}) => {
   const [pathsFromSide, setPathsFromSide] = useState<
     Record<string, 'left' | 'right'>
   >({});
@@ -32,13 +34,13 @@ export const DuplicateMerger: React.FC<Props> = ({ duplicateRecord }) => {
   };
 
   return (
-    <Flex w="100%" justify="space-between" overflow="scroll" h="100%" gap={10}>
+    <Grid templateColumns="1fr 1fr 1fr" w="100%" h="100%" overflow="scroll">
       <ParticipantMerge
         participant={duplicateRecord.participantA}
         buttonSide="right"
         onSelect={(path, value) => {
           setField(path, value);
-          setPathsFromSide({ ...pathsFromSide, [path.join('.')]: 'left' });
+          setPathsFromSide({ ...pathsFromSide, [path.join('.')]: 'right' });
         }}
         pathsFromSide={pathsFromSide}
       />
@@ -51,10 +53,10 @@ export const DuplicateMerger: React.FC<Props> = ({ duplicateRecord }) => {
         buttonSide="left"
         onSelect={(path, value) => {
           setField(path, value);
-          setPathsFromSide({ ...pathsFromSide, [path.join('.')]: 'right' });
+          setPathsFromSide({ ...pathsFromSide, [path.join('.')]: 'left' });
         }}
         pathsFromSide={pathsFromSide}
       />
-    </Flex>
+    </Grid>
   );
 };

@@ -1,8 +1,13 @@
-import { IconButton, Flex } from '@chakra-ui/react';
+import { IconButton, Flex, Heading } from '@chakra-ui/react';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 
 import { EntityType, Participant } from '@nrcno/core-models';
-import { Component, DataType, Field, config } from '@nrcno/core-prm-components';
+import {
+  Component,
+  DataType,
+  FieldConfig,
+  configLoader,
+} from '@nrcno/core-prm-components';
 
 import styles from './ParticipantMerge.module.scss';
 
@@ -25,7 +30,10 @@ const getValueFromPath = (obj: any, path: string[], dataType: DataType) => {
   }
 };
 
-const participantDetailConfig = config[EntityType.Participant].detail;
+const participantDetailConfig = configLoader({
+  languages: [],
+  // nationalities: [],
+})[EntityType.Participant].detail;
 
 const ReadOnlyField = ({
   field,
@@ -34,7 +42,7 @@ const ReadOnlyField = ({
   onSelect,
   pathsFromSide,
 }: {
-  field: Field;
+  field: FieldConfig;
   participant: Partial<Participant>;
   buttonSide?: 'left' | 'right';
   onSelect?: (path: string[], value: any) => void;
@@ -53,9 +61,11 @@ const ReadOnlyField = ({
     className += ` ${styles.mergeFieldLeft}`;
   } else if (buttonSide === 'right') {
     className += ` ${styles.mergeFieldRight}`;
+  } else {
+    className += ` ${styles.mergeFieldCentre}`;
   }
   if (pathsFromSide[field.path.join('.')] === buttonSide) {
-    className += ` .selected`;
+    className += ` ${styles.selected}`;
   }
 
   return (
@@ -65,6 +75,8 @@ const ReadOnlyField = ({
       alignItems="center"
       height="48px"
       className={className}
+      mr={buttonSide === 'right' ? 10 : 0}
+      ml={buttonSide === 'left' ? 10 : 0}
     >
       {buttonSide === 'left' && (
         <IconButton
@@ -96,10 +108,25 @@ export const ParticipantMerge: React.FC<Props> = ({
   onSelect,
   pathsFromSide,
 }) => (
-  <Flex direction="column">
+  <Flex direction="column" gap={4}>
     {participantDetailConfig.sections.map((section) => (
-      <Flex key={section.title} direction="column" gap={4}>
-        <h2>{section.title}</h2>
+      <Flex
+        key={section.title}
+        direction="column"
+        gap={4}
+        textAlign={
+          buttonSide ? (buttonSide === 'right' ? 'left' : 'right') : 'left'
+        }
+      >
+        <Heading
+          size="sm"
+          as="h3"
+          bg="secondary.500"
+          color={buttonSide === 'right' ? 'white' : 'secondary.500'}
+          padding={1}
+        >
+          {buttonSide === 'right' ? section.title : '.'}
+        </Heading>
         {section.fields.map((field) =>
           field.component === Component.List ? (
             <Flex key={field.path.join('.')} direction="column">
@@ -110,7 +137,10 @@ export const ParticipantMerge: React.FC<Props> = ({
                 {field.children.map((childField) => (
                   <ReadOnlyField
                     key={[...field.path, ...childField.path].join('.')}
-                    field={childField}
+                    field={{
+                      ...childField,
+                      path: [...field.path, ...childField.path],
+                    }}
                     participant={participant}
                     buttonSide={buttonSide}
                     onSelect={onSelect}

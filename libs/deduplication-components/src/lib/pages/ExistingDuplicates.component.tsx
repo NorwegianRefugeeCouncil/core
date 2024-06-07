@@ -1,16 +1,5 @@
-import * as React from 'react';
+import { useEffect, useState } from 'react';
 import {
-  Table,
-  Thead,
-  Tbody,
-  Tfoot,
-  Tr,
-  Th,
-  Td,
-  TableCaption,
-  TableContainer,
-  Box,
-  Button,
   Heading,
   Modal,
   ModalOverlay,
@@ -18,68 +7,98 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalHeader,
+  Alert,
+  AlertIcon,
+  Flex,
+  Skeleton,
 } from '@chakra-ui/react';
 
 import { DenormalisedDeduplicationRecord } from '@nrcno/core-models';
+import { usePagination, Pagination } from '@nrcno/core-prm-components';
 
 import { useExistingDuplicates } from '../hooks/useExistingDuplicates';
-import { usePagination } from '../hooks/usePagination.hook';
 import { DuplicateDetail } from '../components/DuplicateDetail.component';
+import { DuplicateListTable } from '../components/DuplicateListTable.component';
 
 export const ExistingDuplicates: React.FC = () => {
-  const [selectedDuplicate, setSelectedDuplicate] =
-    React.useState<DenormalisedDeduplicationRecord | null>(null);
+  const {
+    pagination,
+    setPageSize,
+    nextPage,
+    prevPage,
+    isFirstPage,
+    isLastPage,
+    totalCount,
+    totalPages,
+    updateFromPaginationResponse,
+  } = usePagination();
 
-  const { pagination, nextPage, previousPage } = usePagination();
+  const [selectedDuplicate, setSelectedDuplicate] =
+    useState<DenormalisedDeduplicationRecord | null>(null);
 
   const { data, isLoading, isError, isSuccess, error } =
     useExistingDuplicates(pagination);
 
+  useEffect(() => {
+    if (data) updateFromPaginationResponse(data);
+  }, [JSON.stringify(data)]);
+
   return (
     <>
-      <Box>
-        <Heading>Existing duplicates</Heading>
-        <TableContainer overflowX="unset" overflowY="unset">
-          <Table variant="simple">
-            <TableCaption>List of existing duplicates</TableCaption>
-            <Thead position="sticky" top={0} zIndex="docked" bg="white">
-              <Tr>
-                <Th>Participant ID A</Th>
-                <Th>Participant ID B</Th>
-                <Th>Likely hood</Th>
-                <Th>Updated At</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {data?.map((duplicate) => (
-                <Tr
-                  key={`${duplicate.participantA?.id}-${duplicate.participantB?.id}`}
-                  onClick={() => setSelectedDuplicate(duplicate)}
-                >
-                  <Td>{duplicate.participantA?.id}</Td>
-                  <Td>{duplicate.participantB?.id}</Td>
-                  <Td>{duplicate.weightedScore}</Td>
-                  <Td>{duplicate.updatedAt.toLocaleDateString()}</Td>
-                </Tr>
-              ))}
-            </Tbody>
-          </Table>
-        </TableContainer>
-        <Box>
-          <Button onClick={previousPage}>Previous</Button>
-          <Button onClick={nextPage}>Next</Button>
-        </Box>
-      </Box>
+      <Flex height="100%" direction="column">
+        <Flex justifyContent="space-between" alignItems="center">
+          <Heading pb="8">Existing duplicates</Heading>
+        </Flex>
+        {isError ? (
+          <Alert status="error" mb={4}>
+            <AlertIcon />
+            {error?.message}
+          </Alert>
+        ) : data?.totalCount === 0 ? (
+          <Alert status="info" mb={4}>
+            <AlertIcon />
+            No duplicates found
+          </Alert>
+        ) : (
+          <>
+            <Flex flex={1} overflow="hidden">
+              <Skeleton isLoaded={!isLoading} width="100%">
+                <DuplicateListTable
+                  data={data?.items ?? []}
+                  onRowClick={setSelectedDuplicate}
+                />
+              </Skeleton>
+            </Flex>
+            <Flex justifyContent="flex-end">
+              <Pagination
+                pagination={pagination}
+                setPageSize={setPageSize}
+                nextPage={nextPage}
+                prevPage={prevPage}
+                isFirstPage={isFirstPage}
+                isLastPage={isLastPage}
+                totalCount={totalCount}
+                totalPages={totalPages}
+              />
+            </Flex>
+          </>
+        )}
+      </Flex>
+
       <Modal
         isOpen={Boolean(selectedDuplicate)}
         onClose={() => setSelectedDuplicate(null)}
         size="full"
       >
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Modal Title</ModalHeader>
+        <ModalContent height="100%">
+          <ModalHeader>
+            Participant {selectedDuplicate?.participantA.id} | Participant{' '}
+            {selectedDuplicate?.participantB.id} |{' '}
+            {selectedDuplicate?.weightedScore}
+          </ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
+          <ModalBody overflow="hidden">
             {selectedDuplicate && (
               <DuplicateDetail duplicate={selectedDuplicate} />
             )}
