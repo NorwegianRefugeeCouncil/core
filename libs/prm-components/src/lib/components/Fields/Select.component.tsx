@@ -34,9 +34,7 @@ export const Select: React.FC<Props> = ({ config }) => {
         placeholder={config.placeholder}
         {...field}
       >
-        <option value={undefined}>
-          {!disabled ? `Select ${config.label}` : ''}
-        </option>
+        <option value="">{!disabled ? `Select ${config.label}` : ''}</option>
         {config.options &&
           config.options.map((option) => (
             <option value={option.value} key={`${name}_${option.value}`}>
