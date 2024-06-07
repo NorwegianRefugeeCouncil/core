@@ -1,8 +1,8 @@
 import path from 'path';
 
 import { config as dotenvConfig } from 'dotenv';
-
 import { DeduplicationService } from '@nrcno/core-deduplication-engine';
+
 import { getLogger } from '@nrcno/core-logger';
 import { getDb } from '@nrcno/core-db';
 
@@ -23,6 +23,8 @@ const run = async () => {
 
   // Initialise and get database connection
   const db = getDb(config.db);
+
+  logger.info('Inserting seed data into database...');
 
   await db.seed.run({
     loadExtensions: ['.js'],
