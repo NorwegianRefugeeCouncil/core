@@ -6,9 +6,11 @@ import {
   DeduplicationRecordSchema,
   DenormalisedDeduplicationRecord,
   DenormalisedDeduplicationRecordSchema,
+  PaginatedResponse,
   Pagination,
   Participant,
   ParticipantSchema,
+  createPaginatedResponseSchema,
 } from '@nrcno/core-models';
 
 import { BaseClient } from './base.client';
@@ -55,15 +57,13 @@ export class DeduplicationClient extends BaseClient {
 
   public list = async (
     pagination: Pagination,
-  ): Promise<DenormalisedDeduplicationRecord[]> => {
+  ): Promise<PaginatedResponse<DenormalisedDeduplicationRecord>> => {
+    const paginationSchema = createPaginatedResponseSchema(
+      DenormalisedDeduplicationRecordSchema,
+    );
     const response = await this.get('/deduplication', {
       params: pagination,
     });
-    const data = z
-      .object({
-        duplicates: z.array(DenormalisedDeduplicationRecordSchema),
-      })
-      .parse(response.data);
-    return data.duplicates;
+    return paginationSchema.parse(response.data);
   };
 }
