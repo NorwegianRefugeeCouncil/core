@@ -7,6 +7,7 @@ import { Knex } from 'knex';
 import {
   ContactDetailType,
   EntityType,
+  IsoCodeSchema,
   Pagination,
   Individual,
   IndividualDefinition,
