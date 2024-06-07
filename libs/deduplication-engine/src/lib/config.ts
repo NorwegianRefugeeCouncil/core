@@ -12,7 +12,7 @@ export const config: DeduplicationConfig = {
   name: {
     weight: 1,
     mechanism: ScoringMechanism.Weighted,
-    score: (participant1: Partial<Participant>, participant2: Participant) => {
+    score: (participant1, participant2) => {
       const firstNameScore =
         participant1.firstName && participant2.firstName
           ? diceCoefficient(participant1.firstName, participant2.firstName)
@@ -45,14 +45,17 @@ export const config: DeduplicationConfig = {
   email: {
     weight: 1,
     mechanism: ScoringMechanism.Weighted,
-    score: (participant1: Partial<Participant>, participant2: Participant) => {
+    score: (participant1, participant2) => {
       const emails1 =
-        participant1.contactDetails
-          ?.filter((cd) => cd.contactDetailType === ContactDetailType.Email)
-          ?.map((email) => [email.value, ...email.value.split('@')]) ?? [];
-      const emails2 = participant2.contactDetails
-        .filter((cd) => cd.contactDetailType === ContactDetailType.Email)
-        .map((email) => [email.value, ...email.value.split('@')]);
+        participant1.contactDetails?.emails?.map((email) => [
+          email.value,
+          ...email.value.split('@'),
+        ]) ?? [];
+      const emails2 =
+        participant2.contactDetails?.emails?.map((email) => [
+          email.value,
+          ...email.value.split('@'),
+        ]) ?? [];
 
       if (emails1.length === 0 || emails2.length === 0) {
         return 0;
@@ -74,7 +77,7 @@ export const config: DeduplicationConfig = {
     // TODO: Offload to database query
     weight: 1,
     mechanism: ScoringMechanism.ExactOrNothing,
-    score: (participant1: Partial<Participant>, participant2: Participant) => {
+    score: (participant1, participant2) => {
       if (!participant1.nrcId || !participant2.nrcId) return 0;
       return participant1.nrcId === participant2.nrcId ? 1 : 0;
     },
@@ -83,7 +86,7 @@ export const config: DeduplicationConfig = {
     // TODO: Offload to database query
     weight: 1,
     mechanism: ScoringMechanism.ExactOrNothing,
-    score: (participant1: Partial<Participant>, participant2: Participant) => {
+    score: (participant1, participant2) => {
       const identityByType1 =
         participant1.identification?.reduce<
           Record<IdentificationType, string[]>
@@ -99,7 +102,7 @@ export const config: DeduplicationConfig = {
         ) ?? ({} as Record<IdentificationType, string[]>);
 
       const identityByType2 =
-        participant2.identification.reduce<
+        participant2.identification?.reduce<
           Record<IdentificationType, string[]>
         >(
           (acc, cur) => ({
@@ -127,7 +130,7 @@ export const config: DeduplicationConfig = {
   residence: {
     weight: 1,
     mechanism: ScoringMechanism.Weighted,
-    score: (participant1: Partial<Participant>, participant2: Participant) => {
+    score: (participant1, participant2) => {
       const address1 = participant1.residence;
       const address2 = participant2.residence;
 
@@ -146,7 +149,7 @@ export const config: DeduplicationConfig = {
     // TODO: Offload to database query
     weight: 1,
     mechanism: ScoringMechanism.ExactOrNothing,
-    score: (participant1: Partial<Participant>, participant2: Participant) => {
+    score: (participant1, participant2) => {
       if (!participant1.sex || !participant2.sex) return 0;
       return participant1.sex !== participant2.sex ? -1 : 0;
     },
@@ -155,7 +158,7 @@ export const config: DeduplicationConfig = {
     // TODO: Offload to database query
     weight: 1,
     mechanism: ScoringMechanism.ExactOrNothing,
-    score: (participant1: Partial<Participant>, participant2: Participant) => {
+    score: (participant1, participant2) => {
       if (!participant1.dateOfBirth || !participant2.dateOfBirth) return 0;
       return participant1.dateOfBirth === participant2.dateOfBirth ? 1 : 0;
     },
