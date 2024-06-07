@@ -60,8 +60,8 @@ enum YesNoUnknown {
   Unknown = 'unknown',
 }
 
-const batchSize = 100;
-const seedCount = 1_000;
+const batchSize = 1_000;
+const seedCount = 1_00_000;
 
 export async function seed(knex: Knex): Promise<void> {
   await knex('duplicates').del();
@@ -125,21 +125,21 @@ export async function seed(knex: Knex): Promise<void> {
         vulnerabilityComments: faker.lorem.sentence(),
       },
       languages: [
-        {
-          participantId,
-          languageIsoCode: faker.helpers.arrayElement(['en', 'es', 'fr', 'ar']),
-        },
+        // {
+        //   participantId,
+        //   languageIsoCode: faker.helpers.arrayElement(['en', 'es', 'fr', 'ar']),
+        // },
       ],
       nationalities: [
-        {
-          participantId,
-          nationalityIsoCode: faker.helpers.arrayElement([
-            'en',
-            'es',
-            'fr',
-            'ar',
-          ]),
-        },
+        // {
+        //   participantId,
+        //   nationalityIsoCode: faker.helpers.arrayElement([
+        //     'en',
+        //     'es',
+        //     'fr',
+        //     'ar',
+        //   ]),
+        // },
       ],
       contactDetails: [
         {
@@ -163,6 +163,10 @@ export async function seed(knex: Knex): Promise<void> {
   };
 
   for (let i = 0; i < seedCount; i += batchSize) {
+    console.log(
+      `Inserting batch ${i / batchSize + 1} of ${seedCount / batchSize}`,
+    );
+
     const foo = Array.from({ length: batchSize }, () => makeParticipant());
 
     const {
@@ -216,13 +220,19 @@ export async function seed(knex: Knex): Promise<void> {
       },
     );
 
-    await knex('persons').insert(persons);
-    await knex('entities').insert(entities);
-    await knex('participants').insert(participants);
-    await knex('participant_disabilities').insert(disabilities);
-    await knex('participant_contact_details').insert(contactDetails);
-    await knex('participant_identifications').insert(identification);
-    await knex('participant_languages').insert(languages);
-    await knex('participant_nationalities').insert(nationalities);
+    if (persons.length > 0) await knex('persons').insert(persons);
+    if (entities.length > 0) await knex('entities').insert(entities);
+    if (participants.length > 0)
+      await knex('participants').insert(participants);
+    if (disabilities.length > 0)
+      await knex('participant_disabilities').insert(disabilities);
+    if (contactDetails.length > 0)
+      await knex('participant_contact_details').insert(contactDetails);
+    if (identification.length > 0)
+      await knex('participant_identifications').insert(identification);
+    if (languages.length > 0)
+      await knex('participant_languages').insert(languages);
+    if (nationalities.length > 0)
+      await knex('participant_nationalities').insert(nationalities);
   }
 }
