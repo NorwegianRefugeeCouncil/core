@@ -53,7 +53,7 @@ export type FieldConfig = {
   defaultValue?: any;
 };
 
-export type Section = {
+export type SectionConfig = {
   title: string;
   fields: (FieldConfig | ListFieldConfig)[];
 };
@@ -68,7 +68,7 @@ export type TableColumn = {
 
 export type EntityUIConfig = {
   detail: {
-    sections: Section[];
+    sections: SectionConfig[];
     fields?: (FieldConfig | ListFieldConfig)[];
   };
   list: {

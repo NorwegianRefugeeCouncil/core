@@ -1,11 +1,11 @@
 import { Flex } from '@chakra-ui/react';
 
-import { Section as SectionType } from '../config';
+import { SectionConfig } from '../config';
 
 import { Field } from './Fields';
 
 type Props = {
-  section: SectionType;
+  section: SectionConfig;
 };
 
 export const Section: React.FC<Props> = ({ section }) => {
