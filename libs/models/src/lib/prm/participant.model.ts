@@ -86,6 +86,7 @@ const EmailContactDetailsDefinitionSchema = z.object({
 const PhoneContactDetailsDefinitionSchema = z.object({
   value: z.string().max(150),
 });
+
 export type ContactDetailsDefinition = z.infer<
   typeof EmailContactDetailsDefinitionSchema
 >;
