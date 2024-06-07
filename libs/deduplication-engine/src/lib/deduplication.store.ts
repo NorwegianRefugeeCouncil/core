@@ -6,13 +6,21 @@ import {
   Pagination,
 } from '@nrcno/core-models';
 
+export const count = async (): Promise<number> => {
+  const db = getDb();
+
+  const [{ count }] = await db('duplicates').count();
+
+  return typeof count === 'string' ? parseInt(count, 10) : count;
+};
+
 export const list = async (
   pagination: Pagination,
 ): Promise<DeduplicationRecord[]> => {
   const db = getDb();
 
   const rows = await db('duplicates')
-    .limit(pagination.limit)
+    .limit(pagination.pageSize)
     .offset(pagination.startIndex)
     .orderBy('weighted_score', 'desc');
 

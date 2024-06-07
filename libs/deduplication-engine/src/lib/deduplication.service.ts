@@ -38,6 +38,7 @@ interface IDeduplicationService {
   denormaliseDuplicateRecords: (
     duplicates: DeduplicationRecord[],
   ) => Promise<DenormalisedDeduplicationRecord[]>;
+  countDuplicates: () => Promise<number>;
 }
 
 // Compare two participants
@@ -101,7 +102,7 @@ const getDuplicatesForParticipant = async (
   const getDuplicatesForParticipantIdBatch = async (
     startIndex: number,
   ): Promise<DeduplicationRecordDefinition[]> => {
-    const participants = await participantService.list({
+    const participants = await participantService.listFull({
       startIndex,
       pageSize: batchSize,
     });
@@ -132,7 +133,7 @@ const compareAllParticipants = async (): Promise<void> => {
   const getDuplicatesForParticipantIdBatch = async (
     startIndex: number,
   ): Promise<DeduplicationRecordDefinition[]> => {
-    const participants = await participantService.list({
+    const participants = await participantService.listFull({
       startIndex,
       pageSize: batchSize,
     });
@@ -247,6 +248,10 @@ const denormaliseDuplicateRecords = async (
   );
 };
 
+const countDuplicates = async (): Promise<number> => {
+  return DeduplicationStore.count();
+};
+
 export const DeduplicationService: IDeduplicationService = {
   getDuplicatesForParticipant,
   compareAllParticipants,
@@ -255,4 +260,5 @@ export const DeduplicationService: IDeduplicationService = {
   listDuplicates,
   checkDuplicatesWithinList,
   denormaliseDuplicateRecords,
+  countDuplicates,
 };
