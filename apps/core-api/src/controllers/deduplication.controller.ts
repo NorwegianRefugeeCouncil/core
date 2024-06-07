@@ -1,11 +1,13 @@
 import { Router } from 'express';
-
 import { DeduplicationService } from '@nrcno/core-deduplication-engine';
+
 import {
   ParticipantSchema,
   DeduplicationIgnoreDefinitionSchema,
   DeduplicationMergeDefinitionSchema,
   PaginationSchema,
+  DenormalisedDeduplicationRecord,
+  PaginatedResponse,
 } from '@nrcno/core-models';
 
 const router = Router();
@@ -57,9 +59,17 @@ router.get('/deduplication', async (req, res, next) => {
   try {
     const pagination = PaginationSchema.parse(req.query);
     const duplicates = await DeduplicationService.listDuplicates(pagination);
-    const denormalisedDuplicates =
-      await DeduplicationService.denormaliseDuplicateRecords(duplicates);
-    res.json({ duplicates: denormalisedDuplicates }).status(200);
+    const [denormalisedDuplicates, totalCount] = await Promise.all([
+      DeduplicationService.denormaliseDuplicateRecords(duplicates),
+      DeduplicationService.countDuplicates(),
+    ]);
+    const response: PaginatedResponse<DenormalisedDeduplicationRecord> = {
+      startIndex: pagination.startIndex,
+      pageSize: pagination.pageSize,
+      totalCount,
+      items: denormalisedDuplicates,
+    };
+    res.json(response).status(200);
   } catch (error) {
     next(error);
   }
