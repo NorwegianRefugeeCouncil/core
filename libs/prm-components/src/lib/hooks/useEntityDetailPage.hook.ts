@@ -24,6 +24,10 @@ export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
       create.reset();
       edit.reset();
     }
+    return () => {
+      create.reset();
+      edit.reset();
+    };
   }, [mode]);
 
   if (!entityType) {
