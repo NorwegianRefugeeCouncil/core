@@ -14,8 +14,9 @@ import {
   Heading,
   Spinner,
 } from '@chakra-ui/react';
-import { Entity, ParticipantDefinitionSchema } from '@nrcno/core-models';
+import { Entity } from '@nrcno/core-models';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
 import { EntityUIConfig } from '../config';
 
@@ -30,6 +31,7 @@ type Props = {
   isSubmitting?: boolean;
   defaultBackPath: string;
   readOnly: boolean;
+  schema: z.ZodType<any, any>;
 };
 
 export const EntityDetailForm: React.FC<Props> = ({
@@ -41,13 +43,14 @@ export const EntityDetailForm: React.FC<Props> = ({
   isSubmitting,
   defaultBackPath,
   readOnly,
+  schema,
 }) => {
   const form = useForm<Entity>({
     mode: 'onChange',
     defaultValues: entity,
     disabled: readOnly || isSubmitting,
     criteriaMode: 'all',
-    resolver: zodResolver(ParticipantDefinitionSchema),
+    resolver: zodResolver(schema),
   });
 
   useEffect(() => {
