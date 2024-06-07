@@ -26,7 +26,7 @@ export const Select: React.FC<Props> = ({ config }) => {
   });
 
   return (
-    <FormControl>
+    <FormControl isInvalid={fieldState.invalid} isRequired={config.required}>
       <FormLabel>{config.label}</FormLabel>
       <S
         isInvalid={fieldState.invalid}
