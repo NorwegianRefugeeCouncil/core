@@ -1,3 +1,6 @@
+import { useEffect } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+import { Link, useLocation, unstable_usePrompt } from 'react-router-dom';
 import {
   Accordion,
   AccordionButton,
@@ -11,10 +14,8 @@ import {
   Heading,
   Spinner,
 } from '@chakra-ui/react';
-import { Entity } from '@nrcno/core-models';
-import { FormProvider, useForm } from 'react-hook-form';
-import { Link, useLocation, unstable_usePrompt } from 'react-router-dom';
-import { useEffect } from 'react';
+import { Entity, ParticipantDefinitionSchema } from '@nrcno/core-models';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import { EntityUIConfig } from '../config';
 
@@ -42,8 +43,11 @@ export const EntityDetailForm: React.FC<Props> = ({
   readOnly,
 }) => {
   const form = useForm<Entity>({
+    mode: 'onChange',
     defaultValues: entity,
     disabled: readOnly || isSubmitting,
+    criteriaMode: 'all',
+    resolver: zodResolver(ParticipantDefinitionSchema),
   });
 
   useEffect(() => {
