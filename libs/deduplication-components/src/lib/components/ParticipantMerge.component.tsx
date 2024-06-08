@@ -6,6 +6,7 @@ import {
   Component,
   DataType,
   FieldConfig,
+  ListFieldConfig,
   configLoader,
 } from '@nrcno/core-prm-components';
 
@@ -14,7 +15,7 @@ import styles from './ParticipantMerge.module.scss';
 type Props = {
   participant: Partial<Participant>;
   buttonSide?: 'left' | 'right';
-  onSelect?: (path: string[], value: any) => void;
+  onSelect?: (path: string[], value: any, list: boolean) => void;
   pathsFromSide: Record<string, 'left' | 'right'>;
 };
 
@@ -30,29 +31,30 @@ const getValueFromPath = (obj: any, path: string[], dataType: DataType) => {
   }
 };
 
+const getListValueFromPath = (obj: any, path: string[]) => {
+  try {
+    return path.reduce((acc, key) => acc[key], obj);
+  } catch {
+    return [];
+  }
+};
+
 const participantDetailConfig = configLoader({
   languages: [],
   // nationalities: [],
 })[EntityType.Participant].detail;
 
-const ReadOnlyField = ({
-  field,
-  participant,
-  buttonSide,
-  onSelect,
-  pathsFromSide,
-}: {
-  field: FieldConfig;
-  participant: Partial<Participant>;
-  buttonSide?: 'left' | 'right';
-  onSelect?: (path: string[], value: any) => void;
-  pathsFromSide: Record<string, 'left' | 'right'>;
-}) => {
+const ReadOnlyField: React.FC<
+  Props & { field: FieldConfig | ListFieldConfig }
+> = ({ field, participant, buttonSide, onSelect, pathsFromSide }) => {
   const handleSelect = () => {
     if (onSelect)
       onSelect(
         field.path,
-        getValueFromPath(participant, field.path, field.dataType),
+        field.component === Component.List
+          ? getListValueFromPath(participant, field.path)
+          : getValueFromPath(participant, field.path, field.dataType),
+        field.component === Component.List,
       );
   };
 
@@ -86,10 +88,35 @@ const ReadOnlyField = ({
         />
       )}
 
-      <Flex direction="column">
-        <strong>{field.label}</strong>
-        <span>{getValueFromPath(participant, field.path, field.dataType)}</span>
-      </Flex>
+      {field.component === Component.List ? (
+        <Flex direction="column">
+          <strong>{field.label}</strong>
+          {field.children
+            .filter((childField) => childField.component !== Component.Hidden)
+            .map((childField) => (
+              <Flex
+                key={[...field.path, ...childField.path].join('.')}
+                direction="column"
+              >
+                <strong>{childField.label}</strong>
+                <span>
+                  {getValueFromPath(
+                    participant,
+                    [...field.path, ...childField.path],
+                    childField.dataType,
+                  )}
+                </span>
+              </Flex>
+            ))}
+        </Flex>
+      ) : (
+        <Flex direction="column">
+          <strong>{field.label}</strong>
+          <span>
+            {getValueFromPath(participant, field.path, field.dataType)}
+          </span>
+        </Flex>
+      )}
 
       {buttonSide === 'right' && (
         <IconButton
@@ -127,39 +154,16 @@ export const ParticipantMerge: React.FC<Props> = ({
         >
           {buttonSide === 'right' ? section.title : '.'}
         </Heading>
-        {section.fields.map((field) =>
-          field.component === Component.List ? (
-            <Flex key={field.path.join('.')} direction="column">
-              <Flex direction="row">
-                <strong>{field.label}</strong>
-              </Flex>
-              <Flex direction="column">
-                {field.children.map((childField) => (
-                  <ReadOnlyField
-                    key={[...field.path, ...childField.path].join('.')}
-                    field={{
-                      ...childField,
-                      path: [...field.path, ...childField.path],
-                    }}
-                    participant={participant}
-                    buttonSide={buttonSide}
-                    onSelect={onSelect}
-                    pathsFromSide={pathsFromSide}
-                  />
-                ))}
-              </Flex>
-            </Flex>
-          ) : (
-            <ReadOnlyField
-              key={field.path.join('.')}
-              field={field}
-              participant={participant}
-              buttonSide={buttonSide}
-              onSelect={onSelect}
-              pathsFromSide={pathsFromSide}
-            />
-          ),
-        )}
+        {section.fields.map((field) => (
+          <ReadOnlyField
+            key={field.path.join('.')}
+            field={field}
+            participant={participant}
+            buttonSide={buttonSide}
+            onSelect={onSelect}
+            pathsFromSide={pathsFromSide}
+          />
+        ))}
       </Flex>
     ))}
   </Flex>

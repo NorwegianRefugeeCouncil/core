@@ -23,13 +23,20 @@ export const DuplicateMerger: React.FC<Props> = ({
     Record<string, 'left' | 'right'>
   >({});
 
-  const setField = (path: string[], value: any) => {
+  const setField = (path: string[], value: any, list: boolean) => {
     const newParticipant = { ...mergedParticipant };
     let current: any = newParticipant;
     for (let i = 0; i < path.length - 1; i++) {
       current = current[path[i]];
     }
-    current[path[path.length - 1]] = value;
+    if (list) {
+      if (!current[path[path.length - 1]]) {
+        current[path[path.length - 1]] = [];
+      }
+      current[path[path.length - 1]].push(value);
+    } else {
+      current[path[path.length - 1]] = value;
+    }
     setMergedParticipant(newParticipant);
   };
 
