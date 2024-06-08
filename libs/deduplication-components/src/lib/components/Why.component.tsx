@@ -50,6 +50,20 @@ const config = {
 };
 
 export const Why: React.FC<Props> = ({ scores }) => {
+  const exactMatches = Object.entries(config).filter(
+    ([key, configItem]) =>
+      (configItem.mechanism === ScoringMechanism.ExactOrNothing ||
+        configItem.mechanism === ScoringMechanism.ExactOrWeighted) &&
+      scores[key].raw === 1,
+  );
+
+  const weightedMatches = Object.entries(config).filter(
+    ([key, configItem]) =>
+      configItem.mechanism === ScoringMechanism.Weighted ||
+      (configItem.mechanism === ScoringMechanism.ExactOrWeighted &&
+        scores[key].raw !== 1),
+  );
+
   return (
     <Accordion allowToggle>
       <AccordionItem>
@@ -62,18 +76,24 @@ export const Why: React.FC<Props> = ({ scores }) => {
           <AccordionIcon />
         </AccordionButton>
         <AccordionPanel>
-          {Object.entries(config).map(([key, configItem]) => {
-            if (configItem.mechanism === ScoringMechanism.ExactOrNothing) {
-              return <div>exact or nothing</div>;
-            }
-            if (configItem.mechanism === ScoringMechanism.ExactOrWeighted) {
-              return <div>exact or weighted</div>;
-            }
-            if (configItem.mechanism === ScoringMechanism.Weighted) {
-              return <div>weighted</div>;
-            }
-            return null;
-          })}
+          {exactMatches.length > 0 ? (
+            <div>
+              {exactMatches.map(([key, configItem]) => (
+                <div key={key}>
+                  <b>{key}</b> is an exact match
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div>
+              {weightedMatches.map(([key, configItem]) => (
+                <div key={key}>
+                  <b>{key}</b> is a weighted match with a similarity of{' '}
+                  {scores[key].raw * 100}%
+                </div>
+              ))}
+            </div>
+          )}
         </AccordionPanel>
       </AccordionItem>
     </Accordion>
