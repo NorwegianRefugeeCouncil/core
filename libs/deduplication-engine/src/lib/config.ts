@@ -1,8 +1,6 @@
 import diceCoefficient from 'fast-dice-coefficient';
 
 import {
-  Participant,
-  ContactDetailType,
   IdentificationType,
   DeduplicationConfig,
   ScoringMechanism,
