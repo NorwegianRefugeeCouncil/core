@@ -137,6 +137,59 @@ export const individualConfig: EntityUIConfigLoader = (staticData) => ({
             })), // TODO: make this a subset including only selected languages - CORE24-360
           },
           {
+            path: ['contactDetails', 'emails'],
+            component: Component.List,
+            label: 'Email addresses',
+            children: [
+              {
+                path: ['id'],
+                dataType: DataType.String,
+                component: Component.Hidden,
+              },
+              {
+                path: ['contactDetailType'],
+                dataType: DataType.String,
+                component: Component.Hidden,
+                defaultValue: ContactDetailType.Email,
+              },
+              {
+                path: ['value'],
+                dataType: DataType.String,
+                component: Component.TextInput,
+                label: 'Email',
+              },
+            ],
+          },
+          {
+            path: ['contactDetails', 'phones'],
+            component: Component.List,
+            label: 'Phone numbers',
+            children: [
+              {
+                path: ['id'],
+                dataType: DataType.String,
+                component: Component.Hidden,
+              },
+              {
+                path: ['contactDetailType'],
+                dataType: DataType.String,
+                component: Component.Hidden,
+                defaultValue: ContactDetailType.PhoneNumber,
+              },
+              {
+                path: ['value'],
+                dataType: DataType.String,
+                component: Component.TextInput,
+                label: 'Phone number',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Identification',
+        fields: [
+          {
             path: ['identification'],
             component: Component.List,
             label: 'Identification',
