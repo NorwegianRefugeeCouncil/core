@@ -33,16 +33,16 @@ export class ParticipantService extends CRUDMixin<
 ) {
   private async validateLanguages(languages: string[]) {
     const languageService = new LanguageService();
-    languages.forEach(async (lang) => {
-      await languageService.validateIsoCode(lang);
-    });
+    await Promise.all(
+      languages.map((lang) => languageService.validateIsoCode(lang)),
+    );
   }
 
   private async validateNationalities(nationalities: string[]) {
     const nationalitiesService = new NationalityService();
-    nationalities.forEach(async (nat) => {
-      await nationalitiesService.validateIsoCode(nat);
-    });
+    await Promise.all(
+      nationalities.map((nat) => nationalitiesService.validateIsoCode(nat)),
+    );
   }
 
   private async validate(participant: ParticipantDefinition) {

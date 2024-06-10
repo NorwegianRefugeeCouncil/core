@@ -15,4 +15,32 @@ jest.mock('../stores/nationality.store', () => ({
 describe('NationalityService', () => {
   buildListTests(EntityType.Nationality, NationalityService, NationalityStore);
   buildCountTests(EntityType.Nationality, NationalityService, NationalityStore);
+
+  describe('validateIsoCode', () => {
+    it('should throw an error if the value is not a valid country code', async () => {
+      const nationalityService = new NationalityService();
+      const value = 'invalid';
+
+      NationalityStore.list = jest
+        .fn()
+        .mockResolvedValueOnce([{ id: 'AFG' }, { id: 'ALA' }]);
+
+      await expect(nationalityService.validateIsoCode(value)).rejects.toThrow(
+        `Invalid nationality: ${value}`,
+      );
+    });
+
+    it('should not throw an error if the value is a valid country code', async () => {
+      const nationalityService = new NationalityService();
+      const value = 'ALA';
+
+      NationalityStore.list = jest
+        .fn()
+        .mockResolvedValueOnce([{ id: 'AFG' }, { id: 'ALA' }]);
+
+      await expect(
+        nationalityService.validateIsoCode(value),
+      ).resolves.not.toThrow();
+    });
+  });
 });
