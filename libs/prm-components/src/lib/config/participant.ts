@@ -5,6 +5,7 @@ import {
   DisplacementStatus,
   EngagementContext,
   IdentificationType,
+  Nationality,
   Sex,
   YesNoUnknown,
 } from '@nrcno/core-models';
@@ -539,13 +540,11 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
         path: ['nationalities'],
         dataType: DataType.String,
         component: Component.Select,
+        options: staticData.nationalities.map((nationality) => ({
+          value: nationality.id,
+          label: `nationality__${nationality.id}`,
+        })),
         label: 'Nationality',
-        options: [
-          { value: 'en', label: 'English' },
-          { value: 'es', label: 'Spanish' },
-          { value: 'fr', label: 'French' },
-          { value: 'ar', label: 'Arabic' },
-        ],
       },
       {
         path: ['identificationNumber'],

@@ -13,7 +13,7 @@ type Props = {
   onSubmit: (data: EntityFiltering) => void;
   onClear?: () => void;
   isSubmitting?: boolean;
-  filters: EntityFiltering;
+  filters: EntityFiltering | null;
 };
 
 export const EntityFilterForm: React.FC<Props> = ({
@@ -25,7 +25,7 @@ export const EntityFilterForm: React.FC<Props> = ({
   isSubmitting,
   filters,
 }) => {
-  const form = useForm<EntityFiltering>({ defaultValues: filters });
+  const form = useForm<EntityFiltering>({ defaultValues: filters || {} });
 
   const { fields } = config;
   return (
@@ -37,7 +37,7 @@ export const EntityFilterForm: React.FC<Props> = ({
             {isSubmitting && <Spinner colorScheme="primary" size="lg" />}
           </Flex>
 
-          <Flex direction="column">
+          <Flex direction="column" gap={4}>
             {fields.map((field) => {
               return <Field config={field} key={field.path.join('.')}></Field>;
             })}

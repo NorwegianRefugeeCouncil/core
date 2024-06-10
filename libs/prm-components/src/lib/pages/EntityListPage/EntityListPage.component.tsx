@@ -3,11 +3,12 @@ import {
   Alert,
   AlertIcon,
   Box,
-  CloseButton,
   Button,
+  CloseButton,
   Flex,
   Heading,
   Skeleton,
+  Spinner,
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
@@ -15,15 +16,16 @@ import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
 import { EntityList } from '../../components';
+import { FilterDrawer } from '../../components/FilterDrawer.component';
+import { FilterTags } from '../../components/FilterTags.component';
 import { Pagination } from '../../components/Pagination.component';
 import { useEntityListPage } from '../../hooks/useEntityListPage.hook';
 import { useFilters } from '../../hooks/useFilters';
 import { usePagination } from '../../hooks/usePagination';
 
-import { FilterDrawer } from './FilterDrawer.component';
-import { FilterTags } from './FilterTags.component';
-
 export const EntityListPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const {
     pagination,
     setPageSize,
@@ -48,8 +50,6 @@ export const EntityListPage: React.FC = () => {
     data,
   } = useEntityListPage(pagination, filters);
 
-  const [searchParams, setSearchParams] = useSearchParams();
-
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
@@ -65,9 +65,15 @@ export const EntityListPage: React.FC = () => {
     <Flex height="100%" direction="column">
       <Box>
         <Flex justifyContent="space-between" alignItems="flex-start" pb="6">
-          <Flex direction={'column'}>
+          <Flex direction="column">
             <Heading>{entityType}</Heading>
-            <Text width={'16rem'}>{totalCount} results</Text>
+            <Box h="1rem">
+              {!isLoading ? (
+                <Text>{totalCount} results</Text>
+              ) : (
+                <Spinner size="sm" />
+              )}
+            </Box>
           </Flex>
           <Box>
             <Link to="new">
@@ -86,25 +92,25 @@ export const EntityListPage: React.FC = () => {
               Search
             </Button>
           </Box>
-          <Box>
-            {searchParams.get('success') && (
-              <Alert status="success" mb={4}>
-                <Flex
-                  w={'100%'}
-                  direction={'row'}
-                  alignItems={'center'}
-                  justify={'space-between'}
-                >
-                  <Flex>
-                    <AlertIcon />
-                    {entityType}: {searchParams.get('success')}
-                  </Flex>
-                  <CloseButton onClick={handleAlertCloseButtonClick} />
-                </Flex>
-              </Alert>
-            )}
-          </Box>
         </Flex>
+        <Box>
+          {searchParams.get('success') && (
+            <Alert status="success" mb={4}>
+              <Flex
+                w="100%"
+                direction="row"
+                alignItems="center"
+                justify="space-between"
+              >
+                <Flex>
+                  <AlertIcon />
+                  {entityType}: {searchParams.get('success')}
+                </Flex>
+                <CloseButton onClick={handleAlertCloseButtonClick} />
+              </Flex>
+            </Alert>
+          )}
+        </Box>
         <Flex mb={4}>
           <FilterTags filters={filters} deleteFilter={deleteFilter} />
         </Flex>
@@ -117,7 +123,7 @@ export const EntityListPage: React.FC = () => {
       ) : (
         <>
           <Flex flex={1} overflow="hidden">
-            <Skeleton isLoaded={!isLoading} width="100%">
+            <Skeleton isLoaded={!isLoading} w="100%">
               <EntityList config={listConfig} entityList={data?.items} />
             </Skeleton>
           </Flex>

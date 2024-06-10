@@ -8,15 +8,16 @@ import {
 } from '@chakra-ui/react';
 import { EntityFiltering, EntityType } from '@nrcno/core-models';
 
-import { EntityFilterForm } from '../../components';
-import { EntityUIConfig } from '../../config';
+import { EntityUIConfig } from '../config';
+
+import { EntityFilterForm } from '.';
 
 type Props = {
   applyFilters: (data: EntityFiltering) => void;
   clearFilters: () => void;
   entityType: EntityType;
   filterConfig: EntityUIConfig['filtering'];
-  filters: EntityFiltering;
+  filters: EntityFiltering | null;
   isOpen: boolean;
   onClose: () => void;
 };

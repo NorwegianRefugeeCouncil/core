@@ -7,12 +7,14 @@ import { SubmitStatus } from './useApiReducer.hook';
 
 export const useEntityListPage = (
   pagination: Pagination,
-  filters?: EntityFiltering,
+  filters: EntityFiltering | null,
 ) => {
   const { entityType, list, config } = usePrmContext();
 
   useEffect(() => {
-    list.listEntities(pagination, filters);
+    if (filters != null) {
+      list.listEntities(pagination, filters);
+    }
   }, [JSON.stringify(pagination), JSON.stringify(filters)]);
 
   if (!entityType) {

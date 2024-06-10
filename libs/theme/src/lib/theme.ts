@@ -1,4 +1,4 @@
-import { FormControl, extendTheme } from '@chakra-ui/react';
+import { defineStyleConfig, extendTheme } from '@chakra-ui/react';
 
 const colors = {
   primary: {
@@ -51,7 +51,6 @@ export const theme = extendTheme({
     FormLabel: {
       baseStyle: {
         marginBottom: '0.25rem',
-        marginTop: '0.75rem',
       },
     },
   },

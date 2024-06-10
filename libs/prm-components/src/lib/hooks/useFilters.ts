@@ -8,27 +8,30 @@ export interface UseFilters {
   applyFilters: (filters: EntityFiltering) => void;
   clearFilters: () => void;
   deleteFilter: (filter: string) => void;
-  filters: EntityFiltering;
+  filters: EntityFiltering | null;
 }
 
 export const useFilters = (): UseFilters => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filters, setFilters] = useState<EntityFiltering>({});
+  const [filters, setFilters] = useState<EntityFiltering | null>(null);
   const { entityType } = usePrmContext();
 
-  useEffect(() => {
-    parseParams(searchParams);
-  }, [JSON.stringify(searchParams)]);
+  const parseFilters = (filters: EntityFiltering) => {
+    return Object.keys(filters).reduce((acc, p) => {
+      if (filters[p as keyof EntityFiltering] !== undefined) {
+        return {
+          ...acc,
+          [p]: filters[p as keyof EntityFiltering],
+        };
+      }
+      return acc;
+    }, {});
+  };
 
   const applyFilters = (filters: EntityFiltering) => {
-    const params = filters;
-    Object.keys(params).forEach((p) => {
-      if (filters[p as keyof EntityFiltering] === undefined) {
-        delete params[p as keyof EntityFiltering];
-      }
-    });
-    setFilters(filters);
-    setSearchParams(params as URLSearchParams);
+    const params = parseFilters(filters);
+    setFilters(params);
+    setSearchParams(params);
   };
 
   const parseParams = (params: URLSearchParams) => {
@@ -36,15 +39,25 @@ export const useFilters = (): UseFilters => {
       const schema = getEntityFilteringSchema(entityType);
       const f = schema.safeParse(Object.fromEntries(params));
       if (f.success) {
-        setFilters(f.data);
+        applyFilters(f.data);
       }
     }
   };
 
-  const deleteFilter = (filter: string) => {
-    searchParams.delete(filter);
-    setSearchParams(searchParams);
+  useEffect(() => {
     parseParams(searchParams);
+
+    return () => {
+      setFilters({});
+      setSearchParams({});
+    };
+  }, [JSON.stringify(searchParams)]);
+
+  const deleteFilter = (filter: string) => {
+    const filters = searchParams;
+    filters.delete(filter);
+    setSearchParams(filters);
+    parseParams(filters);
   };
 
   const clearFilters = () => {
