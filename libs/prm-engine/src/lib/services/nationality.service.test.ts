@@ -9,6 +9,7 @@ jest.mock('../stores/nationality.store', () => ({
   NationalityStore: {
     list: jest.fn(),
     count: jest.fn(),
+    get: jest.fn(),
   },
 }));
 
@@ -21,9 +22,20 @@ describe('NationalityService', () => {
       const nationalityService = new NationalityService();
       const value = 'invalid';
 
-      NationalityStore.list = jest
+      NationalityStore.get = jest.fn().mockResolvedValueOnce(null);
+
+      await expect(nationalityService.validateIsoCode(value)).rejects.toThrow(
+        `Invalid nationality: ${value}`,
+      );
+    });
+
+    it('should throw an error if the value is a valid country code but is not enabled', async () => {
+      const nationalityService = new NationalityService();
+      const value = 'AFG';
+
+      NationalityStore.get = jest
         .fn()
-        .mockResolvedValueOnce([{ id: 'AFG' }, { id: 'ALA' }]);
+        .mockResolvedValueOnce({ id: 'AFG', enabled: false });
 
       await expect(nationalityService.validateIsoCode(value)).rejects.toThrow(
         `Invalid nationality: ${value}`,
@@ -34,9 +46,9 @@ describe('NationalityService', () => {
       const nationalityService = new NationalityService();
       const value = 'ALA';
 
-      NationalityStore.list = jest
+      NationalityStore.get = jest
         .fn()
-        .mockResolvedValueOnce([{ id: 'AFG' }, { id: 'ALA' }]);
+        .mockResolvedValueOnce({ id: 'ALA', enabled: true });
 
       await expect(
         nationalityService.validateIsoCode(value),

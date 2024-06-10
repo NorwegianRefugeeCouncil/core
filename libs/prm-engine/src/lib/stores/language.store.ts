@@ -12,9 +12,11 @@ import {
 } from '@nrcno/core-models';
 import { getDb } from '@nrcno/core-db';
 
-import { ListStore } from './base.store';
+import { ListStore, GetStore } from './base.store';
 
-export type ILanguageStore = ListStore<Language, LanguageFilter>;
+export interface ILanguageStore
+  extends ListStore<Language, LanguageFilter>,
+    GetStore<Language> {}
 
 const buildFilterQuery =
   (filtering: LanguageFilter) => (builder: Knex.QueryBuilder) => {
@@ -54,7 +56,18 @@ const count: ILanguageStore['count'] = async (
   return typeof count === 'string' ? parseInt(count, 10) : count;
 };
 
+const get: ILanguageStore['get'] = async (
+  id: string,
+): Promise<Language | null> => {
+  const db = getDb();
+
+  const language = await db('languages').where('id', id).first();
+
+  return language ? LanguageSchema.parse(language) : null;
+};
+
 export const LanguageStore: ILanguageStore = {
   list,
   count,
+  get,
 };

@@ -33,4 +33,21 @@ describe('Nationality store', () => {
       expect(result).toBe(249);
     });
   });
+
+  describe('get', () => {
+    test('should return a country', async () => {
+      const result = await NationalityStore.get('AFG');
+
+      expect(result).toEqual({
+        id: 'AFG',
+        enabled: true,
+      });
+    });
+
+    test('should return null if the country does not exist', async () => {
+      const result = await NationalityStore.get('invalid');
+
+      expect(result).toBeNull();
+    });
+  });
 });

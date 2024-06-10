@@ -11,13 +11,8 @@ export class LanguageService extends ListMixin<Language, LanguageFilter>()(
   },
 ) {
   async validateIsoCode(value: string) {
-    const enabledLanguages = await this.list(
-      { startIndex: 0, pageSize: 8000 },
-      undefined,
-      { enabled: true },
-    );
-    const possibleValues = enabledLanguages.map((language) => language.id);
-    if (!possibleValues.includes(value)) {
+    const language: Language = await this.store.get(value);
+    if (!language || !language.enabled) {
       throw new Error(`Invalid language: ${value}`);
     }
   }

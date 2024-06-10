@@ -14,13 +14,8 @@ export class NationalityService extends ListMixin<
   },
 ) {
   async validateIsoCode(value: string) {
-    const enabledCountries = await this.list(
-      { startIndex: 0, pageSize: 300 },
-      undefined,
-      { enabled: true },
-    );
-    const possibleValues = enabledCountries.map((country) => country.id);
-    if (!possibleValues.includes(value)) {
+    const nationality = await this.store.get(value);
+    if (!nationality || !nationality.enabled) {
       throw new Error(`Invalid nationality: ${value}`);
     }
   }
