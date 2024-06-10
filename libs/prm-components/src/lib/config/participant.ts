@@ -23,25 +23,29 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
             dataType: DataType.Boolean,
             component: Component.Checkbox,
             label: 'Consent GDPR',
-            required: true,
           },
           {
             path: ['consentReferral'],
             dataType: DataType.Boolean,
             component: Component.Checkbox,
             label: 'Consent Referral',
-            required: true,
           },
         ],
       },
       {
-        title: 'Personal Information',
+        title: 'Identification',
         fields: [
           {
             path: ['id'],
             dataType: DataType.String,
             component: Component.Display,
             label: 'ID',
+          },
+          {
+            path: ['prefersToRemainAnonymous'],
+            dataType: DataType.Boolean,
+            component: Component.Checkbox,
+            label: 'Prefers to Remain Anonymous',
           },
           {
             path: ['firstName'],
@@ -80,12 +84,6 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
             label: 'Preferred Name',
           },
           {
-            path: ['prefersToRemainAnonymous'],
-            dataType: DataType.Boolean,
-            component: Component.Checkbox,
-            label: 'Prefers to Remain Anonymous',
-          },
-          {
             path: ['sex'],
             dataType: DataType.String,
             component: Component.Select,
@@ -115,12 +113,6 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
             ],
           },
           {
-            path: ['nrcId'],
-            dataType: DataType.String,
-            component: Component.TextInput,
-            label: 'NRC ID',
-          },
-          {
             path: ['languages'],
             component: Component.List,
             label: 'Languages',
@@ -146,103 +138,6 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
               label: `language__${language.id}`,
             })), // TODO: make this a subset including only selected languages - CORE24-360
           },
-          {
-            path: ['residence'],
-            dataType: DataType.String,
-            component: Component.TextArea,
-            label: 'Residence',
-          },
-          {
-            path: ['preferredContactMeans'],
-            dataType: DataType.String,
-            component: Component.Select,
-            label: 'Preferred Contact Means',
-            options: optionsFromEnum(ContactMeans),
-          },
-          {
-            path: ['contactMeansComment'],
-            dataType: DataType.String,
-            component: Component.TextArea,
-            label: 'Contact Means Comment',
-          },
-          {
-            path: ['displacementStatus'],
-            dataType: DataType.String,
-            component: Component.Select,
-            label: 'Displacement Status',
-            options: optionsFromEnum(DisplacementStatus),
-          },
-          {
-            path: ['engagementContext'],
-            dataType: DataType.String,
-            component: Component.Select,
-            label: 'Engagement Context',
-            options: optionsFromEnum(EngagementContext),
-          },
-          {
-            path: ['dateOfRegistration'],
-            dataType: DataType.Date,
-            component: Component.TextInput,
-            label: 'Date of Registration',
-          },
-        ],
-      },
-      {
-        title: 'Contact Information',
-        fields: [
-          {
-            path: ['contactDetails.emails'],
-            component: Component.List,
-            label: 'Email addresses',
-            children: [
-              {
-                path: ['id'],
-                dataType: DataType.String,
-                component: Component.Hidden,
-              },
-              {
-                path: ['contactDetailType'],
-                dataType: DataType.String,
-                component: Component.Hidden,
-                defaultValue: ContactDetailType.Email,
-              },
-              {
-                path: ['value'],
-                dataType: DataType.String,
-                component: Component.TextInput,
-                label: 'Email',
-              },
-            ],
-          },
-          {
-            path: ['contactDetails.phones'],
-            component: Component.List,
-            label: 'Phone numbers',
-            children: [
-              {
-                path: ['id'],
-                dataType: DataType.String,
-                component: Component.Hidden,
-              },
-              {
-                path: ['contactDetailType'],
-                dataType: DataType.String,
-                component: Component.Hidden,
-                defaultValue: ContactDetailType.PhoneNumber,
-              },
-              {
-                path: ['value'],
-                dataType: DataType.String,
-                component: Component.TextInput,
-                label: 'Phone number',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: 'Identification',
-        fields: [
           {
             path: ['identification'],
             component: Component.List,
@@ -273,6 +168,114 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
                 label: 'Is Primary',
               },
             ],
+          },
+          {
+            path: ['nrcId'],
+            dataType: DataType.String,
+            component: Component.TextInput,
+            label: 'NRC ID',
+          },
+        ],
+      },
+      {
+        title: 'Contact Information',
+        fields: [
+          {
+            path: ['residence'],
+            dataType: DataType.String,
+            component: Component.TextArea,
+            label: 'Residence',
+          },
+          {
+            path: ['contactDetails.phones'],
+            component: Component.List,
+            label: 'Phone numbers',
+            children: [
+              {
+                path: ['id'],
+                dataType: DataType.String,
+                component: Component.Hidden,
+              },
+              {
+                path: ['contactDetailType'],
+                dataType: DataType.String,
+                component: Component.Hidden,
+                defaultValue: ContactDetailType.PhoneNumber,
+              },
+              {
+                path: ['value'],
+                dataType: DataType.String,
+                component: Component.TextInput,
+                label: 'Phone number',
+              },
+            ],
+          },
+          {
+            path: ['contactDetails.emails'],
+            component: Component.List,
+            label: 'Email addresses',
+            children: [
+              {
+                path: ['id'],
+                dataType: DataType.String,
+                component: Component.Hidden,
+              },
+              {
+                path: ['contactDetailType'],
+                dataType: DataType.String,
+                component: Component.Hidden,
+                defaultValue: ContactDetailType.Email,
+              },
+              {
+                path: ['value'],
+                dataType: DataType.String,
+                component: Component.TextInput,
+                label: 'Email',
+              },
+            ],
+          },
+          {
+            path: ['preferredContactMeans'],
+            dataType: DataType.String,
+            component: Component.Select,
+            label: 'Preferred Contact Means',
+            options: optionsFromEnum(ContactMeans),
+          },
+          {
+            path: ['contactMeansComment'],
+            dataType: DataType.String,
+            component: Component.TextArea,
+            label: 'Contact Means Comment',
+          },
+        ],
+      },
+      {
+        title: 'Protection',
+        fields: [
+          {
+            path: ['displacementStatus'],
+            dataType: DataType.String,
+            component: Component.Select,
+            label: 'Displacement Status',
+            options: optionsFromEnum(DisplacementStatus),
+          },
+        ],
+      },
+      {
+        title: 'Data collection',
+        fields: [
+          {
+            path: ['engagementContext'],
+            dataType: DataType.String,
+            component: Component.Select,
+            label: 'Engagement Context',
+            options: optionsFromEnum(EngagementContext),
+          },
+          {
+            path: ['dateOfRegistration'],
+            dataType: DataType.Date,
+            component: Component.TextInput,
+            label: 'Date of Registration',
           },
         ],
       },
