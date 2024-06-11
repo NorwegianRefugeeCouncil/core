@@ -76,7 +76,12 @@ const ParticipantDetailsSchema = z.object({
   motherName: z.string().max(100).optional().nullable(),
   preferredName: z.string().max(100).optional().nullable(),
   prefersToRemainAnonymous: z.boolean().optional().nullable(),
-  dateOfBirth: z.coerce.date().optional().nullable(),
+  dateOfBirth: z.coerce
+    .date()
+    .min(new Date('1900-01-01'))
+    .max(new Date())
+    .optional()
+    .nullable(),
   nrcId: z.string().max(40).optional().nullable(),
   preferredLanguage: IsoCodeSchema.optional().nullable(),
   residence: z.string().optional().nullable(),
@@ -87,7 +92,7 @@ const ParticipantDetailsSchema = z.object({
   preferredContactMeans: ContactMeansSchema.optional().nullable(),
   displacementStatus: DisplacementStatusSchema.optional().nullable(),
   engagementContext: EngagementContextSchema.optional().nullable(),
-  dateOfRegistration: z.coerce.date().optional().nullable(),
+  dateOfRegistration: z.coerce.date().max(new Date()).optional().nullable(),
 });
 
 const ParticipantDisabilitySchema = z.object({
