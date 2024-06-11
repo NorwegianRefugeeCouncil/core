@@ -84,8 +84,8 @@ const ParticipantDetailsSchema = z.object({
     .nullable(),
   nrcId: z.string().max(40).optional().nullable(),
   preferredLanguage: IsoCodeSchema.optional().nullable(),
-  residence: z.string().optional().nullable(),
-  contactMeansComment: z.string().optional().nullable(),
+  residence: z.string().max(512).optional().nullable(),
+  contactMeansComment: z.string().max(512).optional().nullable(),
   consentGdpr: z.boolean().optional().nullable(),
   consentReferral: z.boolean().optional().nullable(),
   sex: SexSchema.optional().nullable(),
@@ -123,10 +123,10 @@ const ParticipantDisabilitySchema = z.object({
 });
 
 const EmailContactDetailsDefinitionSchema = z.object({
-  value: z.string().email(),
+  value: z.string().max(150).email(),
 });
 const PhoneContactDetailsDefinitionSchema = z.object({
-  value: z.string(),
+  value: z.string().max(150),
 });
 export type ContactDetailsDefinition = z.infer<
   typeof EmailContactDetailsDefinitionSchema
@@ -146,7 +146,7 @@ export type ContactDetails = z.infer<typeof EmailContactDetailsSchema>;
 
 const IdentificationDefinitionSchema = z.object({
   identificationType: IdentificationTypeSchema,
-  identificationNumber: z.string(),
+  identificationNumber: z.string().max(40),
   isPrimary: z.boolean().optional().default(false),
 });
 export type IdentificationDefinition = z.infer<
