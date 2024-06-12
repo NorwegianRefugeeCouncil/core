@@ -18,7 +18,7 @@ export const EntityList: React.FC<Props> = ({
   config: { fields },
   entityList,
 }) => {
-  const { updateSorting, sorting: s, isCurrentSort } = useSorting();
+  const { updateSorting, sorting, isCurrentSort } = useSorting();
   return (
     <TableContainer overflowY="auto" height="100%">
       <Table variant="striped" size="sm">
@@ -29,7 +29,7 @@ export const EntityList: React.FC<Props> = ({
                 key={field.path.join('.')}
                 field={field}
                 isSorted={isCurrentSort(field.sortKey)}
-                sorting={s}
+                sorting={sorting}
                 updateSorting={updateSorting}
               />
             ))}

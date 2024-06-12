@@ -15,7 +15,7 @@ type Props = {
 export const ColumnHeader: React.FC<Props> = ({
   field,
   isSorted,
-  sorting: s,
+  sorting,
   updateSorting,
 }) => {
   return (
@@ -26,7 +26,7 @@ export const ColumnHeader: React.FC<Props> = ({
           field={field.sortKey}
           handleClick={updateSorting}
           isActive={isSorted}
-          direction={s.direction}
+          direction={sorting.direction}
         />
       </Flex>
     </Th>
