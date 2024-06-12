@@ -11,11 +11,11 @@ export {
   hasGetMixin,
 } from './base.service';
 
-const prmServiceMap = {
-  [EntityType.Participant]: new ParticipantService(),
-  [EntityType.Language]: new LanguageService(),
-  [EntityType.Nationality]: new NationalityService(),
+export const prmServiceMap = {
+  [EntityType.Participant]: ParticipantService,
+  [EntityType.Language]: LanguageService,
+  [EntityType.Nationality]: NationalityService,
 };
 
 export const getPrmService = (entityType: EntityType) =>
-  prmServiceMap[entityType];
+  new prmServiceMap[entityType]();

@@ -9,4 +9,11 @@ export class LanguageService extends ListMixin<Language, LanguageFilter>()(
     public entityType = EntityType.Language;
     public store = LanguageStore;
   },
-) {}
+) {
+  async validateIsoCode(value: string) {
+    const language: Language = await this.store.get(value);
+    if (!language || !language.enabled) {
+      throw new Error(`Invalid language: ${value}`);
+    }
+  }
+}

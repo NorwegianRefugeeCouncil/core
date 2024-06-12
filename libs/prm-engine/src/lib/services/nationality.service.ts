@@ -12,4 +12,11 @@ export class NationalityService extends ListMixin<
     public entityType = EntityType.Nationality;
     public store = NationalityStore;
   },
-) {}
+) {
+  async validateIsoCode(value: string) {
+    const nationality = await this.store.get(value);
+    if (!nationality || !nationality.enabled) {
+      throw new Error(`Invalid nationality: ${value}`);
+    }
+  }
+}

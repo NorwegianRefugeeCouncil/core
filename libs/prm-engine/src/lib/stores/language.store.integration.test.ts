@@ -33,4 +33,21 @@ describe('Language store', () => {
       expect(result).toBe(7910);
     });
   });
+
+  describe('get', () => {
+    test('should return a language', async () => {
+      const result = await LanguageStore.get('aaa');
+
+      expect(result).toEqual({
+        id: 'aaa',
+        enabled: true,
+      });
+    });
+
+    test('should return null if the language does not exist', async () => {
+      const result = await LanguageStore.get('invalid');
+
+      expect(result).toBeNull();
+    });
+  });
 });

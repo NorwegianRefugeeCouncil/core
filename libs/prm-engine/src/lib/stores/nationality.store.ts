@@ -12,9 +12,11 @@ import {
 } from '@nrcno/core-models';
 import { getDb } from '@nrcno/core-db';
 
-import { ListStore } from './base.store';
+import { ListStore, GetStore } from './base.store';
 
-export type INationalityStore = ListStore<Nationality, NationalityFilter>;
+export interface INationalityStore
+  extends ListStore<Nationality, NationalityFilter>,
+    GetStore<Nationality> {}
 
 const buildFilterQuery =
   (filtering: NationalityFilter) => (builder: Knex.QueryBuilder) => {
@@ -54,7 +56,17 @@ const count: INationalityStore['count'] = async (
   return typeof count === 'string' ? parseInt(count, 10) : count;
 };
 
+const get: INationalityStore['get'] = async (
+  id: string,
+): Promise<Nationality | null> => {
+  const db = getDb();
+  const nationality = await db('nationalities').where('id', id).first();
+
+  return nationality ? NationalitySchema.parse(nationality) : null;
+};
+
 export const NationalityStore: INationalityStore = {
   list,
   count,
+  get,
 };

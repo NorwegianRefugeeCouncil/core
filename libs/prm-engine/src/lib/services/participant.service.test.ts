@@ -5,6 +5,8 @@ import { ParticipantStore } from '../stores/participant.store';
 
 import { ParticipantService } from './participant.service';
 import { buildCountTests, buildListTests } from './test-utils';
+import { LanguageService } from './language.service';
+import { NationalityService } from './nationality.service';
 
 jest.mock('../stores/participant.store', () => ({
   ParticipantStore: {
@@ -14,6 +16,18 @@ jest.mock('../stores/participant.store', () => ({
     list: jest.fn(),
     count: jest.fn(),
   },
+}));
+
+jest.mock('./language.service', () => ({
+  LanguageService: jest.fn().mockImplementation(() => ({
+    validateIsoCode: jest.fn(),
+  })),
+}));
+
+jest.mock('./nationality.service', () => ({
+  NationalityService: jest.fn().mockImplementation(() => ({
+    validateIsoCode: jest.fn(),
+  })),
 }));
 
 describe('Participant service', () => {
@@ -54,6 +68,34 @@ describe('Participant service', () => {
       expect(ParticipantStore.create).toHaveBeenCalledWith(
         participantDefinition,
       );
+    });
+
+    it('should throw an error if language validation fails', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition();
+
+      (LanguageService as jest.Mock).mockImplementationOnce(() => ({
+        validateIsoCode: jest.fn().mockImplementation(() => {
+          throw new Error('Invalid language');
+        }),
+      }));
+
+      await expect(
+        participantService.create(participantDefinition),
+      ).rejects.toThrow('Invalid language');
+    });
+
+    it('should throw an error if nationality validation fails', async () => {
+      const participantDefinition = ParticipantGenerator.generateDefinition();
+
+      (NationalityService as jest.Mock).mockImplementationOnce(() => ({
+        validateIsoCode: jest.fn().mockImplementation(() => {
+          throw new Error('Invalid nationality');
+        }),
+      }));
+
+      await expect(
+        participantService.create(participantDefinition),
+      ).rejects.toThrow('Invalid nationality');
     });
   });
 
@@ -221,6 +263,34 @@ describe('Participant service', () => {
       await expect(
         participantService.update(participant.id, participant),
       ).rejects.toThrow('Failed to update participant');
+    });
+
+    it('should throw an error if language validation fails', async () => {
+      const participant = ParticipantGenerator.generateEntity();
+
+      (LanguageService as jest.Mock).mockImplementationOnce(() => ({
+        validateIsoCode: jest.fn().mockImplementation(() => {
+          throw new Error('Invalid language');
+        }),
+      }));
+
+      await expect(
+        participantService.update(participant.id, participant),
+      ).rejects.toThrow('Invalid language');
+    });
+
+    it('should throw an error if nationality validation fails', async () => {
+      const participant = ParticipantGenerator.generateEntity();
+
+      (NationalityService as jest.Mock).mockImplementationOnce(() => ({
+        validateIsoCode: jest.fn().mockImplementation(() => {
+          throw new Error('Invalid nationality');
+        }),
+      }));
+
+      await expect(
+        participantService.update(participant.id, participant),
+      ).rejects.toThrow('Invalid nationality');
     });
   });
 });

@@ -15,6 +15,8 @@ import { NotFoundError } from '@nrcno/core-errors';
 import { ParticipantStore } from '../stores/participant.store';
 
 import { CRUDMixin } from './base.service';
+import { LanguageService } from './language.service';
+import { NationalityService } from './nationality.service';
 
 export class ParticipantService extends CRUDMixin<
   ParticipantDefinition,
@@ -29,6 +31,43 @@ export class ParticipantService extends CRUDMixin<
     public store = ParticipantStore;
   },
 ) {
+  private async validateLanguages(languages: string[]) {
+    const languageService = new LanguageService();
+    await Promise.all(
+      languages.map((lang) => languageService.validateIsoCode(lang)),
+    );
+  }
+
+  private async validateNationalities(nationalities: string[]) {
+    const nationalitiesService = new NationalityService();
+    await Promise.all(
+      nationalities.map((nat) => nationalitiesService.validateIsoCode(nat)),
+    );
+  }
+
+  private async validate(participant: ParticipantDefinition) {
+    const { languages, preferredLanguage, nationalities } = participant;
+
+    await this.validateLanguages(languages);
+    if (preferredLanguage) {
+      await this.validateLanguages([preferredLanguage]);
+    }
+
+    await this.validateNationalities(nationalities);
+  }
+
+  override async create(participant: ParticipantDefinition) {
+    await this.validate(participant);
+
+    return super.create(participant);
+  }
+
+  override async update(id: string, participant: ParticipantUpdate) {
+    await this.validate(participant);
+
+    return super.update(id, participant);
+  }
+
   mapUpdateToPartial = async (id: string, participant: ParticipantUpdate) => {
     const {
       disabilities,

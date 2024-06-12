@@ -177,7 +177,7 @@ describe('useEntityDetailPage', () => {
         contactDetails: {
           emails: [
             {
-              value: '',
+              value: 'test@test.com',
               id: '',
             },
           ],
@@ -223,7 +223,7 @@ describe('useEntityDetailPage', () => {
         contactDetails: {
           emails: [
             {
-              value: '',
+              value: 'test@test.com',
             },
           ],
           phones: [],
