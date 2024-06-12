@@ -1,4 +1,4 @@
-import { IconButton, Flex } from '@chakra-ui/react';
+import { IconButton, Flex, Checkbox } from '@chakra-ui/react';
 import { ArrowLeftIcon, ArrowRightIcon, CloseIcon } from '@chakra-ui/icons';
 
 import { Participant } from '@nrcno/core-models';
@@ -25,7 +25,7 @@ const getValueFromPath = (
 ) => {
   try {
     const value = path.reduce((acc, key) => acc[key], obj);
-    if (dataType === DataType.Date) {
+    if (dataType === DataType.Date && value) {
       return new Date(value).toLocaleDateString();
     }
     return value;
@@ -69,6 +69,8 @@ export const ReadOnlyField: React.FC<Props & { field: FieldConfig }> = ({
     className += ` ${styles.selected}`;
   }
 
+  const value = getValueFromPath(participant, field.path, field.dataType);
+
   return (
     <Flex
       direction="row"
@@ -88,9 +90,24 @@ export const ReadOnlyField: React.FC<Props & { field: FieldConfig }> = ({
         />
       )}
 
-      <Flex direction="column">
+      <Flex
+        direction={
+          field.dataType === DataType.Boolean
+            ? side === 'right'
+              ? 'row-reverse'
+              : 'row'
+            : 'column'
+        }
+        gap={field.dataType === DataType.Boolean ? 2 : 0}
+      >
         <strong>{field.label}</strong>
-        <span>{getValueFromPath(participant, field.path, field.dataType)}</span>
+        {field.dataType === DataType.Boolean ? (
+          <Checkbox isChecked={value} disabled />
+        ) : (
+          <span>
+            {getValueFromPath(participant, field.path, field.dataType)}
+          </span>
+        )}
       </Flex>
 
       {side === 'left' && (
@@ -169,21 +186,33 @@ export const ReadOnlyListField: React.FC<ListProps> = ({
                   .filter(
                     (childField) => childField.component !== Component.Hidden,
                   )
-                  .map((childField) => (
-                    <Flex
-                      key={[...field.path, ...childField.path].join('.')}
-                      direction="column"
-                    >
-                      <strong>{childField.label}</strong>
-                      <span>
-                        {getValueFromPath(
-                          participant,
-                          [...field.path, index, ...childField.path],
-                          childField.dataType,
+                  .map((childField) => {
+                    const value = getValueFromPath(
+                      participant,
+                      [...field.path, index, ...childField.path],
+                      childField.dataType,
+                    );
+                    return (
+                      <Flex
+                        key={[...field.path, ...childField.path].join('.')}
+                        direction={
+                          childField.dataType === DataType.Boolean
+                            ? side === 'right'
+                              ? 'row-reverse'
+                              : 'row'
+                            : 'column'
+                        }
+                        gap={childField.dataType === DataType.Boolean ? 2 : 0}
+                      >
+                        <strong>{childField.label}</strong>
+                        {childField.dataType === DataType.Boolean ? (
+                          <Checkbox isChecked={value} disabled />
+                        ) : (
+                          <span>{value}</span>
                         )}
-                      </span>
-                    </Flex>
-                  ))}
+                      </Flex>
+                    );
+                  })}
               </Flex>
               {side === 'left' && (
                 <IconButton
