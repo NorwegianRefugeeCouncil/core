@@ -24,7 +24,6 @@ export const Checkbox: React.FC<Props> = ({ config }) => {
       <CB
         isInvalid={fieldState.invalid}
         isRequired={config.required}
-        placeholder={config.placeholder}
         type={config.dataType}
         isChecked={field.value}
         {...field}

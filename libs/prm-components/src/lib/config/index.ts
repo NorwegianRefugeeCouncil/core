@@ -14,7 +14,7 @@ const emptyConfig = {
   list: {
     fields: [],
   },
-  search: [],
+  filtering: { fields: [] },
 };
 
 export const configLoader: PrmUIConfigLoader = (staticData) => ({

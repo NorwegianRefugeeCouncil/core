@@ -29,7 +29,7 @@ export const TextInput: React.FC<Props> = ({ config }) => {
         return field.value?.toISOString().split('T')[0];
       }
       default:
-        return field.value;
+        return field.value || '';
     }
   })();
 

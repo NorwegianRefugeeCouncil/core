@@ -4,12 +4,16 @@ import {
   Pagination,
   PaginatedResponse,
   EntityListItem,
+  EntityFiltering,
 } from '@nrcno/core-models';
 
 import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
 
 export type ListEntityState = {
-  listEntities: (pagination: Pagination) => Promise<void>;
+  listEntities: (
+    pagination: Pagination,
+    filters?: EntityFiltering,
+  ) => Promise<void>;
   reset: () => void;
   status: SubmitStatus;
   data?: PaginatedResponse<EntityListItem>;
@@ -17,7 +21,8 @@ export type ListEntityState = {
 };
 
 export const defaultListEntityState: ListEntityState = {
-  listEntities: async (pagination: Pagination) => Promise.resolve(),
+  listEntities: async (pagination: Pagination, filters?: EntityFiltering) =>
+    Promise.resolve(),
   reset: () => {
     return;
   },
@@ -31,13 +36,16 @@ export const useListEntity = (
 ): ListEntityState => {
   const [state, actions] = useApiReducer<PaginatedResponse<EntityListItem>>();
 
-  const listEntities = async (pagination: Pagination) => {
+  const listEntities = async (
+    pagination: Pagination,
+    filters?: EntityFiltering,
+  ) => {
     if (!hasListMixin(client)) {
       throw new Error('Client is not defined');
     }
     try {
       actions.submitting();
-      const paginatedEntityList = await client.list(pagination);
+      const paginatedEntityList = await client.list(pagination, filters);
       actions.success(paginatedEntityList);
     } catch (error) {
       const err =

@@ -1,10 +1,10 @@
-import { renderHook } from '@testing-library/react-hooks';
-import { vi, Mock } from 'vitest';
 import { EntityType } from '@nrcno/core-models';
+import { renderHook } from '@testing-library/react-hooks';
 import { MemoryRouter } from 'react-router-dom';
+import { Mock, vi } from 'vitest';
 
-import { PrmContextData, usePrmContext } from '../prm.context';
 import { configLoader } from '../config';
+import { PrmContextData, usePrmContext } from '../prm.context';
 
 import { SubmitStatus } from './useApiReducer.hook';
 import { useEntityListPage } from './useEntityListPage.hook';
@@ -65,14 +65,18 @@ describe('useEntityListPage', () => {
       (usePrmContext as Mock).mockReturnValue(prmContextData);
 
       const { result } = renderHook(
-        () => useEntityListPage({ pageSize: 10, startIndex: 0 }),
+        () =>
+          useEntityListPage(
+            { pageSize: 10, startIndex: 0 },
+            { firstName: 'John' },
+          ),
         renderHookOptions,
       );
 
       expect(result.current).toEqual({
         entityType: EntityType.Participant,
         listConfig: config[EntityType.Participant].list,
-        searchConfig: config[EntityType.Participant].search,
+        filterConfig: config[EntityType.Participant].filtering,
         isLoading: false,
         isError: false,
         isSuccess: false,
@@ -91,7 +95,7 @@ describe('useEntityListPage', () => {
       });
 
       const { result } = renderHook(
-        () => useEntityListPage({ pageSize: 10, startIndex: 0 }),
+        () => useEntityListPage({ pageSize: 10, startIndex: 0 }, {}),
         renderHookOptions,
       );
 
@@ -108,7 +112,11 @@ describe('useEntityListPage', () => {
       });
 
       const { result } = renderHook(
-        () => useEntityListPage({ pageSize: 10, startIndex: 0 }),
+        () =>
+          useEntityListPage(
+            { pageSize: 10, startIndex: 0 },
+            { firstName: 'John' },
+          ),
         renderHookOptions,
       );
 
@@ -125,7 +133,11 @@ describe('useEntityListPage', () => {
       });
 
       const { result } = renderHook(
-        () => useEntityListPage({ pageSize: 10, startIndex: 0 }),
+        () =>
+          useEntityListPage(
+            { pageSize: 10, startIndex: 0 },
+            { firstName: 'John' },
+          ),
         renderHookOptions,
       );
 
@@ -148,7 +160,11 @@ describe('useEntityListPage', () => {
       });
 
       const { result } = renderHook(
-        () => useEntityListPage({ pageSize: 10, startIndex: 0 }),
+        () =>
+          useEntityListPage(
+            { pageSize: 10, startIndex: 0 },
+            { firstName: 'John' },
+          ),
         renderHookOptions,
       );
 

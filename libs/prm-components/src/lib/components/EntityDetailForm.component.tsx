@@ -13,12 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { Entity } from '@nrcno/core-models';
 import { FormProvider, useForm } from 'react-hook-form';
-import {
-  Link,
-  useLocation,
-  useNavigate,
-  unstable_usePrompt,
-} from 'react-router-dom';
+import { Link, useLocation, unstable_usePrompt } from 'react-router-dom';
 import { useEffect } from 'react';
 
 import { EntityUIConfig } from '../config';
@@ -55,7 +50,6 @@ export const EntityDetailForm: React.FC<Props> = ({
     form.reset(entity);
   }, [JSON.stringify(entity), readOnly]);
 
-  const navigate = useNavigate();
   const location = useLocation();
 
   // Client side blocking
