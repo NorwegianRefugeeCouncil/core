@@ -64,6 +64,7 @@ export type TableColumn = {
   width?: number;
   isID?: boolean;
   format?: (input: any) => string;
+  sortKey: string;
 };
 
 export type EntityUIConfig = {
