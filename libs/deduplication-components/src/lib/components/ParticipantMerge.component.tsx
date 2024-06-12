@@ -1,5 +1,5 @@
 import { IconButton, Flex } from '@chakra-ui/react';
-import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
+import { ArrowLeftIcon, ArrowRightIcon, CloseIcon } from '@chakra-ui/icons';
 
 import { Participant } from '@nrcno/core-models';
 import {
@@ -14,7 +14,7 @@ import styles from './ParticipantMerge.module.scss';
 type Props = {
   participant: Partial<Participant>;
   side?: 'left' | 'right';
-  onSelect?: (path: string[], value: any, list: boolean) => void;
+  onSelect?: (path: string[], value: any) => void;
   pathsFromSide: Record<string, 'left' | 'right'>;
 };
 
@@ -34,7 +34,7 @@ const getValueFromPath = (
   }
 };
 
-const getListValueFromPath = (obj: any, path: string[]) => {
+const getListValueFromPath = (obj: any, path: (string | number)[]) => {
   try {
     return path.reduce((acc, key) => acc[key], obj);
   } catch {
@@ -54,7 +54,6 @@ export const ReadOnlyField: React.FC<Props & { field: FieldConfig }> = ({
       onSelect(
         field.path,
         getValueFromPath(participant, field.path, field.dataType),
-        false,
       );
   };
 
@@ -106,12 +105,28 @@ export const ReadOnlyField: React.FC<Props & { field: FieldConfig }> = ({
   );
 };
 
-export const ReadOnlyListField: React.FC<
-  Props & { field: ListFieldConfig }
-> = ({ field, participant, side, onSelect, pathsFromSide }) => {
-  const handleSelect = () => {
-    if (onSelect)
-      onSelect(field.path, getListValueFromPath(participant, field.path), true);
+type ListProps = {
+  participant: Partial<Participant>;
+  side?: 'left' | 'right';
+  onSelect?: (path: (string | number)[], value: any) => void;
+  pathsFromSide?: Record<string, Record<number, number>>;
+  field: ListFieldConfig;
+};
+
+export const ReadOnlyListField: React.FC<ListProps> = ({
+  field,
+  participant,
+  side,
+  onSelect,
+  pathsFromSide,
+}) => {
+  const handleSelect = (idx: number) => () => {
+    if (onSelect) {
+      onSelect(
+        [...field.path, idx],
+        getListValueFromPath(participant, [...field.path, idx]),
+      );
+    }
   };
 
   let className = styles.mergeField;
@@ -122,62 +137,64 @@ export const ReadOnlyListField: React.FC<
   } else {
     className += ` ${styles.mergeFieldCentre}`;
   }
-  if (pathsFromSide[field.path.join('.')] === side) {
-    className += ` ${styles.selected}`;
-  }
 
-  const listValue: any[] = getListValueFromPath(participant, field.path);
+  const listValue: any[] = getListValueFromPath(participant, field.path) || [];
 
   return (
     <Flex direction="column" height="100%" p={2} textAlign={side || 'left'}>
       <Flex direction="column">
         <strong>{field.label}</strong>
-        {listValue.map((value, index) => (
-          <Flex
-            direction="row"
-            justifyContent="space-between"
-            alignItems="start"
-            className={className}
-            p={2}
-          >
-            {side === 'right' && (
-              <IconButton
-                aria-label="Add"
-                icon={<ArrowLeftIcon />}
-                onClick={handleSelect}
-              />
-            )}
+        {listValue.map((value, index) => {
+          const selected =
+            pathsFromSide?.[field.path.join('.')]?.[index] !== undefined;
+          const cn = selected ? `${className} ${styles.selected}` : className;
+          return (
+            <Flex
+              direction="row"
+              justifyContent="space-between"
+              alignItems="start"
+              className={cn}
+              p={2}
+            >
+              {side === 'right' && (
+                <IconButton
+                  aria-label={selected ? 'Remove' : 'Add'}
+                  icon={selected ? <CloseIcon /> : <ArrowLeftIcon />}
+                  onClick={handleSelect(index)}
+                />
+              )}
 
-            <Flex direction="column">
-              {field.children
-                .filter(
-                  (childField) => childField.component !== Component.Hidden,
-                )
-                .map((childField) => (
-                  <Flex
-                    key={[...field.path, ...childField.path].join('.')}
-                    direction="column"
-                  >
-                    <strong>{childField.label}</strong>
-                    <span>
-                      {getValueFromPath(
-                        participant,
-                        [...field.path, index, ...childField.path],
-                        childField.dataType,
-                      )}
-                    </span>
-                  </Flex>
-                ))}
+              <Flex direction="column">
+                {field.children
+                  .filter(
+                    (childField) => childField.component !== Component.Hidden,
+                  )
+                  .map((childField) => (
+                    <Flex
+                      key={[...field.path, ...childField.path].join('.')}
+                      direction="column"
+                    >
+                      <strong>{childField.label}</strong>
+                      <span>
+                        {getValueFromPath(
+                          participant,
+                          [...field.path, index, ...childField.path],
+                          childField.dataType,
+                        )}
+                      </span>
+                    </Flex>
+                  ))}
+              </Flex>
+              {side === 'left' && (
+                <IconButton
+                  aria-label={selected ? 'Remove' : 'Add'}
+                  icon={selected ? <CloseIcon /> : <ArrowRightIcon />}
+                  onClick={handleSelect(index)}
+                />
+              )}
             </Flex>
-            {side === 'left' && (
-              <IconButton
-                aria-label="Add"
-                icon={<ArrowRightIcon />}
-                onClick={handleSelect}
-              />
-            )}
-          </Flex>
-        ))}
+          );
+        })}
       </Flex>
     </Flex>
   );

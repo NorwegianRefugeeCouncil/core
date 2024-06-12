@@ -31,12 +31,16 @@ export const DuplicateMerger: React.FC<Props> = ({
   >({});
 
   const [listPathsFromSide, setListPathsFromSide] = useState<{
-    left: Record<string, [number, number][]>;
-    right: Record<string, [number, number][]>;
+    left: Record<string, Record<number, number>>;
+    right: Record<string, Record<number, number>>;
   }>({ left: {}, right: {} });
 
-  const setField = (path: string[], value: any, list: boolean) => {
-    function setNestedObjectValue(obj: any, path: string[], value: any): any {
+  const setField = (path: (string | number)[], value: any, list: boolean) => {
+    function setNestedObjectValue(
+      obj: any,
+      path: (string | number)[],
+      value: any,
+    ): any {
       if (path.length === 1) {
         if (list) {
           return { ...obj, [path[0]]: [...(obj[path[0]] || []), value] };
@@ -64,39 +68,117 @@ export const DuplicateMerger: React.FC<Props> = ({
   };
 
   const handleSelect =
-    (side: 'left' | 'right') => (path: string[], value: any, list: boolean) => {
-      console.log(path, value, list);
-      setField(path, value, list);
+    (side: 'left' | 'right') => (path: (string | number)[], value: any) => {
+      setField(path, value, false);
       setPathsFromSide({
         ...pathsFromSide,
         [path.join('.')]: side,
       });
     };
 
-  // const handleListSelect =
-  //   (side: 'left' | 'right') => (path: string[], value: any, index: number) => {
-  //     const listPaths =
-  //       side === 'left' ? listPathsFromSide.left : listPathsFromSide.right;
-  //     const nextListPaths = {
-  //       ...listPaths,
-  //       [path.join('.')]: [
-  //         ...(listPaths[path.join('.')] || []),
-  //         [index, index],
-  //       ],
-  //     };
-  //     if (side === 'left') {
-  //       setListPathsFromSide({
-  //         left: nextListPaths,
-  //         right: listPathsFromSide.right,
-  //       });
-  //     } else {
-  //       setListPathsFromSide({
-  //         left: listPathsFromSide.left,
-  //         right: nextListPaths,
-  //       });
-  //     }
-  //     setField(path, value, true);
-  //   };
+  const handleListAdd =
+    (side: 'left' | 'right') => (path: (string | number)[], value: any) => {
+      const index = path[path.length - 1];
+      const pathWithoutIndex = path.slice(0, path.length - 1);
+      const pathWithoutIndexStr = pathWithoutIndex.join('.');
+
+      const currentArr: any = pathWithoutIndex.reduce(
+        (acc: any, key, i, arr) => {
+          const v = acc[key];
+          if (v !== undefined) return v;
+          if (i === arr.length - 1) return [];
+          return {};
+        },
+        mergedParticipant,
+      );
+      const nextArr = [...currentArr, value];
+      setField(pathWithoutIndex, nextArr, false);
+
+      const listPaths =
+        side === 'left' ? listPathsFromSide.left : listPathsFromSide.right;
+      const listPathItem = listPaths[pathWithoutIndexStr] || {};
+      const nextListPaths = {
+        ...listPaths,
+        [pathWithoutIndexStr]: {
+          ...listPathItem,
+          [index]: Object.keys(currentArr).length,
+        },
+      };
+      if (side === 'left') {
+        setListPathsFromSide({
+          left: nextListPaths,
+          right: listPathsFromSide.right,
+        });
+      } else {
+        setListPathsFromSide({
+          left: listPathsFromSide.left,
+          right: nextListPaths,
+        });
+      }
+    };
+
+  const handleListRemove =
+    (side: 'left' | 'right') => (path: (string | number)[], value: any) => {
+      const index = Number(path[path.length - 1]);
+      const pathWithoutIndex = path.slice(0, path.length - 1);
+      const pathWithoutIndexStr = pathWithoutIndex.join('.');
+      const otherSide = side === 'left' ? 'right' : 'left';
+      const originalIdx = listPathsFromSide[side][pathWithoutIndexStr][index];
+
+      const currentArr: any = pathWithoutIndex.reduce(
+        (acc: any, key) => acc[key],
+        mergedParticipant,
+      );
+      const nextArr = currentArr.filter(
+        (_: any, i: number) => i !== originalIdx,
+      );
+      setField(pathWithoutIndex, nextArr, false);
+
+      const nextListPaths = {
+        ...listPathsFromSide,
+        [side]: {
+          ...listPathsFromSide[side],
+          [pathWithoutIndexStr]: Object.keys(
+            listPathsFromSide[side][pathWithoutIndexStr],
+          )
+            .filter((key) => key !== index.toString())
+            .reduce((acc, key) => {
+              const v =
+                listPathsFromSide[side][pathWithoutIndexStr][Number(key)];
+              return {
+                ...acc,
+                [key]: v > originalIdx ? v - 1 : v,
+              };
+            }, {}),
+        },
+        [otherSide]: {
+          ...listPathsFromSide[otherSide],
+          [pathWithoutIndexStr]: Object.keys(
+            listPathsFromSide[otherSide][pathWithoutIndexStr] || {},
+          ).reduce((acc, key) => {
+            const v =
+              listPathsFromSide[otherSide][pathWithoutIndexStr][Number(key)];
+            return {
+              ...acc,
+              [key]: v > originalIdx ? v - 1 : v,
+            };
+          }, {}),
+        },
+      };
+      setListPathsFromSide(nextListPaths);
+    };
+
+  const handleListSelect =
+    (side: 'left' | 'right') => (path: (string | number)[], value: any) => {
+      const index = Number(path[path.length - 1]);
+      const pathWithoutIndex = path.slice(0, path.length - 1);
+      const pathWithoutIndexStr = pathWithoutIndex.join('.');
+      if (listPathsFromSide[side][pathWithoutIndexStr]?.[index] !== undefined) {
+        handleListRemove(side)(path, value);
+      } else {
+        handleListAdd(side)(path, value);
+      }
+    };
 
   return (
     <Grid
@@ -127,8 +209,8 @@ export const DuplicateMerger: React.FC<Props> = ({
                     field={field}
                     participant={duplicateRecord.participantA}
                     side="left"
-                    onSelect={handleSelect('left')}
-                    pathsFromSide={pathsFromSide}
+                    onSelect={handleListSelect('left')}
+                    pathsFromSide={listPathsFromSide['left']}
                   />
                 ) : (
                   <ReadOnlyField
@@ -142,7 +224,10 @@ export const DuplicateMerger: React.FC<Props> = ({
               </GridItem>
               <GridItem key={`centre-${field.label}`} colSpan={1}>
                 {field.component === Component.List ? (
-                  <div>list - {field.label}</div>
+                  <ReadOnlyListField
+                    field={field}
+                    participant={mergedParticipant}
+                  />
                 ) : (
                   <ReadOnlyField
                     field={field}
@@ -153,7 +238,13 @@ export const DuplicateMerger: React.FC<Props> = ({
               </GridItem>
               <GridItem key={`right-${field.label}`} colSpan={1}>
                 {field.component === Component.List ? (
-                  <div>list - {field.label}</div>
+                  <ReadOnlyListField
+                    field={field}
+                    participant={duplicateRecord.participantB}
+                    side="right"
+                    onSelect={handleListSelect('right')}
+                    pathsFromSide={listPathsFromSide['right']}
+                  />
                 ) : (
                   <ReadOnlyField
                     field={field}
