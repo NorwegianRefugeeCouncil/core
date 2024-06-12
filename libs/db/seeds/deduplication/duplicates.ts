@@ -61,7 +61,7 @@ enum YesNoUnknown {
 }
 
 const batchSize = 1_000;
-const seedCount = 1_00_000;
+const seedCount = 10_000;
 
 export async function seed(knex: Knex): Promise<void> {
   await knex('duplicates').del();
@@ -144,7 +144,28 @@ export async function seed(knex: Knex): Promise<void> {
       contactDetails: [
         {
           id: faker.string.uuid(),
-          contactDetailType: faker.helpers.enumValue(ContactDetailType),
+          contactDetailType: ContactDetailType.Email,
+          rawValue: faker.internet.email(),
+          cleanValue: faker.internet.email(),
+          participantId,
+        },
+        {
+          id: faker.string.uuid(),
+          contactDetailType: ContactDetailType.Email,
+          rawValue: faker.internet.email(),
+          cleanValue: faker.internet.email(),
+          participantId,
+        },
+        {
+          id: faker.string.uuid(),
+          contactDetailType: ContactDetailType.PhoneNumber,
+          rawValue: faker.phone.number(),
+          cleanValue: faker.string.numeric(),
+          participantId,
+        },
+        {
+          id: faker.string.uuid(),
+          contactDetailType: ContactDetailType.PhoneNumber,
           rawValue: faker.phone.number(),
           cleanValue: faker.string.numeric(),
           participantId,
