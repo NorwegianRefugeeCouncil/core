@@ -35,22 +35,6 @@ const buildListQueryFilters = (filtering: ParticipantFiltering) => {
     'residence',
     'displacementStatus',
     'engagementContext',
-    'hasDisabilityPwd',
-    'hasDisabilityVision',
-    'hasDisabilityHearing',
-    'hasDisabilityMobility',
-    'hasDisabilityCognition',
-    'hasDisabilitySelfcare',
-    'hasDisabilityCommunication',
-    'isChildAtRisk',
-    'isElderAtRisk',
-    'isWomanAtRisk',
-    'isSingleParent',
-    'isSeparatedChild',
-    'isPregnant',
-    'isLactating',
-    'hasMedicalCondition',
-    'needsLegalPhysicalProtection',
   ];
   const propertyMapping: Partial<Record<keyof ParticipantFiltering, string>> = {
     id: 'participants.id',
@@ -177,7 +161,6 @@ const buildListQueryJoins = (db: Knex) => {
 
   const applyJoins = (query: Knex.QueryBuilder) => {
     query
-      .leftJoin('participant_disabilities', 'participants.id', 'participantId')
       .leftJoin('participant_identifications', function () {
         this.on(
           'participants.id',
@@ -238,7 +221,6 @@ const create: IParticipantStore['create'] = async (
   const db = getDb();
 
   const {
-    disabilities,
     contactDetails,
     identification,
     languages,
@@ -262,13 +244,6 @@ const create: IParticipantStore['create'] = async (
         personId,
         entityId,
       });
-
-      if (disabilities) {
-        await trx('participant_disabilities').insert({
-          ...disabilities,
-          participantId,
-        });
-      }
 
       if (languages && languages.length > 0) {
         await trx('participant_languages').insert(
@@ -335,7 +310,6 @@ const create: IParticipantStore['create'] = async (
         entityId,
         languages,
         nationalities,
-        disabilities,
         contactDetails: {
           emails: contactDetailsEmailsForDb.map((contact) => ({
             id: contact.id,
@@ -377,27 +351,26 @@ const get: IParticipantStore['get'] = async (
     return null;
   }
 
-  const [
-    languages,
-    nationalities,
-    contactDetails,
-    identifications,
-    disabilities,
-  ] = await Promise.all([
-    db('participant_languages')
-      .where('participantId', id)
-      .select('languageIsoCode'),
-    db('participant_nationalities')
-      .where('participantId', id)
-      .select('nationalityIsoCode'),
-    db('participant_contact_details')
-      .where('participantId', id)
-      .select('id', 'contactDetailType', 'rawValue'),
-    db('participant_identifications')
-      .where('participantId', id)
-      .select('id', 'identificationType', 'identificationNumber', 'isPrimary'),
-    db('participant_disabilities').where('participantId', id).first(),
-  ]);
+  const [languages, nationalities, contactDetails, identifications] =
+    await Promise.all([
+      db('participant_languages')
+        .where('participantId', id)
+        .select('languageIsoCode'),
+      db('participant_nationalities')
+        .where('participantId', id)
+        .select('nationalityIsoCode'),
+      db('participant_contact_details')
+        .where('participantId', id)
+        .select('id', 'contactDetailType', 'rawValue'),
+      db('participant_identifications')
+        .where('participantId', id)
+        .select(
+          'id',
+          'identificationType',
+          'identificationNumber',
+          'isPrimary',
+        ),
+    ]);
 
   const participantResult = ParticipantSchema.parse({
     ...participant,
@@ -424,7 +397,6 @@ const get: IParticipantStore['get'] = async (
         })),
     },
     identification: identifications,
-    disabilities,
   });
 
   return participantResult;
@@ -542,7 +514,6 @@ const update: IParticipantStore['update'] = async (
   const db = getDb();
 
   const {
-    disabilities,
     contactDetails,
     identification,
     languages,
@@ -557,14 +528,6 @@ const update: IParticipantStore['update'] = async (
           ...participantDetails,
         })
         .where('id', participantId);
-    }
-
-    if (disabilities) {
-      await trx('participant_disabilities')
-        .update({
-          ...disabilities,
-        })
-        .where('participantId', participantId);
     }
 
     if (languages?.add && languages.add.length > 0) {

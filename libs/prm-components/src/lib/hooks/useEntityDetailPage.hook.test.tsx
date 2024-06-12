@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { vi, Mock } from 'vitest';
-import { DisabilityLevel, EntityType, YesNoUnknown } from '@nrcno/core-models';
+import { EntityType } from '@nrcno/core-models';
 import { MemoryRouter } from 'react-router-dom';
 
 import { PrmContextData, usePrmContext } from '../prm.context';
@@ -148,32 +148,6 @@ describe('useEntityDetailPage', () => {
       result.current.onSubmit({
         firstName: 'John',
         lastName: 'Doe',
-        disabilities: {
-          hasDisabilityPwd: false,
-          disabilityPwdComment: 'Comment',
-          hasDisabilityVision: false,
-          disabilityVisionLevel: DisabilityLevel.Four,
-          hasDisabilityHearing: false,
-          disabilityHearingLevel: DisabilityLevel.Four,
-          hasDisabilityMobility: false,
-          disabilityMobilityLevel: DisabilityLevel.Four,
-          hasDisabilityCognition: false,
-          disabilityCognitionLevel: DisabilityLevel.Four,
-          hasDisabilitySelfcare: false,
-          disabilitySelfcareLevel: DisabilityLevel.Four,
-          hasDisabilityCommunication: false,
-          disabilityCommunicationLevel: DisabilityLevel.Four,
-          isChildAtRisk: YesNoUnknown.No,
-          isElderAtRisk: YesNoUnknown.No,
-          isWomanAtRisk: YesNoUnknown.No,
-          isSingleParent: YesNoUnknown.No,
-          isSeparatedChild: YesNoUnknown.No,
-          isPregnant: YesNoUnknown.No,
-          isLactating: YesNoUnknown.No,
-          hasMedicalCondition: YesNoUnknown.No,
-          needsLegalPhysicalProtection: YesNoUnknown.No,
-          vulnerabilityComments: 'Comments',
-        },
         contactDetails: {
           emails: [
             {
@@ -194,32 +168,6 @@ describe('useEntityDetailPage', () => {
       expect(prmContextData.create.onCreateEntity).toHaveBeenCalledWith({
         firstName: 'John',
         lastName: 'Doe',
-        disabilities: {
-          hasDisabilityPwd: false,
-          disabilityPwdComment: 'Comment',
-          hasDisabilityVision: false,
-          disabilityVisionLevel: DisabilityLevel.Four,
-          hasDisabilityHearing: false,
-          disabilityHearingLevel: DisabilityLevel.Four,
-          hasDisabilityMobility: false,
-          disabilityMobilityLevel: DisabilityLevel.Four,
-          hasDisabilityCognition: false,
-          disabilityCognitionLevel: DisabilityLevel.Four,
-          hasDisabilitySelfcare: false,
-          disabilitySelfcareLevel: DisabilityLevel.Four,
-          hasDisabilityCommunication: false,
-          disabilityCommunicationLevel: DisabilityLevel.Four,
-          isChildAtRisk: YesNoUnknown.No,
-          isElderAtRisk: YesNoUnknown.No,
-          isWomanAtRisk: YesNoUnknown.No,
-          isSingleParent: YesNoUnknown.No,
-          isSeparatedChild: YesNoUnknown.No,
-          isPregnant: YesNoUnknown.No,
-          isLactating: YesNoUnknown.No,
-          hasMedicalCondition: YesNoUnknown.No,
-          needsLegalPhysicalProtection: YesNoUnknown.No,
-          vulnerabilityComments: 'Comments',
-        },
         contactDetails: {
           emails: [
             {
@@ -594,32 +542,6 @@ describe('useEntityDetailPage', () => {
       result.current.onSubmit({
         firstName: 'John',
         lastName: 'Doe',
-        disabilities: {
-          hasDisabilityPwd: false,
-          disabilityPwdComment: 'Comment',
-          hasDisabilityVision: false,
-          disabilityVisionLevel: DisabilityLevel.Four,
-          hasDisabilityHearing: false,
-          disabilityHearingLevel: DisabilityLevel.Four,
-          hasDisabilityMobility: false,
-          disabilityMobilityLevel: DisabilityLevel.Four,
-          hasDisabilityCognition: false,
-          disabilityCognitionLevel: DisabilityLevel.Four,
-          hasDisabilitySelfcare: false,
-          disabilitySelfcareLevel: DisabilityLevel.Four,
-          hasDisabilityCommunication: false,
-          disabilityCommunicationLevel: DisabilityLevel.Four,
-          isChildAtRisk: YesNoUnknown.No,
-          isElderAtRisk: YesNoUnknown.No,
-          isWomanAtRisk: YesNoUnknown.No,
-          isSingleParent: YesNoUnknown.No,
-          isSeparatedChild: YesNoUnknown.No,
-          isPregnant: YesNoUnknown.No,
-          isLactating: YesNoUnknown.No,
-          hasMedicalCondition: YesNoUnknown.No,
-          needsLegalPhysicalProtection: YesNoUnknown.No,
-          vulnerabilityComments: 'Comments',
-        },
         contactDetails: {
           emails: [
             {
@@ -640,32 +562,6 @@ describe('useEntityDetailPage', () => {
       expect(prmContextData.edit.onEditEntity).toHaveBeenCalledWith('1234', {
         firstName: 'John',
         lastName: 'Doe',
-        disabilities: {
-          hasDisabilityPwd: false,
-          disabilityPwdComment: 'Comment',
-          hasDisabilityVision: false,
-          disabilityVisionLevel: DisabilityLevel.Four,
-          hasDisabilityHearing: false,
-          disabilityHearingLevel: DisabilityLevel.Four,
-          hasDisabilityMobility: false,
-          disabilityMobilityLevel: DisabilityLevel.Four,
-          hasDisabilityCognition: false,
-          disabilityCognitionLevel: DisabilityLevel.Four,
-          hasDisabilitySelfcare: false,
-          disabilitySelfcareLevel: DisabilityLevel.Four,
-          hasDisabilityCommunication: false,
-          disabilityCommunicationLevel: DisabilityLevel.Four,
-          isChildAtRisk: YesNoUnknown.No,
-          isElderAtRisk: YesNoUnknown.No,
-          isWomanAtRisk: YesNoUnknown.No,
-          isSingleParent: YesNoUnknown.No,
-          isSeparatedChild: YesNoUnknown.No,
-          isPregnant: YesNoUnknown.No,
-          isLactating: YesNoUnknown.No,
-          hasMedicalCondition: YesNoUnknown.No,
-          needsLegalPhysicalProtection: YesNoUnknown.No,
-          vulnerabilityComments: 'Comments',
-        },
         contactDetails: {
           emails: [
             {
