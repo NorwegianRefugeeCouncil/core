@@ -53,21 +53,6 @@ export enum EngagementContext {
 }
 export const EngagementContextSchema = z.nativeEnum(EngagementContext);
 
-export enum DisabilityLevel {
-  One = '1',
-  Two = '2',
-  Three = '3',
-  Four = '4',
-}
-export const DisabilityLevelSchema = z.nativeEnum(DisabilityLevel);
-
-export enum YesNoUnknown {
-  Yes = 'yes',
-  No = 'no',
-  Unknown = 'unknown',
-}
-export const YesNoUnknownSchema = z.nativeEnum(YesNoUnknown);
-
 const ParticipantDetailsSchema = z.object({
   firstName: z.string().max(100).optional().nullable(),
   middleName: z.string().max(100).optional().nullable(),
@@ -93,33 +78,6 @@ const ParticipantDetailsSchema = z.object({
   displacementStatus: DisplacementStatusSchema.optional().nullable(),
   engagementContext: EngagementContextSchema.optional().nullable(),
   dateOfRegistration: z.coerce.date().max(new Date()).optional().nullable(),
-});
-
-const ParticipantDisabilitySchema = z.object({
-  hasDisabilityPwd: z.boolean().optional().nullable(),
-  disabilityPwdComment: z.string().optional().nullable(),
-  hasDisabilityVision: z.boolean().optional().nullable(),
-  disabilityVisionLevel: DisabilityLevelSchema.optional().nullable(),
-  hasDisabilityHearing: z.boolean().optional().nullable(),
-  disabilityHearingLevel: DisabilityLevelSchema.optional().nullable(),
-  hasDisabilityMobility: z.boolean().optional().nullable(),
-  disabilityMobilityLevel: DisabilityLevelSchema.optional().nullable(),
-  hasDisabilityCognition: z.boolean().optional().nullable(),
-  disabilityCognitionLevel: DisabilityLevelSchema.optional().nullable(),
-  hasDisabilitySelfcare: z.boolean().optional().nullable(),
-  disabilitySelfcareLevel: DisabilityLevelSchema.optional().nullable(),
-  hasDisabilityCommunication: z.boolean().optional().nullable(),
-  disabilityCommunicationLevel: DisabilityLevelSchema.optional().nullable(),
-  isChildAtRisk: YesNoUnknownSchema.optional().nullable(),
-  isElderAtRisk: YesNoUnknownSchema.optional().nullable(),
-  isWomanAtRisk: YesNoUnknownSchema.optional().nullable(),
-  isSingleParent: YesNoUnknownSchema.optional().nullable(),
-  isSeparatedChild: YesNoUnknownSchema.optional().nullable(),
-  isPregnant: YesNoUnknownSchema.optional().nullable(),
-  isLactating: YesNoUnknownSchema.optional().nullable(),
-  hasMedicalCondition: YesNoUnknownSchema.optional().nullable(),
-  needsLegalPhysicalProtection: YesNoUnknownSchema.optional().nullable(),
-  vulnerabilityComments: z.string().optional().nullable(),
 });
 
 const EmailContactDetailsDefinitionSchema = z.object({
@@ -162,7 +120,6 @@ export type Identification = z.infer<typeof IdentificationSchema>;
 
 export const ParticipantDefinitionSchema = ParticipantDetailsSchema.merge(
   z.object({
-    disabilities: ParticipantDisabilitySchema.optional(),
     languages: z.array(IsoCodeSchema).optional().default([]),
     nationalities: z.array(IsoCodeSchema).optional().default([]),
     contactDetails: z
@@ -345,22 +302,6 @@ export const ParticipantFilteringSchema = z.object({
   residence: z.string().optional(),
   displacementStatus: DisplacementStatusSchema.optional(),
   engagementContext: EngagementContextSchema.optional(),
-  hasDisabilityPwd: z.coerce.boolean().optional(),
-  hasDisabilityVision: z.coerce.boolean().optional(),
-  hasDisabilityHearing: z.coerce.boolean().optional(),
-  hasDisabilityMobility: z.coerce.boolean().optional(),
-  hasDisabilityCognition: z.coerce.boolean().optional(),
-  hasDisabilitySelfcare: z.coerce.boolean().optional(),
-  hasDisabilityCommunication: z.coerce.boolean().optional(),
-  isChildAtRisk: YesNoUnknownSchema.optional(),
-  isElderAtRisk: YesNoUnknownSchema.optional(),
-  isWomanAtRisk: YesNoUnknownSchema.optional(),
-  isSingleParent: YesNoUnknownSchema.optional(),
-  isSeparatedChild: YesNoUnknownSchema.optional(),
-  isPregnant: YesNoUnknownSchema.optional(),
-  isLactating: YesNoUnknownSchema.optional(),
-  hasMedicalCondition: YesNoUnknownSchema.optional(),
-  needsLegalPhysicalProtection: YesNoUnknownSchema.optional(),
 });
 
 export type ParticipantFiltering = z.infer<typeof ParticipantFilteringSchema>;

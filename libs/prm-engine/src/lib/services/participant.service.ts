@@ -70,7 +70,6 @@ export class ParticipantService extends CRUDMixin<
 
   mapUpdateToPartial = async (id: string, participant: ParticipantUpdate) => {
     const {
-      disabilities,
       contactDetails,
       identification,
       languages,
@@ -166,7 +165,6 @@ export class ParticipantService extends CRUDMixin<
 
     return {
       ...participantDetails,
-      disabilities,
       contactDetails: contactDetailUpdates,
       identification: identificationUpdates,
       languages: languageUpdates,

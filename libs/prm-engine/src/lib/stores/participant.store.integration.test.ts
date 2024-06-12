@@ -11,7 +11,6 @@ import {
   IdentificationType,
   ParticipantPartialUpdate,
   SortingDirection,
-  YesNoUnknown,
 } from '@nrcno/core-models';
 
 import { ParticipantStore } from './participant.store';
@@ -468,65 +467,6 @@ describe('Participant store', () => {
       expect(participants[0].id).toEqual(participant.id);
     });
 
-    test('should return a list of participants, filtered by disabilities', async () => {
-      const participantDefinition = ParticipantGenerator.generateDefinition({
-        disabilities: {
-          hasDisabilityPwd: true,
-          hasDisabilityVision: true,
-          hasDisabilityHearing: true,
-          hasDisabilityMobility: true,
-          hasDisabilityCognition: true,
-          hasDisabilitySelfcare: true,
-          hasDisabilityCommunication: true,
-          isChildAtRisk: YesNoUnknown.Yes,
-          isElderAtRisk: YesNoUnknown.No,
-          isWomanAtRisk: YesNoUnknown.Unknown,
-        },
-      });
-      const participant = await ParticipantStore.create(participantDefinition);
-      await ParticipantStore.create(
-        ParticipantGenerator.generateDefinition({
-          disabilities: {
-            hasDisabilityPwd: false,
-            hasDisabilityVision: false,
-            hasDisabilityHearing: true,
-            hasDisabilityMobility: false,
-            hasDisabilityCognition: false,
-            hasDisabilitySelfcare: false,
-            hasDisabilityCommunication: false,
-            isChildAtRisk: YesNoUnknown.No,
-            isElderAtRisk: YesNoUnknown.No,
-            isWomanAtRisk: YesNoUnknown.Unknown,
-          },
-        }),
-      );
-
-      const participants = await ParticipantStore.list(
-        {
-          startIndex: 0,
-          pageSize: 50,
-        },
-        {
-          sort: 'id',
-          direction: SortingDirection.Asc,
-        },
-        {
-          hasDisabilityPwd: true,
-          hasDisabilityVision: true,
-          hasDisabilityHearing: true,
-          hasDisabilityMobility: true,
-          hasDisabilityCognition: true,
-          hasDisabilitySelfcare: true,
-          hasDisabilityCommunication: true,
-          isChildAtRisk: YesNoUnknown.Yes,
-        },
-      );
-
-      expect(participants).toBeDefined();
-      expect(participants).toHaveLength(1);
-      expect(participants[0].id).toEqual(participant.id);
-    });
-
     test('should return a list of participants, filtered by nationality', async () => {
       const participantDefinition = ParticipantGenerator.generateDefinition({
         nationalities: ['AFG', 'ALA'],
@@ -741,28 +681,6 @@ describe('Participant store', () => {
         displacementStatus: participantUpdates.displacementStatus,
         engagementContext: participantUpdates.engagementContext,
       });
-    });
-
-    test('should update a participant disabilities', async () => {
-      const participantDefinition = ParticipantGenerator.generateDefinition();
-      const createdParticipant = await ParticipantStore.create(
-        participantDefinition,
-      );
-
-      const participantUpdateDisabilities =
-        ParticipantGenerator.generateDefinition().disabilities;
-
-      const updatedParticipant = await ParticipantStore.update(
-        createdParticipant.id,
-        {
-          disabilities: participantUpdateDisabilities,
-        },
-      );
-
-      expect(updatedParticipant).toBeDefined();
-      expect(updatedParticipant.disabilities).toEqual(
-        participantUpdateDisabilities,
-      );
     });
 
     test('should update a participant contact details', async () => {
