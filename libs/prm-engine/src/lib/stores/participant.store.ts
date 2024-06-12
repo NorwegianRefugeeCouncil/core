@@ -303,7 +303,7 @@ const create: IParticipantStore['create'] = async (
         await trx('participant_identifications').insert(identificationForDb);
       }
 
-      const createdParticipant = ParticipantSchema.parse({
+      const createdParticipant = ParticipantSchema.safeParse({
         ...participantDetails,
         id: participantId,
         personId,
@@ -323,17 +323,17 @@ const create: IParticipantStore['create'] = async (
         identification: identificationForDb,
       });
 
-      return createdParticipant;
+      if (createdParticipant.error) {
+        throw new Error(
+          `Corrupt data in database for individuals: ${createdParticipant.error.errors.join(', ')}`,
+        );
+      }
+      return createdParticipant.data;
     } catch (error) {
-      const e = (() => {
-        if (
-          (error as PostgresError).code === PostgresErrorCode.UniqueViolation
-        ) {
-          return new AlreadyExistsError('Participant already exists');
-        }
-        return error;
-      })();
-      throw e;
+      if ((error as PostgresError).code === PostgresErrorCode.UniqueViolation) {
+        throw new AlreadyExistsError('Participant already exists');
+      }
+      throw error;
     }
   });
 
@@ -372,7 +372,7 @@ const get: IParticipantStore['get'] = async (
         ),
     ]);
 
-  const participantResult = ParticipantSchema.parse({
+  const participantResult = ParticipantSchema.safeParse({
     ...participant,
     languages: languages.map((lang) => lang.languageIsoCode),
     nationalities: nationalities.map((nat) => nat.nationalityIsoCode),
@@ -399,7 +399,12 @@ const get: IParticipantStore['get'] = async (
     identification: identifications,
   });
 
-  return participantResult;
+  if (participantResult.error) {
+    throw new Error(
+      `Corrupt data in database for individuals: ${participantResult.error.errors.join(', ')}`,
+    );
+  }
+  return participantResult.data;
 };
 
 const list: IParticipantStore['list'] = async (
@@ -469,7 +474,7 @@ const list: IParticipantStore['list'] = async (
   CASE WHEN '${sortColumn}' NOT IN ('nationalities', 'emails', 'phones') THEN ${sortColumn} END ${direction}
 `);
 
-  return z.array(ParticipantListItemSchema).parse(
+  const result = z.array(ParticipantListItemSchema).safeParse(
     participants.map((participant) => ({
       ...participant,
       identification: participant.identificationId
@@ -505,6 +510,13 @@ const list: IParticipantStore['list'] = async (
       },
     })),
   );
+
+  if (result.error) {
+    throw new Error(
+      `Corrupt data in database for individuals: ${result.error.errors.join(', ')}`,
+    );
+  }
+  return result.data;
 };
 
 const update: IParticipantStore['update'] = async (
