@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { createSortingSchema, EntityType } from '@nrcno/core-models';
 
 import { EntityList } from '../../components';
 import { FilterDrawer } from '../../components/FilterDrawer.component';
@@ -40,6 +41,9 @@ export const EntityListPage: React.FC = () => {
 
   const { applyFilters, clearFilters, deleteFilter, filters } = useFilters();
 
+  // TODO: Actual sorting, CORE24-302
+  const sorting = createSortingSchema(EntityType.Participant).parse({});
+
   const {
     entityType,
     listConfig,
@@ -48,7 +52,7 @@ export const EntityListPage: React.FC = () => {
     isLoading,
     error,
     data,
-  } = useEntityListPage(pagination, filters);
+  } = useEntityListPage(pagination, sorting, filters);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
