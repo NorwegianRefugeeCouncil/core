@@ -1,9 +1,7 @@
 import { Table, TableContainer, Tbody, Thead, Tr } from '@chakra-ui/react';
 import { Entity, Sorting } from '@nrcno/core-models';
-import { useEffect } from 'react';
 
 import { EntityUIConfig } from '../../config';
-import { useSorting } from '../../hooks/useSorting';
 
 import { ColumnHeader } from './ColumnHeader.component';
 import { IdCell } from './IdCell.component';
@@ -12,13 +10,16 @@ import { Cell } from './Cell.component';
 type Props = {
   config: EntityUIConfig['list'];
   entityList?: Partial<Entity>[];
+  sorting: Sorting;
+  updateSorting: (sorting: Sorting) => void;
 };
 
 export const EntityList: React.FC<Props> = ({
   config: { fields },
   entityList,
+  sorting,
+  updateSorting,
 }) => {
-  const { updateSorting, sorting, isCurrentSort } = useSorting();
   return (
     <TableContainer overflowY="auto" height="100%">
       <Table variant="striped" size="sm">
@@ -28,7 +29,7 @@ export const EntityList: React.FC<Props> = ({
               <ColumnHeader
                 key={field.path.join('.')}
                 field={field}
-                isSorted={isCurrentSort(field.sortKey)}
+                isSorted={field.sortKey === sorting.sort}
                 sorting={sorting}
                 updateSorting={updateSorting}
               />

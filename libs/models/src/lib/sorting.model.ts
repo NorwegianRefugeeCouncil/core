@@ -9,7 +9,6 @@ import {
 export enum SortingDirection {
   Asc = 'asc',
   Desc = 'desc',
-  None = 'none',
 }
 
 export const createSortingSchema = (entityType: EntityType) => {

@@ -22,6 +22,7 @@ import { Pagination } from '../../components/Pagination.component';
 import { useEntityListPage } from '../../hooks/useEntityListPage.hook';
 import { useFilters } from '../../hooks/useFilters';
 import { usePagination } from '../../hooks/usePagination';
+import { useSorting } from '../../hooks/useSorting';
 
 export const EntityListPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -39,6 +40,8 @@ export const EntityListPage: React.FC = () => {
   } = usePagination();
 
   const { applyFilters, clearFilters, deleteFilter, filters } = useFilters();
+
+  const { updateSorting, sorting } = useSorting();
 
   const {
     entityType,
@@ -124,7 +127,12 @@ export const EntityListPage: React.FC = () => {
         <>
           <Flex flex={1} overflow="hidden">
             <Skeleton isLoaded={!isLoading} w="100%">
-              <EntityList config={listConfig} entityList={data?.items} />
+              <EntityList
+                config={listConfig}
+                entityList={data?.items}
+                sorting={sorting}
+                updateSorting={updateSorting}
+              />
             </Skeleton>
           </Flex>
           <Flex justifyContent="flex-end">
