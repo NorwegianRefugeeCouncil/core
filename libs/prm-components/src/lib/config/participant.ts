@@ -371,24 +371,6 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
         label: 'Date of Birth - End',
       },
       {
-        path: ['ageMin'],
-        dataType: DataType.Number,
-        component: Component.TextInput,
-        label: 'Age - Start',
-      },
-      {
-        path: ['ageMax'],
-        dataType: DataType.Number,
-        component: Component.TextInput,
-        label: 'Age - End',
-      },
-      {
-        path: ['isMinor'],
-        dataType: DataType.Boolean,
-        component: Component.Checkbox,
-        label: 'Is a minor',
-      },
-      {
         path: ['nationalities'],
         dataType: DataType.String,
         component: Component.Select,
