@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { ZodError } from 'zod';
 
 export const useAxiosInstance = () => {
   const axiosInstance = axios.create({
@@ -17,15 +16,9 @@ export const useAxiosInstance = () => {
     (error) => {
       if (error.response.status === 401) {
         window.location.href = `/login`;
+      } else {
+        throw error;
       }
-      if (error.response.status === 400) {
-        try {
-          throw new ZodError(error.response.data);
-        } catch {
-          throw error;
-        }
-      }
-      throw error;
     },
   );
 
