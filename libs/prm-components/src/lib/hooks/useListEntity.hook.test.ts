@@ -1,6 +1,11 @@
 import { vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react-hooks';
-import { EntityFiltering, Pagination } from '@nrcno/core-models';
+import {
+  EntityFiltering,
+  Pagination,
+  Sorting,
+  SortingDirection,
+} from '@nrcno/core-models';
 
 import { useListEntity } from './useListEntity.hook';
 import { SubmitStatus } from './useApiReducer.hook';
@@ -12,6 +17,11 @@ const pagination: Pagination = {
 
 const filters: EntityFiltering = {
   firstName: 'bob',
+};
+
+const sorting: Sorting = {
+  sort: 'firstName',
+  direction: SortingDirection.Asc,
 };
 
 describe('useListEntity', () => {
@@ -34,7 +44,7 @@ describe('useListEntity', () => {
   test('should update status to "SUBMITTING" while loading an entity list', async () => {
     const { result } = renderHook(() => useListEntity(mockClient));
     const state = result.current;
-    state.listEntities(pagination, filters);
+    state.listEntities(pagination, sorting, filters);
     expect(result.current.status).toBe(SubmitStatus.SUBMITTING);
   });
 
@@ -56,10 +66,10 @@ describe('useListEntity', () => {
     const { result } = renderHook(() => useListEntity(mockClient));
 
     await act(async () => {
-      await result.current.listEntities(pagination, filters);
+      await result.current.listEntities(pagination, sorting, filters);
     });
 
-    expect(mockClient.list).toHaveBeenCalledWith(pagination, filters);
+    expect(mockClient.list).toHaveBeenCalledWith(pagination, sorting, filters);
     expect(result.current.status).toBe(SubmitStatus.SUCCESS);
     expect(result.current.data).toEqual(mockResponse);
     expect(result.current.error).toBeUndefined();
@@ -73,10 +83,10 @@ describe('useListEntity', () => {
     const { result } = renderHook(() => useListEntity(mockClient));
 
     await act(async () => {
-      await result.current.listEntities(pagination, filters);
+      await result.current.listEntities(pagination, sorting, filters);
     });
 
-    expect(mockClient.list).toHaveBeenCalledWith(pagination, filters);
+    expect(mockClient.list).toHaveBeenCalledWith(pagination, sorting, filters);
     expect(result.current.status).toBe(SubmitStatus.ERROR);
     expect(result.current.data).toBeUndefined();
     expect(result.current.error).toEqual(mockError);
