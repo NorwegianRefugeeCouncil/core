@@ -8,7 +8,6 @@ import {
   Flex,
   Heading,
   Skeleton,
-  Spinner,
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
@@ -72,11 +71,9 @@ export const EntityListPage: React.FC = () => {
           <Flex direction="column">
             <Heading>{entityType}</Heading>
             <Box h="1rem">
-              {!isLoading ? (
+              <Skeleton isLoaded={!isLoading}>
                 <Text>{totalCount} results</Text>
-              ) : (
-                <Spinner size="sm" />
-              )}
+              </Skeleton>
             </Box>
           </Flex>
           <Box>
