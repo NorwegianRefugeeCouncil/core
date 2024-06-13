@@ -171,6 +171,23 @@ const mergeDuplicate = async (
     'merge',
   );
 
+  const emptyParticipant: Participant = {
+    id: duplicateParticipantId,
+    firstName: `Duplicate of ${participantId}`,
+    consentGdpr: false,
+    consentReferral: false,
+    languages: [],
+    nationalities: [],
+    identification: [],
+    contactDetails: {
+      emails: [],
+      phones: [],
+    },
+  };
+  await participantService.update(duplicateParticipantId, emptyParticipant);
+  // TODO: Implement participant delete
+  // await participantService.del(duplicateParticipantId);
+
   const participant = await participantService.update(
     participantId,
     resolvedParticipant,
