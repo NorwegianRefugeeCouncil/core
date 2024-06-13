@@ -26,7 +26,7 @@ export const Select: React.FC<Props> = ({ config }) => {
   });
 
   return (
-    <FormControl>
+    <FormControl isInvalid={fieldState.invalid} isRequired={config.required}>
       <FormLabel>{config.label}</FormLabel>
       <S
         isInvalid={fieldState.invalid}
@@ -34,9 +34,7 @@ export const Select: React.FC<Props> = ({ config }) => {
         placeholder={config.placeholder}
         {...field}
       >
-        <option value={undefined}>
-          {!disabled ? `Select ${config.label}` : ''}
-        </option>
+        <option value="">{!disabled ? `Select ${config.label}` : ''}</option>
         {config.options &&
           config.options.map((option) => (
             <option value={option.value} key={`${name}_${option.value}`}>

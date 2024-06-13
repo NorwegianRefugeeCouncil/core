@@ -34,7 +34,7 @@ export const TextInput: React.FC<Props> = ({ config }) => {
   })();
 
   return (
-    <FormControl>
+    <FormControl isInvalid={fieldState.invalid} isRequired={config.required}>
       <FormLabel>{config.label}</FormLabel>
       <Input
         isInvalid={fieldState.invalid}

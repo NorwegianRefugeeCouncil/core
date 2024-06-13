@@ -20,7 +20,7 @@ export const Checkbox: React.FC<Props> = ({ config }) => {
   });
 
   return (
-    <FormControl>
+    <FormControl isInvalid={fieldState.invalid} isRequired={config.required}>
       <CB
         isInvalid={fieldState.invalid}
         isRequired={config.required}

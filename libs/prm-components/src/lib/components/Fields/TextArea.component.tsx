@@ -21,7 +21,7 @@ export const TextArea: React.FC<Props> = ({ config }) => {
   });
 
   return (
-    <FormControl>
+    <FormControl isInvalid={fieldState.invalid} isRequired={config.required}>
       <FormLabel>{config.label}</FormLabel>
       <TA
         isInvalid={fieldState.invalid}

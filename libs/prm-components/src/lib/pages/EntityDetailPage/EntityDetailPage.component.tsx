@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Alert, AlertIcon, Box, Skeleton } from '@chakra-ui/react';
+import { getEntityDefinitionSchema, getEntitySchema } from '@nrcno/core-models';
 
 import { EntityDetailForm } from '../../components';
 import { useEntityDetailPage } from '../../hooks/useEntityDetailPage.hook';
@@ -43,6 +44,16 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
     }
   }, [mode, entityType, entityId]);
 
+  const schema = useMemo(() => {
+    switch (mode) {
+      case 'create':
+        return getEntityDefinitionSchema(entityType);
+      case 'edit':
+      case 'read':
+        return getEntitySchema(entityType);
+    }
+  }, [mode, entityType]);
+
   return (
     <Box p={10} maxW="850px" ml="auto" mr="auto">
       {isError && (
@@ -67,6 +78,7 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
           isSubmitting={isSubmitting}
           defaultBackPath={defaultBackPath}
           readOnly={mode === 'read'}
+          schema={schema}
         />
       </Skeleton>
     </Box>
