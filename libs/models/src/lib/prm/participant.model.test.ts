@@ -37,7 +37,6 @@ describe('ParticipantSchema', () => {
           id: faker.string.uuid(),
           identificationType: 'unhcr_id',
           identificationNumber: '1234567890',
-          isPrimary: true,
         },
       ],
     };
@@ -58,23 +57,8 @@ describe('ParticipantSchema', () => {
       consentReferral: true,
       languages: [],
       nationalities: [],
-      contactDetails: [
-        {
-          contactDetailType: 'email',
-          value: 'john.doe@example.com',
-        },
-        {
-          contactDetailType: 'phone_number',
-          value: '1234567890',
-        },
-      ],
-      identification: [
-        {
-          identificationType: 'unhcr_id',
-          identificationNumber: '1234567890',
-          isPrimary: true,
-        },
-      ],
+      contactDetails: [],
+      identification: [],
     };
 
     const result = ParticipantSchema.safeParse(participant);
@@ -110,7 +94,6 @@ describe('ParticipantDefinitionSchema', () => {
         {
           identificationType: 'unhcr_id',
           identificationNumber: '1234567890',
-          isPrimary: true,
         },
       ],
     };
@@ -130,23 +113,8 @@ describe('ParticipantDefinitionSchema', () => {
       consentReferral: true,
       languages: [],
       nationalities: [],
-      contactDetails: [
-        {
-          contactDetailType: 'email',
-          value: 'john.doe@example.com',
-        },
-        {
-          contactDetailType: 'phone_number',
-          value: '1234567890',
-        },
-      ],
-      identification: [
-        {
-          identificationType: 'unhcr_id',
-          identificationNumber: '1234567890',
-          isPrimary: true,
-        },
-      ],
+      contactDetails: [],
+      identification: [],
     };
 
     const result = ParticipantDefinitionSchema.safeParse(participantDefinition);

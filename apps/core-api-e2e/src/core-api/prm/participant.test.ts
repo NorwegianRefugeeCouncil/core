@@ -221,12 +221,7 @@ describe('Participants', () => {
   });
 
   describe('GET /api/prm/participants', () => {
-    const primaryIdentification = IdentificationGenerator.generateDefinition({
-      isPrimary: true,
-    });
-    const participantDefinition = ParticipantGenerator.generateDefinition({
-      identification: [primaryIdentification],
-    });
+    const participantDefinition = ParticipantGenerator.generateDefinition();
     let participantId: string;
     beforeAll(async () => {
       const res = await axiosInstance.post(
@@ -249,9 +244,10 @@ describe('Participants', () => {
         identification: [
           {
             id: expect.any(String),
-            identificationType: primaryIdentification.identificationType,
-            identificationNumber: primaryIdentification.identificationNumber,
-            isPrimary: true,
+            identificationType:
+              participantDefinition.identification[0].identificationType,
+            identificationNumber:
+              participantDefinition.identification[0].identificationNumber,
           },
         ],
         nationalities: [participantDefinition.nationalities[0]],

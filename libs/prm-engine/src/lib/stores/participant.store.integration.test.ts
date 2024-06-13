@@ -177,12 +177,7 @@ describe('Participant store', () => {
     });
 
     test('should return a list of participants', async () => {
-      const primaryIdentification = IdentificationGenerator.generateDefinition({
-        isPrimary: true,
-      });
-      const participantDefinition = ParticipantGenerator.generateDefinition({
-        identification: [primaryIdentification],
-      });
+      const participantDefinition = ParticipantGenerator.generateDefinition();
       const participant = await ParticipantStore.create(participantDefinition);
 
       const participants = await ParticipantStore.list({
@@ -199,7 +194,7 @@ describe('Participant store', () => {
         dateOfBirth: participant.dateOfBirth,
         sex: participant.sex,
         displacementStatus: participant.displacementStatus,
-        identification: participant.identification,
+        identification: [participant.identification[0]],
         nationalities: [participant.nationalities[0]],
         contactDetails: {
           emails: [participant.contactDetails.emails[0]],
@@ -296,12 +291,6 @@ describe('Participant store', () => {
             {
               identificationNumber: '456',
               identificationType: IdentificationType.NationalId,
-              isPrimary: true,
-            },
-            {
-              identificationNumber: '999',
-              identificationType: IdentificationType.NationalId,
-              isPrimary: false,
             },
           ],
         });
@@ -311,12 +300,6 @@ describe('Participant store', () => {
             {
               identificationNumber: '123',
               identificationType: IdentificationType.NationalId,
-              isPrimary: true,
-            },
-            {
-              identificationNumber: '111',
-              identificationType: IdentificationType.NationalId,
-              isPrimary: false,
             },
           ],
         });
@@ -576,12 +559,10 @@ describe('Participant store', () => {
           {
             identificationNumber: '123',
             identificationType: IdentificationType.NationalId,
-            isPrimary: true,
           },
           {
             identificationNumber: '456',
             identificationType: IdentificationType.NationalId,
-            isPrimary: false,
           },
         ],
       });
@@ -592,12 +573,10 @@ describe('Participant store', () => {
             {
               identificationNumber: '789',
               identificationType: IdentificationType.NationalId,
-              isPrimary: true,
             },
             {
               identificationNumber: '012',
               identificationType: IdentificationType.NationalId,
-              isPrimary: false,
             },
           ],
         }),
