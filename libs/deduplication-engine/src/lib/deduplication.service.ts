@@ -158,6 +158,36 @@ const compareAllParticipants = async (): Promise<void> => {
   }
 };
 
+// WIP: Fixed version of compareAllParticipants
+const foo = async () => {
+  const totalParticipants = await participantService.count();
+  const batches = Math.ceil(totalParticipants / batchSize);
+
+  for (let i = 0; i < batches; i++) {
+    const outerStartIdx = i * batchSize;
+    const outerParticipants = await participantService.listFull({
+      startIndex: outerStartIdx,
+      pageSize: batchSize,
+    });
+    for (let j = 0; j < batches; j++) {
+      const innerStartIdx = j * batchSize;
+      const innerParticipants = await participantService.listFull({
+        startIndex: innerStartIdx,
+        pageSize: batchSize,
+      });
+      for (const participantA of outerParticipants) {
+        for (const participantB of innerParticipants) {
+          if (participantA.id === participantB.id) continue;
+          const record = compareParticipants(participantA, participantB);
+          if (record.weightedScore > cutoff) {
+            await DeduplicationStore.upsert([record]);
+          }
+        }
+      }
+    }
+  }
+};
+
 // Used for resolving duplicates
 const mergeDuplicate = async (
   participantId: string,
