@@ -1,4 +1,4 @@
-import { EntityFiltering, Pagination } from '@nrcno/core-models';
+import { EntityFiltering, Pagination, Sorting } from '@nrcno/core-models';
 import { useEffect } from 'react';
 
 import { usePrmContext } from '../prm.context';
@@ -7,15 +7,20 @@ import { SubmitStatus } from './useApiReducer.hook';
 
 export const useEntityListPage = (
   pagination: Pagination,
+  sorting: Sorting,
   filters: EntityFiltering | null,
 ) => {
   const { entityType, list, config } = usePrmContext();
 
   useEffect(() => {
     if (filters != null) {
-      list.listEntities(pagination, filters);
+      list.listEntities(pagination, sorting, filters);
     }
-  }, [JSON.stringify(pagination), JSON.stringify(filters)]);
+  }, [
+    JSON.stringify(pagination),
+    JSON.stringify(sorting),
+    JSON.stringify(filters),
+  ]);
 
   if (!entityType) {
     throw new Error('Entity type is required');
