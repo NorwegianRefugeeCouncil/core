@@ -9,8 +9,12 @@ import { useDeduplicationContext } from '../deduplication.context';
 export const useExistingDuplicates = (pagination: Pagination) => {
   const { list, resolve } = useDeduplicationContext();
 
-  React.useEffect(() => {
+  const load = () => {
     list.getDuplicateList(pagination);
+  };
+
+  React.useEffect(() => {
+    load();
   }, [JSON.stringify(pagination)]);
 
   return {
@@ -19,5 +23,6 @@ export const useExistingDuplicates = (pagination: Pagination) => {
     isError: list.status === SubmitStatus.ERROR,
     isSuccess: list.status === SubmitStatus.SUCCESS,
     error: list.error,
+    refresh: load,
   };
 };

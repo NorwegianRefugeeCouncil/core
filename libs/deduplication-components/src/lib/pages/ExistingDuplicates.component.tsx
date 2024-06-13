@@ -36,12 +36,14 @@ export const ExistingDuplicates: React.FC = () => {
   const [selectedDuplicate, setSelectedDuplicate] =
     useState<DenormalisedDeduplicationRecord | null>(null);
 
-  const { data, isLoading, isError, isSuccess, error } =
+  const { data, isLoading, isError, isSuccess, error, refresh } =
     useExistingDuplicates(pagination);
 
   useEffect(() => {
     if (data) updateFromPaginationResponse(data);
   }, [JSON.stringify(data)]);
+
+  const handleCloseModal = () => setSelectedDuplicate(null);
 
   return (
     <>
@@ -87,7 +89,7 @@ export const ExistingDuplicates: React.FC = () => {
 
       <Modal
         isOpen={Boolean(selectedDuplicate)}
-        onClose={() => setSelectedDuplicate(null)}
+        onClose={handleCloseModal}
         size="full"
       >
         <ModalOverlay />
@@ -100,7 +102,13 @@ export const ExistingDuplicates: React.FC = () => {
           <ModalCloseButton />
           <ModalBody overflow="hidden">
             {selectedDuplicate && (
-              <DuplicateDetail duplicate={selectedDuplicate} />
+              <DuplicateDetail
+                duplicate={selectedDuplicate}
+                onSubmit={async () => {
+                  await refresh();
+                  handleCloseModal();
+                }}
+              />
             )}
           </ModalBody>
         </ModalContent>

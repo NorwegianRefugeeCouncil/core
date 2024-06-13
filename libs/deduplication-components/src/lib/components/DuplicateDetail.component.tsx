@@ -14,8 +14,10 @@ import { Why } from './Why.component';
 
 type Props = {
   duplicate: DenormalisedDeduplicationRecord;
+  onSubmit: () => Promise<void>;
 };
 
+// WIP
 const autoMerge = (duplicate: DenormalisedDeduplicationRecord): Participant => {
   const keys = Array.from(
     new Set([
@@ -63,7 +65,7 @@ const autoMerge = (duplicate: DenormalisedDeduplicationRecord): Participant => {
   );
 };
 
-export const DuplicateDetail: React.FC<Props> = ({ duplicate }) => {
+export const DuplicateDetail: React.FC<Props> = ({ duplicate, onSubmit }) => {
   const { resolve } = useDeduplicationContext();
 
   const [mergedParticipant, setMergedParticipant] = useState<
@@ -74,16 +76,18 @@ export const DuplicateDetail: React.FC<Props> = ({ duplicate }) => {
     setMergedParticipant(autoMerge(duplicate));
   };
 
-  const handleMerge = () => {
-    resolve.merge(
+  const handleMerge = async () => {
+    await resolve.merge(
       duplicate.participantA.id,
       duplicate.participantB.id,
       ParticipantSchema.parse(mergedParticipant),
     );
+    await onSubmit();
   };
 
-  const handleIgnore = () => {
-    resolve.ignore(duplicate.participantA.id, duplicate.participantB.id);
+  const handleIgnore = async () => {
+    await resolve.ignore(duplicate.participantA.id, duplicate.participantB.id);
+    await onSubmit();
   };
 
   return (
