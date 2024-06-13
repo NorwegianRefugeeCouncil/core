@@ -106,7 +106,6 @@ export type ContactDetails = z.infer<typeof EmailContactDetailsSchema>;
 const IdentificationDefinitionSchema = z.object({
   identificationType: IdentificationTypeSchema,
   identificationNumber: z.string().max(40),
-  isPrimary: z.boolean().optional().default(false),
 });
 export type IdentificationDefinition = z.infer<
   typeof IdentificationDefinitionSchema

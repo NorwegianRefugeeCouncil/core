@@ -7,6 +7,7 @@ import { Knex } from 'knex';
 import {
   ContactDetailType,
   EntityType,
+  Identification,
   Pagination,
   Participant,
   ParticipantDefinition,
@@ -67,10 +68,9 @@ const buildListQueryFilters = (filtering: ParticipantFiltering) => {
       builder.whereRaw('? = ANY (emails.all_emails)', [filtering.emails]);
     }
     if (filtering.identificationNumber) {
-      builder.whereRaw(
-        '? = ANY (all_identifications.all_identification_numbers)',
-        [filtering.identificationNumber],
-      );
+      builder.whereRaw('? = ANY (identifications.all_identification_numbers)', [
+        filtering.identificationNumber,
+      ]);
     }
   };
 
@@ -149,33 +149,29 @@ const buildListQueryJoins = (db: Knex) => {
     )
     .as('emails');
 
-  const allIdentificationsSubquery = db('participant_identifications')
+  const identificationsSubquery = db('participant_identifications')
     .select(
       'participantId',
-      db.raw(
-        '(array_agg(identification_number)) as all_identification_numbers',
-      ),
+      db.raw(`
+        (array_agg(
+          json_build_object(
+            'id', id,
+            'identification_type', identification_type,
+            'identification_number', identification_number
+          ) ORDER BY created_at ASC
+        ))[1] as first_identification,
+        array_agg(identification_number) as all_identification_numbers
+        `),
     )
     .groupBy('participantId')
-    .as('all_identifications');
+    .as('identifications');
 
   const applyJoins = (query: Knex.QueryBuilder) => {
     query
-      .leftJoin('participant_identifications', function () {
-        this.on(
-          'participants.id',
-          '=',
-          'participant_identifications.participantId',
-        ).andOn(
-          'participant_identifications.isPrimary',
-          '=',
-          db.raw('?', [true]),
-        );
-      })
       .leftJoin(
-        allIdentificationsSubquery,
+        identificationsSubquery,
         'participants.id',
-        'all_identifications.participantId',
+        'identifications.participantId',
       )
       .leftJoin(
         nationalitiesSubquery,
@@ -364,12 +360,7 @@ const get: IParticipantStore['get'] = async (
         .select('id', 'contactDetailType', 'rawValue'),
       db('participant_identifications')
         .where('participantId', id)
-        .select(
-          'id',
-          'identificationType',
-          'identificationNumber',
-          'isPrimary',
-        ),
+        .select('id', 'identificationType', 'identificationNumber'),
     ]);
 
   const participantResult = ParticipantSchema.parse({
@@ -425,11 +416,6 @@ const list: IParticipantStore['list'] = async (
     'dateOfBirth',
     'displacementStatus',
   ];
-  const identificationFields = [
-    'participant_identifications.id as identificationId',
-    'identificationType',
-    'identificationNumber',
-  ];
 
   interface ParticipantListItemRaw {
     id: string;
@@ -451,7 +437,15 @@ const list: IParticipantStore['list'] = async (
   const participants: ParticipantListItemRaw[] = await db('participants')
     .select([
       ...participantFields,
-      ...identificationFields,
+      db.raw(
+        `identifications.first_identification->>'id' as identification_id`,
+      ),
+      db.raw(
+        `identifications.first_identification->>'identification_type' as identification_type`,
+      ),
+      db.raw(
+        `identifications.first_identification->>'identification_number' as identification_number`,
+      ),
       'nationalities.mainNationality',
       'phones.firstPhoneId',
       'phones.firstPhoneValue',
@@ -462,12 +456,17 @@ const list: IParticipantStore['list'] = async (
     .andWhere(applyAdditionalFilters)
     .modify(applyJoins)
     .limit(pagination.pageSize)
-    .offset(pagination.startIndex).orderByRaw(`
-  CASE WHEN '${sortColumn}' = 'nationalities' THEN main_nationality END ${direction},
-  CASE WHEN '${sortColumn}' = 'emails' THEN first_email_value END ${direction},
-  CASE WHEN '${sortColumn}' = 'phones' THEN first_phone_value END ${direction},
-  CASE WHEN '${sortColumn}' NOT IN ('nationalities', 'emails', 'phones') THEN ${sortColumn} END ${direction}
-`);
+    .offset(pagination.startIndex)
+    .orderByRaw(
+      `
+      CASE WHEN ? = 'nationalities' THEN main_nationality END ${direction},
+      CASE WHEN ? = 'emails' THEN first_email_value END ${direction},
+      CASE WHEN ? = 'phones' THEN first_phone_value END ${direction},
+      CASE WHEN ? = 'identification_number' THEN first_identification->>'identification_number' END ${direction},
+      CASE WHEN ? NOT IN ('nationalities', 'emails', 'phones', 'identification_number') THEN ? END ${direction}
+    `,
+      [sortColumn, sortColumn, sortColumn, sortColumn, sortColumn, sortColumn],
+    );
 
   return z.array(ParticipantListItemSchema).parse(
     participants.map((participant) => ({
@@ -478,7 +477,6 @@ const list: IParticipantStore['list'] = async (
               id: participant.identificationId,
               identificationType: participant.identificationType,
               identificationNumber: participant.identificationNumber,
-              isPrimary: true,
             },
           ]
         : [],
@@ -640,7 +638,6 @@ const update: IParticipantStore['update'] = async (
           .update({
             identificationType: identification.identificationType,
             identificationNumber: identification.identificationNumber,
-            isPrimary: identification.isPrimary,
           })
           .where('participantId', identification.participantId)
           .where('id', identification.id);

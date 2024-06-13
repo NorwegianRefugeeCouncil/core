@@ -159,12 +159,6 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
                 component: Component.TextInput,
                 label: 'Identification Number',
               },
-              {
-                path: ['isPrimary'],
-                dataType: DataType.String,
-                component: Component.Checkbox,
-                label: 'Is Primary',
-              },
             ],
           },
           {
