@@ -16,7 +16,7 @@ export const FilterTags: React.FC<Props> = ({ filters, deleteFilter }) => {
   const formatting = (filter: any) =>
     filter.toLocaleDateString ? filter.toLocaleDateString() : filter.toString();
   return (
-    <Wrap>
+    <Wrap spacing={2}>
       {filters &&
         Object.keys(filters).map((filter: string) => (
           <WrapItem key={filter}>
