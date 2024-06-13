@@ -5,6 +5,8 @@ import {
   getEntitySchema,
   getEntityUpdateSchema,
 } from '@nrcno/core-models';
+import { isAxiosError } from 'axios';
+import { ZodError } from 'zod';
 
 import { EntityDetailForm } from '../../components';
 import { useEntityDetailPage } from '../../hooks/useEntityDetailPage.hook';
@@ -59,12 +61,32 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
     }
   }, [mode, entityType]);
 
+  const errorMessage = (() => {
+    if (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === 400) {
+          return 'There was an error with the data you submitted. Please check the form and try again.';
+        }
+        return `Internal error, contact support. [${error.response?.status}] [${error.response?.data?.message}]`;
+      }
+      return 'An error occurred. Please try again.';
+    }
+    return '';
+  })();
+
+  const validationError = (() => {
+    if (error && isAxiosError(error) && error.response?.status === 400) {
+      return new ZodError(error.response.data.errors);
+    }
+    return null;
+  })();
+
   return (
     <Box p={10} maxW="850px" ml="auto" mr="auto">
       {isError && (
         <Alert status="error" mb={4}>
           <AlertIcon />
-          {error?.message}
+          {errorMessage}
         </Alert>
       )}
       {isSuccess && (
@@ -84,6 +106,7 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
           defaultBackPath={defaultBackPath}
           readOnly={mode === 'read'}
           schema={schema}
+          error={validationError}
         />
       </Skeleton>
     </Box>
