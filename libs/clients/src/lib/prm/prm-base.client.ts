@@ -9,7 +9,9 @@ import {
   EntityType,
   PaginatedResponse,
   Pagination,
+  Sorting,
   createPaginatedResponseSchema,
+  createSortingSchema,
   getEntityListItemSchema,
   getEntitySchema,
 } from '@nrcno/core-models';
@@ -77,13 +79,14 @@ export const ListMixin =
     return class extends Base {
       public async list(
         pagination: Pagination,
+        sorting: Sorting = createSortingSchema(this.entityType).parse({}),
         filters?: EntityFiltering,
       ): Promise<PaginatedResponse<TEntityListItem>> {
         const entityListPaginationSchema = createPaginatedResponseSchema(
           getEntityListItemSchema(this.entityType),
         );
         const response = await this.get(`/prm/${this.entityType}`, {
-          params: { ...pagination, ...filters },
+          params: { ...pagination, ...filters, ...sorting },
         });
         return entityListPaginationSchema.parse(
           response.data as TEntityListItem,
