@@ -1,6 +1,10 @@
 import { useMemo } from 'react';
 import { Alert, AlertIcon, Box, Skeleton } from '@chakra-ui/react';
-import { getEntityDefinitionSchema, getEntitySchema } from '@nrcno/core-models';
+import {
+  getEntityDefinitionSchema,
+  getEntitySchema,
+  getEntityUpdateSchema,
+} from '@nrcno/core-models';
 
 import { EntityDetailForm } from '../../components';
 import { useEntityDetailPage } from '../../hooks/useEntityDetailPage.hook';
@@ -49,6 +53,7 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
       case 'create':
         return getEntityDefinitionSchema(entityType);
       case 'edit':
+        return getEntityUpdateSchema(entityType);
       case 'read':
         return getEntitySchema(entityType);
     }
