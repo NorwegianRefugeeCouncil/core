@@ -47,26 +47,12 @@ enum EngagementContext {
   RemoteChannels = 'remote_channels',
 }
 
-enum DisabilityLevel {
-  One = '1',
-  Two = '2',
-  Three = '3',
-  Four = '4',
-}
-
-enum YesNoUnknown {
-  Yes = 'yes',
-  No = 'no',
-  Unknown = 'unknown',
-}
-
 const batchSize = 1_000;
 const seedCount = 10_000;
 
 export async function seed(knex: Knex): Promise<void> {
   await knex('duplicates').del();
   await knex('deduplication_resolutions').del();
-  await knex('participant_disabilities').del();
   await knex('participant_contact_details').del();
   await knex('participant_identifications').del();
   await knex('participant_languages').del();
@@ -97,33 +83,6 @@ export async function seed(knex: Knex): Promise<void> {
       preferredContactMeans: faker.helpers.enumValue(ContactMeans),
       displacementStatus: faker.helpers.enumValue(DisplacementStatus),
       engagementContext: faker.helpers.enumValue(EngagementContext),
-      disabilities: {
-        participantId,
-        hasDisabilityPwd: faker.datatype.boolean(),
-        disabilityPwdComment: faker.lorem.sentence(),
-        hasDisabilityVision: faker.datatype.boolean(),
-        disabilityVisionLevel: faker.helpers.enumValue(DisabilityLevel),
-        hasDisabilityHearing: faker.datatype.boolean(),
-        disabilityHearingLevel: faker.helpers.enumValue(DisabilityLevel),
-        hasDisabilityMobility: faker.datatype.boolean(),
-        disabilityMobilityLevel: faker.helpers.enumValue(DisabilityLevel),
-        hasDisabilityCognition: faker.datatype.boolean(),
-        disabilityCognitionLevel: faker.helpers.enumValue(DisabilityLevel),
-        hasDisabilitySelfcare: faker.datatype.boolean(),
-        disabilitySelfcareLevel: faker.helpers.enumValue(DisabilityLevel),
-        hasDisabilityCommunication: faker.datatype.boolean(),
-        disabilityCommunicationLevel: faker.helpers.enumValue(DisabilityLevel),
-        isChildAtRisk: faker.helpers.enumValue(YesNoUnknown),
-        isElderAtRisk: faker.helpers.enumValue(YesNoUnknown),
-        isWomanAtRisk: faker.helpers.enumValue(YesNoUnknown),
-        isSingleParent: faker.helpers.enumValue(YesNoUnknown),
-        isSeparatedChild: faker.helpers.enumValue(YesNoUnknown),
-        isPregnant: faker.helpers.enumValue(YesNoUnknown),
-        isLactating: faker.helpers.enumValue(YesNoUnknown),
-        hasMedicalCondition: faker.helpers.enumValue(YesNoUnknown),
-        needsLegalPhysicalProtection: faker.helpers.enumValue(YesNoUnknown),
-        vulnerabilityComments: faker.lorem.sentence(),
-      },
       languages: [
         // {
         //   participantId,
@@ -194,7 +153,6 @@ export async function seed(knex: Knex): Promise<void> {
       persons,
       entities,
       participants,
-      disabilities,
       contactDetails,
       identification,
       languages,
@@ -203,7 +161,6 @@ export async function seed(knex: Knex): Promise<void> {
       persons: any[];
       entities: any[];
       participants: any[];
-      disabilities: any[];
       contactDetails: any[];
       identification: any[];
       languages: any[];
@@ -211,7 +168,6 @@ export async function seed(knex: Knex): Promise<void> {
     }>(
       (acc, cur) => {
         const {
-          disabilities,
           contactDetails,
           identification,
           languages,
@@ -222,7 +178,6 @@ export async function seed(knex: Knex): Promise<void> {
           persons: [...acc.persons, { id: cur.personId }],
           entities: [...acc.entities, { id: cur.entityId }],
           participants: [...acc.participants, participants],
-          disabilities: [...acc.disabilities, cur.disabilities],
           contactDetails: [...acc.contactDetails, ...cur.contactDetails],
           identification: [...acc.identification, ...cur.identification],
           languages: [...acc.languages, ...cur.languages],
@@ -233,7 +188,6 @@ export async function seed(knex: Knex): Promise<void> {
         persons: [],
         entities: [],
         participants: [],
-        disabilities: [],
         contactDetails: [],
         identification: [],
         languages: [],
@@ -245,8 +199,6 @@ export async function seed(knex: Knex): Promise<void> {
     if (entities.length > 0) await knex('entities').insert(entities);
     if (participants.length > 0)
       await knex('participants').insert(participants);
-    if (disabilities.length > 0)
-      await knex('participant_disabilities').insert(disabilities);
     if (contactDetails.length > 0)
       await knex('participant_contact_details').insert(contactDetails);
     if (identification.length > 0)

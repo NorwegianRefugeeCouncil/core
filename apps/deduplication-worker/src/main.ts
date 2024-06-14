@@ -1,8 +1,9 @@
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { config as dotenvConfig } from 'dotenv';
-import { DeduplicationService } from '@nrcno/core-deduplication-engine';
 
+import { DeduplicationService } from '@nrcno/core-deduplication-engine';
 import { getLogger } from '@nrcno/core-logger';
 import { getDb } from '@nrcno/core-db';
 
@@ -26,6 +27,28 @@ const run = async () => {
 
   logger.info('Inserting seed data into database...');
 
+  await db.migrate.latest({
+    loadExtensions: ['.js'],
+    directory: config.db.migrationsDir,
+  });
+
+  const commonSeedPath = path.join(config.db.seedsDir, 'common');
+  if (!fs.existsSync(commonSeedPath)) {
+    throw new Error('Could not find common seeds');
+  }
+  await db.seed.run({
+    loadExtensions: ['.js'],
+    directory: commonSeedPath,
+  });
+
+  const envSeedPath = path.join(config.db.seedsDir, config.environment);
+  if (fs.existsSync(envSeedPath)) {
+    await db.seed.run({
+      loadExtensions: ['.js'],
+      directory: envSeedPath,
+    });
+  }
+
   await db.seed.run({
     loadExtensions: ['.js'],
     directory: path.join(config.db.seedsDir, 'deduplication'),
@@ -35,7 +58,7 @@ const run = async () => {
 
   logger.info('Starting duplicate calculation...');
 
-  await DeduplicationService.compareAllParticipants();
+  await DeduplicationService.compareAllParticipants(new Date('2021-01-01'));
 
   logger.info('Duplicate calculation complete');
   logger.info('Exiting...');

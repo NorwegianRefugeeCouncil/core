@@ -71,6 +71,7 @@ export const config: DeduplicationConfig = {
       return Math.max(...distances);
     },
   },
+  /*
   nrcId: {
     // TODO: Offload to database query
     weight: 1,
@@ -125,6 +126,7 @@ export const config: DeduplicationConfig = {
       return score;
     },
   },
+  */
   residence: {
     weight: 1,
     mechanism: ScoringMechanism.Weighted,
@@ -143,6 +145,7 @@ export const config: DeduplicationConfig = {
       return jaccardSimilarity(address1Tokens, address2Tokens);
     },
   },
+  /*
   sex: {
     // TODO: Offload to database query
     weight: 1,
@@ -152,10 +155,11 @@ export const config: DeduplicationConfig = {
       return participant1.sex !== participant2.sex ? -1 : 0;
     },
   },
+  */
   dateOfBirth: {
     // TODO: Offload to database query
     weight: 1,
-    mechanism: ScoringMechanism.ExactOrNothing,
+    mechanism: ScoringMechanism.Weighted,
     score: (participant1, participant2) => {
       if (!participant1.dateOfBirth || !participant2.dateOfBirth) return 0;
       return participant1.dateOfBirth === participant2.dateOfBirth ? 1 : 0;
