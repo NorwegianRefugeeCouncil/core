@@ -80,7 +80,10 @@ export const DuplicateDetail: React.FC<Props> = ({ duplicate, onSubmit }) => {
     await resolve.merge(
       duplicate.participantA.id,
       duplicate.participantB.id,
-      ParticipantSchema.parse(mergedParticipant),
+      ParticipantSchema.parse({
+        ...mergedParticipant,
+        id: duplicate.participantA.id,
+      }),
     );
     await onSubmit();
   };

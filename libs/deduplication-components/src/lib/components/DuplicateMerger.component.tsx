@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Flex, Grid, GridItem, Heading } from '@chakra-ui/react';
+import { Grid, GridItem, Heading } from '@chakra-ui/react';
 
 import {
   DenormalisedDeduplicationRecord,
@@ -12,7 +12,7 @@ import { ReadOnlyField, ReadOnlyListField } from './ParticipantMerge.component';
 
 const participantDetailConfig = configLoader({
   languages: [],
-  // nationalities: [],
+  nationalities: [],
 })[EntityType.Participant].detail;
 
 type Props = {
