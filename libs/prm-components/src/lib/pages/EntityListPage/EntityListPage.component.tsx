@@ -22,13 +22,13 @@ import {
 import { EntityList } from '../../components';
 import { FilterDrawer } from '../../components/FilterDrawer.component';
 import { FilterTags } from '../../components/FilterTags.component';
-import { Pagination } from '../../components/Pagination.component';
+import { Pagination } from '../../../../../shared-frontend/src/lib/components/Pagination.component';
 import { useEntityListPage } from '../../hooks/useEntityListPage.hook';
 import { useFilters } from '../../hooks/useFilters';
-import { usePagination } from '../../hooks/usePagination';
 import { useSorting } from '../../hooks/useSorting.hook';
 import { SortingControl } from '../../components/Sorting.component';
 import { usePrmContext } from '../../prm.context';
+import { usePagination } from '../../../../../shared-frontend/src/lib/hooks/usePagination.hook';
 
 export const EntityListPage: React.FC = () => {
   const { entityType } = usePrmContext();

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { usePrmContext } from '../prm.context';
 
-import { SubmitStatus } from './useApiReducer.hook';
+import { SubmitStatus } from '@nrcno/core-shared-frontend';
 
 export const useEntityDetailPage = (mode: 'create' | 'read' | 'edit') => {
   const navigate = useNavigate();

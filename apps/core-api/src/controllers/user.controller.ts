@@ -1,7 +1,12 @@
 import { Router } from 'express';
 import { UserService } from '@nrcno/core-user-engine';
 
-import { PaginationSchema, UserSchema } from '@nrcno/core-models';
+import {
+  PaginatedResponse,
+  PaginationSchema,
+  User,
+  UserSchema,
+} from '@nrcno/core-models';
 
 const router = Router();
 
@@ -21,21 +26,19 @@ router.get('/users/me', async (req, res, next) => {
 router.get('/users', async (req, res, next) => {
   try {
     const { startIndex, pageSize } = PaginationSchema.parse(req.query);
-    const users = await UserService.list(startIndex, pageSize);
-    res.status(200).json({ users });
-  } catch (error) {
-    next(error);
-  }
-});
 
-router.get('/users/:id', async (req, res, next) => {
-  try {
-    const user = await UserService.get(req.params.id);
-    if (user) {
-      res.status(200).json(user);
-    } else {
-      res.sendStatus(404);
-    }
+    const [users, totalCount] = await Promise.all([
+      UserService.list(startIndex, pageSize),
+      UserService.getCount(),
+    ]);
+    const response: PaginatedResponse<User> = {
+      startIndex,
+      pageSize,
+      totalCount,
+      items: users,
+    };
+
+    res.status(200).json(response);
   } catch (error) {
     next(error);
   }

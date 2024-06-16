@@ -7,8 +7,7 @@ import {
   EntityFiltering,
   Sorting,
 } from '@nrcno/core-models';
-
-import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
+import { SubmitStatus, useApiReducer } from '@nrcno/core-shared-frontend';
 
 export type ListEntityState = {
   listEntities: (

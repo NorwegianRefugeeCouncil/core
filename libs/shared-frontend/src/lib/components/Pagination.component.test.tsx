@@ -1,6 +1,6 @@
 import { render, fireEvent } from '@testing-library/react';
 
-import { UsePagination } from '../hooks/usePagination';
+import { UsePagination } from '../hooks/usePagination.hook';
 
 import { Pagination } from './Pagination.component';
 

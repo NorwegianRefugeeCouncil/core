@@ -1,7 +1,7 @@
 import { PrmClient, hasCreateMixin } from '@nrcno/core-clients';
 import { Entity, EntityDefinition, EntityType } from '@nrcno/core-models';
 
-import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
+import { SubmitStatus, useApiReducer } from '@nrcno/core-shared-frontend';
 
 export type CreateEntityState = {
   onCreateEntity: (entityDefinition: EntityDefinition) => Promise<Entity>;

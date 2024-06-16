@@ -1,9 +1,9 @@
 import { Outlet, useParams } from 'react-router-dom';
+import { UserProvider } from '@nrcno/core-user-components';
 
 import { PrmProvider } from '@nrcno/core-prm-components';
 
 import { useAxiosInstance } from '../hooks/useAxiosInstance.hook';
-import { UserProvider } from '../contexts/user.context';
 
 export const ApiProvider: React.FC = () => {
   const { entityType, entityId } = useParams();

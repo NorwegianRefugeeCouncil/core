@@ -1,7 +1,7 @@
 import { PrmClient, hasReadMixin } from '@nrcno/core-clients';
 import { EntityType, Entity } from '@nrcno/core-models';
 
-import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
+import { SubmitStatus, useApiReducer } from '@nrcno/core-shared-frontend';
 
 export type ReadEntityState = {
   loadEntity: (entityId: string) => Promise<void>;

@@ -1,6 +1,6 @@
 import { ButtonGroup, Button, Flex, Text } from '@chakra-ui/react';
 
-import { UsePagination } from '../hooks/usePagination';
+import { UsePagination } from '../hooks/usePagination.hook';
 
 type Props = {
   pagination: UsePagination['pagination'];

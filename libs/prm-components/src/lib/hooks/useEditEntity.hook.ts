@@ -1,7 +1,7 @@
 import { PrmClient, hasUpdateMixin } from '@nrcno/core-clients';
 import { Entity, EntityType } from '@nrcno/core-models';
 
-import { SubmitStatus, useApiReducer } from './useApiReducer.hook';
+import { SubmitStatus, useApiReducer } from '@nrcno/core-shared-frontend';
 
 export type EditEntityState = {
   onEditEntity: (entityId: string, entityDefinition: any) => Promise<Entity>;

@@ -1,0 +1,9 @@
+{
+  "name": "user-components",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/user-components/src",
+  "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project user-components --web",
+  "targets": {}
+}

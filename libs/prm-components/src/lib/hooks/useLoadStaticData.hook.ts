@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { EntityType, Language, Nationality } from '@nrcno/core-models';
 import { PrmClient } from '@nrcno/core-clients';
 
-import { useApiReducer } from './useApiReducer.hook';
+import { useApiReducer } from '@nrcno/core-shared-frontend';
 
 export type StaticData = {
   [EntityType.Language]: Language[];

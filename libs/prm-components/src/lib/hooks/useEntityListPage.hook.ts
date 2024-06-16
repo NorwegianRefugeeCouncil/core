@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 
 import { usePrmContext } from '../prm.context';
 
-import { SubmitStatus } from './useApiReducer.hook';
+import { SubmitStatus } from '@nrcno/core-shared-frontend';
 
 export const useEntityListPage = (
   pagination: Pagination,
