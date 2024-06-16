@@ -48,7 +48,7 @@ enum EngagementContext {
 }
 
 const batchSize = 1_000;
-const seedCount = 10_000;
+const seedCount = 1_000;
 
 export async function seed(knex: Knex): Promise<void> {
   await knex('duplicates').del();

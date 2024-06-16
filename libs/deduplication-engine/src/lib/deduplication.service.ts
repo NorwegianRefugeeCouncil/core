@@ -175,7 +175,7 @@ const compareAllParticipants = async (fromDate: Date) => {
   logger.info('Starting deduplication process...');
 
   logger.info('Preparing deduplication store...');
-  await DeduplicationStore.createParticipantIdentificationMatches();
+  await DeduplicationStore.prepareViews();
 
   logger.info('Fetching exact matches...');
   let exactIdx = 0;
@@ -196,12 +196,13 @@ const compareAllParticipants = async (fromDate: Date) => {
     exactBatch = [];
   }
 
+  logger.info('Calculating weighted scores...');
   let weightedIdx = 0;
   let weightedBatch = [];
-
   const participantCount = await participantService.count();
   const totalBatches = Math.ceil(participantCount / batchSize);
   for (let i = 0; i < totalBatches; i++) {
+    logger.info(`Processing batch ${i + 1} of ${totalBatches}...`);
     const pagination: Pagination = {
       startIndex: i * batchSize,
       pageSize: batchSize,
@@ -216,20 +217,20 @@ const compareAllParticipants = async (fromDate: Date) => {
         weightedScore: 0,
         scores: {
           name: {
-            raw: record.name_score,
-            weighted: record.name_score * config.name.weight,
+            raw: record.name_score || 0,
+            weighted: (record.name_score || 0) * config.name.weight,
           },
           email: {
-            raw: record.email_score,
-            weighted: record.email_score * config.email.weight,
+            raw: record.email_score || 0,
+            weighted: (record.email_score || 0) * config.email.weight,
           },
           residence: {
-            raw: record.residence_score,
-            weighted: record.residence_score * config.residence.weight,
+            raw: record.residence_score || 0,
+            weighted: (record.residence_score || 0) * config.residence.weight,
           },
           dateOfBirth: {
-            raw: record.dob_score,
-            weighted: record.dob_score * config.dateOfBirth.weight,
+            raw: record.dob_score || 0,
+            weighted: (record.dob_score || 0) * config.dateOfBirth.weight,
           },
         },
       };
@@ -248,11 +249,11 @@ const compareAllParticipants = async (fromDate: Date) => {
         weightedBatch = [];
       }
     }
-    if (weightedBatch.length > 0) {
-      weightedIdx++;
-      await processDuplicateRecordBatch(weightedIdx, weightedBatch);
-      weightedBatch = [];
-    }
+  }
+  if (weightedBatch.length > 0) {
+    weightedIdx++;
+    await processDuplicateRecordBatch(weightedIdx, weightedBatch);
+    weightedBatch = [];
   }
 };
 
@@ -303,7 +304,7 @@ const ___compareAllParticipants = async (fromDate: Date) => {
   logger.info('Starting deduplication process...');
 
   logger.info('Preparing deduplication store...');
-  await DeduplicationStore.createParticipantIdentificationMatches();
+  await DeduplicationStore.prepareViews();
 
   for await (const record of DeduplicationStore.getWeightedMatches(fromDate, {
     startIndex: 0,
