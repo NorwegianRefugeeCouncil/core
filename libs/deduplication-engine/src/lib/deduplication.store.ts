@@ -1,4 +1,5 @@
 import { getDb } from '@nrcno/core-db';
+import { getLogger } from '@nrcno/core-logger';
 import {
   DeduplicationRecord,
   DeduplicationRecordDefinition,
@@ -104,12 +105,13 @@ export const logResolution = async (
   });
 };
 
-export const createParticipantIdentificationMatches =
-  async (): Promise<void> => {
-    const db = getDb();
+export const prepareViews = async (): Promise<void> => {
+  const logger = getLogger();
+  const db = getDb();
 
-    await db.raw(`
-    CREATE TEMPORARY VIEW participant_identification_matches AS (
+  logger.info('Preparing participant_identification_matches temp table');
+  await db.raw(`
+    CREATE TEMPORARY TABLE participant_identification_matches AS (
       SELECT
         participant_identifications_a.participant_id AS participant_id_a,
         participant_identifications_b.participant_id AS participant_id_b
@@ -121,11 +123,17 @@ export const createParticipantIdentificationMatches =
         participant_identifications_a.identification_type = participant_identifications_b.identification_type
       AND
         participant_identifications_a.identification_number = participant_identifications_b.identification_number
-    ) 
+    )
   `);
 
-    return;
-  };
+  logger.info('Creating indexes for participant_identification_matches');
+  await db.raw(`
+    CREATE INDEX idx_pim_on_participant_id_a_id_b
+    ON participant_identification_matches(participant_id_a, participant_id_b)
+  `);
+
+  return;
+};
 
 export async function* getParticipantIdPairs(
   fromDate: Date,
@@ -193,24 +201,36 @@ export async function* getWeightedMatches(
 ): AsyncGenerator<any, void, unknown> {
   const db = getDb();
 
-  await db.raw(`
-    CREATE TEMPORARY VIEW participant_max_email_score AS (
+  await db.raw(
+    `
+    CREATE TEMPORARY TABLE participant_max_email_score AS (
       SELECT
         pcd_a.participant_id as participant_id_a,
         pcd_b.participant_id as participant_id_b,  
         MAX(
           CASE
             WHEN split_part(pcd_a.raw_value, '@', 2) != split_part(pcd_b.raw_value, '@', 2) THEN 0
-            ELSE levenshtein_norm(pcd_a.raw_value, pcd_b.raw_value)
+            ELSE DICE_COEFF(pcd_a.raw_value, pcd_b.raw_value)
           END
         ) as email_score_max
       FROM participant_contact_details AS pcd_a
-      CROSS JOIN participant_contact_details AS pcd_b
-      WHERE pcd_a.participant_id != pcd_b.participant_id
-      AND pcd_a.contact_detail_type = 'email'
-      AND pcd_b.contact_detail_type = 'email'
+      JOIN participant_contact_details AS pcd_b ON pcd_a.participant_id != pcd_b.participant_id AND pcd_a.contact_detail_type = 'email' AND pcd_b.contact_detail_type = 'email'
+      JOIN (
+        SELECT id
+        FROM participant_contact_details
+        ORDER BY updated_at DESC
+        LIMIT ?
+        OFFSET ?
+      ) sub_pcd ON pcd_a.id = sub_pcd.id
       GROUP BY pcd_a.participant_id, pcd_b.participant_id
-    )
+    )  
+  `,
+    [pagination.pageSize, pagination.startIndex],
+  );
+
+  await db.raw(`
+    CREATE INDEX idx_pmes_on_participant_id_a_id_b
+    ON participant_max_email_score(participant_id_a, participant_id_b)
   `);
 
   const result = await db.raw(
@@ -222,35 +242,34 @@ export async function* getWeightedMatches(
         WHEN pa.date_of_birth IS NOT NULL AND pb.date_of_birth IS NOT NULL AND pa.date_of_birth = pb.date_of_birth THEN 1
         ELSE 0
       END as dob_score,
-      (
-        levenshtein_norm(pa.first_name, pb.first_name) +
-        levenshtein_norm(pa.last_name, pb.last_name) +
-        levenshtein_norm(concat(pa.first_name, ' ', pa.last_name), concat(pb.first_name, ' ', pb.last_name))
-      ) / 3 as name_score,
+      ((
+        DICE_COEFF(pa.first_name, pb.first_name) +
+        DICE_COEFF(pa.last_name, pb.last_name) +
+        DICE_COEFF(concat(pa.first_name, ' ', pa.last_name), concat(pb.first_name, ' ', pb.last_name))
+      ) / 3) as name_score,
       pmes.email_score_max as email_score,
       calculate_residence_score(pa.residence, pb.residence) as residence_score
     FROM participants pa
-    CROSS JOIN participants pb
-    LEFT JOIN participant_max_email_score pmes
-      ON pa.id = pmes.participant_id_a AND pb.id = pmes.participant_id_b
-    WHERE pa.id != pb.id
-    AND pa.updated_at >= ?
-    AND pa.sex = pb.sex
-    AND pa.nrc_id != pb.nrc_id
-    AND (pa.id, pb.id) NOT IN (
-      SELECT participant_id_a, participant_id_b
-      FROM participant_identification_matches
-    )
-    AND pa.id IN (
+    JOIN participants pb ON pa.sex = pb.sex AND pa.nrc_id != pb.nrc_id AND pa.id != pb.id
+    LEFT JOIN participant_max_email_score pmes ON pa.id = pmes.participant_id_a AND pb.id = pmes.participant_id_b
+    LEFT JOIN participant_identification_matches pim ON pa.id = pim.participant_id_a AND pb.id = pim.participant_id_b
+    JOIN (
       SELECT id
       FROM participants
       ORDER BY updated_at DESC
       LIMIT ?
       OFFSET ?
-    )
+    ) sub_pa ON pa.id = sub_pa.id
+    WHERE pa.updated_at >= ?
+    AND pim.participant_id_a IS NULL
+    AND pim.participant_id_b IS NULL  
   `,
-    [fromDate, pagination.pageSize, pagination.startIndex],
+    [pagination.pageSize, pagination.startIndex, fromDate],
   );
+
+  await db.raw(`
+    DROP TABLE participant_max_email_score
+  `);
 
   for (const row of result.rows) {
     yield row;

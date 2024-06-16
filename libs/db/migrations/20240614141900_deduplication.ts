@@ -6,6 +6,37 @@ export async function up(knex: Knex): Promise<void> {
   `);
 
   await knex.raw(`
+    CREATE OR REPLACE FUNCTION DICE_COEFF(p_str1 text, p_str2 text) RETURNS float AS $$
+    DECLARE
+      co_substr_len CONSTANT integer := 2;
+      v_x     text[];
+      v_y     text[];
+      v_inter text[];
+      v_part  text;
+      i       integer;
+    BEGIN
+      -- building set X
+      FOR i IN 1 .. length(p_str1) - co_substr_len + 1 LOOP
+        v_part := substr(p_str1, i, co_substr_len);
+        v_x := array_append(v_x, v_part);
+      END LOOP;
+
+      -- building set Y
+      FOR i IN 1 .. length(p_str2) - co_substr_len + 1 LOOP
+        v_part := substr(p_str2, i, co_substr_len);
+        v_y := array_append(v_y, v_part);
+
+        IF v_part = ANY(v_x) THEN
+          v_inter := array_append(v_inter, v_part); -- build intersect            
+        END IF;
+      END LOOP;
+
+      RETURN 2.0 * array_length(v_inter, 1) / (array_length(v_x, 1) + array_length(v_y, 1));
+    END;
+    $$ LANGUAGE plpgsql;
+  `);
+
+  await knex.raw(`
     CREATE OR REPLACE FUNCTION levenshtein_norm(text, text) RETURNS float AS $$
     DECLARE
       len_a float;
@@ -137,6 +168,11 @@ $$ LANGUAGE plpgsql;
     ON deduplication_resolutions 
     FOR EACH ROW
     EXECUTE PROCEDURE update_timestamp();
+  `);
+
+  await knex.raw(`
+    CREATE INDEX idx_participants_on_id_updated_at_sex_nrc_id
+    ON participants(id, updated_at, sex, nrc_id)
   `);
 }
 
