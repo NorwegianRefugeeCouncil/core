@@ -1,10 +1,10 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import { Strategy as OidcStrategy } from 'passport-openidconnect';
+import { UserService } from '@nrcno/core-user-engine';
 
 import { getLogger } from '@nrcno/core-logger';
 
-import * as UserService from '../services/user.service';
 import { getServerConfig } from '../config';
 
 export const oidc = () => {
