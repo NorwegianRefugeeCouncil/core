@@ -1,8 +1,7 @@
 import { Router } from 'express';
+import { UserService } from '@nrcno/core-user-engine';
 
 import { PaginationSchema, UserSchema } from '@nrcno/core-models';
-
-import * as UserService from '../services/user.service';
 
 const router = Router();
 

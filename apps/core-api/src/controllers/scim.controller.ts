@@ -1,54 +1,21 @@
 import { Router, json } from 'express';
 import { z } from 'zod';
+import {
+  scimUserSchema,
+  scimUserAttributeSchema,
+  scimUserPatchSchema,
+  UserService,
+} from '@nrcno/core-user-engine';
 
 import { AlreadyExistsError } from '@nrcno/core-errors';
 import { User } from '@nrcno/core-models';
 
-import * as UserService from '../services/user.service';
-import {
-  ScimUser,
-  scimUserSchema,
-  scimUserAttributeSchema,
-  scimUserPatchSchema,
-} from '../types/scim.types';
 import {
   authorise,
   errorHandlerMiddleware,
   validateUserIdParam,
   createScimErrorResponse,
 } from '../middleware/scim.middleware';
-
-const mapUserToScimUser = (user: User): ScimUser => {
-  const {
-    id,
-    oktaId,
-    userName,
-    firstName,
-    lastName,
-    displayName,
-    emails,
-    active,
-  } = user;
-
-  const scimUser: ScimUser = {
-    schemas: ['urn:ietf:params:scim:schemas:core:2.0:User'],
-    id,
-    externalId: oktaId,
-    userName,
-    displayName,
-    active,
-    emails,
-  };
-
-  if (firstName || lastName) {
-    scimUser.name = {
-      givenName: firstName,
-      familyName: lastName,
-    };
-  }
-
-  return scimUser;
-};
 
 const router = Router();
 router.use(json({ type: ['application/json', 'application/scim+json'] }));
@@ -58,7 +25,7 @@ router.post('/Users', async (req, res, next) => {
   try {
     const validatedBody = scimUserSchema.parse(req.body);
     const user = await UserService.create(validatedBody);
-    const scimUser = mapUserToScimUser(user);
+    const scimUser = UserService.mapUserToScimUser(user);
     res.status(201).json(scimUser);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -82,7 +49,7 @@ router.get('/Users/:id', validateUserIdParam, async (req, res, next) => {
   try {
     const user = await UserService.get(req.params.id);
     if (user) {
-      const scimUser = mapUserToScimUser(user);
+      const scimUser = UserService.mapUserToScimUser(user);
       res.status(200).json(scimUser);
     } else {
       const errorResponse = createScimErrorResponse(404, 'User not found');
@@ -98,7 +65,7 @@ router.put('/Users/:id', validateUserIdParam, async (req, res, next) => {
     const validatedBody = scimUserSchema.parse(req.body);
     const user = await UserService.update(req.params.id, validatedBody);
     if (user) {
-      const scimUser = mapUserToScimUser(user);
+      const scimUser = UserService.mapUserToScimUser(user);
       res.status(200).json(scimUser);
     } else {
       const errorResponse = createScimErrorResponse(404, 'User not found');
@@ -124,7 +91,7 @@ router.patch('/Users/:id', validateUserIdParam, async (req, res, next) => {
     const user = await UserService.update(req.params.id, update);
 
     if (user) {
-      const scimUser = mapUserToScimUser(user);
+      const scimUser = UserService.mapUserToScimUser(user);
       res.json(scimUser);
     } else {
       const errorResponse = createScimErrorResponse(404, 'User not found');
@@ -179,7 +146,7 @@ router.get('/Users', async (req, res, next) => {
       totalResults = await UserService.getCount();
     }
 
-    const scimUsers = users.map(mapUserToScimUser);
+    const scimUsers = users.map(UserService.mapUserToScimUser);
 
     const listResponse = {
       schemas: ['urn:ietf:params:scim:api:messages:2.0:ListResponse'],

@@ -2,10 +2,12 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { User } from '@nrcno/core-models';
 
-import * as UserStore from '../data-access/user.store';
-import { ScimUser } from '../types/scim.types';
+import * as UserStore from './user.store';
+import { ScimUser } from './scim.types';
 
-const mapScimUserToUser = (scimUser: Partial<ScimUser>): Partial<User> => {
+export const mapScimUserToUser = (
+  scimUser: Partial<ScimUser>,
+): Partial<User> => {
   const { id, externalId, userName, displayName, name, emails, active } =
     scimUser;
 
@@ -19,6 +21,38 @@ const mapScimUserToUser = (scimUser: Partial<ScimUser>): Partial<User> => {
     firstName: name?.givenName,
     lastName: name?.familyName,
   };
+};
+
+export const mapUserToScimUser = (user: User): ScimUser => {
+  const {
+    id,
+    oktaId,
+    userName,
+    firstName,
+    lastName,
+    displayName,
+    emails,
+    active,
+  } = user;
+
+  const scimUser: ScimUser = {
+    schemas: ['urn:ietf:params:scim:schemas:core:2.0:User'],
+    id,
+    externalId: oktaId,
+    userName,
+    displayName,
+    active,
+    emails,
+  };
+
+  if (firstName || lastName) {
+    scimUser.name = {
+      givenName: firstName,
+      familyName: lastName,
+    };
+  }
+
+  return scimUser;
 };
 
 export const create = async (scimUser: ScimUser): Promise<User> => {
