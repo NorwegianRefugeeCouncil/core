@@ -201,62 +201,65 @@ export const DuplicateMerger: React.FC<Props> = ({
               {section.title}
             </Heading>
           </GridItem>
-          {section.fields.map((field) => (
-            <>
-              <GridItem key={`left-${field.label}`} colSpan={1}>
-                {field.component === Component.List ? (
-                  <ReadOnlyListField
-                    field={field}
-                    participant={duplicateRecord.participantA}
-                    side="left"
-                    onSelect={handleListSelect('left')}
-                    pathsFromSide={listPathsFromSide['left']}
-                  />
-                ) : (
-                  <ReadOnlyField
-                    field={field}
-                    participant={duplicateRecord.participantA}
-                    side="left"
-                    onSelect={handleSelect('left')}
-                    pathsFromSide={pathsFromSide}
-                  />
-                )}
-              </GridItem>
-              <GridItem key={`centre-${field.label}`} colSpan={1}>
-                {field.component === Component.List ? (
-                  <ReadOnlyListField
-                    field={field}
-                    participant={mergedParticipant}
-                  />
-                ) : (
-                  <ReadOnlyField
-                    field={field}
-                    participant={mergedParticipant}
-                    pathsFromSide={pathsFromSide}
-                  />
-                )}
-              </GridItem>
-              <GridItem key={`right-${field.label}`} colSpan={1}>
-                {field.component === Component.List ? (
-                  <ReadOnlyListField
-                    field={field}
-                    participant={duplicateRecord.participantB}
-                    side="right"
-                    onSelect={handleListSelect('right')}
-                    pathsFromSide={listPathsFromSide['right']}
-                  />
-                ) : (
-                  <ReadOnlyField
-                    field={field}
-                    participant={duplicateRecord.participantB}
-                    side="right"
-                    onSelect={handleSelect('right')}
-                    pathsFromSide={pathsFromSide}
-                  />
-                )}
-              </GridItem>
-            </>
-          ))}
+          {section.fields.map(
+            (field) =>
+              field.path[0] !== 'id' && (
+                <>
+                  <GridItem key={`left-${field.label}`} colSpan={1}>
+                    {field.component === Component.List ? (
+                      <ReadOnlyListField
+                        field={field}
+                        participant={duplicateRecord.participantA}
+                        side="left"
+                        onSelect={handleListSelect('left')}
+                        pathsFromSide={listPathsFromSide['left']}
+                      />
+                    ) : (
+                      <ReadOnlyField
+                        field={field}
+                        participant={duplicateRecord.participantA}
+                        side="left"
+                        onSelect={handleSelect('left')}
+                        pathsFromSide={pathsFromSide}
+                      />
+                    )}
+                  </GridItem>
+                  <GridItem key={`centre-${field.label}`} colSpan={1}>
+                    {field.component === Component.List ? (
+                      <ReadOnlyListField
+                        field={field}
+                        participant={mergedParticipant}
+                      />
+                    ) : (
+                      <ReadOnlyField
+                        field={field}
+                        participant={mergedParticipant}
+                        pathsFromSide={pathsFromSide}
+                      />
+                    )}
+                  </GridItem>
+                  <GridItem key={`right-${field.label}`} colSpan={1}>
+                    {field.component === Component.List ? (
+                      <ReadOnlyListField
+                        field={field}
+                        participant={duplicateRecord.participantB}
+                        side="right"
+                        onSelect={handleListSelect('right')}
+                        pathsFromSide={listPathsFromSide['right']}
+                      />
+                    ) : (
+                      <ReadOnlyField
+                        field={field}
+                        participant={duplicateRecord.participantB}
+                        side="right"
+                        onSelect={handleSelect('right')}
+                        pathsFromSide={pathsFromSide}
+                      />
+                    )}
+                  </GridItem>
+                </>
+              ),
+          )}
         </>
       ))}
     </Grid>
