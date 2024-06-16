@@ -28,4 +28,17 @@ router.get('/users', async (req, res, next) => {
   }
 });
 
+router.get('/users/:id', async (req, res, next) => {
+  try {
+    const user = await UserService.get(req.params.id);
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.sendStatus(404);
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 export { router as userRouter };
