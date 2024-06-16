@@ -1,12 +1,11 @@
 import diceCoefficient from 'fast-dice-coefficient';
 
 import {
-  IdentificationType,
-  DeduplicationConfig,
   ScoringMechanism,
+  DeduplicationConfigWithScoreFunc,
 } from '@nrcno/core-models';
 
-export const config: DeduplicationConfig = {
+export const config: DeduplicationConfigWithScoreFunc = {
   name: {
     weight: 1,
     mechanism: ScoringMechanism.Weighted,

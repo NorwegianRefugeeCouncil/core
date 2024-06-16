@@ -8,20 +8,27 @@ export enum ScoringMechanism {
   ExactOrWeighted = 'exact-or-weighted', // If the score is 1, ignore other scores and return 1. If not, multiply by the weight and sum all the scores.
 }
 
-export const DeduplicationConfigSchema = z.record(
-  z.object({
-    weight: z.number().positive(),
-    mechanism: z
-      .nativeEnum(ScoringMechanism)
-      .optional()
-      .default(ScoringMechanism.Weighted),
+const DeduplicationConfigItem = z.object({
+  weight: z.number().positive(),
+  mechanism: z
+    .nativeEnum(ScoringMechanism)
+    .optional()
+    .default(ScoringMechanism.Weighted),
+});
+export const DeduplicationConfigSchema = z.record(DeduplicationConfigItem);
+export type DeduplicationConfig = z.infer<typeof DeduplicationConfigSchema>;
+
+export const DeduplicationConfigWithScoreFuncSchema = z.record(
+  DeduplicationConfigItem.extend({
     score: z
       .function()
       .args(ParticipantSchema.partial(), ParticipantSchema)
       .returns(z.number().positive().min(-1).max(1)),
   }),
 );
-export type DeduplicationConfig = z.infer<typeof DeduplicationConfigSchema>;
+export type DeduplicationConfigWithScoreFunc = z.infer<
+  typeof DeduplicationConfigWithScoreFuncSchema
+>;
 
 export const DeduplicationMergeDefinitionSchema = z.object({
   participantIdA: z.string(),
@@ -85,3 +92,34 @@ export const DenormalisedDeduplicationRecordSchema =
 export type DenormalisedDeduplicationRecord = z.infer<
   typeof DenormalisedDeduplicationRecordSchema
 >;
+
+export const deduplicationConfig: DeduplicationConfig = {
+  name: {
+    weight: 1,
+    mechanism: ScoringMechanism.Weighted,
+  },
+  email: {
+    weight: 1,
+    mechanism: ScoringMechanism.Weighted,
+  },
+  nrcId: {
+    weight: 1,
+    mechanism: ScoringMechanism.ExactOrNothing,
+  },
+  identification: {
+    weight: 1,
+    mechanism: ScoringMechanism.ExactOrNothing,
+  },
+  residence: {
+    weight: 1,
+    mechanism: ScoringMechanism.Weighted,
+  },
+  sex: {
+    weight: 1,
+    mechanism: ScoringMechanism.ExactOrNothing,
+  },
+  dateOfBirth: {
+    weight: 1,
+    mechanism: ScoringMechanism.Weighted,
+  },
+};

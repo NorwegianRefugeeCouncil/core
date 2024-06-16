@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 
 import {
-  DeduplicationConfig,
+  deduplicationConfig,
   DenormalisedDeduplicationRecord,
   ScoringMechanism,
 } from '@nrcno/core-models';
@@ -18,50 +18,19 @@ type Props = {
   scores: DenormalisedDeduplicationRecord['scores'];
 };
 
-const config = {
-  name: {
-    weight: 1,
-    mechanism: ScoringMechanism.Weighted,
-  },
-  email: {
-    weight: 1,
-    mechanism: ScoringMechanism.Weighted,
-  },
-  nrcId: {
-    weight: 1,
-    mechanism: ScoringMechanism.ExactOrNothing,
-  },
-  identification: {
-    weight: 1,
-    mechanism: ScoringMechanism.ExactOrNothing,
-  },
-  residence: {
-    weight: 1,
-    mechanism: ScoringMechanism.Weighted,
-  },
-  sex: {
-    weight: 1,
-    mechanism: ScoringMechanism.ExactOrNothing,
-  },
-  dateOfBirth: {
-    weight: 1,
-    mechanism: ScoringMechanism.ExactOrNothing,
-  },
-};
-
 export const Why: React.FC<Props> = ({ scores }) => {
-  const exactMatches = Object.entries(config).filter(
+  const exactMatches = Object.entries(deduplicationConfig).filter(
     ([key, configItem]) =>
       (configItem.mechanism === ScoringMechanism.ExactOrNothing ||
         configItem.mechanism === ScoringMechanism.ExactOrWeighted) &&
-      scores[key].raw === 1,
+      scores[key]?.raw === 1,
   );
 
-  const weightedMatches = Object.entries(config).filter(
+  const weightedMatches = Object.entries(deduplicationConfig).filter(
     ([key, configItem]) =>
       configItem.mechanism === ScoringMechanism.Weighted ||
       (configItem.mechanism === ScoringMechanism.ExactOrWeighted &&
-        scores[key].raw !== 1),
+        scores[key]?.raw !== 1),
   );
 
   return (
