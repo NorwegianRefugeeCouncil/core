@@ -8,7 +8,7 @@ import {
   UserSchema,
 } from '@nrcno/core-models';
 
-import { BaseClient } from './base.client';
+import { BaseClient } from '../base.client';
 
 const paginatedUserSchema = createPaginatedResponseSchema(UserSchema);
 

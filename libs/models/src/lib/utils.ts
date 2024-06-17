@@ -6,3 +6,6 @@ export const BoolStr = z.preprocess((val) => {
   }
   return val;
 }, z.boolean());
+
+export const UUIDSchema = z.string().uuid();
+export const ULIDSchema = z.string().regex(/^ulid_[0-9a-zA-Z]{26}$/);

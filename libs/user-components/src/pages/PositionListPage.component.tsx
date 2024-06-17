@@ -14,10 +14,10 @@ import {
   usePagination,
 } from '@nrcno/core-shared-frontend';
 
-import { UserList } from '../components/UserList.component';
+import { PositionList } from '../components/PositionList.component';
 import { useUserContext } from '../user.context';
 
-export const UserListPage: React.FC = () => {
+export const PositionListPage: React.FC = () => {
   const {
     pagination,
     setPageSize,
@@ -31,13 +31,13 @@ export const UserListPage: React.FC = () => {
   } = usePagination();
 
   const {
-    user: {
-      list: { getUserList, data, status, error },
+    position: {
+      list: { getPositionList, data, status, error },
     },
   } = useUserContext();
 
   useEffect(() => {
-    getUserList(pagination);
+    getPositionList(pagination);
   }, [JSON.stringify(pagination)]);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export const UserListPage: React.FC = () => {
     <Flex height="100%" direction="column">
       <Flex justifyContent="space-between" alignItems="flex-start" pb="6">
         <Flex direction="column">
-          <Heading>Users</Heading>
+          <Heading>Positions</Heading>
           <Box h="1rem">
             <Skeleton isLoaded={!isLoading}>
               <Text>{totalCount} results</Text>
@@ -68,7 +68,7 @@ export const UserListPage: React.FC = () => {
         <>
           <Flex flex={1} overflow="hidden">
             <Skeleton isLoaded={!isLoading} w="100%">
-              <UserList users={data?.items ?? []} />
+              <PositionList positions={data?.items ?? []} />
             </Skeleton>
           </Flex>
           <Flex justifyContent="flex-end">

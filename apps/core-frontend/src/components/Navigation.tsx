@@ -5,7 +5,8 @@ export const Navigation: React.FC = () => {
   return (
     <VStack>
       <Link to="/prm/individuals">Individuals</Link>
-      <Link to="/users">Users</Link>
+      <Link to="/admin/users">Users</Link>
+      <Link to="/admin/positions">Positions</Link>
     </VStack>
   );
 };
