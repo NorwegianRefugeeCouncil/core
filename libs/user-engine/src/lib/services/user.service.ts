@@ -2,8 +2,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { User } from '@nrcno/core-models';
 
-import * as UserStore from './user.store';
-import { ScimUser } from './scim.types';
+import { ScimUser } from '../scim.types';
+import * as UserStore from '../stores/user.store';
 
 export const mapScimUserToUser = (
   scimUser: Partial<ScimUser>,
