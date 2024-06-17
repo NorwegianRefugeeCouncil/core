@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { IsoCodeSchema } from './common';
+import { DateOfBirthSchema, IsoCodeSchema } from './common';
 
 export enum Sex {
   Male = 'male',
@@ -61,12 +61,7 @@ const ParticipantDetailsSchema = z.object({
   motherName: z.string().max(100).optional().nullable(),
   preferredName: z.string().max(100).optional().nullable(),
   prefersToRemainAnonymous: z.boolean().optional().nullable(),
-  dateOfBirth: z.coerce
-    .date()
-    .min(new Date('1900-01-01'))
-    .max(new Date())
-    .optional()
-    .nullable(),
+  dateOfBirth: DateOfBirthSchema.optional().nullable(),
   nrcId: z.string().max(40).optional().nullable(),
   preferredLanguage: IsoCodeSchema.optional().nullable(),
   residence: z.string().max(512).optional().nullable(),
@@ -83,7 +78,7 @@ const ParticipantDetailsSchema = z.object({
 const EmailContactDetailsDefinitionSchema = z.object({
   value: z.string().max(150).email(),
 });
-const PhoneContactDetailsDefinitionSchema = z.object({
+export const PhoneContactDetailsDefinitionSchema = z.object({
   value: z.string().max(150),
 });
 
@@ -96,14 +91,15 @@ const EmailContactDetailsSchema = EmailContactDetailsDefinitionSchema.merge(
     id: z.string().uuid(),
   }),
 );
-const PhoneContactDetailsSchema = PhoneContactDetailsDefinitionSchema.merge(
-  z.object({
-    id: z.string().uuid(),
-  }),
-);
+export const PhoneContactDetailsSchema =
+  PhoneContactDetailsDefinitionSchema.merge(
+    z.object({
+      id: z.string().uuid(),
+    }),
+  );
 export type ContactDetails = z.infer<typeof EmailContactDetailsSchema>;
 
-const IdentificationDefinitionSchema = z.object({
+export const IdentificationDefinitionSchema = z.object({
   identificationType: IdentificationTypeSchema,
   identificationNumber: z.string().max(40),
 });
@@ -111,7 +107,7 @@ export type IdentificationDefinition = z.infer<
   typeof IdentificationDefinitionSchema
 >;
 
-const IdentificationSchema = IdentificationDefinitionSchema.merge(
+export const IdentificationSchema = IdentificationDefinitionSchema.merge(
   z.object({
     id: z.string().uuid(),
   }),
