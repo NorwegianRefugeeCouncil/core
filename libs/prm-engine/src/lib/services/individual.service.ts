@@ -3,32 +3,32 @@ import {
   ContactDetailsDefinition,
   EntityType,
   Identification,
-  Participant,
-  ParticipantDefinition,
-  ParticipantFiltering,
-  ParticipantListItem,
-  ParticipantPartialUpdate,
-  ParticipantUpdate,
+  Individual,
+  IndividualDefinition,
+  IndividualFiltering,
+  IndividualListItem,
+  IndividualPartialUpdate,
+  IndividualUpdate,
 } from '@nrcno/core-models';
 import { NotFoundError } from '@nrcno/core-errors';
 
-import { ParticipantStore } from '../stores/participant.store';
+import { IndividualStore } from '../stores/individual.store';
 
 import { CRUDMixin } from './base.service';
 import { LanguageService } from './language.service';
 import { NationalityService } from './nationality.service';
 
-export class ParticipantService extends CRUDMixin<
-  ParticipantDefinition,
-  Participant,
-  ParticipantUpdate,
-  ParticipantPartialUpdate,
-  ParticipantListItem,
-  ParticipantFiltering
+export class IndividualService extends CRUDMixin<
+  IndividualDefinition,
+  Individual,
+  IndividualUpdate,
+  IndividualPartialUpdate,
+  IndividualListItem,
+  IndividualFiltering
 >()(
   class {
-    public entityType = EntityType.Participant;
-    public store = ParticipantStore;
+    public entityType = EntityType.Individual;
+    public store = IndividualStore;
   },
 ) {
   private async validateLanguages(languages: string[]) {
@@ -45,8 +45,8 @@ export class ParticipantService extends CRUDMixin<
     );
   }
 
-  private async validate(participant: ParticipantDefinition) {
-    const { languages, preferredLanguage, nationalities } = participant;
+  private async validate(individual: IndividualDefinition) {
+    const { languages, preferredLanguage, nationalities } = individual;
 
     await this.validateLanguages(languages);
     if (preferredLanguage) {
@@ -56,31 +56,31 @@ export class ParticipantService extends CRUDMixin<
     await this.validateNationalities(nationalities);
   }
 
-  override async create(participant: ParticipantDefinition) {
-    await this.validate(participant);
+  override async create(individual: IndividualDefinition) {
+    await this.validate(individual);
 
-    return super.create(participant);
+    return super.create(individual);
   }
 
-  override async update(id: string, participant: ParticipantUpdate) {
-    await this.validate(participant);
+  override async update(id: string, individual: IndividualUpdate) {
+    await this.validate(individual);
 
-    return super.update(id, participant);
+    return super.update(id, individual);
   }
 
-  mapUpdateToPartial = async (id: string, participant: ParticipantUpdate) => {
+  mapUpdateToPartial = async (id: string, individual: IndividualUpdate) => {
     const {
       emails,
       phones,
       identification,
       languages,
       nationalities,
-      ...participantDetails
-    } = participant;
+      ...individualDetails
+    } = individual;
 
-    const existingParticipant = await ParticipantStore.get(id);
-    if (!existingParticipant) {
-      throw new NotFoundError(`Participant with id ${id} not found`);
+    const existingIndividual = await IndividualStore.get(id);
+    if (!existingIndividual) {
+      throw new NotFoundError(`Individual with id ${id} not found`);
     }
 
     const phonesToAdd =
@@ -93,13 +93,13 @@ export class ParticipantService extends CRUDMixin<
     const emailsToUpdate =
       emails?.filter((cd): cd is ContactDetails => cd.id !== undefined) || [];
 
-    const phonesToRemove = existingParticipant.phones
+    const phonesToRemove = existingIndividual.phones
       ?.filter(
         (existingContactDetail) =>
           !phones?.some((cd) => cd.id === existingContactDetail.id),
       )
       .map((cd) => cd.id);
-    const emailsToRemove = existingParticipant.emails
+    const emailsToRemove = existingIndividual.emails
       ?.filter(
         (existingContactDetail) =>
           !emails?.some((cd) => cd.id === existingContactDetail.id),
@@ -120,7 +120,7 @@ export class ParticipantService extends CRUDMixin<
     const identificationUpdates = {
       add: identification?.filter((id) => !id.id),
       update: identification?.filter((id) => id.id) as Identification[],
-      remove: existingParticipant.identification
+      remove: existingIndividual.identification
         .filter(
           (existingIdentification) =>
             !identification?.some((id) => id.id === existingIdentification.id),
@@ -130,28 +130,28 @@ export class ParticipantService extends CRUDMixin<
 
     const languageUpdates = {
       add: languages?.filter((lang) =>
-        existingParticipant.languages.every(
+        existingIndividual.languages.every(
           (existingLang) => lang !== existingLang,
         ),
       ),
-      remove: existingParticipant.languages.filter((existingLang) =>
+      remove: existingIndividual.languages.filter((existingLang) =>
         languages?.every((lang) => lang !== existingLang),
       ),
     };
 
     const nationalityUpdates = {
       add: nationalities?.filter((nat) =>
-        existingParticipant.nationalities.every(
+        existingIndividual.nationalities.every(
           (existingNat) => nat !== existingNat,
         ),
       ),
-      remove: existingParticipant.nationalities.filter((existingNat) =>
+      remove: existingIndividual.nationalities.filter((existingNat) =>
         nationalities?.every((nat) => nat !== existingNat),
       ),
     };
 
     return {
-      ...participantDetails,
+      ...individualDetails,
       phones: phoneUpdates,
       emails: emailUpdates,
       identification: identificationUpdates,

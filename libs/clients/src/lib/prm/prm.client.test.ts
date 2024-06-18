@@ -5,7 +5,7 @@ import { ZodError } from 'zod';
 import { ulid } from 'ulidx';
 
 import {
-  ParticipantGenerator,
+  IndividualGenerator,
   getListItemGenerator,
 } from '@nrcno/core-test-utils';
 import { EntityFiltering, EntityType, Pagination } from '@nrcno/core-models';
@@ -76,15 +76,15 @@ const buildListTests = (entityType: EntityType) => {
 };
 
 describe('PRM client', () => {
-  describe('Participant', () => {
-    let client: PrmClient[EntityType.Participant];
+  describe('Individual', () => {
+    let client: PrmClient[EntityType.Individual];
     let mock: any;
 
     beforeEach(() => {
       const axiosInstance = axios.create();
       mock = new MockAdapter(axiosInstance);
       const prmClient = new PrmClient(axiosInstance);
-      client = prmClient[EntityType.Participant];
+      client = prmClient[EntityType.Individual];
     });
 
     afterEach(() => {
@@ -92,8 +92,8 @@ describe('PRM client', () => {
     });
 
     describe('create', () => {
-      it('should create a participant', async () => {
-        const participantDefinition = {
+      it('should create a individual', async () => {
+        const individualDefinition = {
           consentGdpr: faker.datatype.boolean(),
           consentReferral: faker.datatype.boolean(),
           languages: [],
@@ -103,25 +103,25 @@ describe('PRM client', () => {
           identification: [],
         };
 
-        const participant = {
+        const individual = {
           id: ulid(),
-          ...participantDefinition,
+          ...individualDefinition,
         };
 
-        mock.onPost('/prm/participants').reply(201, participant);
+        mock.onPost('/prm/individuals').reply(201, individual);
 
-        const res = await client.create(participantDefinition);
+        const res = await client.create(individualDefinition);
 
-        expect(res).toEqual(participant);
+        expect(res).toEqual(individual);
         expect(mock.history.post.length).toBe(1);
-        expect(mock.history.post[0].url).toBe('/prm/participants');
+        expect(mock.history.post[0].url).toBe('/prm/individuals');
         expect(mock.history.post[0].data).toBe(
-          JSON.stringify(participantDefinition),
+          JSON.stringify(individualDefinition),
         );
       });
 
       it('should fail when receiving an invalid response from the api', () => {
-        const participantDefinition = {
+        const individualDefinition = {
           consentGdpr: faker.datatype.boolean(),
           consentReferral: faker.datatype.boolean(),
           languages: [],
@@ -131,17 +131,17 @@ describe('PRM client', () => {
           identification: [],
         };
 
-        mock.onPost('/prm/participants').reply(201, {
+        mock.onPost('/prm/individuals').reply(201, {
           foo: 'bar',
         });
 
-        expect(client.create(participantDefinition)).rejects.toThrow(
+        expect(client.create(individualDefinition)).rejects.toThrow(
           expect.any(ZodError),
         );
       });
 
       it('should fail if the api returns an error', () => {
-        const participantDefinition = {
+        const individualDefinition = {
           consentGdpr: faker.datatype.boolean(),
           consentReferral: faker.datatype.boolean(),
           languages: [],
@@ -151,19 +151,19 @@ describe('PRM client', () => {
           identification: [],
         };
 
-        mock.onPost('/prm/participants').reply(400);
+        mock.onPost('/prm/individuals').reply(400);
 
-        expect(client.create(participantDefinition)).rejects.toThrow(
+        expect(client.create(individualDefinition)).rejects.toThrow(
           'Request failed with status code 400',
         );
       });
     });
 
     describe('read', () => {
-      it('should read a participant', async () => {
-        const participantId = ulid();
-        const participant = {
-          id: participantId,
+      it('should read a individual', async () => {
+        const individualId = ulid();
+        const individual = {
+          id: individualId,
           consentGdpr: faker.datatype.boolean(),
           consentReferral: faker.datatype.boolean(),
           languages: [],
@@ -172,82 +172,78 @@ describe('PRM client', () => {
           phones: [],
           identification: [],
         };
-        mock
-          .onGet(`/prm/participants/${participantId}`)
-          .reply(200, participant);
-        const res = await client.read(participantId);
-        expect(res).toEqual(participant);
+        mock.onGet(`/prm/individuals/${individualId}`).reply(200, individual);
+        const res = await client.read(individualId);
+        expect(res).toEqual(individual);
         expect(mock.history.get.length).toBe(1);
         expect(mock.history.get[0].url).toBe(
-          `/prm/participants/${participantId}`,
+          `/prm/individuals/${individualId}`,
         );
       });
 
       it('should fail when receiving an invalid response from the api', () => {
-        const participantId = ulid();
-        mock.onGet(`/prm/participants/${participantId}`).reply(200, {
+        const individualId = ulid();
+        mock.onGet(`/prm/individuals/${individualId}`).reply(200, {
           foo: 'bar',
         });
-        expect(client.read(participantId)).rejects.toThrow(
-          expect.any(ZodError),
-        );
+        expect(client.read(individualId)).rejects.toThrow(expect.any(ZodError));
       });
 
       it('should fail if the api returns an error', () => {
-        const participantId = ulid();
-        mock.onGet(`/prm/participants/${participantId}`).reply(400);
-        expect(client.read(participantId)).rejects.toThrow(
+        const individualId = ulid();
+        mock.onGet(`/prm/individuals/${individualId}`).reply(400);
+        expect(client.read(individualId)).rejects.toThrow(
           'Request failed with status code 400',
         );
       });
     });
 
     describe('update', () => {
-      it('should update a participant', async () => {
-        const participant = ParticipantGenerator.generateEntity();
-        const participantId = participant.id;
-        const updatedParticipant = {
-          ...participant,
-          consentGdpr: !participant.consentGdpr,
+      it('should update a individual', async () => {
+        const individual = IndividualGenerator.generateEntity();
+        const individualId = individual.id;
+        const updatedIndividual = {
+          ...individual,
+          consentGdpr: !individual.consentGdpr,
         };
         mock
-          .onPut(`/prm/participants/${participantId}`)
-          .reply(200, updatedParticipant);
-        const res = await client.update(participantId, {
-          consentGdpr: !participant.consentGdpr,
+          .onPut(`/prm/individuals/${individualId}`)
+          .reply(200, updatedIndividual);
+        const res = await client.update(individualId, {
+          consentGdpr: !individual.consentGdpr,
         });
-        expect(res).toEqual(updatedParticipant);
+        expect(res).toEqual(updatedIndividual);
         expect(mock.history.put.length).toBe(1);
         expect(mock.history.put[0].url).toBe(
-          `/prm/participants/${participantId}`,
+          `/prm/individuals/${individualId}`,
         );
         expect(mock.history.put[0].data).toBe(
-          JSON.stringify({ consentGdpr: !participant.consentGdpr }),
+          JSON.stringify({ consentGdpr: !individual.consentGdpr }),
         );
       });
 
       it('should fail when receiving an invalid response from the api', () => {
-        const participant = ParticipantGenerator.generateEntity();
-        const participantId = participant.id;
-        mock.onPut(`/prm/participants/${participantId}`).reply(200, {
+        const individual = IndividualGenerator.generateEntity();
+        const individualId = individual.id;
+        mock.onPut(`/prm/individuals/${individualId}`).reply(200, {
           foo: 'bar',
         });
-        expect(client.update(participantId, participant)).rejects.toThrow(
+        expect(client.update(individualId, individual)).rejects.toThrow(
           expect.any(ZodError),
         );
       });
 
       it('should fail if the api returns an error', () => {
-        const participant = ParticipantGenerator.generateEntity();
-        const participantId = participant.id;
-        mock.onPut(`/prm/participants/${participantId}`).reply(500);
-        expect(client.update(participantId, participant)).rejects.toThrow(
+        const individual = IndividualGenerator.generateEntity();
+        const individualId = individual.id;
+        mock.onPut(`/prm/individuals/${individualId}`).reply(500);
+        expect(client.update(individualId, individual)).rejects.toThrow(
           'Request failed with status code 500',
         );
       });
     });
 
-    buildListTests(EntityType.Participant);
+    buildListTests(EntityType.Individual);
   });
 
   describe('Language', () => {

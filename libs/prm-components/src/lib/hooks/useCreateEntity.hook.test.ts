@@ -2,22 +2,22 @@ import { renderHook, act } from '@testing-library/react-hooks';
 import { PrmClient } from '@nrcno/core-clients';
 import { EntityType } from '@nrcno/core-models';
 import { vi, Mock } from 'vitest';
-import { ParticipantGenerator } from '@nrcno/core-test-utils';
+import { IndividualGenerator } from '@nrcno/core-test-utils';
 
 import { SubmitStatus } from './useApiReducer.hook';
 import { useCreateEntity } from './useCreateEntity.hook';
 
 describe('useCreateEntity', () => {
-  let participantClient: PrmClient[EntityType.Participant];
+  let individualClient: PrmClient[EntityType.Individual];
 
   beforeEach(() => {
-    participantClient = {
+    individualClient = {
       create: vi.fn(),
-    } as unknown as PrmClient[EntityType.Participant];
+    } as unknown as PrmClient[EntityType.Individual];
   });
 
   test('should initialize with default state', () => {
-    const { result } = renderHook(() => useCreateEntity(participantClient));
+    const { result } = renderHook(() => useCreateEntity(individualClient));
     const { onCreateEntity, status, data, error } = result.current;
 
     expect(typeof onCreateEntity).toBe('function');
@@ -27,35 +27,35 @@ describe('useCreateEntity', () => {
   });
 
   test('should call onCreateEntity with the correct entity definition', async () => {
-    const { result } = renderHook(() => useCreateEntity(participantClient));
+    const { result } = renderHook(() => useCreateEntity(individualClient));
     const { onCreateEntity } = result.current;
 
-    const entityDefinition = ParticipantGenerator.generateDefinition();
+    const entityDefinition = IndividualGenerator.generateDefinition();
     await act(async () => {
       await onCreateEntity(entityDefinition);
     });
 
-    expect(participantClient.create).toHaveBeenCalledWith(entityDefinition);
+    expect(individualClient.create).toHaveBeenCalledWith(entityDefinition);
   });
 
   test('should update status to "SUBMITTING" while creating entity', async () => {
-    const { result } = renderHook(() => useCreateEntity(participantClient));
+    const { result } = renderHook(() => useCreateEntity(individualClient));
     const { onCreateEntity } = result.current;
-    const entityDefinition = ParticipantGenerator.generateDefinition();
+    const entityDefinition = IndividualGenerator.generateDefinition();
     onCreateEntity(entityDefinition);
 
     expect(result.current.status).toBe(SubmitStatus.SUBMITTING);
   });
 
   test('should update status to "SUCCESS" and set data when entity creation is successful', async () => {
-    const mockCreatedEntity = ParticipantGenerator.generateEntity();
+    const mockCreatedEntity = IndividualGenerator.generateEntity();
 
-    (participantClient.create as Mock).mockResolvedValueOnce(mockCreatedEntity);
+    (individualClient.create as Mock).mockResolvedValueOnce(mockCreatedEntity);
 
-    const { result } = renderHook(() => useCreateEntity(participantClient));
+    const { result } = renderHook(() => useCreateEntity(individualClient));
     const { onCreateEntity } = result.current;
 
-    const entityDefinition = ParticipantGenerator.generateDefinition();
+    const entityDefinition = IndividualGenerator.generateDefinition();
     await act(async () => {
       await onCreateEntity(entityDefinition);
     });
@@ -67,12 +67,12 @@ describe('useCreateEntity', () => {
   test('should update status to "REJECTED" and set error when entity creation fails', async () => {
     const mockError = new Error('An error occurred');
 
-    (participantClient.create as Mock).mockRejectedValueOnce(mockError);
+    (individualClient.create as Mock).mockRejectedValueOnce(mockError);
 
-    const { result } = renderHook(() => useCreateEntity(participantClient));
+    const { result } = renderHook(() => useCreateEntity(individualClient));
     const { onCreateEntity } = result.current;
 
-    const entityDefinition = ParticipantGenerator.generateDefinition();
+    const entityDefinition = IndividualGenerator.generateDefinition();
     await act(async () => {
       try {
         await onCreateEntity(entityDefinition);

@@ -3,7 +3,7 @@ import { AxiosInstance } from 'axios';
 import { EntityType } from '@nrcno/core-models';
 
 import { LanguageClient } from './language.client';
-import { ParticipantClient } from './participant.client';
+import { IndividualClient } from './individual';
 import { NationalityClient } from './nationality.client';
 
 export {
@@ -14,20 +14,20 @@ export {
 } from './prm-base.client';
 
 export class PrmClient {
-  private participantClient: ParticipantClient;
+  private individualClient: IndividualClient;
 
   private languageClient: LanguageClient;
 
   private nationalityClient: NationalityClient;
 
   constructor(axiosInstance: AxiosInstance) {
-    this.participantClient = new ParticipantClient(axiosInstance);
+    this.individualClient = new IndividualClient(axiosInstance);
     this.languageClient = new LanguageClient(axiosInstance);
     this.nationalityClient = new NationalityClient(axiosInstance);
   }
 
-  get [EntityType.Participant]() {
-    return this.participantClient;
+  get [EntityType.Individual]() {
+    return this.individualClient;
   }
 
   get [EntityType.Language]() {

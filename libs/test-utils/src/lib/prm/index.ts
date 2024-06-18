@@ -1,16 +1,16 @@
 import { EntityType } from '@nrcno/core-models';
 
-import { ParticipantGenerator } from './participant.generator';
+import { IndividualGenerator } from './individual.generator';
 import * as LanguageGenerator from './language.generator';
 import * as NationalityGenerator from './nationality.generator';
 
 export * from './identification.generator';
-export * from './participant.generator';
+export * from './individual.generator';
 
 export const getListItemGenerator = (entityType: EntityType) => {
   switch (entityType) {
-    case EntityType.Participant:
-      return ParticipantGenerator.generateListItem;
+    case EntityType.Individual:
+      return IndividualGenerator.generateListItem;
     case EntityType.Language:
       return LanguageGenerator.generateListItem;
     case EntityType.Nationality:

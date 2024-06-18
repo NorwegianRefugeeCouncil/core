@@ -2,13 +2,13 @@ import { faker } from '@faker-js/faker';
 import { ulid } from 'ulidx';
 
 import {
-  ParticipantDefinition,
+  IndividualDefinition,
   Sex,
   ContactMeans,
   DisplacementStatus,
   EngagementContext,
-  Participant,
-  ParticipantListItem,
+  Individual,
+  IndividualListItem,
 } from '@nrcno/core-models';
 
 import { BaseTestEntityGenerator } from '../base-test-entity-generator';
@@ -17,8 +17,8 @@ import { IdentificationGenerator } from './identification.generator';
 import * as LanguageGenerator from './language.generator';
 
 const generateDefinition = (
-  overrides?: Partial<ParticipantDefinition>,
-): ParticipantDefinition => {
+  overrides?: Partial<IndividualDefinition>,
+): IndividualDefinition => {
   const pastDate = faker.date.past();
   const pastDateWithoutTime = new Date(
     pastDate.getFullYear(),
@@ -70,7 +70,7 @@ const generateDefinition = (
   };
 };
 
-const generateEntity = (overrides?: Partial<Participant>): Participant => {
+const generateEntity = (overrides?: Partial<Individual>): Individual => {
   const definition = generateDefinition(overrides);
 
   return {
@@ -94,8 +94,8 @@ const generateEntity = (overrides?: Partial<Participant>): Participant => {
 };
 
 const generateListItem = (
-  overrides?: Partial<ParticipantListItem>,
-): ParticipantListItem => {
+  overrides?: Partial<IndividualListItem>,
+): IndividualListItem => {
   return {
     id: ulid(),
     firstName: faker.person.firstName(),
@@ -111,10 +111,10 @@ const generateListItem = (
   };
 };
 
-export const ParticipantGenerator: BaseTestEntityGenerator<
-  ParticipantDefinition,
-  Participant,
-  ParticipantListItem
+export const IndividualGenerator: BaseTestEntityGenerator<
+  IndividualDefinition,
+  Individual,
+  IndividualListItem
 > = {
   generateDefinition,
   generateEntity,

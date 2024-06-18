@@ -17,7 +17,7 @@ describe('EntityListPage', () => {
         element: (
           <PrmProvider
             axiosInstance={axiosInstance}
-            entityType={EntityType.Participant}
+            entityType={EntityType.Individual}
             entityId={undefined}
           >
             <EntityListPage />
@@ -29,7 +29,7 @@ describe('EntityListPage', () => {
 
     expect(baseElement).toBeTruthy();
     expect(baseElement.getElementsByTagName('h2')[0].textContent).toBe(
-      'participants',
+      'individuals',
     );
   });
 });

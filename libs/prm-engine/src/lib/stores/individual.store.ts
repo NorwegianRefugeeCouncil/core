@@ -8,13 +8,13 @@ import {
   ContactDetailType,
   EntityType,
   Pagination,
-  Participant,
-  ParticipantDefinition,
-  ParticipantFiltering,
-  ParticipantListItem,
-  ParticipantListItemSchema,
-  ParticipantPartialUpdate,
-  ParticipantSchema,
+  Individual,
+  IndividualDefinition,
+  IndividualFiltering,
+  IndividualListItem,
+  IndividualListItemSchema,
+  IndividualPartialUpdate,
+  IndividualSchema,
   Sorting,
   createSortingSchema,
 } from '@nrcno/core-models';
@@ -23,8 +23,8 @@ import { AlreadyExistsError, NotFoundError } from '@nrcno/core-errors';
 
 import { BaseStore } from './base.store';
 
-const buildListQueryFilters = (filtering: ParticipantFiltering) => {
-  const equalityProperties: Array<keyof ParticipantFiltering> = [
+const buildListQueryFilters = (filtering: IndividualFiltering) => {
+  const equalityProperties: Array<keyof IndividualFiltering> = [
     'id',
     'firstName',
     'lastName',
@@ -36,10 +36,10 @@ const buildListQueryFilters = (filtering: ParticipantFiltering) => {
     'displacementStatus',
     'engagementContext',
   ];
-  const propertyMapping: Partial<Record<keyof ParticipantFiltering, string>> = {
-    id: 'participants.id',
+  const propertyMapping: Partial<Record<keyof IndividualFiltering, string>> = {
+    id: 'individuals.id',
   };
-  const equalityFilters: Partial<ParticipantFiltering> =
+  const equalityFilters: Partial<IndividualFiltering> =
     equalityProperties.reduce(
       (obj, key) =>
         filtering[key]
@@ -77,20 +77,20 @@ const buildListQueryFilters = (filtering: ParticipantFiltering) => {
 };
 
 const buildListQueryJoins = (db: Knex) => {
-  const nationalitiesSubquery = db('participant_nationalities')
+  const nationalitiesSubquery = db('individual_nationalities')
     .select(
-      'participantId',
+      'individualId',
       db.raw(`
         (array_agg(nationality_iso_code ORDER BY created_at ASC))[1] as main_nationality,
         array_agg(nationality_iso_code) as all_nationalities
         `),
     )
-    .groupBy('participantId')
+    .groupBy('individualId')
     .as('nationalities');
 
   const phonesSubquery = db
     .select(
-      'participantId',
+      'individualId',
       db.raw(`
         phone_details->>'id' as first_phone_id,
         phone_details->>'value' as first_phone_value
@@ -98,9 +98,9 @@ const buildListQueryJoins = (db: Knex) => {
       'allPhones',
     )
     .from(
-      db('participant_contact_details')
+      db('individual_contact_details')
         .select(
-          'participantId',
+          'individualId',
           db.raw(
             `
             (array_agg(
@@ -113,14 +113,14 @@ const buildListQueryJoins = (db: Knex) => {
           ),
         )
         .where('contactDetailType', ContactDetailType.PhoneNumber)
-        .groupBy('participantId')
+        .groupBy('individualId')
         .as('phones_agg'),
     )
     .as('phones');
 
   const emailsSubquery = db
     .select(
-      'participantId',
+      'individualId',
       db.raw(`
         email_details->>'id' as first_email_id,
         email_details->>'value' as first_email_value
@@ -128,9 +128,9 @@ const buildListQueryJoins = (db: Knex) => {
       'allEmails',
     )
     .from(
-      db('participant_contact_details')
+      db('individual_contact_details')
         .select(
-          'participantId',
+          'individualId',
           db.raw(
             `
             (array_agg(
@@ -143,14 +143,14 @@ const buildListQueryJoins = (db: Knex) => {
           ),
         )
         .where('contactDetailType', ContactDetailType.Email)
-        .groupBy('participantId')
+        .groupBy('individualId')
         .as('emails_agg'),
     )
     .as('emails');
 
-  const identificationsSubquery = db('participant_identifications')
+  const identificationsSubquery = db('individual_identifications')
     .select(
-      'participantId',
+      'individualId',
       db.raw(`
         (array_agg(
           json_build_object(
@@ -162,38 +162,38 @@ const buildListQueryJoins = (db: Knex) => {
         array_agg(identification_number) as all_identification_numbers
         `),
     )
-    .groupBy('participantId')
+    .groupBy('individualId')
     .as('identifications');
 
   const applyJoins = (query: Knex.QueryBuilder) => {
     query
       .leftJoin(
         identificationsSubquery,
-        'participants.id',
-        'identifications.participantId',
+        'individuals.id',
+        'identifications.individualId',
       )
       .leftJoin(
         nationalitiesSubquery,
-        'participants.id',
-        'nationalities.participantId',
+        'individuals.id',
+        'nationalities.individualId',
       )
-      .leftJoin(phonesSubquery, 'participants.id', 'phones.participantId')
-      .leftJoin(emailsSubquery, 'participants.id', 'emails.participantId');
+      .leftJoin(phonesSubquery, 'individuals.id', 'phones.individualId')
+      .leftJoin(emailsSubquery, 'individuals.id', 'emails.individualId');
   };
 
   return { applyJoins };
 };
 
-export type IParticipantStore = BaseStore<
-  ParticipantDefinition,
-  Participant,
-  ParticipantPartialUpdate,
-  ParticipantListItem,
-  ParticipantFiltering
+export type IIndividualStore = BaseStore<
+  IndividualDefinition,
+  Individual,
+  IndividualPartialUpdate,
+  IndividualListItem,
+  IndividualFiltering
 >;
 
-const count: IParticipantStore['count'] = async (
-  filtering: ParticipantFiltering = {},
+const count: IIndividualStore['count'] = async (
+  filtering: IndividualFiltering = {},
 ): Promise<number> => {
   const db = getDb();
 
@@ -201,7 +201,7 @@ const count: IParticipantStore['count'] = async (
     buildListQueryFilters(filtering);
   const { applyJoins } = buildListQueryJoins(db);
 
-  const [{ count }] = await db('participants')
+  const [{ count }] = await db('individuals')
     .count()
     .where(equalityFilters)
     .andWhere(applyAdditionalFilters)
@@ -210,9 +210,9 @@ const count: IParticipantStore['count'] = async (
   return typeof count === 'string' ? parseInt(count, 10) : count;
 };
 
-const create: IParticipantStore['create'] = async (
-  participantDefinition: ParticipantDefinition,
-): Promise<Participant> => {
+const create: IIndividualStore['create'] = async (
+  individualDefinition: IndividualDefinition,
+): Promise<Individual> => {
   const db = getDb();
 
   const {
@@ -221,12 +221,12 @@ const create: IParticipantStore['create'] = async (
     identification,
     languages,
     nationalities,
-    ...participantDetails
-  } = participantDefinition;
+    ...individualDetails
+  } = individualDefinition;
 
   const personId = ulid();
   const entityId = ulid();
-  const participantId = ulid();
+  const individualId = ulid();
 
   const result = await db.transaction(async (trx) => {
     try {
@@ -234,27 +234,27 @@ const create: IParticipantStore['create'] = async (
 
       await trx('entities').insert({ id: entityId });
 
-      await trx('participants').insert({
-        ...participantDetails,
-        id: participantId,
+      await trx('individuals').insert({
+        ...individualDetails,
+        id: individualId,
         personId,
         entityId,
       });
 
       if (languages && languages.length > 0) {
-        await trx('participant_languages').insert(
+        await trx('individual_languages').insert(
           languages.map((lang) => ({
             languageIsoCode: lang,
-            participantId,
+            individualId,
           })),
         );
       }
 
       if (nationalities && nationalities.length > 0) {
-        await trx('participant_nationalities').insert(
+        await trx('individual_nationalities').insert(
           nationalities.map((nat) => ({
             nationalityIsoCode: nat,
-            participantId,
+            individualId,
           })),
         );
       }
@@ -266,7 +266,7 @@ const create: IParticipantStore['create'] = async (
               contactDetailType: ContactDetailType.Email,
               rawValue: email.value,
               cleanValue: email.value, // TODO: Clean string for searching
-              participantId,
+              individualId,
             }))
           : [];
 
@@ -277,14 +277,14 @@ const create: IParticipantStore['create'] = async (
               contactDetailType: ContactDetailType.PhoneNumber,
               rawValue: phone.value,
               cleanValue: phone.value, // TODO: Clean string for searching
-              participantId,
+              individualId,
             }))
           : [];
       const contactDetailsForDb = contactDetailsEmailsForDb.concat(
         contactDetailsPhonesForDb,
       );
       if (contactDetailsForDb.length > 0) {
-        await trx('participant_contact_details').insert(contactDetailsForDb);
+        await trx('individual_contact_details').insert(contactDetailsForDb);
       }
 
       const identificationForDb =
@@ -292,16 +292,16 @@ const create: IParticipantStore['create'] = async (
           ? identification.map((id) => ({
               ...id,
               id: uuidv4(),
-              participantId,
+              individualId,
             }))
           : [];
       if (identificationForDb.length > 0) {
-        await trx('participant_identifications').insert(identificationForDb);
+        await trx('individual_identifications').insert(identificationForDb);
       }
 
-      const createdParticipant = ParticipantSchema.safeParse({
-        ...participantDetails,
-        id: participantId,
+      const createdIndividual = IndividualSchema.safeParse({
+        ...individualDetails,
+        id: individualId,
         personId,
         entityId,
         languages,
@@ -317,15 +317,15 @@ const create: IParticipantStore['create'] = async (
         identification: identificationForDb,
       });
 
-      if (createdParticipant.error) {
+      if (createdIndividual.error) {
         throw new Error(
-          `Corrupt data in database for individuals: ${createdParticipant.error.errors.join(', ')}`,
+          `Corrupt data in database for individuals: ${createdIndividual.error.errors.join(', ')}`,
         );
       }
-      return createdParticipant.data;
+      return createdIndividual.data;
     } catch (error) {
       if ((error as PostgresError).code === PostgresErrorCode.UniqueViolation) {
-        throw new AlreadyExistsError('Participant already exists');
+        throw new AlreadyExistsError('Individual already exists');
       }
       throw error;
     }
@@ -334,35 +334,35 @@ const create: IParticipantStore['create'] = async (
   return result;
 };
 
-const get: IParticipantStore['get'] = async (
+const get: IIndividualStore['get'] = async (
   id: string,
-): Promise<Participant | null> => {
+): Promise<Individual | null> => {
   const db = getDb();
 
-  const participant = await db('participants').where('id', id).first();
+  const individual = await db('individuals').where('id', id).first();
 
-  if (!participant) {
+  if (!individual) {
     return null;
   }
 
   const [languages, nationalities, contactDetails, identifications] =
     await Promise.all([
-      db('participant_languages')
-        .where('participantId', id)
+      db('individual_languages')
+        .where('individualId', id)
         .select('languageIsoCode'),
-      db('participant_nationalities')
-        .where('participantId', id)
+      db('individual_nationalities')
+        .where('individualId', id)
         .select('nationalityIsoCode'),
-      db('participant_contact_details')
-        .where('participantId', id)
+      db('individual_contact_details')
+        .where('individualId', id)
         .select('id', 'contactDetailType', 'rawValue'),
-      db('participant_identifications')
-        .where('participantId', id)
+      db('individual_identifications')
+        .where('individualId', id)
         .select('id', 'identificationType', 'identificationNumber'),
     ]);
 
-  const participantResult = ParticipantSchema.safeParse({
-    ...participant,
+  const individualResult = IndividualSchema.safeParse({
+    ...individual,
     languages: languages.map((lang) => lang.languageIsoCode),
     nationalities: nationalities.map((nat) => nat.nationalityIsoCode),
     emails: contactDetails
@@ -386,31 +386,31 @@ const get: IParticipantStore['get'] = async (
     identification: identifications,
   });
 
-  if (participantResult.error) {
+  if (individualResult.error) {
     throw new Error(
-      `Corrupt data in database for individuals: ${participantResult.error.errors.join(', ')}`,
+      `Corrupt data in database for individuals: ${individualResult.error.errors.join(', ')}`,
     );
   }
-  return participantResult.data;
+  return individualResult.data;
 };
 
-const list: IParticipantStore['list'] = async (
+const list: IIndividualStore['list'] = async (
   pagination: Pagination,
   { sort, direction }: Sorting = createSortingSchema(
-    EntityType.Participant,
+    EntityType.Individual,
   ).parse({}),
-  filtering: ParticipantFiltering = {},
-): Promise<ParticipantListItem[]> => {
+  filtering: IndividualFiltering = {},
+): Promise<IndividualListItem[]> => {
   const db = getDb();
 
   const { equalityFilters, applyAdditionalFilters } =
     buildListQueryFilters(filtering);
   const { applyJoins } = buildListQueryJoins(db);
 
-  const sortColumn = sort === 'id' ? 'participants.id' : snakeCase(sort);
+  const sortColumn = sort === 'id' ? 'individuals.id' : snakeCase(sort);
 
-  const participantFields = [
-    'participants.id',
+  const individualFields = [
+    'individuals.id',
     'firstName',
     'lastName',
     'sex',
@@ -418,7 +418,7 @@ const list: IParticipantStore['list'] = async (
     'displacementStatus',
   ];
 
-  interface ParticipantListItemRaw {
+  interface IndividualListItemRaw {
     id: string;
     firstName: string | null;
     lastName: string | null;
@@ -435,9 +435,9 @@ const list: IParticipantStore['list'] = async (
     firstEmailValue: string | null;
   }
 
-  const participants: ParticipantListItemRaw[] = await db('participants')
+  const individuals: IndividualListItemRaw[] = await db('individuals')
     .select([
-      ...participantFields,
+      ...individualFields,
       db.raw(
         `identifications.first_identification->>'id' as identification_id`,
       ),
@@ -469,34 +469,34 @@ const list: IParticipantStore['list'] = async (
       [sortColumn, sortColumn, sortColumn, sortColumn, sortColumn, sortColumn],
     );
 
-  const result = z.array(ParticipantListItemSchema).safeParse(
-    participants.map((participant) => ({
-      ...participant,
-      identification: participant.identificationId
+  const result = z.array(IndividualListItemSchema).safeParse(
+    individuals.map((individual) => ({
+      ...individual,
+      identification: individual.identificationId
         ? [
             {
-              id: participant.identificationId,
-              identificationType: participant.identificationType,
-              identificationNumber: participant.identificationNumber,
+              id: individual.identificationId,
+              identificationType: individual.identificationType,
+              identificationNumber: individual.identificationNumber,
             },
           ]
         : [],
-      nationalities: participant.mainNationality
-        ? [participant.mainNationality]
+      nationalities: individual.mainNationality
+        ? [individual.mainNationality]
         : [],
-      emails: participant.firstEmailId
+      emails: individual.firstEmailId
         ? [
             {
-              id: participant.firstEmailId,
-              value: participant.firstEmailValue,
+              id: individual.firstEmailId,
+              value: individual.firstEmailValue,
             },
           ]
         : [],
-      phones: participant.firstPhoneId
+      phones: individual.firstPhoneId
         ? [
             {
-              id: participant.firstPhoneId,
-              value: participant.firstPhoneValue,
+              id: individual.firstPhoneId,
+              value: individual.firstPhoneValue,
             },
           ]
         : [],
@@ -511,10 +511,10 @@ const list: IParticipantStore['list'] = async (
   return result.data;
 };
 
-const update: IParticipantStore['update'] = async (
-  participantId: string,
-  participantUpdate: ParticipantPartialUpdate,
-): Promise<Participant> => {
+const update: IIndividualStore['update'] = async (
+  individualId: string,
+  individualUpdate: IndividualPartialUpdate,
+): Promise<Individual> => {
   const db = getDb();
 
   const {
@@ -523,45 +523,45 @@ const update: IParticipantStore['update'] = async (
     identification,
     languages,
     nationalities,
-    ...participantDetails
-  } = participantUpdate;
+    ...individualDetails
+  } = individualUpdate;
 
   await db.transaction(async (trx) => {
-    if (Object.keys(participantDetails).length > 0) {
-      await trx('participants')
+    if (Object.keys(individualDetails).length > 0) {
+      await trx('individuals')
         .update({
-          ...participantDetails,
+          ...individualDetails,
         })
-        .where('id', participantId);
+        .where('id', individualId);
     }
 
     if (languages?.add && languages.add.length > 0) {
-      await trx('participant_languages').insert(
+      await trx('individual_languages').insert(
         languages.add.map((lang) => ({
           languageIsoCode: lang,
-          participantId,
+          individualId,
         })),
       );
     }
     if (languages?.remove && languages?.remove?.length > 0) {
-      await trx('participant_languages')
+      await trx('individual_languages')
         .whereIn('languageIsoCode', languages.remove)
-        .where('participantId', participantId)
+        .where('individualId', individualId)
         .del();
     }
 
     if (nationalities?.add && nationalities?.add?.length > 0) {
-      await trx('participant_nationalities').insert(
+      await trx('individual_nationalities').insert(
         nationalities.add.map((nat) => ({
           nationalityIsoCode: nat,
-          participantId,
+          individualId,
         })),
       );
     }
     if (nationalities?.remove && nationalities?.remove?.length > 0) {
-      await trx('participant_nationalities')
+      await trx('individual_nationalities')
         .whereIn('nationalityIsoCode', nationalities.remove)
-        .where('participantId', participantId)
+        .where('individualId', individualId)
         .del();
     }
 
@@ -571,7 +571,7 @@ const update: IParticipantStore['update'] = async (
         contactDetailType: ContactDetailType.PhoneNumber,
         rawValue: contact.value,
         cleanValue: contact.value, // TODO: Clean string for searching
-        participantId,
+        individualId,
       })) || [];
     const emailsToAdd =
       emails?.add?.map((contact) => ({
@@ -579,11 +579,11 @@ const update: IParticipantStore['update'] = async (
         contactDetailType: ContactDetailType.Email,
         rawValue: contact.value,
         cleanValue: contact.value, // TODO: Clean string for searching
-        participantId,
+        individualId,
       })) || [];
     const contactDetailsToAdd = phonesToAdd.concat(emailsToAdd);
     if (contactDetailsToAdd.length > 0) {
-      await trx('participant_contact_details').insert(contactDetailsToAdd);
+      await trx('individual_contact_details').insert(contactDetailsToAdd);
     }
 
     const phonesToUpdate =
@@ -592,7 +592,7 @@ const update: IParticipantStore['update'] = async (
         contactDetailType: ContactDetailType.PhoneNumber,
         rawValue: contact.value,
         cleanValue: contact.value, // TODO: Clean string for searching
-        participantId,
+        individualId,
       })) || [];
     const emailsToUpdate =
       emails?.update?.map((contact) => ({
@@ -600,18 +600,18 @@ const update: IParticipantStore['update'] = async (
         contactDetailType: ContactDetailType.Email,
         rawValue: contact.value,
         cleanValue: contact.value, // TODO: Clean string for searching
-        participantId,
+        individualId,
       })) || [];
     const contactDetailsToUpdate = phonesToUpdate.concat(emailsToUpdate);
     if (contactDetailsToUpdate.length > 0) {
       for (const detail of contactDetailsToUpdate) {
-        await trx('participant_contact_details')
+        await trx('individual_contact_details')
           .update({
             contactDetailType: detail.contactDetailType,
             rawValue: detail.rawValue,
             cleanValue: detail.cleanValue,
           })
-          .where('participantId', detail.participantId)
+          .where('individualId', detail.individualId)
           .where('id', detail.id);
       }
     }
@@ -620,7 +620,7 @@ const update: IParticipantStore['update'] = async (
     const emailsToRemove = emails?.remove || [];
     const contactDetailsToRemove = phonesToRemove.concat(emailsToRemove);
     if (contactDetailsToRemove.length > 0) {
-      await trx('participant_contact_details')
+      await trx('individual_contact_details')
         .whereIn('id', contactDetailsToRemove)
         .del();
     }
@@ -629,44 +629,44 @@ const update: IParticipantStore['update'] = async (
       identification?.add?.map((identification) => ({
         ...identification,
         id: uuidv4(),
-        participantId,
+        individualId,
       })) || [];
     if (identificationsToAdd.length > 0) {
-      await trx('participant_identifications').insert(identificationsToAdd);
+      await trx('individual_identifications').insert(identificationsToAdd);
     }
     const identificationsToUpdate =
       identification?.update?.map((identification) => ({
         ...identification,
-        participantId,
+        individualId,
       })) || [];
     if (identificationsToUpdate.length > 0) {
       for (const identification of identificationsToUpdate) {
-        await trx('participant_identifications')
+        await trx('individual_identifications')
           .update({
             identificationType: identification.identificationType,
             identificationNumber: identification.identificationNumber,
           })
-          .where('participantId', identification.participantId)
+          .where('individualId', identification.individualId)
           .where('id', identification.id);
       }
     }
     if (identification?.remove && identification?.remove?.length > 0) {
-      await trx('participant_identifications')
+      await trx('individual_identifications')
         .whereIn('id', identification.remove)
         .del();
     }
   });
 
-  const updatedParticipant = await get(participantId);
+  const updatedIndividual = await get(individualId);
 
-  if (!updatedParticipant) {
-    throw new NotFoundError('Participant that was updated not found');
+  if (!updatedIndividual) {
+    throw new NotFoundError('Individual that was updated not found');
   }
 
-  return updatedParticipant;
+  return updatedIndividual;
 };
 
-export const ParticipantStore: IParticipantStore = {
+export const IndividualStore: IIndividualStore = {
   count,
   create,
   get,

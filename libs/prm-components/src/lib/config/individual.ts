@@ -10,7 +10,7 @@ import {
 import { Component, DataType, EntityUIConfigLoader } from './config.types';
 import { optionsFromEnum } from './utils';
 
-export const participantConfig: EntityUIConfigLoader = (staticData) => ({
+export const individualConfig: EntityUIConfigLoader = (staticData) => ({
   detail: {
     sections: [
       {
