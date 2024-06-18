@@ -1,36 +1,36 @@
 import { Alert, AlertIcon, Box, Skeleton } from '@chakra-ui/react';
 import {
-  PositionDefinition,
-  PositionDefinitionSchema,
-  PositionPartialUpdate,
-  PositionPartialUpdateSchema,
-  PositionSchema,
+  TeamDefinition,
+  TeamDefinitionSchema,
+  TeamPartialUpdate,
+  TeamPartialUpdateSchema,
+  TeamSchema,
 } from '@nrcno/core-models';
 import { useNavigate, useParams } from 'react-router-dom';
 import { SubmitStatus } from '@nrcno/core-shared-frontend';
 import * as React from 'react';
 
-import { PositionDetailForm } from '../components/PositionDetailForm.component';
+import { TeamDetailForm } from '../components/TeamDetailForm.component';
 import { useUserContext } from '../user.context';
 
 type Props = {
   mode: 'create' | 'read' | 'edit';
 };
 
-export const PositionDetailPage: React.FC<Props> = ({ mode }) => {
+export const TeamDetailPage: React.FC<Props> = ({ mode }) => {
   const navigate = useNavigate();
-  const { positionId } = useParams();
+  const { teamId } = useParams();
 
   const {
-    position: { create, update, read },
+    team: { create, update, read },
   } = useUserContext();
 
   // Load entity when in read or edit mode
   React.useEffect(() => {
-    if ((mode === 'read' || mode === 'edit') && positionId) {
-      read.onRead(positionId);
+    if ((mode === 'read' || mode === 'edit') && teamId) {
+      read.onRead(teamId);
     }
-  }, [mode, positionId]);
+  }, [mode, teamId]);
 
   // Reset form when switching between create and edit mode
   React.useEffect(() => {
@@ -49,30 +49,29 @@ export const PositionDetailPage: React.FC<Props> = ({ mode }) => {
       case 'create':
         return {
           ...create,
-          onSubmit: async (data: PositionDefinition) => {
+          onSubmit: async (data: TeamDefinition) => {
             await create.onCreate(data);
-            navigate(`/admin/positions`);
+            navigate(`/admin/teams`);
           },
-          defaultBackPath: `/admin/positions`,
-          schema: PositionDefinitionSchema,
+          defaultBackPath: `/admin/teams`,
+          schema: TeamDefinitionSchema,
         };
       case 'edit':
-        if (!positionId) {
-          throw new Error('Position id is required');
+        if (!teamId) {
+          throw new Error('Team id is required');
         }
         return {
           ...update,
-          onSubmit: (data: PositionPartialUpdate) =>
-            update.onUpdate(positionId, data),
-          defaultBackPath: `/admin/positions/${positionId}`,
-          schema: PositionPartialUpdateSchema,
+          onSubmit: (data: TeamPartialUpdate) => update.onUpdate(teamId, data),
+          defaultBackPath: `/admin/teams/${teamId}`,
+          schema: TeamPartialUpdateSchema,
         };
       case 'read':
         return {
           ...read,
           onSubmit: () => {},
-          defaultBackPath: `/admin/positions`,
-          schema: PositionSchema,
+          defaultBackPath: `/admin/teams`,
+          schema: TeamSchema,
         };
     }
   })();
@@ -94,13 +93,13 @@ export const PositionDetailPage: React.FC<Props> = ({ mode }) => {
       {isSuccess && (
         <Alert status="success" mb={4}>
           <AlertIcon />
-          Position saved successfully
+          Team saved successfully
         </Alert>
       )}
       <Skeleton isLoaded={!isLoading}>
-        <PositionDetailForm
+        <TeamDetailForm
           onSubmit={onSubmit}
-          position={read.data}
+          team={read.data}
           isSubmitting={isSubmitting}
           defaultBackPath={defaultBackPath}
           readOnly={mode === 'read'}

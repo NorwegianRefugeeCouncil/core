@@ -24,6 +24,6 @@ export const usePosition = (client: PositionClient) =>
     PositionListItem,
     PositionDefinition,
     PositionPartialUpdate,
-    typeof PositionClient
+    PositionClient
   >(client);
 export const defaultPositionState = defaultCRUDState;

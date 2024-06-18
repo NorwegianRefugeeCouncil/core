@@ -16,12 +16,12 @@ import {
   usePagination,
 } from '@nrcno/core-shared-frontend';
 import { SmallAddIcon } from '@chakra-ui/icons';
-import { PositionListItem } from '@nrcno/core-models';
+import { TeamListItem } from '@nrcno/core-models';
 
-import { PositionList } from '../components/PositionList.component';
+import { TeamList } from '../components/TeamList.component';
 import { useUserContext } from '../user.context';
 
-export const PositionListPage: React.FC = () => {
+export const TeamListPage: React.FC = () => {
   const navigate = useNavigate();
 
   const {
@@ -37,7 +37,7 @@ export const PositionListPage: React.FC = () => {
   } = usePagination();
 
   const {
-    position: {
+    team: {
       list: { onList, data, status, error },
     },
   } = useUserContext();
@@ -53,15 +53,15 @@ export const PositionListPage: React.FC = () => {
   const isLoading = status === SubmitStatus.SUBMITTING;
   const isError = status === SubmitStatus.ERROR;
 
-  const handleRowClick = (position: PositionListItem) => {
-    navigate(position.id);
+  const handleRowClick = (team: TeamListItem) => {
+    navigate(team.id);
   };
 
   return (
     <Flex height="100%" direction="column">
       <Flex justifyContent="space-between" alignItems="flex-start" pb="6">
         <Flex direction="column">
-          <Heading>Positions</Heading>
+          <Heading>Teams</Heading>
           <Box h="1rem">
             <Skeleton isLoaded={!isLoading}>
               <Text>{totalCount} results</Text>
@@ -84,10 +84,7 @@ export const PositionListPage: React.FC = () => {
         <>
           <Flex flex={1} overflow="hidden">
             <Skeleton isLoaded={!isLoading} w="100%">
-              <PositionList
-                positions={data?.items ?? []}
-                onRowClick={handleRowClick}
-              />
+              <TeamList teams={data?.items ?? []} onRowClick={handleRowClick} />
             </Skeleton>
           </Flex>
           <Flex justifyContent="flex-end">

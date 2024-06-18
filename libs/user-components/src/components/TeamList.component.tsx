@@ -7,33 +7,33 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react';
-import { PositionListItem } from '@nrcno/core-models';
+import { TeamListItem } from '@nrcno/core-models';
 
 type Props = {
-  positions: PositionListItem[];
-  onRowClick: (position: PositionListItem) => void;
+  teams: TeamListItem[];
+  onRowClick: (team: TeamListItem) => void;
 };
 
-export const PositionList: React.FC<Props> = ({ positions, onRowClick }) => {
+export const TeamList: React.FC<Props> = ({ teams, onRowClick }) => {
   return (
     <TableContainer overflowY="auto" height="100%">
       <Table variant="striped" size="md">
-        <Thead zIndex={'docked'} position={'sticky'} top={'0'} bg="white">
+        <Thead zIndex={'docked'} team={'sticky'} top={'0'} bg="white">
           <Tr>
             <Th>Id</Th>
             <Th>Name</Th>
           </Tr>
         </Thead>
         <Tbody>
-          {positions.map((position) => (
+          {teams.map((team) => (
             <Tr
-              key={position.id}
+              key={team.id}
               _hover={{ bg: 'primary.200' }}
               cursor="pointer"
-              onClick={() => onRowClick(position)}
+              onClick={() => onRowClick(team)}
             >
-              <Td>{position.id}</Td>
-              <Td>{position.name}</Td>
+              <Td>{team.id}</Td>
+              <Td>{team.name}</Td>
             </Tr>
           ))}
         </Tbody>

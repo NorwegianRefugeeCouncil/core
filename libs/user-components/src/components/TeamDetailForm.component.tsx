@@ -13,21 +13,21 @@ import {
   Spinner,
   Text,
 } from '@chakra-ui/react';
-import { Position } from '@nrcno/core-models';
+import { Team } from '@nrcno/core-models';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 type Props = {
-  position?: Position;
-  onSubmit?: (data: Position) => void;
+  team?: Team;
+  onSubmit?: (data: Team) => void;
   isSubmitting?: boolean;
   readOnly: boolean;
   schema: z.ZodType<any, any>;
   defaultBackPath: string;
 };
 
-export const PositionDetailForm: React.FC<Props> = ({
-  position,
+export const TeamDetailForm: React.FC<Props> = ({
+  team,
   onSubmit,
   isSubmitting,
   readOnly,
@@ -39,17 +39,17 @@ export const PositionDetailForm: React.FC<Props> = ({
     formState: { errors, isDirty, isValid },
     handleSubmit: formHandleSubmit,
     reset,
-  } = useForm<Position>({
+  } = useForm<Team>({
     mode: 'onChange',
-    defaultValues: position,
+    defaultValues: team,
     disabled: readOnly || isSubmitting,
     criteriaMode: 'all',
     resolver: zodResolver(schema),
   });
 
   useEffect(() => {
-    reset(position);
-  }, [JSON.stringify(position), readOnly]);
+    reset(team);
+  }, [JSON.stringify(team), readOnly]);
 
   const location = useLocation();
 
@@ -84,19 +84,19 @@ export const PositionDetailForm: React.FC<Props> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} id={`position-${position?.id ?? 'new'}`}>
+    <form onSubmit={handleSubmit} id={`team-${team?.id ?? 'new'}`}>
       <Flex
         direction="row"
         justifyContent="space-between"
         alignItems="flex-start"
         zIndex="docked"
-        position="sticky"
+        team="sticky"
         top={0}
         bg="white"
         pt={2}
       >
         <Flex direction="row" gap={4} alignItems="flex-start">
-          <Heading mb={4}>{position?.name ?? 'New position'}</Heading>
+          <Heading mb={4}>{team?.name ?? 'New team'}</Heading>
           {isSubmitting && <Spinner colorScheme="primary" size="lg" />}
         </Flex>
         <HStack>
@@ -122,10 +122,10 @@ export const PositionDetailForm: React.FC<Props> = ({
       </Flex>
 
       <Flex direction="column" gap={4}>
-        {position && (
+        {team && (
           <FormControl>
             <FormLabel>ID</FormLabel>
-            <Text>{position.id}</Text>
+            <Text>{team.id}</Text>
           </FormControl>
         )}
 

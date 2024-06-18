@@ -2,6 +2,8 @@ import { createBrowserRouter } from 'react-router-dom';
 import {
   PositionDetailPage,
   PositionListPage,
+  TeamDetailPage,
+  TeamListPage,
   UserListPage,
 } from '@nrcno/core-user-components';
 
@@ -62,6 +64,22 @@ export const router = createBrowserRouter([
           {
             path: '/admin/positions/:positionId/edit',
             element: <PositionDetailPage mode="edit" />,
+          },
+          {
+            path: '/admin/teams',
+            element: <TeamListPage />,
+          },
+          {
+            path: '/admin/teams/new',
+            element: <TeamDetailPage mode="create" />,
+          },
+          {
+            path: '/admin/teams/:teamId',
+            element: <TeamDetailPage mode="read" />,
+          },
+          {
+            path: '/admin/teams/:teamId/edit',
+            element: <TeamDetailPage mode="edit" />,
           },
         ],
       },

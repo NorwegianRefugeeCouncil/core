@@ -1,5 +1,5 @@
 import { PaginatedResponse, Pagination } from '@nrcno/core-models';
-import { SubmitStatus, useApiReducer } from '@nrcno/shared-frontend';
+import { SubmitStatus, useApiReducer } from '@nrcno/core-shared-frontend';
 
 export type CRUDState<T, TListItem, TDefinition, TPartial> = {
   create: {
@@ -36,7 +36,7 @@ export type CRUDState<T, TListItem, TDefinition, TPartial> = {
   };
 };
 
-export const defaultCRUDState = {
+export const defaultCRUDState: CRUDState<any, any, any, any> = {
   create: {
     onCreate: async () => Promise.reject(),
     data: undefined,
@@ -77,12 +77,12 @@ export const defaultCRUDState = {
   },
 };
 
-type CRUDClient<T, TDefinition, TPartial> = {
+type CRUDClient<T, TListItem, TDefinition, TPartial> = {
   create: (data: TDefinition) => Promise<T>;
   read: (id: string) => Promise<T>;
-  list: (pagination: Pagination) => Promise<PaginatedResponse<T>>;
+  list: (pagination: Pagination) => Promise<PaginatedResponse<TListItem>>;
   update: (id: string, data: TPartial) => Promise<T>;
-  delete: (id: string) => Promise<void>;
+  del: (id: string) => Promise<void>;
 };
 
 export const useCRUDResource = <
@@ -90,7 +90,7 @@ export const useCRUDResource = <
   TListItem,
   TDefinition,
   TPartial,
-  TClient extends CRUDClient<T, TDefinition, TPartial>,
+  TClient extends CRUDClient<T, TListItem, TDefinition, TPartial>,
 >(
   client: TClient,
 ): CRUDState<T, TListItem, TDefinition, TPartial> => {
@@ -162,7 +162,7 @@ export const useCRUDResource = <
   const onDelete = async (id: string): Promise<void> => {
     try {
       deleteActions.submitting();
-      await client.delete(id);
+      await client.del(id);
       deleteActions.success();
     } catch (error) {
       const err =

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { AxiosInstance } from 'axios';
-import { PositionClient, UserClient } from '@nrcno/core-clients';
+import { PositionClient, TeamClient, UserClient } from '@nrcno/core-clients';
 import { SubmitStatus } from '@nrcno/core-shared-frontend';
 
 import { MeState, useMe, defaultMeState } from './hooks/useMe.hook';
@@ -14,6 +14,7 @@ import {
   PositionState,
   usePosition,
 } from './hooks/usePosition.hook';
+import { TeamState, defaultTeamState, useTeam } from './hooks/useTeam.hook';
 
 type Props = {
   axiosInstance: AxiosInstance;
@@ -26,6 +27,7 @@ type UserContextData = {
     list: UserListState;
   };
   position: PositionState;
+  team: TeamState;
 };
 
 export const UserContext = React.createContext<UserContextData>({
@@ -34,6 +36,7 @@ export const UserContext = React.createContext<UserContextData>({
     list: defaultUserListState,
   },
   position: defaultPositionState,
+  team: defaultTeamState,
 });
 
 export const UserProvider: React.FC<Props> = ({ axiosInstance, children }) => {
@@ -45,10 +48,15 @@ export const UserProvider: React.FC<Props> = ({ axiosInstance, children }) => {
     () => new PositionClient(axiosInstance),
     [axiosInstance],
   );
+  const teamClient = React.useMemo(
+    () => new TeamClient(axiosInstance),
+    [axiosInstance],
+  );
 
   const me = useMe(userClient);
   const userList = useUserList(userClient);
   const position = usePosition(positionClient);
+  const team = useTeam(teamClient);
 
   React.useEffect(() => {
     me.getMe();
@@ -65,6 +73,7 @@ export const UserProvider: React.FC<Props> = ({ axiosInstance, children }) => {
           list: userList,
         },
         position,
+        team,
       }}
     >
       {children}
