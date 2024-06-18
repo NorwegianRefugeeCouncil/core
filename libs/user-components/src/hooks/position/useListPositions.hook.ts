@@ -14,7 +14,7 @@ export const defaultPositionListState: PositionListState = {
   status: SubmitStatus.IDLE,
 };
 
-export const usePositionList = (client: PositionClient): PositionListState => {
+export const useListPositions = (client: PositionClient): PositionListState => {
   const [state, actions] = useApiReducer<PaginatedResponse<Position>>();
 
   const getPositionList = async (pagination: Pagination) => {

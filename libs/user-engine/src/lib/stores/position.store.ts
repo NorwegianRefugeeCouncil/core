@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { v4 as uuid } from 'uuid';
 
 import { getDb } from '@nrcno/core-db';
 import {
@@ -25,7 +26,12 @@ export interface IPositionStore {
 const create: IPositionStore['create'] = async (position) => {
   const db = getDb();
 
-  const result = await db('positions').insert(position).returning('*');
+  const result = await db('positions')
+    .insert({
+      ...position,
+      id: uuid(),
+    })
+    .returning('*');
 
   return PositionSchema.parse(result[0]);
 };

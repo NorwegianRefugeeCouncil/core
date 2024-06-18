@@ -126,10 +126,10 @@ const deletePosition = async (
 };
 
 const router = Router();
-router.post('/position', createPosition);
-router.get('/position', listEntities);
-router.get('/position/:positionId', getPosition);
-router.put('/position/:positionId', updatePosition);
-router.delete('/position/:positionId', deletePosition);
+router.post('/positions', createPosition);
+router.get('/positions', listEntities);
+router.get('/positions/:positionId', getPosition);
+router.put('/positions/:positionId', updatePosition);
+router.delete('/positions/:positionId', deletePosition);
 
-export { router as prmRouter };
+export { router as positionRouter };

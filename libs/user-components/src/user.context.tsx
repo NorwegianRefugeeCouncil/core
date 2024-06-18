@@ -10,10 +10,10 @@ import {
   useUserList,
 } from './hooks/useUserList.hook';
 import {
-  defaultPositionListState,
-  PositionListState,
-  usePositionList,
-} from './hooks/usePositionList.hook';
+  defaultPositionState,
+  PositionState,
+  usePosition,
+} from './hooks/usePosition.hook';
 
 type Props = {
   axiosInstance: AxiosInstance;
@@ -25,9 +25,7 @@ type UserContextData = {
   user: {
     list: UserListState;
   };
-  position: {
-    list: PositionListState;
-  };
+  position: PositionState;
 };
 
 export const UserContext = React.createContext<UserContextData>({
@@ -35,9 +33,7 @@ export const UserContext = React.createContext<UserContextData>({
   user: {
     list: defaultUserListState,
   },
-  position: {
-    list: defaultPositionListState,
-  },
+  position: defaultPositionState,
 });
 
 export const UserProvider: React.FC<Props> = ({ axiosInstance, children }) => {
@@ -52,7 +48,7 @@ export const UserProvider: React.FC<Props> = ({ axiosInstance, children }) => {
 
   const me = useMe(userClient);
   const userList = useUserList(userClient);
-  const positionList = usePositionList(positionClient);
+  const position = usePosition(positionClient);
 
   React.useEffect(() => {
     me.getMe();
@@ -68,9 +64,7 @@ export const UserProvider: React.FC<Props> = ({ axiosInstance, children }) => {
         user: {
           list: userList,
         },
-        position: {
-          list: positionList,
-        },
+        position,
       }}
     >
       {children}

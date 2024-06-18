@@ -2,21 +2,21 @@ import type { Knex } from 'knex';
 
 export const up = async (knex: Knex): Promise<void> => {
   await knex.schema.createTable('positions', (table) => {
-    table.string('id', 26).primary().notNullable();
+    table.uuid('id').primary().notNullable();
     table.string('name', 100).notNullable();
   });
 
   await knex.schema.createTable('teams', (table) => {
-    table.string('id', 26).primary().notNullable();
+    table.uuid('id').primary().notNullable();
     table.string('name', 100).notNullable();
-    table.string('parent_team_id', 26);
+    table.uuid('parent_team_id');
 
     table.foreign('parent_team_id').references('teams.id').onDelete('CASCADE');
   });
 
   await knex.schema.createTable('team_position_assignments', (table) => {
-    table.string('team_id', 26).notNullable();
-    table.string('position_id', 26).notNullable();
+    table.uuid('team_id').notNullable();
+    table.uuid('position_id').notNullable();
     table.boolean('is_team_lead').notNullable().defaultTo(false);
 
     table.primary(['team_id', 'position_id']);
@@ -27,8 +27,8 @@ export const up = async (knex: Knex): Promise<void> => {
   });
 
   await knex.schema.createTable('position_user_assignments', (table) => {
-    table.string('position_id', 26).notNullable();
-    table.string('user_id', 26).notNullable();
+    table.uuid('position_id').notNullable();
+    table.uuid('user_id').notNullable();
 
     table.primary(['position_id', 'user_id']);
 

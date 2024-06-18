@@ -1,5 +1,9 @@
 import { createBrowserRouter } from 'react-router-dom';
-import { PositionListPage, UserListPage } from '@nrcno/core-user-components';
+import {
+  PositionDetailPage,
+  PositionListPage,
+  UserListPage,
+} from '@nrcno/core-user-components';
 
 import { EntityDetailPage, EntityListPage } from '@nrcno/core-prm-components';
 
@@ -46,6 +50,18 @@ export const router = createBrowserRouter([
           {
             path: '/admin/positions',
             element: <PositionListPage />,
+          },
+          {
+            path: '/admin/positions/new',
+            element: <PositionDetailPage mode="create" />,
+          },
+          {
+            path: '/admin/positions/:positionId',
+            element: <PositionDetailPage mode="read" />,
+          },
+          {
+            path: '/admin/positions/:positionId/edit',
+            element: <PositionDetailPage mode="edit" />,
           },
         ],
       },

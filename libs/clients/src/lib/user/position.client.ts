@@ -5,6 +5,8 @@ import {
   PaginatedResponse,
   Pagination,
   Position,
+  PositionDefinition,
+  PositionPartialUpdate,
   PositionSchema,
 } from '@nrcno/core-models';
 
@@ -22,6 +24,11 @@ export class PositionClient extends BaseClient {
     return PositionSchema.parse(res.data);
   }
 
+  async create(data: PositionDefinition): Promise<Position> {
+    const res = await super.post('/positions', data);
+    return PositionSchema.parse(res.data);
+  }
+
   async list(pagination: Pagination): Promise<PaginatedResponse<Position>> {
     const res = await super.get('/positions', { params: pagination });
     return paginatedPositionSchema.parse(res.data);
@@ -29,6 +36,11 @@ export class PositionClient extends BaseClient {
 
   async read(id: string): Promise<Position> {
     const res = await super.get(`/positions/${id}`);
+    return PositionSchema.parse(res.data);
+  }
+
+  async update(id: string, data: PositionPartialUpdate): Promise<Position> {
+    const res = await super.put(`/positions/${id}`, data);
     return PositionSchema.parse(res.data);
   }
 
