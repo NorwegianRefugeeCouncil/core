@@ -7,7 +7,7 @@ import {
   PhoneContactDetailsDefinitionSchema,
   PhoneContactDetailsSchema,
   SexSchema,
-} from './participant.model';
+} from './individual.model';
 
 export enum HeadOfHouseholdType {
   AdultFemale = 'adult_female',

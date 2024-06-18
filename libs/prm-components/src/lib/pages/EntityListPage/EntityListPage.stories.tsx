@@ -51,7 +51,7 @@ type Story = StoryObj<typeof EntityListPage>;
 
 export const Primary = {
   args: {
-    entityType: EntityType.Participant,
+    entityType: EntityType.Individual,
     entityId: undefined,
   },
 };

@@ -2,13 +2,13 @@ import { ulid } from 'ulidx';
 import { faker } from '@faker-js/faker';
 
 import {
-  ParticipantSchema,
-  ParticipantDefinitionSchema,
-} from './participant.model';
+  IndividualSchema,
+  IndividualDefinitionSchema,
+} from './individual.model';
 
-describe('ParticipantSchema', () => {
-  it('should validate a valid participant object', () => {
-    const participant = {
+describe('IndividualSchema', () => {
+  it('should validate a valid individual object', () => {
+    const individual = {
       id: ulid(),
       firstName: 'John',
       lastName: 'Doe',
@@ -18,20 +18,18 @@ describe('ParticipantSchema', () => {
       consentReferral: true,
       languages: [],
       nationalities: [],
-      contactDetails: {
-        emails: [
-          {
-            id: faker.string.uuid(),
-            value: 'john.doe@example.com',
-          },
-        ],
-        phones: [
-          {
-            id: faker.string.uuid(),
-            value: '1234567890',
-          },
-        ],
-      },
+      emails: [
+        {
+          id: faker.string.uuid(),
+          value: 'john.doe@example.com',
+        },
+      ],
+      phones: [
+        {
+          id: faker.string.uuid(),
+          value: '1234567890',
+        },
+      ],
       identification: [
         {
           id: faker.string.uuid(),
@@ -41,13 +39,13 @@ describe('ParticipantSchema', () => {
       ],
     };
 
-    const result = ParticipantSchema.parse(participant);
+    const result = IndividualSchema.parse(individual);
 
-    expect(result).toEqual(participant);
+    expect(result).toEqual(individual);
   });
 
-  it('should not validate an invalid participant object', () => {
-    const participant = {
+  it('should not validate an invalid individual object', () => {
+    const individual = {
       id: '1234567890abcdef',
       firstName: 'John',
       lastName: 'Doe',
@@ -57,19 +55,19 @@ describe('ParticipantSchema', () => {
       consentReferral: true,
       languages: [],
       nationalities: [],
-      contactDetails: [],
+      badField: [],
       identification: [],
     };
 
-    const result = ParticipantSchema.safeParse(participant);
+    const result = IndividualSchema.safeParse(individual);
 
     expect(result.success).toBe(false);
   });
 });
 
-describe('ParticipantDefinitionSchema', () => {
-  it('should validate a valid participant definition object', () => {
-    const participantDefinition = {
+describe('IndividualDefinitionSchema', () => {
+  it('should validate a valid individual definition object', () => {
+    const individualDefinition = {
       firstName: 'John',
       lastName: 'Doe',
       dateOfBirth: new Date('1990-01-01'),
@@ -78,18 +76,16 @@ describe('ParticipantDefinitionSchema', () => {
       consentReferral: true,
       languages: [],
       nationalities: [],
-      contactDetails: {
-        emails: [
-          {
-            value: 'john.doe@example.com',
-          },
-        ],
-        phones: [
-          {
-            value: '1234567890',
-          },
-        ],
-      },
+      emails: [
+        {
+          value: 'john.doe@example.com',
+        },
+      ],
+      phones: [
+        {
+          value: '1234567890',
+        },
+      ],
       identification: [
         {
           identificationType: 'unhcr_id',
@@ -98,13 +94,13 @@ describe('ParticipantDefinitionSchema', () => {
       ],
     };
 
-    const result = ParticipantDefinitionSchema.parse(participantDefinition);
+    const result = IndividualDefinitionSchema.parse(individualDefinition);
 
-    expect(result).toEqual(participantDefinition);
+    expect(result).toEqual(individualDefinition);
   });
 
-  it('should not validate an invalid participant definition object', () => {
-    const participantDefinition = {
+  it('should not validate an invalid individual definition object', () => {
+    const individualDefinition = {
       firstName: 'John',
       lastName: 'Doe',
       dateOfBirth: new Date('1990-01-01'),
@@ -113,11 +109,11 @@ describe('ParticipantDefinitionSchema', () => {
       consentReferral: true,
       languages: [],
       nationalities: [],
-      contactDetails: [],
+      badField: [],
       identification: [],
     };
 
-    const result = ParticipantDefinitionSchema.safeParse(participantDefinition);
+    const result = IndividualDefinitionSchema.safeParse(individualDefinition);
 
     expect(result.success).toBe(false);
   });

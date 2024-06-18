@@ -29,7 +29,7 @@ describe('useEntityListPage', () => {
   describe('read', () => {
     const prmContextData: PrmContextData = {
       config,
-      entityType: EntityType.Participant,
+      entityType: EntityType.Individual,
       entityId: '1234',
       create: {
         onCreateEntity: vi.fn(),
@@ -74,9 +74,9 @@ describe('useEntityListPage', () => {
       );
 
       expect(result.current).toEqual({
-        entityType: EntityType.Participant,
-        listConfig: config[EntityType.Participant].list,
-        filterConfig: config[EntityType.Participant].filtering,
+        entityType: EntityType.Individual,
+        listConfig: config[EntityType.Individual].list,
+        filterConfig: config[EntityType.Individual].filtering,
         isLoading: false,
         isError: false,
         isSuccess: false,

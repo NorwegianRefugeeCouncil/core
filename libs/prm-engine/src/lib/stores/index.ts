@@ -1,1 +1,1 @@
-export * from './participant.store';
+export * from './individual.store';

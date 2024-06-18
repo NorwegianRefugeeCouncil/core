@@ -29,7 +29,7 @@ describe('useEntityDetailPage', () => {
   describe('create', () => {
     const prmContextData: PrmContextData = {
       config,
-      entityType: EntityType.Participant,
+      entityType: EntityType.Individual,
       entityId: undefined,
       create: {
         onCreateEntity: vi.fn(),
@@ -72,8 +72,8 @@ describe('useEntityDetailPage', () => {
       expect(result.current).toEqual({
         mode: 'create',
         onSubmit: expect.any(Function),
-        entityType: EntityType.Participant,
-        config: config[EntityType.Participant].detail,
+        entityType: EntityType.Individual,
+        config: config[EntityType.Individual].detail,
         isLoading: false,
         isError: false,
         isSuccess: false,
@@ -148,15 +148,13 @@ describe('useEntityDetailPage', () => {
       result.current.onSubmit({
         firstName: 'John',
         lastName: 'Doe',
-        contactDetails: {
-          emails: [
-            {
-              value: 'test@test.com',
-              id: '',
-            },
-          ],
-          phones: [],
-        },
+        emails: [
+          {
+            value: 'test@test.com',
+            id: '',
+          },
+        ],
+        phones: [],
         consentGdpr: false,
         consentReferral: false,
         languages: [],
@@ -168,14 +166,12 @@ describe('useEntityDetailPage', () => {
       expect(prmContextData.create.onCreateEntity).toHaveBeenCalledWith({
         firstName: 'John',
         lastName: 'Doe',
-        contactDetails: {
-          emails: [
-            {
-              value: 'test@test.com',
-            },
-          ],
-          phones: [],
-        },
+        emails: [
+          {
+            value: 'test@test.com',
+          },
+        ],
+        phones: [],
         consentGdpr: false,
         consentReferral: false,
         languages: [],
@@ -188,7 +184,7 @@ describe('useEntityDetailPage', () => {
   describe('read', () => {
     const prmContextData: PrmContextData = {
       config,
-      entityType: EntityType.Participant,
+      entityType: EntityType.Individual,
       entityId: '1234',
       create: {
         onCreateEntity: vi.fn(),
@@ -230,8 +226,8 @@ describe('useEntityDetailPage', () => {
 
       expect(result.current).toEqual({
         mode: 'read',
-        entityType: EntityType.Participant,
-        config: config[EntityType.Participant].detail,
+        entityType: EntityType.Individual,
+        config: config[EntityType.Individual].detail,
         isLoading: false,
         isError: false,
         isSuccess: false,
@@ -330,7 +326,7 @@ describe('useEntityDetailPage', () => {
   describe('edit', () => {
     const prmContextData: PrmContextData = {
       config,
-      entityType: EntityType.Participant,
+      entityType: EntityType.Individual,
       entityId: '1234',
       create: {
         onCreateEntity: vi.fn(),
@@ -373,8 +369,8 @@ describe('useEntityDetailPage', () => {
       expect(result.current).toEqual({
         mode: 'edit',
         onSubmit: expect.any(Function),
-        entityType: EntityType.Participant,
-        config: config[EntityType.Participant].detail,
+        entityType: EntityType.Individual,
+        config: config[EntityType.Individual].detail,
         isLoading: false,
         isError: false,
         isSuccess: false,
@@ -542,15 +538,13 @@ describe('useEntityDetailPage', () => {
       result.current.onSubmit({
         firstName: 'John',
         lastName: 'Doe',
-        contactDetails: {
-          emails: [
-            {
-              value: '',
-              id: '',
-            },
-          ],
-          phones: [],
-        },
+        emails: [
+          {
+            value: '',
+            id: '',
+          },
+        ],
+        phones: [],
         consentGdpr: false,
         consentReferral: false,
         languages: [],
@@ -562,15 +556,13 @@ describe('useEntityDetailPage', () => {
       expect(prmContextData.edit.onEditEntity).toHaveBeenCalledWith('1234', {
         firstName: 'John',
         lastName: 'Doe',
-        contactDetails: {
-          emails: [
-            {
-              value: '',
-              id: '',
-            },
-          ],
-          phones: [],
-        },
+        emails: [
+          {
+            value: '',
+            id: '',
+          },
+        ],
+        phones: [],
         consentGdpr: false,
         consentReferral: false,
         languages: [],

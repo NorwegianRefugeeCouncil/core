@@ -1,7 +1,7 @@
 import { EntityType } from '@nrcno/core-models';
 
 import { PrmUIConfigLoader } from './config.types';
-import { participantConfig } from './participant';
+import { individualConfig } from './individual';
 
 export * from './config.types';
 
@@ -18,7 +18,7 @@ const emptyConfig = {
 };
 
 export const configLoader: PrmUIConfigLoader = (staticData) => ({
-  [EntityType.Participant]: participantConfig(staticData),
+  [EntityType.Individual]: individualConfig(staticData),
   [EntityType.Language]: emptyConfig,
   [EntityType.Nationality]: emptyConfig,
 });

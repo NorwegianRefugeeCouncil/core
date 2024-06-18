@@ -1,20 +1,20 @@
 import { z } from 'zod';
 
 import {
-  ParticipantDefinitionSchema,
-  ParticipantSchema,
-  ParticipantUpdateSchema,
-  ParticipantDefinition,
-  ParticipantListItemSchema,
-  ParticipantListItem,
-  ParticipantFilteringSchema,
-  ParticipantListSortingFields,
-  ParticipantFiltering,
-  Participant,
-  ParticipantPartialUpdate,
-  ParticipantUpdate,
-  ParticipantDefaultSorting,
-} from './participant.model';
+  IndividualDefinitionSchema,
+  IndividualSchema,
+  IndividualUpdateSchema,
+  IndividualDefinition,
+  IndividualListItemSchema,
+  IndividualListItem,
+  IndividualFilteringSchema,
+  IndividualListSortingFields,
+  IndividualFiltering,
+  Individual,
+  IndividualPartialUpdate,
+  IndividualUpdate,
+  IndividualDefaultSorting,
+} from './individual.model';
 import {
   Language,
   LanguageDefaultSorting,
@@ -33,7 +33,7 @@ import {
 } from './nationality.model';
 
 export enum EntityType {
-  Participant = 'participants',
+  Individual = 'individuals',
   Language = 'languages',
   Nationality = 'nationalities',
 }
@@ -45,21 +45,21 @@ export const EntityIdSchema = z.string().ulid();
 export const EmptyFilterSchema = z.object({});
 export type EmptyFilter = z.infer<typeof EmptyFilterSchema>;
 
-export type Entity = Participant | Language | Nationality;
-export type EntityDefinition = ParticipantDefinition;
-export type EntityListItem = ParticipantListItem | Language | Nationality;
-export type EntityUpdate = ParticipantUpdate;
-export type EntityPartialUpdate = ParticipantPartialUpdate;
+export type Entity = Individual | Language | Nationality;
+export type EntityDefinition = IndividualDefinition;
+export type EntityListItem = IndividualListItem | Language | Nationality;
+export type EntityUpdate = IndividualUpdate;
+export type EntityPartialUpdate = IndividualPartialUpdate;
 export type EntityFiltering =
-  | ParticipantFiltering
+  | IndividualFiltering
   | LanguageFilter
   | NationalityFilter
   | EmptyFilter;
 
 export const getEntitySchema = (entityType: EntityType) => {
   switch (entityType) {
-    case EntityType.Participant:
-      return ParticipantSchema;
+    case EntityType.Individual:
+      return IndividualSchema;
     case EntityType.Language:
       return LanguageSchema;
     case EntityType.Nationality:
@@ -71,8 +71,8 @@ export const getEntitySchema = (entityType: EntityType) => {
 
 export const getEntityDefinitionSchema = (entityType: EntityType) => {
   switch (entityType) {
-    case EntityType.Participant:
-      return ParticipantDefinitionSchema;
+    case EntityType.Individual:
+      return IndividualDefinitionSchema;
     default:
       throw new Error(`No definition schema found for ${entityType}`);
   }
@@ -80,8 +80,8 @@ export const getEntityDefinitionSchema = (entityType: EntityType) => {
 
 export const getEntityUpdateSchema = (entityType: EntityType) => {
   switch (entityType) {
-    case EntityType.Participant:
-      return ParticipantUpdateSchema;
+    case EntityType.Individual:
+      return IndividualUpdateSchema;
     default:
       throw new Error(`No update schema found for ${entityType}`);
   }
@@ -89,8 +89,8 @@ export const getEntityUpdateSchema = (entityType: EntityType) => {
 
 export const getEntityListItemSchema = (entityType: EntityType) => {
   switch (entityType) {
-    case EntityType.Participant:
-      return ParticipantListItemSchema;
+    case EntityType.Individual:
+      return IndividualListItemSchema;
     case EntityType.Language:
       return LanguageSchema;
     case EntityType.Nationality:
@@ -102,8 +102,8 @@ export const getEntityListItemSchema = (entityType: EntityType) => {
 
 export const getEntityListSortingFields = (entityType: EntityType) => {
   switch (entityType) {
-    case EntityType.Participant:
-      return ParticipantListSortingFields;
+    case EntityType.Individual:
+      return IndividualListSortingFields;
     case EntityType.Language:
       return LanguageSortingFields;
     case EntityType.Nationality:
@@ -115,8 +115,8 @@ export const getEntityListSortingFields = (entityType: EntityType) => {
 
 export const getEntityDefaultSorting = (entityType: EntityType) => {
   switch (entityType) {
-    case EntityType.Participant:
-      return ParticipantDefaultSorting;
+    case EntityType.Individual:
+      return IndividualDefaultSorting;
     case EntityType.Language:
       return LanguageDefaultSorting;
     case EntityType.Nationality:
@@ -128,8 +128,8 @@ export const getEntityDefaultSorting = (entityType: EntityType) => {
 
 export const getEntityFilteringSchema = (entityType: EntityType) => {
   switch (entityType) {
-    case EntityType.Participant:
-      return ParticipantFilteringSchema;
+    case EntityType.Individual:
+      return IndividualFilteringSchema;
     case EntityType.Language:
       return LanguageFilterSchema;
     case EntityType.Nationality:

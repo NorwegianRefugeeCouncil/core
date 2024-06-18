@@ -2,13 +2,13 @@ import { faker } from '@faker-js/faker';
 import { ulid } from 'ulidx';
 
 import {
-  ParticipantDefinition,
+  IndividualDefinition,
   Sex,
   ContactMeans,
   DisplacementStatus,
   EngagementContext,
-  Participant,
-  ParticipantListItem,
+  Individual,
+  IndividualListItem,
 } from '@nrcno/core-models';
 
 import { BaseTestEntityGenerator } from '../base-test-entity-generator';
@@ -17,8 +17,8 @@ import { IdentificationGenerator } from './identification.generator';
 import * as LanguageGenerator from './language.generator';
 
 const generateDefinition = (
-  overrides?: Partial<ParticipantDefinition>,
-): ParticipantDefinition => {
+  overrides?: Partial<IndividualDefinition>,
+): IndividualDefinition => {
   const pastDate = faker.date.past();
   const pastDateWithoutTime = new Date(
     pastDate.getFullYear(),
@@ -44,7 +44,7 @@ const generateDefinition = (
     dateOfBirth: pastDateWithoutTime,
     nrcId: faker.string.alphanumeric(),
     preferredLanguage: languageId,
-    residence: faker.location.streetAddress(),
+    address: faker.location.streetAddress(),
     contactMeansComment: faker.lorem.sentence(),
     consentGdpr: faker.datatype.boolean(),
     consentReferral: faker.datatype.boolean(),
@@ -55,41 +55,35 @@ const generateDefinition = (
     dateOfRegistration,
     languages: [languageId],
     nationalities: [faker.location.countryCode('alpha-3')],
-    contactDetails: {
-      emails: [
-        {
-          value: faker.internet.email(),
-        },
-      ],
-      phones: [
-        {
-          value: faker.phone.number(),
-        },
-      ],
-    },
+    emails: [
+      {
+        value: faker.internet.email(),
+      },
+    ],
+    phones: [
+      {
+        value: faker.phone.number(),
+      },
+    ],
     identification: [IdentificationGenerator.generateDefinition()],
     ...overrides,
   };
 };
 
-const generateEntity = (overrides?: Partial<Participant>): Participant => {
+const generateEntity = (overrides?: Partial<Individual>): Individual => {
   const definition = generateDefinition(overrides);
 
   return {
     ...definition,
     id: overrides?.id || ulid(),
-    contactDetails: {
-      emails: definition.contactDetails.emails.map((contactDetail, index) => ({
-        ...contactDetail,
-        id:
-          overrides?.contactDetails?.emails?.[index]?.id || faker.string.uuid(),
-      })),
-      phones: definition.contactDetails.phones.map((contactDetail, index) => ({
-        ...contactDetail,
-        id:
-          overrides?.contactDetails?.phones?.[index]?.id || faker.string.uuid(),
-      })),
-    },
+    emails: definition.emails.map((contactDetail, index) => ({
+      ...contactDetail,
+      id: overrides?.emails?.[index]?.id || faker.string.uuid(),
+    })),
+    phones: definition.phones.map((contactDetail, index) => ({
+      ...contactDetail,
+      id: overrides?.phones?.[index]?.id || faker.string.uuid(),
+    })),
     identification: definition.identification.map((identification, index) => ({
       ...identification,
       id: overrides?.identification?.[index]?.id || faker.string.uuid(),
@@ -100,8 +94,8 @@ const generateEntity = (overrides?: Partial<Participant>): Participant => {
 };
 
 const generateListItem = (
-  overrides?: Partial<ParticipantListItem>,
-): ParticipantListItem => {
+  overrides?: Partial<IndividualListItem>,
+): IndividualListItem => {
   return {
     id: ulid(),
     firstName: faker.person.firstName(),
@@ -110,19 +104,17 @@ const generateListItem = (
     sex: faker.helpers.enumValue(Sex),
     displacementStatus: faker.helpers.enumValue(DisplacementStatus),
     nationalities: [faker.location.countryCode('alpha-3')],
-    contactDetails: {
-      emails: [{ value: faker.internet.email(), id: faker.string.uuid() }],
-      phones: [{ value: faker.phone.number(), id: faker.string.uuid() }],
-    },
+    emails: [{ value: faker.internet.email(), id: faker.string.uuid() }],
+    phones: [{ value: faker.phone.number(), id: faker.string.uuid() }],
     identification: [IdentificationGenerator.generateListItem()],
     ...overrides,
   };
 };
 
-export const ParticipantGenerator: BaseTestEntityGenerator<
-  ParticipantDefinition,
-  Participant,
-  ParticipantListItem
+export const IndividualGenerator: BaseTestEntityGenerator<
+  IndividualDefinition,
+  Individual,
+  IndividualListItem
 > = {
   generateDefinition,
   generateEntity,
