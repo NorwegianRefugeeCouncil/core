@@ -4,6 +4,7 @@ import { IndividualGenerator } from './individual.generator';
 import * as LanguageGenerator from './language.generator';
 import * as NationalityGenerator from './nationality.generator';
 
+export * from './household.generator';
 export * from './identification.generator';
 export * from './individual.generator';
 
