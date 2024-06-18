@@ -77,7 +77,7 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
           <Text>
             Internal error,{' '}
             <Link
-              to="https://nrc.freshservice.com/a/catalog/request-items/95"
+              to="https://nrc.freshservice.com/support/catalog/items/95"
               target="_blank"
             >
               contact support
