@@ -4,46 +4,44 @@ import { ulid } from 'ulidx';
 
 import {
   IdentificationGenerator,
-  ParticipantGenerator,
+  IndividualGenerator,
 } from '@nrcno/core-test-utils';
 import {
-  ParticipantSchema,
-  ParticipantDefinition,
-  Participant,
+  IndividualSchema,
+  IndividualDefinition,
+  Individual,
 } from '@nrcno/core-models';
 
 const axiosInstance = axios.create({
   validateStatus: () => true,
 });
 
-const participantDefinitionWithEveryField =
-  ParticipantGenerator.generateDefinition();
+const individualDefinitionWithEveryField =
+  IndividualGenerator.generateDefinition();
 
-const generateExpectedParticipant = (
-  participantDefinition: ParticipantDefinition,
-): Participant => ({
-  ...participantDefinition,
+const generateExpectedIndividual = (
+  individualDefinition: IndividualDefinition,
+): Individual => ({
+  ...individualDefinition,
   id: expect.any(String),
-  emails: participantDefinition.emails.map((contactDetail) => ({
+  emails: individualDefinition.emails.map((contactDetail) => ({
     ...contactDetail,
     id: expect.any(String),
   })),
-  phones: participantDefinition.phones.map((contactDetail) => ({
+  phones: individualDefinition.phones.map((contactDetail) => ({
     ...contactDetail,
     id: expect.any(String),
   })),
-  identification: participantDefinition.identification.map(
-    (identification) => ({
-      ...identification,
-      id: expect.any(String),
-    }),
-  ),
+  identification: individualDefinition.identification.map((identification) => ({
+    ...identification,
+    id: expect.any(String),
+  })),
 });
-const participantWithEveryField = generateExpectedParticipant(
-  participantDefinitionWithEveryField,
+const individualWithEveryField = generateExpectedIndividual(
+  individualDefinitionWithEveryField,
 );
 
-const participantDefinitionWithSomeFields: ParticipantDefinition = {
+const individualDefinitionWithSomeFields: IndividualDefinition = {
   consentGdpr: faker.datatype.boolean(),
   consentReferral: faker.datatype.boolean(),
   languages: [],
@@ -53,8 +51,8 @@ const participantDefinitionWithSomeFields: ParticipantDefinition = {
   identification: [],
 };
 
-const participantWithSomeFields: Participant = {
-  ...participantDefinitionWithSomeFields,
+const individualWithSomeFields: Individual = {
+  ...individualDefinitionWithSomeFields,
   id: expect.any(String),
   emails: [],
   phones: [],
@@ -63,7 +61,7 @@ const participantWithSomeFields: Participant = {
   nationalities: [],
 };
 
-const participantDefinitionWithInvalidFields = {
+const individualDefinitionWithInvalidFields = {
   sex: 'invalid',
   consentGdpr: faker.datatype.boolean(),
   consentReferral: faker.datatype.boolean(),
@@ -74,18 +72,18 @@ const participantDefinitionWithInvalidFields = {
   identification: [],
 };
 
-const participantDefinitionWithIds = {
-  ...participantDefinitionWithEveryField,
+const individualDefinitionWithIds = {
+  ...individualDefinitionWithEveryField,
   id: ulid(),
-  emails: participantDefinitionWithEveryField.emails.map((contactDetail) => ({
+  emails: individualDefinitionWithEveryField.emails.map((contactDetail) => ({
     ...contactDetail,
     id: faker.string.uuid(),
   })),
-  phones: participantDefinitionWithEveryField.phones.map((contactDetail) => ({
+  phones: individualDefinitionWithEveryField.phones.map((contactDetail) => ({
     ...contactDetail,
     id: faker.string.uuid(),
   })),
-  identification: participantDefinitionWithEveryField.identification.map(
+  identification: individualDefinitionWithEveryField.identification.map(
     (identification) => ({
       ...identification,
       id: faker.string.uuid(),
@@ -94,159 +92,159 @@ const participantDefinitionWithIds = {
 };
 
 // TODO: make tests independent by running them against a clean database
-describe('Participants', () => {
-  describe('POST /api/prm/participants', () => {
-    it('should create a participant with every field', async () => {
+describe('Individuals', () => {
+  describe('POST /api/prm/individuals', () => {
+    it('should create a individual with every field', async () => {
       const res = await axiosInstance.post(
-        `/api/prm/participants`,
-        participantDefinitionWithEveryField,
+        `/api/prm/individuals`,
+        individualDefinitionWithEveryField,
       );
 
       expect(res.status).toBe(201);
-      expect(ParticipantSchema.parse(res.data)).toEqual(
-        participantWithEveryField,
+      expect(IndividualSchema.parse(res.data)).toEqual(
+        individualWithEveryField,
       );
     });
 
-    it('should create a participant with some fields', async () => {
+    it('should create a individual with some fields', async () => {
       const res = await axiosInstance.post(
-        `/api/prm/participants`,
-        participantDefinitionWithSomeFields,
+        `/api/prm/individuals`,
+        individualDefinitionWithSomeFields,
       );
 
       expect(res.status).toBe(201);
-      expect(ParticipantSchema.parse(res.data)).toEqual(
-        participantWithSomeFields,
+      expect(IndividualSchema.parse(res.data)).toEqual(
+        individualWithSomeFields,
       );
     });
 
-    it('should return an error when creating a participant with invalid fields', async () => {
+    it('should return an error when creating a individual with invalid fields', async () => {
       const res = await axiosInstance.post(
-        `/api/prm/participants`,
-        participantDefinitionWithInvalidFields,
+        `/api/prm/individuals`,
+        individualDefinitionWithInvalidFields,
       );
       expect(res.status).toBe(400);
     });
 
-    it('should strip unknown fields when creating a participant', async () => {
-      const res = await axiosInstance.post(`/api/prm/participants`, {
-        ...participantDefinitionWithEveryField,
+    it('should strip unknown fields when creating a individual', async () => {
+      const res = await axiosInstance.post(`/api/prm/individuals`, {
+        ...individualDefinitionWithEveryField,
         unknownField: faker.word.noun(),
       });
 
       expect(res.status).toBe(201);
-      expect(ParticipantSchema.parse(res.data)).toEqual(
-        participantWithEveryField,
+      expect(IndividualSchema.parse(res.data)).toEqual(
+        individualWithEveryField,
       );
     });
 
     it('should strip ids when sent in the request body', async () => {
       const res = await axiosInstance.post(
-        `/api/prm/participants`,
-        participantDefinitionWithIds,
+        `/api/prm/individuals`,
+        individualDefinitionWithIds,
       );
 
       expect(res.status).toBe(201);
-      expect(ParticipantSchema.parse(res.data)).toEqual(
-        participantWithEveryField,
+      expect(IndividualSchema.parse(res.data)).toEqual(
+        individualWithEveryField,
       );
-      expect(res.data.id).not.toEqual(participantDefinitionWithIds.id);
+      expect(res.data.id).not.toEqual(individualDefinitionWithIds.id);
       res.data.emails.forEach((contactDetail: any, index: number) => {
         expect(contactDetail.id).not.toEqual(
-          participantDefinitionWithIds.emails[index].id,
+          individualDefinitionWithIds.emails[index].id,
         );
       });
       res.data.phones.forEach((contactDetail: any, index: number) => {
         expect(contactDetail.id).not.toEqual(
-          participantDefinitionWithIds.phones[index].id,
+          individualDefinitionWithIds.phones[index].id,
         );
       });
       res.data.identification.forEach((identification: any, index: number) => {
         expect(identification.id).not.toEqual(
-          participantDefinitionWithIds.identification[index].id,
+          individualDefinitionWithIds.identification[index].id,
         );
       });
     });
   });
 
-  describe('GET /api/prm/participants/:id', () => {
-    let participantId: string;
+  describe('GET /api/prm/individuals/:id', () => {
+    let individualId: string;
 
     beforeAll(async () => {
       const res = await axiosInstance.post(
-        `/api/prm/participants`,
-        participantDefinitionWithEveryField,
+        `/api/prm/individuals`,
+        individualDefinitionWithEveryField,
       );
 
-      participantId = res.data.id;
+      individualId = res.data.id;
     });
 
-    it('should return a participant', async () => {
+    it('should return a individual', async () => {
       const res = await axiosInstance.get(
-        `/api/prm/participants/${participantId}`,
+        `/api/prm/individuals/${individualId}`,
       );
 
       expect(res.status).toBe(200);
-      expect(ParticipantSchema.parse(res.data)).toEqual(
-        participantWithEveryField,
+      expect(IndividualSchema.parse(res.data)).toEqual(
+        individualWithEveryField,
       );
     });
 
-    it('should return an error if the participant does not exist', async () => {
+    it('should return an error if the individual does not exist', async () => {
       const response = await axiosInstance.get(
-        `/api/prm/participants/${ulid()}`,
+        `/api/prm/individuals/${ulid()}`,
       );
 
       expect(response.status).toBe(404);
     });
 
-    it('should return 404 if the participant id is invalid', async () => {
-      const response = await axiosInstance.get(`/api/prm/participants/invalid`);
+    it('should return 404 if the individual id is invalid', async () => {
+      const response = await axiosInstance.get(`/api/prm/individuals/invalid`);
 
       expect(response.status).toBe(404);
     });
   });
 
-  describe('GET /api/prm/participants', () => {
-    const participantDefinition = ParticipantGenerator.generateDefinition();
-    let participantId: string;
+  describe('GET /api/prm/individuals', () => {
+    const individualDefinition = IndividualGenerator.generateDefinition();
+    let individualId: string;
     beforeAll(async () => {
       const res = await axiosInstance.post(
-        `/api/prm/participants`,
-        participantDefinition,
+        `/api/prm/individuals`,
+        individualDefinition,
       );
-      participantId = res.data.id;
+      individualId = res.data.id;
     });
 
-    it('should return a list of participants', async () => {
-      const res = await axiosInstance.get(`/api/prm/participants`);
+    it('should return a list of individuals', async () => {
+      const res = await axiosInstance.get(`/api/prm/individuals`);
 
       const expectedListItem = {
-        id: participantId,
-        firstName: participantDefinition.firstName,
-        lastName: participantDefinition.lastName,
-        dateOfBirth: participantDefinition.dateOfBirth?.toISOString(),
-        sex: participantDefinition.sex,
-        displacementStatus: participantDefinition.displacementStatus,
+        id: individualId,
+        firstName: individualDefinition.firstName,
+        lastName: individualDefinition.lastName,
+        dateOfBirth: individualDefinition.dateOfBirth?.toISOString(),
+        sex: individualDefinition.sex,
+        displacementStatus: individualDefinition.displacementStatus,
         identification: [
           {
             id: expect.any(String),
             identificationType:
-              participantDefinition.identification[0].identificationType,
+              individualDefinition.identification[0].identificationType,
             identificationNumber:
-              participantDefinition.identification[0].identificationNumber,
+              individualDefinition.identification[0].identificationNumber,
           },
         ],
-        nationalities: [participantDefinition.nationalities[0]],
+        nationalities: [individualDefinition.nationalities[0]],
         emails: [
           {
-            value: participantDefinition.emails[0].value,
+            value: individualDefinition.emails[0].value,
             id: expect.any(String),
           },
         ],
         phones: [
           {
-            value: participantDefinition.phones[0].value,
+            value: individualDefinition.phones[0].value,
             id: expect.any(String),
           },
         ],
@@ -261,9 +259,9 @@ describe('Participants', () => {
       });
     });
 
-    it('should return a list of participants with pagination', async () => {
+    it('should return a list of individuals with pagination', async () => {
       const res = await axiosInstance.get(
-        `/api/prm/participants?startIndex=1&pageSize=25`,
+        `/api/prm/individuals?startIndex=1&pageSize=25`,
       );
 
       expect(res.status).toBe(200);
@@ -275,9 +273,9 @@ describe('Participants', () => {
       });
     });
 
-    it('should return a sorted list of participants', async () => {
+    it('should return a sorted list of individuals', async () => {
       const res = await axiosInstance.get(
-        `/api/prm/participants?sort=emails&direction=desc`,
+        `/api/prm/individuals?sort=emails&direction=desc`,
       );
 
       expect(res.status).toBe(200);
@@ -300,9 +298,9 @@ describe('Participants', () => {
       expect(isSorted(emails)).toBe(true);
     });
 
-    it('should return a filtered list of participants', async () => {
+    it('should return a filtered list of individuals', async () => {
       const res = await axiosInstance.get(
-        `/api/prm/participants?id=${participantId}`,
+        `/api/prm/individuals?id=${individualId}`,
       );
 
       expect(res.status).toBe(200);
@@ -311,16 +309,16 @@ describe('Participants', () => {
         pageSize: 50,
         totalCount: 1,
         items: expect.arrayContaining([
-          expect.objectContaining({ id: participantId }),
+          expect.objectContaining({ id: individualId }),
         ]),
       });
       expect(res.data.items.length).toBe(1);
-      expect(res.data.items[0].id).toBe(participantId);
+      expect(res.data.items[0].id).toBe(individualId);
     });
 
     it('should return an error if the startIndex is invalid', async () => {
       const response = await axiosInstance.get(
-        `/api/prm/participants?startIndex=invalid`,
+        `/api/prm/individuals?startIndex=invalid`,
       );
 
       expect(response.status).toBe(400);
@@ -328,50 +326,49 @@ describe('Participants', () => {
 
     it('should return an error if the pageSize is invalid', async () => {
       const response = await axiosInstance.get(
-        `/api/prm/participants?pageSize=invalid`,
+        `/api/prm/individuals?pageSize=invalid`,
       );
 
       expect(response.status).toBe(400);
     });
   });
 
-  describe('PUT /api/prm/participants/:id', () => {
-    let participantId: string;
+  describe('PUT /api/prm/individuals/:id', () => {
+    let individualId: string;
 
     beforeAll(async () => {
       const res = await axiosInstance.post(
-        `/api/prm/participants`,
-        participantDefinitionWithEveryField,
+        `/api/prm/individuals`,
+        individualDefinitionWithEveryField,
       );
-      participantId = res.data.id;
+      individualId = res.data.id;
     });
 
-    it('should update a participant', async () => {
-      const participantUpdate = ParticipantGenerator.generateDefinition();
+    it('should update a individual', async () => {
+      const individualUpdate = IndividualGenerator.generateDefinition();
       const res = await axiosInstance.put(
-        `/api/prm/participants/${participantId}`,
-        participantUpdate,
+        `/api/prm/individuals/${individualId}`,
+        individualUpdate,
       );
 
       expect(res.status).toBe(200);
-      const expectedParticipant =
-        generateExpectedParticipant(participantUpdate);
-      expect(ParticipantSchema.parse(res.data)).toEqual(expectedParticipant);
+      const expectedIndividual = generateExpectedIndividual(individualUpdate);
+      expect(IndividualSchema.parse(res.data)).toEqual(expectedIndividual);
     });
 
-    it('should return an error if the participant does not exist', async () => {
+    it('should return an error if the individual does not exist', async () => {
       const response = await axiosInstance.put(
-        `/api/prm/participants/${ulid()}`,
-        participantDefinitionWithEveryField,
+        `/api/prm/individuals/${ulid()}`,
+        individualDefinitionWithEveryField,
       );
 
       expect(response.status).toBe(404);
     });
 
-    it('should return 404 if the participant id is invalid', async () => {
+    it('should return 404 if the individual id is invalid', async () => {
       const response = await axiosInstance.put(
-        `/api/prm/participants/invalid`,
-        participantDefinitionWithEveryField,
+        `/api/prm/individuals/invalid`,
+        individualDefinitionWithEveryField,
       );
 
       expect(response.status).toBe(404);

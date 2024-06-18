@@ -53,7 +53,7 @@ export enum EngagementContext {
 }
 export const EngagementContextSchema = z.nativeEnum(EngagementContext);
 
-const ParticipantDetailsSchema = z.object({
+const IndividualDetailsSchema = z.object({
   firstName: z.string().max(100).optional().nullable(),
   middleName: z.string().max(100).optional().nullable(),
   lastName: z.string().max(100).optional().nullable(),
@@ -64,7 +64,7 @@ const ParticipantDetailsSchema = z.object({
   dateOfBirth: DateOfBirthSchema.optional().nullable(),
   nrcId: z.string().max(40).optional().nullable(),
   preferredLanguage: IsoCodeSchema.optional().nullable(),
-  residence: z.string().max(512).optional().nullable(),
+  address: z.string().max(512).optional().nullable(),
   contactMeansComment: z.string().max(512).optional().nullable(),
   consentGdpr: z.boolean().optional().nullable(),
   consentReferral: z.boolean().optional().nullable(),
@@ -114,7 +114,7 @@ export const IdentificationSchema = IdentificationDefinitionSchema.merge(
 );
 export type Identification = z.infer<typeof IdentificationSchema>;
 
-export const ParticipantDefinitionSchema = ParticipantDetailsSchema.merge(
+export const IndividualDefinitionSchema = IndividualDetailsSchema.merge(
   z.object({
     languages: z.array(IsoCodeSchema).optional().default([]),
     nationalities: z.array(IsoCodeSchema).optional().default([]),
@@ -127,9 +127,9 @@ export const ParticipantDefinitionSchema = ParticipantDetailsSchema.merge(
   }),
 );
 
-export type ParticipantDefinition = z.infer<typeof ParticipantDefinitionSchema>;
+export type IndividualDefinition = z.infer<typeof IndividualDefinitionSchema>;
 
-export const ParticipantSchema = ParticipantDefinitionSchema.merge(
+export const IndividualSchema = IndividualDefinitionSchema.merge(
   z.object({
     id: z.string().ulid(),
     emails: z.array(EmailContactDetailsSchema).optional().default([]),
@@ -138,7 +138,7 @@ export const ParticipantSchema = ParticipantDefinitionSchema.merge(
   }),
 );
 
-export type Participant = z.infer<typeof ParticipantSchema>;
+export type Individual = z.infer<typeof IndividualSchema>;
 
 const EmailContactDetailsWithOptionalIdSchema =
   EmailContactDetailsDefinitionSchema.merge(
@@ -157,7 +157,7 @@ const IdentificationWithOptionalIdSchema = IdentificationDefinitionSchema.merge(
     id: z.string().uuid().optional(),
   }),
 );
-export const ParticipantUpdateSchema = ParticipantDefinitionSchema.merge(
+export const IndividualUpdateSchema = IndividualDefinitionSchema.merge(
   z.object({
     emails: z
       .array(EmailContactDetailsWithOptionalIdSchema)
@@ -173,9 +173,9 @@ export const ParticipantUpdateSchema = ParticipantDefinitionSchema.merge(
       .default([]),
   }),
 );
-export type ParticipantUpdate = z.infer<typeof ParticipantUpdateSchema>;
+export type IndividualUpdate = z.infer<typeof IndividualUpdateSchema>;
 
-const ParticipantPartialUpdateSchema = ParticipantUpdateSchema.merge(
+const IndividualPartialUpdateSchema = IndividualUpdateSchema.merge(
   z.object({
     languages: z
       .object({
@@ -212,11 +212,11 @@ const ParticipantPartialUpdateSchema = ParticipantUpdateSchema.merge(
       .optional(),
   }),
 );
-export type ParticipantPartialUpdate = z.infer<
-  typeof ParticipantPartialUpdateSchema
+export type IndividualPartialUpdate = z.infer<
+  typeof IndividualPartialUpdateSchema
 >;
 
-export const ParticipantListItemSchema = z.object({
+export const IndividualListItemSchema = z.object({
   id: z.string().ulid(),
   firstName: z.string().max(100).nullable(),
   lastName: z.string().max(100).nullable(),
@@ -228,9 +228,9 @@ export const ParticipantListItemSchema = z.object({
   phones: z.array(PhoneContactDetailsSchema).max(1).optional().default([]),
   identification: z.array(IdentificationSchema).max(1).optional().default([]),
 });
-export type ParticipantListItem = z.infer<typeof ParticipantListItemSchema>;
+export type IndividualListItem = z.infer<typeof IndividualListItemSchema>;
 
-export const ParticipantListSortingFields = [
+export const IndividualListSortingFields = [
   'id',
   'firstName',
   'lastName',
@@ -243,9 +243,9 @@ export const ParticipantListSortingFields = [
   'identificationNumber',
 ];
 
-export const ParticipantDefaultSorting = 'lastName';
+export const IndividualDefaultSorting = 'lastName';
 
-export const ParticipantFilteringSchema = z.object({
+export const IndividualFilteringSchema = z.object({
   id: z.string().optional(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
@@ -259,9 +259,9 @@ export const ParticipantFilteringSchema = z.object({
   identificationNumber: z.string().optional(),
   phones: z.string().optional(),
   emails: z.string().optional(),
-  residence: z.string().optional(),
+  address: z.string().optional(),
   displacementStatus: DisplacementStatusSchema.optional(),
   engagementContext: EngagementContextSchema.optional(),
 });
 
-export type ParticipantFiltering = z.infer<typeof ParticipantFilteringSchema>;
+export type IndividualFiltering = z.infer<typeof IndividualFilteringSchema>;

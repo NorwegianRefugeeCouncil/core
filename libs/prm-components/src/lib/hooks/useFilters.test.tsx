@@ -20,7 +20,7 @@ vi.mock('../prm.context', () => ({
 
 describe('useFilters', () => {
   const prmContextData: PrmContextData = {
-    entityType: EntityType.Participant,
+    entityType: EntityType.Individual,
     entityId: '1234',
     create: {
       onCreateEntity: vi.fn(),

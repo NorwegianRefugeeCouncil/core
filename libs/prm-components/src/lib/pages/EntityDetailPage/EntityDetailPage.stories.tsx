@@ -58,7 +58,7 @@ type Story = StoryObj<typeof EntityDetailPage>;
 export const Primary = {
   args: {
     mode: 'create',
-    entityType: EntityType.Participant,
+    entityType: EntityType.Individual,
     entityId: undefined,
   },
 };

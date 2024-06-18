@@ -25,7 +25,7 @@ describe('PrmProvider', () => {
     const { getByText } = render(
       <PrmProvider
         axiosInstance={axiosInstance}
-        entityType={EntityType.Participant}
+        entityType={EntityType.Individual}
         entityId={undefined}
       >
         <div>Test Children</div>
@@ -47,7 +47,7 @@ describe('usePrmContext', () => {
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <PrmProvider
         axiosInstance={axiosInstance}
-        entityType={EntityType.Participant}
+        entityType={EntityType.Individual}
         entityId={undefined}
       >
         {children}
@@ -64,7 +64,7 @@ describe('usePrmContext', () => {
 
     expect(result.current).toEqual({
       config: expect.any(Object),
-      entityType: EntityType.Participant,
+      entityType: EntityType.Individual,
       entityId: undefined,
       create: {
         onCreateEntity: expect.any(Function),
