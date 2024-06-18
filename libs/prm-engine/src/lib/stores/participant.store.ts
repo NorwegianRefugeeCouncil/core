@@ -32,7 +32,7 @@ const buildListQueryFilters = (filtering: ParticipantFiltering) => {
     'nativeName',
     'motherName',
     'sex',
-    'residence',
+    'address',
     'displacementStatus',
     'engagementContext',
   ];

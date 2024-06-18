@@ -173,10 +173,10 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
         title: 'Contact Information',
         fields: [
           {
-            path: ['residence'],
+            path: ['address'],
             dataType: DataType.String,
             component: Component.TextArea,
-            label: 'Residence',
+            label: 'Address',
           },
           {
             path: ['phones'],
@@ -399,10 +399,10 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
         label: 'Emails',
       },
       {
-        path: ['residence'],
+        path: ['address'],
         dataType: DataType.String,
         component: Component.TextInput,
-        label: 'Residence',
+        label: 'Address',
       },
       {
         path: ['displacementStatus'],

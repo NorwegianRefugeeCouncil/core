@@ -44,7 +44,7 @@ const generateDefinition = (
     dateOfBirth: pastDateWithoutTime,
     nrcId: faker.string.alphanumeric(),
     preferredLanguage: languageId,
-    residence: faker.location.streetAddress(),
+    address: faker.location.streetAddress(),
     contactMeansComment: faker.lorem.sentence(),
     consentGdpr: faker.datatype.boolean(),
     consentReferral: faker.datatype.boolean(),

@@ -64,7 +64,7 @@ const ParticipantDetailsSchema = z.object({
   dateOfBirth: DateOfBirthSchema.optional().nullable(),
   nrcId: z.string().max(40).optional().nullable(),
   preferredLanguage: IsoCodeSchema.optional().nullable(),
-  residence: z.string().max(512).optional().nullable(),
+  address: z.string().max(512).optional().nullable(),
   contactMeansComment: z.string().max(512).optional().nullable(),
   consentGdpr: z.boolean().optional().nullable(),
   consentReferral: z.boolean().optional().nullable(),
@@ -259,7 +259,7 @@ export const ParticipantFilteringSchema = z.object({
   identificationNumber: z.string().optional(),
   phones: z.string().optional(),
   emails: z.string().optional(),
-  residence: z.string().optional(),
+  address: z.string().optional(),
   displacementStatus: DisplacementStatusSchema.optional(),
   engagementContext: EngagementContextSchema.optional(),
 });
