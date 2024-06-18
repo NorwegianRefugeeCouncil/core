@@ -20,10 +20,8 @@ const fakeParticipant = {
 
 const fakeParticipantWithDefaults = {
   ...fakeParticipant,
-  contactDetails: {
-    emails: [],
-    phones: [],
-  },
+  emails: [],
+  phones: [],
   identification: [],
   languages: [],
   nationalities: [],

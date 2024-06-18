@@ -18,20 +18,18 @@ describe('ParticipantSchema', () => {
       consentReferral: true,
       languages: [],
       nationalities: [],
-      contactDetails: {
-        emails: [
-          {
-            id: faker.string.uuid(),
-            value: 'john.doe@example.com',
-          },
-        ],
-        phones: [
-          {
-            id: faker.string.uuid(),
-            value: '1234567890',
-          },
-        ],
-      },
+      emails: [
+        {
+          id: faker.string.uuid(),
+          value: 'john.doe@example.com',
+        },
+      ],
+      phones: [
+        {
+          id: faker.string.uuid(),
+          value: '1234567890',
+        },
+      ],
       identification: [
         {
           id: faker.string.uuid(),
@@ -57,7 +55,7 @@ describe('ParticipantSchema', () => {
       consentReferral: true,
       languages: [],
       nationalities: [],
-      contactDetails: [],
+      badField: [],
       identification: [],
     };
 
@@ -78,18 +76,16 @@ describe('ParticipantDefinitionSchema', () => {
       consentReferral: true,
       languages: [],
       nationalities: [],
-      contactDetails: {
-        emails: [
-          {
-            value: 'john.doe@example.com',
-          },
-        ],
-        phones: [
-          {
-            value: '1234567890',
-          },
-        ],
-      },
+      emails: [
+        {
+          value: 'john.doe@example.com',
+        },
+      ],
+      phones: [
+        {
+          value: '1234567890',
+        },
+      ],
       identification: [
         {
           identificationType: 'unhcr_id',
@@ -113,7 +109,7 @@ describe('ParticipantDefinitionSchema', () => {
       consentReferral: true,
       languages: [],
       nationalities: [],
-      contactDetails: [],
+      badField: [],
       identification: [],
     };
 

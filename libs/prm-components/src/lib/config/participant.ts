@@ -179,7 +179,7 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
             label: 'Residence',
           },
           {
-            path: ['contactDetails.phones'],
+            path: ['phones'],
             component: Component.List,
             label: 'Phone numbers',
             children: [
@@ -203,7 +203,7 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
             ],
           },
           {
-            path: ['contactDetails.emails'],
+            path: ['emails'],
             component: Component.List,
             label: 'Email addresses',
             children: [
@@ -300,11 +300,11 @@ export const participantConfig: EntityUIConfigLoader = (staticData) => ({
         width: 2,
       },
       {
-        path: ['contactDetails', 'phones', 0, 'value'],
+        path: ['phones', 0, 'value'],
         title: 'Phone Number #1',
       },
       {
-        path: ['contactDetails', 'emails', 0, 'value'],
+        path: ['emails', 0, 'value'],
         title: 'Email Address #1',
       },
       {

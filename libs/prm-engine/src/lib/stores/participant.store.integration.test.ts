@@ -71,22 +71,20 @@ describe('Participant store', () => {
       const personId = generateMockUlid();
       const entityId = generateMockUlid();
       const participantId = generateMockUlid();
-      const contactDetailsIdEmail = faker.string.uuid();
-      const contactDetailsIdPhone = faker.string.uuid();
+      const emailId = faker.string.uuid();
+      const phoneId = faker.string.uuid();
       const identificationId = faker.string.uuid();
       const expectedParticipant = ParticipantGenerator.generateEntity({
         ...participantDefinition,
         id: participantId,
-        contactDetails: {
-          emails: participantDefinition.contactDetails.emails.map((cd) => ({
-            ...cd,
-            id: contactDetailsIdEmail,
-          })),
-          phones: participantDefinition.contactDetails.phones.map((cd) => ({
-            ...cd,
-            id: contactDetailsIdPhone,
-          })),
-        },
+        emails: participantDefinition.emails.map((cd) => ({
+          ...cd,
+          id: emailId,
+        })),
+        phones: participantDefinition.phones.map((cd) => ({
+          ...cd,
+          id: phoneId,
+        })),
         identification: participantDefinition.identification.map(
           (identification) => ({
             ...identification,
@@ -103,8 +101,8 @@ describe('Participant store', () => {
         .mockReturnValueOnce(participantId);
 
       (v4 as jest.Mock)
-        .mockReturnValueOnce(contactDetailsIdEmail)
-        .mockReturnValueOnce(contactDetailsIdPhone)
+        .mockReturnValueOnce(emailId)
+        .mockReturnValueOnce(phoneId)
         .mockReturnValueOnce(identificationId);
 
       const createdParticipant = await ParticipantStore.create(
@@ -196,10 +194,8 @@ describe('Participant store', () => {
         displacementStatus: participant.displacementStatus,
         identification: [participant.identification[0]],
         nationalities: [participant.nationalities[0]],
-        contactDetails: {
-          emails: [participant.contactDetails.emails[0]],
-          phones: [participant.contactDetails.phones[0]],
-        },
+        emails: [participant.emails[0]],
+        phones: [participant.phones[0]],
       });
     });
 
@@ -252,17 +248,13 @@ describe('Participant store', () => {
     test('should return a paginated list of participants, sorted by email ascending', async () => {
       const firstParticipantDefinition =
         ParticipantGenerator.generateDefinition({
-          contactDetails: {
-            emails: [{ value: 'a@test.com' }],
-            phones: [],
-          },
+          emails: [{ value: 'a@test.com' }],
+          phones: [],
         });
       const secondParticipantDefinition =
         ParticipantGenerator.generateDefinition({
-          contactDetails: {
-            emails: [{ value: 'b@test.com' }],
-            phones: [],
-          },
+          emails: [{ value: 'b@test.com' }],
+          phones: [],
         });
       const firstParticipant = await ParticipantStore.create(
         firstParticipantDefinition,
@@ -482,18 +474,14 @@ describe('Participant store', () => {
 
     test('should return a list of participants, filtered by phone', async () => {
       const participantDefinition = ParticipantGenerator.generateDefinition({
-        contactDetails: {
-          phones: [{ value: '123' }, { value: '456' }],
-          emails: [],
-        },
+        phones: [{ value: '123' }, { value: '456' }],
+        emails: [],
       });
       const participant = await ParticipantStore.create(participantDefinition);
       const anotherParticipantSamePhone = await ParticipantStore.create(
         ParticipantGenerator.generateDefinition({
-          contactDetails: {
-            phones: [{ value: '456' }, { value: '789' }],
-            emails: [],
-          },
+          phones: [{ value: '456' }, { value: '789' }],
+          emails: [],
         }),
       );
 
@@ -520,18 +508,14 @@ describe('Participant store', () => {
 
     test('should return a list of participants, filtered by email', async () => {
       const participantDefinition = ParticipantGenerator.generateDefinition({
-        contactDetails: {
-          phones: [],
-          emails: [{ value: 'test@nrc.no' }, { value: 'test2@nrc.no' }],
-        },
+        phones: [],
+        emails: [{ value: 'test@nrc.no' }, { value: 'test2@nrc.no' }],
       });
       const participant = await ParticipantStore.create(participantDefinition);
       await ParticipantStore.create(
         ParticipantGenerator.generateDefinition({
-          contactDetails: {
-            phones: [],
-            emails: [{ value: 'test3@nrc.no' }],
-          },
+          phones: [],
+          emails: [{ value: 'test3@nrc.no' }],
         }),
       );
       const participants = await ParticipantStore.list(
@@ -670,18 +654,16 @@ describe('Participant store', () => {
       const emailToUpdate = faker.internet.email();
       const emailToRemove = faker.internet.email();
       const participantDefinition = ParticipantGenerator.generateDefinition({
-        contactDetails: {
-          emails: [
-            { value: emailToKeep },
-            { value: emailToUpdate },
-            { value: emailToRemove },
-          ],
-          phones: [
-            { value: phoneToKeep },
-            { value: phoneToUpdate },
-            { value: phoneToRemove },
-          ],
-        },
+        emails: [
+          { value: emailToKeep },
+          { value: emailToUpdate },
+          { value: emailToRemove },
+        ],
+        phones: [
+          { value: phoneToKeep },
+          { value: phoneToUpdate },
+          { value: phoneToRemove },
+        ],
       });
       const createdParticipant = await ParticipantStore.create(
         participantDefinition,
@@ -692,35 +674,34 @@ describe('Participant store', () => {
       const updatedPhone = faker.phone.number();
       const updatedEmail = faker.internet.email();
 
-      const contactDetails = {
-        phones: {
-          add: [{ value: phoneToAdd }],
-          update: createdParticipant.contactDetails.phones
-            .filter((cd) => cd.value === phoneToUpdate)
-            .map((cd) => ({
-              ...cd,
-              value: updatedPhone,
-            })),
-          remove: createdParticipant.contactDetails.phones
-            .filter((cd) => cd.value === phoneToRemove)
-            .map((cd) => cd.id),
-        },
-        emails: {
-          add: [{ value: emailToAdd }],
-          update: createdParticipant.contactDetails.emails
-            .filter((cd) => cd.value === emailToUpdate)
-            .map((cd) => ({
-              ...cd,
-              value: updatedEmail,
-            })),
-          remove: createdParticipant.contactDetails.emails
-            .filter((cd) => cd.value === emailToRemove)
-            .map((cd) => cd.id),
-        },
+      const phones = {
+        add: [{ value: phoneToAdd }],
+        update: createdParticipant.phones
+          .filter((cd) => cd.value === phoneToUpdate)
+          .map((cd) => ({
+            ...cd,
+            value: updatedPhone,
+          })),
+        remove: createdParticipant.phones
+          .filter((cd) => cd.value === phoneToRemove)
+          .map((cd) => cd.id),
+      };
+      const emails = {
+        add: [{ value: emailToAdd }],
+        update: createdParticipant.emails
+          .filter((cd) => cd.value === emailToUpdate)
+          .map((cd) => ({
+            ...cd,
+            value: updatedEmail,
+          })),
+        remove: createdParticipant.emails
+          .filter((cd) => cd.value === emailToRemove)
+          .map((cd) => cd.id),
       };
 
       const update: ParticipantPartialUpdate = {
-        contactDetails,
+        emails,
+        phones,
       };
 
       const updatedParticipant = await ParticipantStore.update(
@@ -728,9 +709,8 @@ describe('Participant store', () => {
         update,
       );
 
-      expect(updatedParticipant.contactDetails).toBeDefined();
-      expect(updatedParticipant.contactDetails.emails).toHaveLength(3);
-      expect(updatedParticipant.contactDetails.emails).toEqual(
+      expect(updatedParticipant.emails).toHaveLength(3);
+      expect(updatedParticipant.emails).toEqual(
         expect.arrayContaining([
           {
             value: emailToKeep,
@@ -746,8 +726,8 @@ describe('Participant store', () => {
           },
         ]),
       );
-      expect(updatedParticipant.contactDetails.phones).toHaveLength(3);
-      expect(updatedParticipant.contactDetails.phones).toEqual(
+      expect(updatedParticipant.phones).toHaveLength(3);
+      expect(updatedParticipant.phones).toEqual(
         expect.arrayContaining([
           {
             value: phoneToKeep,

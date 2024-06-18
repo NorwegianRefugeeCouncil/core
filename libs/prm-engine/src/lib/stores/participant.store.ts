@@ -7,7 +7,6 @@ import { Knex } from 'knex';
 import {
   ContactDetailType,
   EntityType,
-  Identification,
   Pagination,
   Participant,
   ParticipantDefinition,
@@ -217,7 +216,8 @@ const create: IParticipantStore['create'] = async (
   const db = getDb();
 
   const {
-    contactDetails,
+    emails,
+    phones,
     identification,
     languages,
     nationalities,
@@ -260,8 +260,8 @@ const create: IParticipantStore['create'] = async (
       }
 
       const contactDetailsEmailsForDb =
-        contactDetails && contactDetails.emails.length > 0
-          ? contactDetails.emails.map((email) => ({
+        emails.length > 0
+          ? emails.map((email) => ({
               id: uuidv4(),
               contactDetailType: ContactDetailType.Email,
               rawValue: email.value,
@@ -271,8 +271,8 @@ const create: IParticipantStore['create'] = async (
           : [];
 
       const contactDetailsPhonesForDb =
-        contactDetails && contactDetails.phones.length > 0
-          ? contactDetails.phones.map((phone) => ({
+        phones.length > 0
+          ? phones.map((phone) => ({
               id: uuidv4(),
               contactDetailType: ContactDetailType.PhoneNumber,
               rawValue: phone.value,
@@ -306,16 +306,14 @@ const create: IParticipantStore['create'] = async (
         entityId,
         languages,
         nationalities,
-        contactDetails: {
-          emails: contactDetailsEmailsForDb.map((contact) => ({
-            id: contact.id,
-            value: contact.rawValue,
-          })),
-          phones: contactDetailsPhonesForDb.map((contact) => ({
-            id: contact.id,
-            value: contact.rawValue,
-          })),
-        },
+        emails: contactDetailsEmailsForDb.map((contact) => ({
+          id: contact.id,
+          value: contact.rawValue,
+        })),
+        phones: contactDetailsPhonesForDb.map((contact) => ({
+          id: contact.id,
+          value: contact.rawValue,
+        })),
         identification: identificationForDb,
       });
 
@@ -367,26 +365,24 @@ const get: IParticipantStore['get'] = async (
     ...participant,
     languages: languages.map((lang) => lang.languageIsoCode),
     nationalities: nationalities.map((nat) => nat.nationalityIsoCode),
-    contactDetails: {
-      emails: contactDetails
-        .filter(
-          (contactDetail) =>
-            contactDetail.contactDetailType === ContactDetailType.Email,
-        )
-        .map((contactDetail) => ({
-          id: contactDetail.id,
-          value: contactDetail.rawValue,
-        })),
-      phones: contactDetails
-        .filter(
-          (contactDetail) =>
-            contactDetail.contactDetailType === ContactDetailType.PhoneNumber,
-        )
-        .map((contactDetail) => ({
-          id: contactDetail.id,
-          value: contactDetail.rawValue,
-        })),
-    },
+    emails: contactDetails
+      .filter(
+        (contactDetail) =>
+          contactDetail.contactDetailType === ContactDetailType.Email,
+      )
+      .map((contactDetail) => ({
+        id: contactDetail.id,
+        value: contactDetail.rawValue,
+      })),
+    phones: contactDetails
+      .filter(
+        (contactDetail) =>
+          contactDetail.contactDetailType === ContactDetailType.PhoneNumber,
+      )
+      .map((contactDetail) => ({
+        id: contactDetail.id,
+        value: contactDetail.rawValue,
+      })),
     identification: identifications,
   });
 
@@ -488,24 +484,22 @@ const list: IParticipantStore['list'] = async (
       nationalities: participant.mainNationality
         ? [participant.mainNationality]
         : [],
-      contactDetails: {
-        emails: participant.firstEmailId
-          ? [
-              {
-                id: participant.firstEmailId,
-                value: participant.firstEmailValue,
-              },
-            ]
-          : [],
-        phones: participant.firstPhoneId
-          ? [
-              {
-                id: participant.firstPhoneId,
-                value: participant.firstPhoneValue,
-              },
-            ]
-          : [],
-      },
+      emails: participant.firstEmailId
+        ? [
+            {
+              id: participant.firstEmailId,
+              value: participant.firstEmailValue,
+            },
+          ]
+        : [],
+      phones: participant.firstPhoneId
+        ? [
+            {
+              id: participant.firstPhoneId,
+              value: participant.firstPhoneValue,
+            },
+          ]
+        : [],
     })),
   );
 
@@ -524,7 +518,8 @@ const update: IParticipantStore['update'] = async (
   const db = getDb();
 
   const {
-    contactDetails,
+    emails,
+    phones,
     identification,
     languages,
     nationalities,
@@ -571,7 +566,7 @@ const update: IParticipantStore['update'] = async (
     }
 
     const phonesToAdd =
-      contactDetails?.phones?.add?.map((contact) => ({
+      phones?.add?.map((contact) => ({
         id: uuidv4(),
         contactDetailType: ContactDetailType.PhoneNumber,
         rawValue: contact.value,
@@ -579,7 +574,7 @@ const update: IParticipantStore['update'] = async (
         participantId,
       })) || [];
     const emailsToAdd =
-      contactDetails?.emails?.add?.map((contact) => ({
+      emails?.add?.map((contact) => ({
         id: uuidv4(),
         contactDetailType: ContactDetailType.Email,
         rawValue: contact.value,
@@ -592,7 +587,7 @@ const update: IParticipantStore['update'] = async (
     }
 
     const phonesToUpdate =
-      contactDetails?.phones?.update?.map((contact) => ({
+      phones?.update?.map((contact) => ({
         id: contact.id,
         contactDetailType: ContactDetailType.PhoneNumber,
         rawValue: contact.value,
@@ -600,7 +595,7 @@ const update: IParticipantStore['update'] = async (
         participantId,
       })) || [];
     const emailsToUpdate =
-      contactDetails?.emails?.update?.map((contact) => ({
+      emails?.update?.map((contact) => ({
         id: contact.id,
         contactDetailType: ContactDetailType.Email,
         rawValue: contact.value,
@@ -621,8 +616,8 @@ const update: IParticipantStore['update'] = async (
       }
     }
 
-    const phonesToRemove = contactDetails?.phones?.remove || [];
-    const emailsToRemove = contactDetails?.emails?.remove || [];
+    const phonesToRemove = phones?.remove || [];
+    const emailsToRemove = emails?.remove || [];
     const contactDetailsToRemove = phonesToRemove.concat(emailsToRemove);
     if (contactDetailsToRemove.length > 0) {
       await trx('participant_contact_details')

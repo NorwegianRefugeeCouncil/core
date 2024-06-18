@@ -24,20 +24,14 @@ const generateExpectedParticipant = (
 ): Participant => ({
   ...participantDefinition,
   id: expect.any(String),
-  contactDetails: {
-    emails: participantDefinition.contactDetails.emails.map(
-      (contactDetail) => ({
-        ...contactDetail,
-        id: expect.any(String),
-      }),
-    ),
-    phones: participantDefinition.contactDetails.phones.map(
-      (contactDetail) => ({
-        ...contactDetail,
-        id: expect.any(String),
-      }),
-    ),
-  },
+  emails: participantDefinition.emails.map((contactDetail) => ({
+    ...contactDetail,
+    id: expect.any(String),
+  })),
+  phones: participantDefinition.phones.map((contactDetail) => ({
+    ...contactDetail,
+    id: expect.any(String),
+  })),
   identification: participantDefinition.identification.map(
     (identification) => ({
       ...identification,
@@ -54,14 +48,16 @@ const participantDefinitionWithSomeFields: ParticipantDefinition = {
   consentReferral: faker.datatype.boolean(),
   languages: [],
   nationalities: [],
-  contactDetails: { emails: [], phones: [] },
+  emails: [],
+  phones: [],
   identification: [],
 };
 
 const participantWithSomeFields: Participant = {
   ...participantDefinitionWithSomeFields,
   id: expect.any(String),
-  contactDetails: { emails: [], phones: [] },
+  emails: [],
+  phones: [],
   identification: [],
   languages: [],
   nationalities: [],
@@ -73,27 +69,22 @@ const participantDefinitionWithInvalidFields = {
   consentReferral: faker.datatype.boolean(),
   languages: [],
   nationalities: [],
-  contactDetails: { emails: [], phones: [] },
+  emails: [],
+  phones: [],
   identification: [],
 };
 
 const participantDefinitionWithIds = {
   ...participantDefinitionWithEveryField,
   id: ulid(),
-  contactDetails: {
-    emails: participantDefinitionWithEveryField.contactDetails.emails.map(
-      (contactDetail) => ({
-        ...contactDetail,
-        id: faker.string.uuid(),
-      }),
-    ),
-    phones: participantDefinitionWithEveryField.contactDetails.phones.map(
-      (contactDetail) => ({
-        ...contactDetail,
-        id: faker.string.uuid(),
-      }),
-    ),
-  },
+  emails: participantDefinitionWithEveryField.emails.map((contactDetail) => ({
+    ...contactDetail,
+    id: faker.string.uuid(),
+  })),
+  phones: participantDefinitionWithEveryField.phones.map((contactDetail) => ({
+    ...contactDetail,
+    id: faker.string.uuid(),
+  })),
   identification: participantDefinitionWithEveryField.identification.map(
     (identification) => ({
       ...identification,
@@ -160,20 +151,16 @@ describe('Participants', () => {
         participantWithEveryField,
       );
       expect(res.data.id).not.toEqual(participantDefinitionWithIds.id);
-      res.data.contactDetails.emails.forEach(
-        (contactDetail: any, index: number) => {
-          expect(contactDetail.id).not.toEqual(
-            participantDefinitionWithIds.contactDetails.emails[index].id,
-          );
-        },
-      );
-      res.data.contactDetails.phones.forEach(
-        (contactDetail: any, index: number) => {
-          expect(contactDetail.id).not.toEqual(
-            participantDefinitionWithIds.contactDetails.phones[index].id,
-          );
-        },
-      );
+      res.data.emails.forEach((contactDetail: any, index: number) => {
+        expect(contactDetail.id).not.toEqual(
+          participantDefinitionWithIds.emails[index].id,
+        );
+      });
+      res.data.phones.forEach((contactDetail: any, index: number) => {
+        expect(contactDetail.id).not.toEqual(
+          participantDefinitionWithIds.phones[index].id,
+        );
+      });
       res.data.identification.forEach((identification: any, index: number) => {
         expect(identification.id).not.toEqual(
           participantDefinitionWithIds.identification[index].id,
@@ -251,20 +238,18 @@ describe('Participants', () => {
           },
         ],
         nationalities: [participantDefinition.nationalities[0]],
-        contactDetails: {
-          emails: [
-            {
-              value: participantDefinition.contactDetails.emails[0].value,
-              id: expect.any(String),
-            },
-          ],
-          phones: [
-            {
-              value: participantDefinition.contactDetails.phones[0].value,
-              id: expect.any(String),
-            },
-          ],
-        },
+        emails: [
+          {
+            value: participantDefinition.emails[0].value,
+            id: expect.any(String),
+          },
+        ],
+        phones: [
+          {
+            value: participantDefinition.phones[0].value,
+            id: expect.any(String),
+          },
+        ],
       };
 
       expect(res.status).toBe(200);

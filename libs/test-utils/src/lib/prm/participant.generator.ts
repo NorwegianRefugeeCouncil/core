@@ -55,18 +55,16 @@ const generateDefinition = (
     dateOfRegistration,
     languages: [languageId],
     nationalities: [faker.location.countryCode('alpha-3')],
-    contactDetails: {
-      emails: [
-        {
-          value: faker.internet.email(),
-        },
-      ],
-      phones: [
-        {
-          value: faker.phone.number(),
-        },
-      ],
-    },
+    emails: [
+      {
+        value: faker.internet.email(),
+      },
+    ],
+    phones: [
+      {
+        value: faker.phone.number(),
+      },
+    ],
     identification: [IdentificationGenerator.generateDefinition()],
     ...overrides,
   };
@@ -78,18 +76,14 @@ const generateEntity = (overrides?: Partial<Participant>): Participant => {
   return {
     ...definition,
     id: overrides?.id || ulid(),
-    contactDetails: {
-      emails: definition.contactDetails.emails.map((contactDetail, index) => ({
-        ...contactDetail,
-        id:
-          overrides?.contactDetails?.emails?.[index]?.id || faker.string.uuid(),
-      })),
-      phones: definition.contactDetails.phones.map((contactDetail, index) => ({
-        ...contactDetail,
-        id:
-          overrides?.contactDetails?.phones?.[index]?.id || faker.string.uuid(),
-      })),
-    },
+    emails: definition.emails.map((contactDetail, index) => ({
+      ...contactDetail,
+      id: overrides?.emails?.[index]?.id || faker.string.uuid(),
+    })),
+    phones: definition.phones.map((contactDetail, index) => ({
+      ...contactDetail,
+      id: overrides?.phones?.[index]?.id || faker.string.uuid(),
+    })),
     identification: definition.identification.map((identification, index) => ({
       ...identification,
       id: overrides?.identification?.[index]?.id || faker.string.uuid(),
@@ -110,10 +104,8 @@ const generateListItem = (
     sex: faker.helpers.enumValue(Sex),
     displacementStatus: faker.helpers.enumValue(DisplacementStatus),
     nationalities: [faker.location.countryCode('alpha-3')],
-    contactDetails: {
-      emails: [{ value: faker.internet.email(), id: faker.string.uuid() }],
-      phones: [{ value: faker.phone.number(), id: faker.string.uuid() }],
-    },
+    emails: [{ value: faker.internet.email(), id: faker.string.uuid() }],
+    phones: [{ value: faker.phone.number(), id: faker.string.uuid() }],
     identification: [IdentificationGenerator.generateListItem()],
     ...overrides,
   };

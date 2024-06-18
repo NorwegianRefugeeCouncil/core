@@ -137,17 +137,15 @@ describe('Participant service', () => {
       const participant = ParticipantGenerator.generateEntity();
       const participantUpdate = {
         ...participant,
-        contactDetails: {
-          emails: {
-            add: [],
-            update: participant.contactDetails.emails,
-            remove: [],
-          },
-          phones: {
-            add: [],
-            update: participant.contactDetails.phones,
-            remove: [],
-          },
+        emails: {
+          add: [],
+          update: participant.emails,
+          remove: [],
+        },
+        phones: {
+          add: [],
+          update: participant.phones,
+          remove: [],
         },
         identification: {
           add: [],
@@ -190,21 +188,15 @@ describe('Participant service', () => {
       });
       const participantUpdate = {
         ...updatedParticipant,
-        contactDetails: {
-          emails: {
-            add: updatedParticipant.contactDetails.emails,
-            update: [],
-            remove: originalParticipant.contactDetails.emails.map(
-              (cd) => cd.id,
-            ),
-          },
-          phones: {
-            add: updatedParticipant.contactDetails.phones,
-            update: [],
-            remove: originalParticipant.contactDetails.phones.map(
-              (cd) => cd.id,
-            ),
-          },
+        emails: {
+          add: updatedParticipant.emails,
+          update: [],
+          remove: originalParticipant.emails.map((cd) => cd.id),
+        },
+        phones: {
+          add: updatedParticipant.phones,
+          update: [],
+          remove: originalParticipant.phones.map((cd) => cd.id),
         },
         identification: {
           add: updatedParticipant.identification,

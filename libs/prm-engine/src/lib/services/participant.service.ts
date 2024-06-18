@@ -70,7 +70,8 @@ export class ParticipantService extends CRUDMixin<
 
   mapUpdateToPartial = async (id: string, participant: ParticipantUpdate) => {
     const {
-      contactDetails,
+      emails,
+      phones,
       identification,
       languages,
       nationalities,
@@ -83,51 +84,37 @@ export class ParticipantService extends CRUDMixin<
     }
 
     const phonesToAdd =
-      contactDetails?.phones?.filter(
-        (cd): cd is ContactDetailsDefinition => !cd.id,
-      ) || [];
+      phones?.filter((cd): cd is ContactDetailsDefinition => !cd.id) || [];
     const emailsToAdd =
-      contactDetails?.emails?.filter(
-        (cd): cd is ContactDetailsDefinition => !cd.id,
-      ) || [];
+      emails?.filter((cd): cd is ContactDetailsDefinition => !cd.id) || [];
 
     const phonesToUpdate =
-      contactDetails?.phones?.filter(
-        (cd): cd is ContactDetails => cd.id !== undefined,
-      ) || [];
+      phones?.filter((cd): cd is ContactDetails => cd.id !== undefined) || [];
     const emailsToUpdate =
-      contactDetails?.emails?.filter(
-        (cd): cd is ContactDetails => cd.id !== undefined,
-      ) || [];
+      emails?.filter((cd): cd is ContactDetails => cd.id !== undefined) || [];
 
-    const phonesToRemove = existingParticipant.contactDetails?.phones
+    const phonesToRemove = existingParticipant.phones
       ?.filter(
         (existingContactDetail) =>
-          !contactDetails?.phones?.some(
-            (cd) => cd.id === existingContactDetail.id,
-          ),
+          !phones?.some((cd) => cd.id === existingContactDetail.id),
       )
       .map((cd) => cd.id);
-    const emailsToRemove = existingParticipant.contactDetails?.emails
+    const emailsToRemove = existingParticipant.emails
       ?.filter(
         (existingContactDetail) =>
-          !contactDetails?.emails?.some(
-            (cd) => cd.id === existingContactDetail.id,
-          ),
+          !emails?.some((cd) => cd.id === existingContactDetail.id),
       )
       .map((cd) => cd.id);
 
-    const contactDetailUpdates = {
-      phones: {
-        add: phonesToAdd,
-        update: phonesToUpdate,
-        remove: phonesToRemove,
-      },
-      emails: {
-        add: emailsToAdd,
-        update: emailsToUpdate,
-        remove: emailsToRemove,
-      },
+    const phoneUpdates = {
+      add: phonesToAdd,
+      update: phonesToUpdate,
+      remove: phonesToRemove,
+    };
+    const emailUpdates = {
+      add: emailsToAdd,
+      update: emailsToUpdate,
+      remove: emailsToRemove,
     };
 
     const identificationUpdates = {
@@ -165,7 +152,8 @@ export class ParticipantService extends CRUDMixin<
 
     return {
       ...participantDetails,
-      contactDetails: contactDetailUpdates,
+      phones: phoneUpdates,
+      emails: emailUpdates,
       identification: identificationUpdates,
       languages: languageUpdates,
       nationalities: nationalityUpdates,

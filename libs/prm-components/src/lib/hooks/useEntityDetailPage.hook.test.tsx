@@ -148,15 +148,13 @@ describe('useEntityDetailPage', () => {
       result.current.onSubmit({
         firstName: 'John',
         lastName: 'Doe',
-        contactDetails: {
-          emails: [
-            {
-              value: 'test@test.com',
-              id: '',
-            },
-          ],
-          phones: [],
-        },
+        emails: [
+          {
+            value: 'test@test.com',
+            id: '',
+          },
+        ],
+        phones: [],
         consentGdpr: false,
         consentReferral: false,
         languages: [],
@@ -168,14 +166,12 @@ describe('useEntityDetailPage', () => {
       expect(prmContextData.create.onCreateEntity).toHaveBeenCalledWith({
         firstName: 'John',
         lastName: 'Doe',
-        contactDetails: {
-          emails: [
-            {
-              value: 'test@test.com',
-            },
-          ],
-          phones: [],
-        },
+        emails: [
+          {
+            value: 'test@test.com',
+          },
+        ],
+        phones: [],
         consentGdpr: false,
         consentReferral: false,
         languages: [],
@@ -542,15 +538,13 @@ describe('useEntityDetailPage', () => {
       result.current.onSubmit({
         firstName: 'John',
         lastName: 'Doe',
-        contactDetails: {
-          emails: [
-            {
-              value: '',
-              id: '',
-            },
-          ],
-          phones: [],
-        },
+        emails: [
+          {
+            value: '',
+            id: '',
+          },
+        ],
+        phones: [],
         consentGdpr: false,
         consentReferral: false,
         languages: [],
@@ -562,15 +556,13 @@ describe('useEntityDetailPage', () => {
       expect(prmContextData.edit.onEditEntity).toHaveBeenCalledWith('1234', {
         firstName: 'John',
         lastName: 'Doe',
-        contactDetails: {
-          emails: [
-            {
-              value: '',
-              id: '',
-            },
-          ],
-          phones: [],
-        },
+        emails: [
+          {
+            value: '',
+            id: '',
+          },
+        ],
+        phones: [],
         consentGdpr: false,
         consentReferral: false,
         languages: [],
