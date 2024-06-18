@@ -1,6 +1,6 @@
 import { EntityType } from '@nrcno/core-models';
 
-import { ParticipantService } from './participant.service';
+import { IndividualService } from './individual.service';
 import { LanguageService } from './language.service';
 import { NationalityService } from './nationality.service';
 
@@ -12,7 +12,7 @@ export {
 } from './base.service';
 
 export const prmServiceMap = {
-  [EntityType.Participant]: ParticipantService,
+  [EntityType.Individual]: IndividualService,
   [EntityType.Language]: LanguageService,
   [EntityType.Nationality]: NationalityService,
 };

@@ -11,15 +11,15 @@ import {
   updateEntity,
 } from './prm.controller';
 
-const fakeParticipant = {
+const fakeIndividual = {
   consentGdpr: true,
   consentReferral: true,
   firstName: 'John',
   lastName: 'Doe',
 };
 
-const fakeParticipantWithDefaults = {
-  ...fakeParticipant,
+const fakeIndividualWithDefaults = {
+  ...fakeIndividual,
   emails: [],
   phones: [],
   identification: [],
@@ -34,7 +34,7 @@ const ps = {
     id: ulid(),
   })),
   get: jest.fn().mockImplementation((id) => ({
-    ...fakeParticipantWithDefaults,
+    ...fakeIndividualWithDefaults,
     id,
   })),
   list: jest.fn().mockResolvedValue([]),
@@ -48,7 +48,7 @@ jest.mock('@nrcno/core-prm-engine', () => ({
   ...jest.requireActual('@nrcno/core-prm-engine'),
   getPrmService: jest.fn().mockImplementation((entityType) => {
     switch (entityType) {
-      case EntityType.Participant:
+      case EntityType.Individual:
         return ps;
       default:
         throw new Error('Entity type not found');
@@ -57,32 +57,32 @@ jest.mock('@nrcno/core-prm-engine', () => ({
 }));
 
 describe('PRM Controller', () => {
-  describe('Participant', () => {
-    let participantService: any;
+  describe('Individual', () => {
+    let individualService: any;
 
     beforeEach(() => {
-      participantService = getPrmService(EntityType.Participant);
+      individualService = getPrmService(EntityType.Individual);
     });
 
     describe('create', () => {
       it('should return 201 and the created entity', async () => {
         const req = httpMocks.createRequest({
           params: {
-            entityType: EntityType.Participant,
+            entityType: EntityType.Individual,
           },
-          body: fakeParticipant,
+          body: fakeIndividual,
         });
         const res = httpMocks.createResponse();
         const next = jest.fn();
 
         await createEntity(req, res, next);
 
-        expect(participantService.create).toHaveBeenCalledWith(
-          fakeParticipantWithDefaults,
+        expect(individualService.create).toHaveBeenCalledWith(
+          fakeIndividualWithDefaults,
         );
         expect(res.statusCode).toEqual(201);
         expect(res._getJSONData()).toEqual({
-          ...fakeParticipantWithDefaults,
+          ...fakeIndividualWithDefaults,
           id: expect.any(String),
         });
       });
@@ -92,7 +92,7 @@ describe('PRM Controller', () => {
           params: {
             entityType: 'Unknown',
           },
-          body: fakeParticipant,
+          body: fakeIndividual,
         });
         const res = httpMocks.createResponse();
         const next = jest.fn();
@@ -105,14 +105,14 @@ describe('PRM Controller', () => {
       it('should call next with an error if the prm service throws an error', async () => {
         const req = httpMocks.createRequest({
           params: {
-            entityType: EntityType.Participant,
+            entityType: EntityType.Individual,
           },
-          body: fakeParticipant,
+          body: fakeIndividual,
         });
         const res = httpMocks.createResponse();
         const next = jest.fn();
 
-        (participantService.create as jest.Mock).mockRejectedValue(
+        (individualService.create as jest.Mock).mockRejectedValue(
           new Error('Failed to create entity'),
         );
 
@@ -127,7 +127,7 @@ describe('PRM Controller', () => {
         const id = ulid();
         const req = httpMocks.createRequest({
           params: {
-            entityType: EntityType.Participant,
+            entityType: EntityType.Individual,
             entityId: id,
           },
         });
@@ -136,10 +136,10 @@ describe('PRM Controller', () => {
 
         await getEntity(req, res, next);
 
-        expect(participantService.get).toHaveBeenCalledWith(id);
+        expect(individualService.get).toHaveBeenCalledWith(id);
         expect(res.statusCode).toEqual(200);
         expect(res._getJSONData()).toEqual({
-          ...fakeParticipantWithDefaults,
+          ...fakeIndividualWithDefaults,
           id,
         });
       });
@@ -162,7 +162,7 @@ describe('PRM Controller', () => {
       it('should return a 404 if the entity id is invalid', async () => {
         const req = httpMocks.createRequest({
           params: {
-            entityType: EntityType.Participant,
+            entityType: EntityType.Individual,
             entityId: 'invalid',
           },
         });
@@ -177,14 +177,14 @@ describe('PRM Controller', () => {
       it('should call next with an error if the prm service throws an error', async () => {
         const req = httpMocks.createRequest({
           params: {
-            entityType: EntityType.Participant,
+            entityType: EntityType.Individual,
             entityId: ulid(),
           },
         });
         const res = httpMocks.createResponse();
         const next = jest.fn();
 
-        (participantService.get as jest.Mock).mockRejectedValue(
+        (individualService.get as jest.Mock).mockRejectedValue(
           new Error('Failed to get entity'),
         );
 
@@ -196,14 +196,14 @@ describe('PRM Controller', () => {
       it('should return 404 if the entity is not found', async () => {
         const req = httpMocks.createRequest({
           params: {
-            entityType: EntityType.Participant,
+            entityType: EntityType.Individual,
             entityId: ulid(),
           },
         });
         const res = httpMocks.createResponse();
         const next = jest.fn();
 
-        (participantService.get as jest.Mock).mockResolvedValue(null);
+        (individualService.get as jest.Mock).mockResolvedValue(null);
 
         await getEntity(req, res, next);
 
@@ -234,12 +234,12 @@ describe('PRM Controller', () => {
         const mockEntities = [{ id: 1 }, { id: 2 }];
         const mockCount = 2;
 
-        (participantService.list as jest.Mock).mockResolvedValue(mockEntities);
-        (participantService.count as jest.Mock).mockResolvedValue(mockCount);
+        (individualService.list as jest.Mock).mockResolvedValue(mockEntities);
+        (individualService.count as jest.Mock).mockResolvedValue(mockCount);
 
         const req = httpMocks.createRequest({
           params: {
-            entityType: EntityType.Participant,
+            entityType: EntityType.Individual,
           },
           query: {
             startIndex: 0,
@@ -261,13 +261,13 @@ describe('PRM Controller', () => {
       });
 
       it('should pass error to next middleware if PrmService throws error', async () => {
-        (participantService.list as jest.Mock).mockRejectedValue(
+        (individualService.list as jest.Mock).mockRejectedValue(
           new Error('Test error'),
         );
 
         const req = httpMocks.createRequest({
           params: {
-            entityType: EntityType.Participant,
+            entityType: EntityType.Individual,
           },
           query: {
             startIndex: 0,
@@ -285,7 +285,7 @@ describe('PRM Controller', () => {
       it('should call next with error if sorting field is invalid', async () => {
         const req = httpMocks.createRequest({
           params: {
-            entityType: EntityType.Participant,
+            entityType: EntityType.Individual,
           },
           query: {
             startIndex: 0,
@@ -304,7 +304,7 @@ describe('PRM Controller', () => {
       it('should call next with error if filtering field is invalid', async () => {
         const req = httpMocks.createRequest({
           params: {
-            entityType: EntityType.Participant,
+            entityType: EntityType.Individual,
           },
           query: {
             startIndex: 0,
@@ -326,23 +326,23 @@ describe('PRM Controller', () => {
         const id = ulid();
         const req = httpMocks.createRequest({
           params: {
-            entityType: EntityType.Participant,
+            entityType: EntityType.Individual,
             entityId: id,
           },
-          body: fakeParticipant,
+          body: fakeIndividual,
         });
         const res = httpMocks.createResponse();
         const next = jest.fn();
 
         await updateEntity(req, res, next);
 
-        expect(participantService.update).toHaveBeenCalledWith(
+        expect(individualService.update).toHaveBeenCalledWith(
           id,
-          fakeParticipantWithDefaults,
+          fakeIndividualWithDefaults,
         );
         expect(res.statusCode).toEqual(200);
         expect(res._getJSONData()).toEqual({
-          ...fakeParticipantWithDefaults,
+          ...fakeIndividualWithDefaults,
           id,
         });
       });
@@ -353,7 +353,7 @@ describe('PRM Controller', () => {
             entityType: 'Unknown',
             entityId: ulid(),
           },
-          body: fakeParticipant,
+          body: fakeIndividual,
         });
         const res = httpMocks.createResponse();
         const next = jest.fn();
@@ -366,10 +366,10 @@ describe('PRM Controller', () => {
       it('should return a 404 if the entity id is invalid', async () => {
         const req = httpMocks.createRequest({
           params: {
-            entityType: EntityType.Participant,
+            entityType: EntityType.Individual,
             entityId: 'invalid',
           },
-          body: fakeParticipant,
+          body: fakeIndividual,
         });
         const res = httpMocks.createResponse();
         const next = jest.fn();
@@ -382,15 +382,15 @@ describe('PRM Controller', () => {
       it('should call next with an error if the prm service throws an error', async () => {
         const req = httpMocks.createRequest({
           params: {
-            entityType: EntityType.Participant,
+            entityType: EntityType.Individual,
             entityId: ulid(),
           },
-          body: fakeParticipant,
+          body: fakeIndividual,
         });
         const res = httpMocks.createResponse();
         const next = jest.fn();
 
-        (participantService.update as jest.Mock).mockRejectedValue(
+        (individualService.update as jest.Mock).mockRejectedValue(
           new Error('Failed to update entity'),
         );
 

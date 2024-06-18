@@ -21,7 +21,7 @@ describe('EntityDetailPage', () => {
         element: (
           <PrmProvider
             axiosInstance={axiosInstance}
-            entityType={EntityType.Participant}
+            entityType={EntityType.Individual}
             entityId={undefined}
           >
             <EntityDetailPage mode="create" />
@@ -32,7 +32,7 @@ describe('EntityDetailPage', () => {
     const { baseElement } = render(<RouterProvider router={router} />);
     expect(baseElement).toBeTruthy();
     expect(baseElement.getElementsByTagName('h2')[0].textContent).toBe(
-      'New participants',
+      'New individuals',
     );
   });
 });
