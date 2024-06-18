@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
-import { Alert, AlertIcon, Box, Skeleton } from '@chakra-ui/react';
 import {
   getEntityDefinitionSchema,
   getEntitySchema,
   getEntityUpdateSchema,
 } from '@nrcno/core-models';
+import { Alert, AlertIcon, Box, Skeleton, Text } from '@chakra-ui/react';
 import { isAxiosError } from 'axios';
 import { ZodError } from 'zod';
+import { Link } from 'react-router-dom';
 
 import { EntityDetailForm } from '../../components';
 import { useEntityDetailPage } from '../../hooks/useEntityDetailPage.hook';
@@ -65,21 +66,35 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
     if (error) {
       if (isAxiosError(error)) {
         if (error.response?.status === 400) {
-          return 'There was an error with the data you submitted. Please check the form and try again.';
+          return (
+            <Text>
+              There was an error with the data you submitted. Please check the
+              form and try again.';
+            </Text>
+          );
         }
-        return `Internal error, contact support. [${error.response?.status}] [${error.response?.data?.message}]`;
+        return (
+          <Text>
+            Internal error,{' '}
+            <Link
+              to="https://nrc.freshservice.com/a/catalog/request-items/95"
+              target="_blank"
+            >
+              contact support
+            </Link>
+            .
+          </Text>
+        );
       }
       return 'An error occurred. Please try again.';
     }
     return '';
   })();
 
-  const validationError = (() => {
-    if (error && isAxiosError(error) && error.response?.status === 400) {
-      return new ZodError(error.response.data.errors);
-    }
-    return null;
-  })();
+  const validationError =
+    error && isAxiosError(error) && error.response?.status === 400
+      ? new ZodError(error.response.data.errors)
+      : null;
 
   return (
     <Box p={10} maxW="850px" ml="auto" mr="auto">

@@ -88,7 +88,6 @@ export const EntityDetailForm: React.FC<Props> = ({
   useEffect(() => {
     if (error) {
       error.issues.forEach((issue) => {
-        console.log(issue);
         form.setError(issue.path.join('.') as keyof Entity, {
           type: 'manual',
           message: issue.message,
