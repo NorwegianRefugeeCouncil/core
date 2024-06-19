@@ -31,8 +31,15 @@ import {
   NationalitySchema,
   NationalitySortingFields,
 } from './nationality.model';
+import {
+  Household,
+  HouseholdDefinition,
+  HouseholdDefinitionSchema,
+  HouseholdSchema,
+} from './household.model';
 
 export enum EntityType {
+  Household = 'households',
   Individual = 'individuals',
   Language = 'languages',
   Nationality = 'nationalities',
@@ -45,8 +52,8 @@ export const EntityIdSchema = z.string().ulid();
 export const EmptyFilterSchema = z.object({});
 export type EmptyFilter = z.infer<typeof EmptyFilterSchema>;
 
-export type Entity = Individual | Language | Nationality;
-export type EntityDefinition = IndividualDefinition;
+export type Entity = Household | Individual | Language | Nationality;
+export type EntityDefinition = HouseholdDefinition | IndividualDefinition;
 export type EntityListItem = IndividualListItem | Language | Nationality;
 export type EntityUpdate = IndividualUpdate;
 export type EntityPartialUpdate = IndividualPartialUpdate;
@@ -58,6 +65,8 @@ export type EntityFiltering =
 
 export const getEntitySchema = (entityType: EntityType) => {
   switch (entityType) {
+    case EntityType.Household:
+      return HouseholdSchema;
     case EntityType.Individual:
       return IndividualSchema;
     case EntityType.Language:
@@ -71,6 +80,8 @@ export const getEntitySchema = (entityType: EntityType) => {
 
 export const getEntityDefinitionSchema = (entityType: EntityType) => {
   switch (entityType) {
+    case EntityType.Household:
+      return HouseholdDefinitionSchema;
     case EntityType.Individual:
       return IndividualDefinitionSchema;
     default:
