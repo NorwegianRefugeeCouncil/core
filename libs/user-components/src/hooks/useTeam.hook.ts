@@ -3,7 +3,7 @@ import {
   Team,
   TeamDefinition,
   TeamListItem,
-  TeamPartialUpdate,
+  TeamUpdate,
 } from '@nrcno/core-models';
 
 import {
@@ -16,14 +16,10 @@ export type TeamState = CRUDState<
   Team,
   TeamListItem,
   TeamDefinition,
-  TeamPartialUpdate
+  TeamUpdate
 >;
 export const useTeam = (client: TeamClient) =>
-  useCRUDResource<
-    Team,
-    TeamListItem,
-    TeamDefinition,
-    TeamPartialUpdate,
-    TeamClient
-  >(client);
+  useCRUDResource<Team, TeamListItem, TeamDefinition, TeamUpdate, TeamClient>(
+    client,
+  );
 export const defaultTeamState = defaultCRUDState;

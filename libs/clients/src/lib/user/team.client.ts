@@ -6,7 +6,7 @@ import {
   Pagination,
   Team,
   TeamDefinition,
-  TeamPartialUpdate,
+  TeamUpdate,
   TeamSchema,
 } from '@nrcno/core-models';
 
@@ -34,7 +34,7 @@ export class TeamClient extends BaseClient {
     return TeamSchema.parse(res.data);
   }
 
-  async update(id: string, data: TeamPartialUpdate): Promise<Team> {
+  async update(id: string, data: TeamUpdate): Promise<Team> {
     const res = await super.put(`/teams/${id}`, data);
     return TeamSchema.parse(res.data);
   }

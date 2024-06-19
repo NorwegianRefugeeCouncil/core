@@ -11,11 +11,13 @@ import {
   TeamSchema,
 } from '@nrcno/core-models';
 
+type TeamWithPositionIds = Omit<Team, 'positions'> & { positions: string[] };
+
 export interface ITeamStore {
-  create: (team: TeamDefinition) => Promise<Team>;
-  get: (teamId: string) => Promise<Team | null>;
+  create: (team: TeamDefinition) => Promise<TeamWithPositionIds>;
+  get: (teamId: string) => Promise<TeamWithPositionIds | null>;
   list: (pagination: Pagination) => Promise<TeamListItem[]>;
-  update: (teamId: string, partialTeam: TeamPartialUpdate) => Promise<Team>;
+  update: (teamId: string, partialTeam: TeamPartialUpdate) => Promise<void>;
   del: (teamId: string) => Promise<void>;
   count: () => Promise<number>;
 }
@@ -30,19 +32,41 @@ const create: ITeamStore['create'] = async (team) => {
     })
     .returning('*');
 
-  return TeamSchema.parse(result[0]);
+  const teamId = result[0].id;
+
+  if (team.positions.length > 0) {
+    await db('team_position_assignments').insert(
+      team.positions.map((positionId) => ({
+        teamId,
+        positionId,
+      })),
+    );
+  }
+
+  return {
+    ...result[0],
+    positions: team.positions,
+  };
 };
 
 const get: ITeamStore['get'] = async (teamId) => {
   const db = getDb();
 
-  const result = await db('teams').where('id', teamId).first();
+  const [team, positionIds] = await Promise.all([
+    db('teams').where('id', teamId).first(),
+    db('team_position_assignments')
+      .where('teamId', teamId)
+      .select('positionId'),
+  ]);
 
-  if (!result) {
+  if (!team) {
     return null;
   }
 
-  return TeamSchema.parse(result);
+  return {
+    ...team,
+    positions: positionIds.map((row) => row.positionId),
+  };
 };
 
 const list: ITeamStore['list'] = async (pagination) => {
@@ -55,15 +79,31 @@ const list: ITeamStore['list'] = async (pagination) => {
   return z.array(TeamSchema).parse(result);
 };
 
-const update: ITeamStore['update'] = async (teamId, partialTeam) => {
+const update: ITeamStore['update'] = async (teamId, partialTeamUpdate) => {
   const db = getDb();
 
-  const result = await db('teams')
-    .where('id', teamId)
-    .update(partialTeam)
-    .returning('*');
+  const {
+    positions: { add = [], remove = [] },
+    ...teamUpdate
+  } = partialTeamUpdate;
 
-  return TeamSchema.parse(result[0]);
+  await db('teams').where('id', teamId).update(teamUpdate);
+
+  if (add.length > 0) {
+    await db('team_position_assignments').insert(
+      add.map((positionId) => ({
+        teamId,
+        positionId,
+      })),
+    );
+  }
+
+  if (remove.length > 0) {
+    await db('team_position_assignments')
+      .where('teamId', teamId)
+      .whereIn('positionId', remove)
+      .del();
+  }
 };
 
 const del: ITeamStore['del'] = async (teamId) => {
