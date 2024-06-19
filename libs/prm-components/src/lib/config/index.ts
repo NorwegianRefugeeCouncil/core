@@ -19,6 +19,7 @@ const emptyConfig = {
 
 export const configLoader: PrmUIConfigLoader = (staticData) => ({
   [EntityType.Individual]: individualConfig(staticData),
+  [EntityType.Household]: emptyConfig,
   [EntityType.Language]: emptyConfig,
   [EntityType.Nationality]: emptyConfig,
 });
