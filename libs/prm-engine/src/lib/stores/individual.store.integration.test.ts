@@ -220,6 +220,34 @@ describe('Individual store', () => {
       expect(individuals[0].id).toEqual(firstIndividual.id);
     });
 
+    test('should return a paginated list of individuals, sorted by firstname descending', async () => {
+      const firstIndividualDefinition = IndividualGenerator.generateDefinition({
+        firstName: 'Isabel',
+      });
+      const secondIndividualDefinition = IndividualGenerator.generateDefinition(
+        { firstName: 'Richard' },
+      );
+      await IndividualStore.create(firstIndividualDefinition);
+      const secondIndividual = await IndividualStore.create(
+        secondIndividualDefinition,
+      );
+
+      const individuals = await IndividualStore.list(
+        {
+          startIndex: 0,
+          pageSize: 1,
+        },
+        {
+          sort: 'firstName',
+          direction: SortingDirection.Desc,
+        },
+      );
+
+      expect(individuals).toBeDefined();
+      expect(individuals).toHaveLength(1);
+      expect(individuals[0].id).toEqual(secondIndividual.id);
+    });
+
     test('should return a paginated list of individuals, sorted by nationality descending', async () => {
       const firstIndividualDefinition = IndividualGenerator.generateDefinition({
         nationalities: ['ALA'],

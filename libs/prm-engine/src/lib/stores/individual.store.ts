@@ -407,7 +407,26 @@ const list: IIndividualStore['list'] = async (
     buildListQueryFilters(filtering);
   const { applyJoins } = buildListQueryJoins(db);
 
-  const sortColumn = sort === 'id' ? 'individuals.id' : snakeCase(sort);
+  let sortColumn: string;
+  switch (sort) {
+    case 'id':
+      sortColumn = 'individuals.id';
+      break;
+    case 'nationalities':
+      sortColumn = `main_nationality`;
+      break;
+    case 'emails':
+      sortColumn = `first_email_value`;
+      break;
+    case 'phones':
+      sortColumn = `first_phone_value`;
+      break;
+    case 'identificationNumber':
+      sortColumn = `first_identification->>'identification_number'`;
+      break;
+    default:
+      sortColumn = snakeCase(sort);
+  }
 
   const individualFields = [
     'individuals.id',
@@ -458,16 +477,7 @@ const list: IIndividualStore['list'] = async (
     .modify(applyJoins)
     .limit(pagination.pageSize)
     .offset(pagination.startIndex)
-    .orderByRaw(
-      `
-      CASE WHEN ? = 'nationalities' THEN main_nationality END ${direction},
-      CASE WHEN ? = 'emails' THEN first_email_value END ${direction},
-      CASE WHEN ? = 'phones' THEN first_phone_value END ${direction},
-      CASE WHEN ? = 'identification_number' THEN first_identification->>'identification_number' END ${direction},
-      CASE WHEN ? NOT IN ('nationalities', 'emails', 'phones', 'identification_number') THEN ? END ${direction}
-    `,
-      [sortColumn, sortColumn, sortColumn, sortColumn, sortColumn, sortColumn],
-    );
+    .orderByRaw(`${sortColumn} ${direction}`);
 
   const result = z.array(IndividualListItemSchema).safeParse(
     individuals.map((individual) => ({
