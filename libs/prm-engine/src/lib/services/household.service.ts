@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import {
   EntityType,
   Household,
@@ -16,11 +18,10 @@ export class HouseholdService extends CRUDMixin<
   any,
   any,
   any
->()(
+>(HouseholdDefinitionSchema as z.ZodType<HouseholdDefinition>)(
   class {
     public entityType = EntityType.Household;
     public store = HouseholdStore;
-    public definitionSchema = HouseholdDefinitionSchema;
   },
 ) {
   override mapUpdateToPartial(id: string, update: any): Promise<any> {

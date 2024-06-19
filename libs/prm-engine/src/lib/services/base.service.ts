@@ -103,7 +103,9 @@ export const GetMixin =
     };
 
 export const CreateMixin =
-  <TDefinition extends EntityDefinition, TEntity extends Entity>() =>
+  <TDefinition extends EntityDefinition, TEntity extends Entity>(
+    definitionSchema: z.ZodType<TDefinition>,
+  ) =>
   <
     TBase extends GConstructor<
       BaseService<TDefinition, TEntity, any, any, any>
@@ -112,12 +114,7 @@ export const CreateMixin =
     Base: TBase,
   ) =>
     class extends Base {
-      public definitionSchema: z.ZodType<TDefinition>;
-
-      constructor(...args: any[]) {
-        super(...args);
-        this.definitionSchema = args[2];
-      }
+      public definitionSchema: z.ZodType<TDefinition> = definitionSchema;
 
       public create(entityDefinition: TDefinition): Promise<TEntity> {
         if (!this.store.create) {
@@ -173,7 +170,9 @@ export const CRUDMixin =
     TPartialUpdate extends EntityPartialUpdate,
     TEntityListItem extends EntityListItem,
     TEntityFiltering extends EntityFiltering,
-  >() =>
+  >(
+    definitionSchema: z.ZodType<TDefinition>,
+  ) =>
   <
     TBase extends GConstructor<
       BaseService<
@@ -188,7 +187,7 @@ export const CRUDMixin =
     Base: TBase,
   ) =>
     UpdateMixin<TEntity, TUpdate, TPartialUpdate>()(
-      CreateMixin<TDefinition, TEntity>()(
+      CreateMixin<TDefinition, TEntity>(definitionSchema)(
         GetMixin<TEntity>()(
           ListMixin<TEntityListItem, TEntityFiltering>()(Base),
         ),

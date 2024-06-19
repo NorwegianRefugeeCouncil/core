@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import {
   ContactDetails,
   ContactDetailsDefinition,
@@ -26,11 +28,10 @@ export class IndividualService extends CRUDMixin<
   IndividualPartialUpdate,
   IndividualListItem,
   IndividualFiltering
->()(
+>(IndividualDefinitionSchema as z.ZodType<IndividualDefinition>)(
   class {
     public entityType = EntityType.Individual;
     public store = IndividualStore;
-    public definitionSchema = IndividualDefinitionSchema;
   },
 ) {
   private async validateLanguages(languages: string[]) {
