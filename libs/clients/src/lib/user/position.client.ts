@@ -8,11 +8,15 @@ import {
   PositionDefinition,
   PositionUpdate,
   PositionSchema,
+  PositionListItemSchema,
+  PositionListItem,
 } from '@nrcno/core-models';
 
 import { BaseClient } from '../base.client';
 
-const paginatedPositionSchema = createPaginatedResponseSchema(PositionSchema);
+const paginatedPositionListItemSchema = createPaginatedResponseSchema(
+  PositionListItemSchema,
+);
 
 export class PositionClient extends BaseClient {
   constructor(instance: AxiosInstance) {
@@ -29,9 +33,11 @@ export class PositionClient extends BaseClient {
     return PositionSchema.parse(res.data);
   }
 
-  async list(pagination: Pagination): Promise<PaginatedResponse<Position>> {
+  async list(
+    pagination: Pagination,
+  ): Promise<PaginatedResponse<PositionListItem>> {
     const res = await super.get('/positions', { params: pagination });
-    return paginatedPositionSchema.parse(res.data);
+    return paginatedPositionListItemSchema.parse(res.data);
   }
 
   async read(id: string): Promise<Position> {

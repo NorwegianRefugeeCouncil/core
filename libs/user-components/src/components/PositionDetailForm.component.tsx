@@ -19,6 +19,8 @@ import { z } from 'zod';
 
 import { PositionStaff } from './PositionStaff.component';
 
+type PositionWithStaffIds = Omit<Position, 'staff'> & { staff: string[] };
+
 type Props = {
   position?: Position;
   onSubmit?: (data: PositionWithStaffIds) => void;
@@ -29,7 +31,6 @@ type Props = {
   users: User[];
 };
 
-type PositionWithStaffIds = Omit<Position, 'staff'> & { staff: string[] };
 export const PositionDetailForm: React.FC<Props> = ({
   position,
   onSubmit,

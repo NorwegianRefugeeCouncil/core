@@ -8,11 +8,14 @@ import {
   TeamDefinition,
   TeamUpdate,
   TeamSchema,
+  TeamListItem,
+  TeamListItemSchema,
 } from '@nrcno/core-models';
 
 import { BaseClient } from '../base.client';
 
-const paginatedTeamSchema = createPaginatedResponseSchema(TeamSchema);
+const paginatedTeamListItemSchema =
+  createPaginatedResponseSchema(TeamListItemSchema);
 
 export class TeamClient extends BaseClient {
   constructor(instance: AxiosInstance) {
@@ -24,9 +27,9 @@ export class TeamClient extends BaseClient {
     return TeamSchema.parse(res.data);
   }
 
-  async list(pagination: Pagination): Promise<PaginatedResponse<Team>> {
+  async list(pagination: Pagination): Promise<PaginatedResponse<TeamListItem>> {
     const res = await super.get('/teams', { params: pagination });
-    return paginatedTeamSchema.parse(res.data);
+    return paginatedTeamListItemSchema.parse(res.data);
   }
 
   async read(id: string): Promise<Team> {

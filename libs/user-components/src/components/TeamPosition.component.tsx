@@ -9,15 +9,15 @@ import {
   Select,
   Text,
 } from '@chakra-ui/react';
-import { User } from '@nrcno/core-models';
+import { PositionListItem } from '@nrcno/core-models';
 import { useFormContext, useFieldArray, useController } from 'react-hook-form';
 
 type Props = {
-  users: User[];
+  positions: PositionListItem[];
 };
 
-export const PositionStaff: React.FC<Props> = ({ users }) => {
-  const [staffId, setStaffId] = useState<string | null>(null);
+export const TeamPosition: React.FC<Props> = ({ positions }) => {
+  const [positionId, setPositionId] = useState<string | null>(null);
 
   const {
     control,
@@ -26,32 +26,32 @@ export const PositionStaff: React.FC<Props> = ({ users }) => {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'staff',
+    name: 'positions',
   });
 
   const handleAppend = () => {
-    if (staffId) {
-      append(staffId);
-      setStaffId(null);
+    if (positionId) {
+      append(positionId);
+      setPositionId(null);
     }
   };
 
   return (
     <Flex direction="column" gap={4}>
       <Heading as="h4" size="sm">
-        Staff
+        Position
       </Heading>
       {!disabled && (
         <Flex gap={4} w="100%" alignItems="center">
-          <Text style={{ whiteSpace: 'nowrap' }}>Add staff: </Text>
+          <Text style={{ whiteSpace: 'nowrap' }}>Add position: </Text>
           <Select
-            placeholder="Select staff"
-            onChange={(e) => setStaffId(e.target.value)}
-            value={staffId || ''}
+            placeholder="Select position"
+            onChange={(e) => setPositionId(e.target.value)}
+            value={positionId || ''}
           >
-            {users.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.displayName}
+            {positions.map((position) => (
+              <option key={position.id} value={position.id}>
+                {position.name}
               </option>
             ))}
           </Select>
@@ -59,7 +59,7 @@ export const PositionStaff: React.FC<Props> = ({ users }) => {
             aria-label="Add"
             onClick={handleAppend}
             size="sm"
-            disabled={!staffId}
+            disabled={!positionId}
           >
             <AddIcon />
           </IconButton>
@@ -71,7 +71,7 @@ export const PositionStaff: React.FC<Props> = ({ users }) => {
             <>
               <GridItem key={`1-${field.id}`} />
               <GridItem key={`2-${field.id}`}>
-                <PositionStaffField idx={i} users={users} />
+                <TeamPositionField idx={i} positions={positions} />
               </GridItem>
               <GridItem key={`3-${field.id}`}>
                 {!disabled && (
@@ -88,25 +88,17 @@ export const PositionStaff: React.FC<Props> = ({ users }) => {
   );
 };
 
-const PositionStaffField: React.FC<{ idx: number; users: User[] }> = ({
-  idx,
-  users,
-}) => {
+const TeamPositionField: React.FC<{
+  idx: number;
+  positions: PositionListItem[];
+}> = ({ idx, positions }) => {
   const { control } = useFormContext();
   const { field } = useController({
-    name: `staff.${idx}`,
+    name: `positions.${idx}`,
     control,
   });
 
-  const user = users.find((u) => u.id === field.value);
-  if (!user) return null;
-  const email =
-    (user.emails?.find((e) => e.primary)?.value || user.emails?.[0]?.value) ??
-    '';
-
-  return (
-    <Text>
-      {user.displayName} ({email})
-    </Text>
-  );
+  const position = positions.find((u) => u.id === field.value);
+  if (!position) return null;
+  return <Text>{position.name}</Text>;
 };

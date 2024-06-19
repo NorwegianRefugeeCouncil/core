@@ -6,7 +6,7 @@ import {
   TeamListItem,
   PaginationSchema,
   TeamDefinitionSchema,
-  TeamPartialUpdateSchema,
+  TeamUpdateSchema,
   TeamIdSchema,
 } from '@nrcno/core-models';
 
@@ -65,7 +65,7 @@ export const updateTeam = async (
       return;
     }
 
-    const teamUpdate = TeamPartialUpdateSchema.parse(req.body);
+    const teamUpdate = TeamUpdateSchema.parse(req.body);
 
     const updatedTeam = await TeamService.update(teamId.data, teamUpdate);
 

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { Link, useLocation, unstable_usePrompt } from 'react-router-dom';
 import {
   Button,
@@ -13,17 +13,22 @@ import {
   Spinner,
   Text,
 } from '@chakra-ui/react';
-import { Team } from '@nrcno/core-models';
+import { PositionListItem, Team } from '@nrcno/core-models';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+import { TeamPosition } from './TeamPosition.component';
+
+type TeamWithPositionIds = Omit<Team, 'positions'> & { positions: string[] };
+
 type Props = {
   team?: Team;
-  onSubmit?: (data: Team) => void;
+  onSubmit?: (data: TeamWithPositionIds) => void;
   isSubmitting?: boolean;
   readOnly: boolean;
   schema: z.ZodType<any, any>;
   defaultBackPath: string;
+  positions: PositionListItem[];
 };
 
 export const TeamDetailForm: React.FC<Props> = ({
@@ -33,22 +38,30 @@ export const TeamDetailForm: React.FC<Props> = ({
   readOnly,
   schema,
   defaultBackPath,
+  positions,
 }) => {
+  const form = useForm<TeamWithPositionIds>({
+    mode: 'onChange',
+    defaultValues: team
+      ? { ...team, positions: team.positions.map((p) => p.id) }
+      : undefined,
+    disabled: readOnly || isSubmitting,
+    criteriaMode: 'all',
+    resolver: zodResolver(schema),
+  });
   const {
     register,
     formState: { errors, isDirty, isValid },
     handleSubmit: formHandleSubmit,
     reset,
-  } = useForm<Team>({
-    mode: 'onChange',
-    defaultValues: team,
-    disabled: readOnly || isSubmitting,
-    criteriaMode: 'all',
-    resolver: zodResolver(schema),
-  });
+  } = form;
 
   useEffect(() => {
-    reset(team);
+    reset(
+      team
+        ? { ...team, positions: team.positions.map((p) => p.id) }
+        : undefined,
+    );
   }, [JSON.stringify(team), readOnly]);
 
   const location = useLocation();
@@ -84,64 +97,70 @@ export const TeamDetailForm: React.FC<Props> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} id={`team-${team?.id ?? 'new'}`}>
-      <Flex
-        direction="row"
-        justifyContent="space-between"
-        alignItems="flex-start"
-        zIndex="docked"
-        team="sticky"
-        top={0}
-        bg="white"
-        pt={2}
-      >
-        <Flex direction="row" gap={4} alignItems="flex-start">
-          <Heading mb={4}>{team?.name ?? 'New team'}</Heading>
-          {isSubmitting && <Spinner colorScheme="primary" size="lg" />}
-        </Flex>
-        <HStack>
-          <Link to={defaultBackPath}>
-            <Button colorScheme="secondary" isDisabled={isSubmitting}>
-              {readOnly ? 'Back' : 'Cancel'}
-            </Button>
-          </Link>
-          {readOnly ? (
-            <Link to={`${location.pathname.replace(/\/$/, '')}/edit`}>
-              <Button colorScheme="primary">Edit</Button>
+    <FormProvider {...form}>
+      <form onSubmit={handleSubmit} id={`team-${team?.id ?? 'new'}`}>
+        <Flex
+          direction="row"
+          justifyContent="space-between"
+          alignItems="flex-start"
+          zIndex="docked"
+          position="sticky"
+          top={0}
+          bg="white"
+          pt={2}
+        >
+          <Flex direction="row" gap={4} alignItems="flex-start">
+            <Heading mb={4}>{team?.name ?? 'New team'}</Heading>
+            {isSubmitting && <Spinner colorScheme="primary" size="lg" />}
+          </Flex>
+          <HStack>
+            <Link to={defaultBackPath}>
+              <Button colorScheme="secondary" isDisabled={isSubmitting}>
+                {readOnly ? 'Back' : 'Cancel'}
+              </Button>
             </Link>
-          ) : (
-            <Button
-              colorScheme="primary"
-              type={'submit'}
-              isDisabled={!isValid || isSubmitting}
-            >
-              Save
-            </Button>
-          )}
-        </HStack>
-      </Flex>
+            {readOnly ? (
+              <Link to={`${location.pathname.replace(/\/$/, '')}/edit`}>
+                <Button colorScheme="primary">Edit</Button>
+              </Link>
+            ) : (
+              <Button
+                colorScheme="primary"
+                type={'submit'}
+                isDisabled={!isValid || isSubmitting}
+              >
+                Save
+              </Button>
+            )}
+          </HStack>
+        </Flex>
 
-      <Flex direction="column" gap={4}>
-        {team && (
-          <FormControl>
-            <FormLabel>ID</FormLabel>
-            <Text>{team.id}</Text>
+        <Flex direction="column" gap={4}>
+          {team && (
+            <FormControl>
+              <FormLabel>ID</FormLabel>
+              <Text>{team.id}</Text>
+            </FormControl>
+          )}
+
+          <FormControl isInvalid={Boolean(errors.name)} isRequired>
+            <FormLabel>Name</FormLabel>
+            <Input
+              isInvalid={Boolean(errors.name)}
+              isRequired
+              type="text"
+              {...register('name')}
+            />
+            {errors.name && (
+              <FormErrorMessage>{errors.name.message}</FormErrorMessage>
+            )}
           </FormControl>
-        )}
 
-        <FormControl isInvalid={Boolean(errors.name)} isRequired>
-          <FormLabel>Name</FormLabel>
-          <Input
-            isInvalid={Boolean(errors.name)}
-            isRequired
-            type="text"
-            {...register('name')}
+          <TeamPosition
+            positions={positions.length > 0 ? positions : team?.positions ?? []}
           />
-          {errors.name && (
-            <FormErrorMessage>{errors.name.message}</FormErrorMessage>
-          )}
-        </FormControl>
-      </Flex>
-    </form>
+        </Flex>
+      </form>
+    </FormProvider>
   );
 };

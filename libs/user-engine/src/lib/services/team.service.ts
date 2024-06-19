@@ -24,7 +24,7 @@ const create: ITeamService['create'] = async (team) => {
   const createdTeam = await TeamStore.create(team);
   const positions =
     team.positions.length > 0
-      ? await PositionService.search('id', team.positions)
+      ? await PositionService.listByIds(team.positions)
       : [];
   return TeamSchema.parse({
     ...createdTeam,
@@ -39,7 +39,7 @@ const get: ITeamService['get'] = async (teamId) => {
   }
   const positions =
     team.positions.length > 0
-      ? await PositionService.search('id', team.positions)
+      ? await PositionService.listByIds(team.positions)
       : [];
   return TeamSchema.parse({
     ...team,

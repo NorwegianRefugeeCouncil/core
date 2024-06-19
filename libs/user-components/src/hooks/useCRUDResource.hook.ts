@@ -4,7 +4,7 @@ import { SubmitStatus, useApiReducer } from '@nrcno/core-shared-frontend';
 export type CRUDState<T, TListItem, TDefinition, TPartial> = {
   create: {
     onCreate: (data: TDefinition) => Promise<T>;
-    data: T;
+    data?: T;
     status: SubmitStatus;
     error?: Error;
     reset: () => void;

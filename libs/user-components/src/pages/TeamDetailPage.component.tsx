@@ -2,8 +2,8 @@ import { Alert, AlertIcon, Box, Skeleton } from '@chakra-ui/react';
 import {
   TeamDefinition,
   TeamDefinitionSchema,
-  TeamPartialUpdate,
-  TeamPartialUpdateSchema,
+  TeamUpdate,
+  TeamUpdateSchema,
   TeamSchema,
 } from '@nrcno/core-models';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -22,8 +22,18 @@ export const TeamDetailPage: React.FC<Props> = ({ mode }) => {
   const { teamId } = useParams();
 
   const {
+    position,
     team: { create, update, read },
   } = useUserContext();
+
+  React.useEffect(() => {
+    if (mode === 'create' || mode === 'edit') {
+      position.list.onList({
+        startIndex: 0,
+        pageSize: 1000,
+      });
+    }
+  }, [mode]);
 
   // Load entity when in read or edit mode
   React.useEffect(() => {
@@ -44,7 +54,7 @@ export const TeamDetailPage: React.FC<Props> = ({ mode }) => {
     };
   }, [mode]);
 
-  const { status, error, onSubmit, defaultBackPath, schema } = (() => {
+  const { data, status, error, onSubmit, defaultBackPath, schema } = (() => {
     switch (mode) {
       case 'create':
         return {
@@ -55,6 +65,7 @@ export const TeamDetailPage: React.FC<Props> = ({ mode }) => {
           },
           defaultBackPath: `/admin/teams`,
           schema: TeamDefinitionSchema,
+          data: undefined,
         };
       case 'edit':
         if (!teamId) {
@@ -62,9 +73,10 @@ export const TeamDetailPage: React.FC<Props> = ({ mode }) => {
         }
         return {
           ...update,
-          onSubmit: (data: TeamPartialUpdate) => update.onUpdate(teamId, data),
+          onSubmit: (data: TeamUpdate) => update.onUpdate(teamId, data),
           defaultBackPath: `/admin/teams/${teamId}`,
-          schema: TeamPartialUpdateSchema,
+          schema: TeamUpdateSchema,
+          data: update.data ? update.data : read.data,
         };
       case 'read':
         return {
@@ -99,11 +111,12 @@ export const TeamDetailPage: React.FC<Props> = ({ mode }) => {
       <Skeleton isLoaded={!isLoading}>
         <TeamDetailForm
           onSubmit={onSubmit}
-          team={read.data}
+          team={data}
           isSubmitting={isSubmitting}
           defaultBackPath={defaultBackPath}
           readOnly={mode === 'read'}
           schema={schema}
+          positions={position.list.data?.items ?? []}
         />
       </Skeleton>
     </Box>

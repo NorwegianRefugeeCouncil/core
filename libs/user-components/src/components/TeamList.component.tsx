@@ -18,7 +18,7 @@ export const TeamList: React.FC<Props> = ({ teams, onRowClick }) => {
   return (
     <TableContainer overflowY="auto" height="100%">
       <Table variant="striped" size="md">
-        <Thead zIndex={'docked'} team={'sticky'} top={'0'} bg="white">
+        <Thead zIndex={'docked'} position={'sticky'} top={'0'} bg="white">
           <Tr>
             <Th>Id</Th>
             <Th>Name</Th>

@@ -23,6 +23,7 @@ export interface IPositionStore {
   ) => Promise<void>;
   del: (positionId: string) => Promise<void>;
   count: () => Promise<number>;
+  listByIds: (ids: string[]) => Promise<PositionListItem[]>;
 }
 
 const create: IPositionStore['create'] = async (position) => {
@@ -128,6 +129,14 @@ const count: IPositionStore['count'] = async () => {
   return typeof count === 'string' ? parseInt(count, 10) : count;
 };
 
+const listByIds = async (ids: string[]) => {
+  const db = getDb();
+
+  const positions = await db('positions').whereIn('id', ids);
+
+  return z.array(PositionListItemSchema).parse(positions);
+};
+
 export const PositionStore: IPositionStore = {
   create,
   get,
@@ -135,4 +144,5 @@ export const PositionStore: IPositionStore = {
   update,
   del,
   count,
+  listByIds,
 };

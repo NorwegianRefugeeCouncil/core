@@ -8,7 +8,7 @@ export const TeamIdSchema = UUIDSchema;
 
 export const TeamDefinitionSchema = z.object({
   name: z.string().min(1).max(100),
-  parentTeamId: z.string().length(26).optional(),
+  // parentTeamId: z.string().length(26).optional(),
   positions: z.array(UUIDSchema).optional().default([]),
 });
 export type TeamDefinition = z.infer<typeof TeamDefinitionSchema>;
@@ -17,19 +17,19 @@ export type TeamDefinition = z.infer<typeof TeamDefinitionSchema>;
 const BaseTeamSchema = z.object({
   id: TeamIdSchema,
   name: z.string().min(1).max(100),
-  positions: z.array(PositionListItemSchema).optional().default([]),
+  positions: z.array(PositionListItemSchema),
 });
 type BaseTeam = z.infer<typeof BaseTeamSchema>;
 export type Team = BaseTeam & {
-  parentTeam?: Team | null;
+  // parentTeam?: Team;
 };
-export const TeamSchema: z.ZodSchema<Team> = BaseTeamSchema.extend({
-  parentTeam: z.lazy(() => BaseTeamSchema).optional(),
+export const TeamSchema = BaseTeamSchema.extend({
+  // parentTeam: z.lazy(() => BaseTeamSchema).optional(),
 });
 
 export const TeamUpdateSchema = z.object({
   name: z.string().min(1).max(100).optional(),
-  parentTeam: TeamSchema.optional(),
+  // parentTeam: TeamSchema.optional(),
   positions: z.array(UUIDSchema).optional().default([]),
 });
 export type TeamUpdate = z.infer<typeof TeamUpdateSchema>;
@@ -44,5 +44,5 @@ export const TeamPartialUpdateSchema = TeamUpdateSchema.merge(
 );
 export type TeamPartialUpdate = z.infer<typeof TeamPartialUpdateSchema>;
 
-export type TeamListItem = Team;
-export const TeamListItemSchema = TeamSchema;
+export const TeamListItemSchema = TeamSchema.pick({ id: true, name: true });
+export type TeamListItem = z.infer<typeof TeamListItemSchema>;

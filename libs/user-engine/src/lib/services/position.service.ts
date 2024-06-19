@@ -21,6 +21,7 @@ export interface IPositionService {
   ) => Promise<Position>;
   del: (positionId: string) => Promise<void>;
   count: () => Promise<number>;
+  listByIds: (ids: string[]) => Promise<PositionListItem[]>;
 }
 
 const create: IPositionService['create'] = async (position) => {
@@ -89,6 +90,10 @@ const count: IPositionService['count'] = async () => {
   return PositionStore.count();
 };
 
+const listByIds: IPositionService['listByIds'] = async (ids) => {
+  return PositionStore.listByIds(ids);
+};
+
 export const PositionService: IPositionService = {
   create,
   get,
@@ -96,4 +101,5 @@ export const PositionService: IPositionService = {
   update,
   del,
   count,
+  listByIds,
 };

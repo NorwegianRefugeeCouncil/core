@@ -7,6 +7,7 @@ import {
   Team,
   TeamDefinition,
   TeamListItem,
+  TeamListItemSchema,
   TeamPartialUpdate,
   TeamSchema,
 } from '@nrcno/core-models';
@@ -25,18 +26,20 @@ export interface ITeamStore {
 const create: ITeamStore['create'] = async (team) => {
   const db = getDb();
 
+  const { positions, ...teamDetails } = team;
+
   const result = await db('teams')
     .insert({
-      ...team,
+      ...teamDetails,
       id: uuid(),
     })
     .returning('*');
 
   const teamId = result[0].id;
 
-  if (team.positions.length > 0) {
+  if (positions.length > 0) {
     await db('team_position_assignments').insert(
-      team.positions.map((positionId) => ({
+      positions.map((positionId) => ({
         teamId,
         positionId,
       })),
@@ -76,7 +79,7 @@ const list: ITeamStore['list'] = async (pagination) => {
     .limit(pagination.pageSize)
     .offset(pagination.startIndex);
 
-  return z.array(TeamSchema).parse(result);
+  return z.array(TeamListItemSchema).parse(result);
 };
 
 const update: ITeamStore['update'] = async (teamId, partialTeamUpdate) => {
