@@ -38,7 +38,7 @@ export async function up(knex: Knex): Promise<void> {
       .references('participants.id')
       .onDelete('CASCADE');
 
-    table.unique(['individual_id']);
+    table.unique('individual_id');
     table.unique(['is_head_of_household', 'household_id']);
   });
 }

@@ -46,7 +46,9 @@ const create: IHouseholdStore['create'] = async (
       return createdHousehold.data;
     } catch (error) {
       if ((error as PostgresError).code === PostgresErrorCode.UniqueViolation) {
-        throw new AlreadyExistsError('Household already exists');
+        throw new AlreadyExistsError(
+          'Either an individual has already been registered in another household, or you are trying to set multiple individuals as head of household.',
+        );
       }
       throw error;
     }

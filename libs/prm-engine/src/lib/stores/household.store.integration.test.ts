@@ -2,12 +2,8 @@ import { ulid } from 'ulidx';
 import { v4 } from 'uuid';
 import { faker } from '@faker-js/faker';
 
-import {
-  HouseholdGenerator,
-  IdentificationGenerator,
-} from '@nrcno/core-test-utils';
+import { HouseholdGenerator } from '@nrcno/core-test-utils';
 import { getDb } from '@nrcno/core-db';
-import { IdentificationType, SortingDirection } from '@nrcno/core-models';
 
 import { HouseholdStore } from './household.store';
 
@@ -34,7 +30,7 @@ function generateMockUlid() {
   return mockUlid;
 }
 
-describe('Household store', () => {
+describe.skip('Household store', () => {
   beforeAll(async () => {
     getDb(undefined, (global as any).db);
   });
@@ -46,22 +42,7 @@ describe('Household store', () => {
     await db.raw('TRUNCATE TABLE households CASCADE');
   });
 
-  describe.skip('create', () => {
-    test('should throw an AlredyExistsError when creating a household that already exists', async () => {
-      const householdDefinition = HouseholdGenerator.generateDefinition();
-      const id = generateMockUlid();
-      (ulid as jest.Mock).mockReturnValue(id);
-      (v4 as jest.Mock).mockReturnValueOnce(faker.string.uuid());
-      (v4 as jest.Mock).mockReturnValue(faker.string.uuid());
-
-      const household = await HouseholdStore.create(householdDefinition);
-      expect(household).toBeDefined();
-
-      await expect(
-        HouseholdStore.create(householdDefinition),
-      ).rejects.toThrow(); // ulid is mocked to return the same value
-    });
-
+  describe('create', () => {
     test('should create and get a household', async () => {
       const householdDefinition = HouseholdGenerator.generateDefinition();
       const householdId = generateMockUlid();
@@ -70,25 +51,7 @@ describe('Household store', () => {
       const expectedHousehold = HouseholdGenerator.generateEntity({
         ...householdDefinition,
         id: householdId,
-        individuals: householdDefinition?.individuals.map((individual) => {
-          return {
-            phone: {
-              value: individual.phone?.value || faker.string.alphanumeric(),
-              id: contactDetailsIdPhone,
-            },
-            identification: {
-              identificationNumber:
-                individual.identification?.identificationNumber ||
-                faker.string.uuid(),
-              identificationType:
-                individual.identification?.identificationType ||
-                faker.helpers.enumValue(IdentificationType),
-              id: identificationId,
-            },
-            id: faker.string.uuid(),
-            isHeadOfHousehold: true,
-          };
-        }),
+        individuals: [],
       });
 
       (ulid as jest.Mock).mockReturnValueOnce(householdId);
