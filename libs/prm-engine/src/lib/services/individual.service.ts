@@ -5,6 +5,7 @@ import {
   Identification,
   Individual,
   IndividualDefinition,
+  IndividualDefinitionSchema,
   IndividualFiltering,
   IndividualListItem,
   IndividualPartialUpdate,
@@ -29,6 +30,7 @@ export class IndividualService extends CRUDMixin<
   class {
     public entityType = EntityType.Individual;
     public store = IndividualStore;
+    public definitionSchema = IndividualDefinitionSchema;
   },
 ) {
   private async validateLanguages(languages: string[]) {

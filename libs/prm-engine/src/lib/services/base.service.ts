@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
+import { z } from 'zod';
+
 import {
   Entity,
   EntityDefinition,
@@ -110,11 +112,26 @@ export const CreateMixin =
     Base: TBase,
   ) =>
     class extends Base {
-      public create(entity: TDefinition): Promise<TEntity> {
+      public definitionSchema: z.ZodType<TDefinition>;
+
+      constructor(...args: any[]) {
+        super(...args);
+        this.definitionSchema = args[2];
+      }
+
+      public create(entityDefinition: TDefinition): Promise<TEntity> {
         if (!this.store.create) {
           throw new Error('Method not implemented');
         }
-        return this.store.create(entity);
+        return this.store.create(entityDefinition);
+      }
+
+      public validateDefinition(entityDefinition: unknown): TDefinition {
+        return this.definitionSchema.parse(entityDefinition);
+      }
+
+      public validateAndCreate(entityDefinition: unknown): Promise<TEntity> {
+        return this.create(this.validateDefinition(entityDefinition));
       }
     };
 

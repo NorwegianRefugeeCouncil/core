@@ -1,4 +1,9 @@
-import { EntityType, Household, HouseholdDefinition } from '@nrcno/core-models';
+import {
+  EntityType,
+  Household,
+  HouseholdDefinition,
+  HouseholdDefinitionSchema,
+} from '@nrcno/core-models';
 
 import { HouseholdStore } from '../stores/household.store';
 
@@ -15,6 +20,7 @@ export class HouseholdService extends CRUDMixin<
   class {
     public entityType = EntityType.Household;
     public store = HouseholdStore;
+    public definitionSchema = HouseholdDefinitionSchema;
   },
 ) {
   override mapUpdateToPartial(id: string, update: any): Promise<any> {

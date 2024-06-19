@@ -40,10 +40,7 @@ export const createEntity = async (
       return;
     }
 
-    const schema = getEntityDefinitionSchema(entityType.data);
-    const entityDefinition = schema.parse(req.body);
-
-    const createdEntity = await prmService.create(entityDefinition);
+    const createdEntity = await prmService.validateAndCreate(req.body);
 
     res.status(201).json(createdEntity);
   } catch (error) {
