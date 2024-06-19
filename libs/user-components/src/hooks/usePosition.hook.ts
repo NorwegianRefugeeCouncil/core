@@ -3,7 +3,7 @@ import {
   Position,
   PositionDefinition,
   PositionListItem,
-  PositionPartialUpdate,
+  PositionUpdate,
 } from '@nrcno/core-models';
 
 import {
@@ -16,14 +16,14 @@ export type PositionState = CRUDState<
   Position,
   PositionListItem,
   PositionDefinition,
-  PositionPartialUpdate
+  PositionUpdate
 >;
 export const usePosition = (client: PositionClient) =>
   useCRUDResource<
     Position,
     PositionListItem,
     PositionDefinition,
-    PositionPartialUpdate,
+    PositionUpdate,
     PositionClient
   >(client);
 export const defaultPositionState = defaultCRUDState;

@@ -6,7 +6,7 @@ import {
   Pagination,
   Position,
   PositionDefinition,
-  PositionPartialUpdate,
+  PositionUpdate,
   PositionSchema,
 } from '@nrcno/core-models';
 
@@ -39,7 +39,7 @@ export class PositionClient extends BaseClient {
     return PositionSchema.parse(res.data);
   }
 
-  async update(id: string, data: PositionPartialUpdate): Promise<Position> {
+  async update(id: string, data: PositionUpdate): Promise<Position> {
     const res = await super.put(`/positions/${id}`, data);
     return PositionSchema.parse(res.data);
   }

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { Link, useLocation, unstable_usePrompt } from 'react-router-dom';
 import {
   Button,
@@ -13,19 +13,23 @@ import {
   Spinner,
   Text,
 } from '@chakra-ui/react';
-import { Position } from '@nrcno/core-models';
+import { Position, User } from '@nrcno/core-models';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+import { PositionStaff } from './PositionStaff.component';
+
 type Props = {
   position?: Position;
-  onSubmit?: (data: Position) => void;
+  onSubmit?: (data: PositionWithStaffIds) => void;
   isSubmitting?: boolean;
   readOnly: boolean;
   schema: z.ZodType<any, any>;
   defaultBackPath: string;
+  users: User[];
 };
 
+type PositionWithStaffIds = Omit<Position, 'staff'> & { staff: string[] };
 export const PositionDetailForm: React.FC<Props> = ({
   position,
   onSubmit,
@@ -33,22 +37,30 @@ export const PositionDetailForm: React.FC<Props> = ({
   readOnly,
   schema,
   defaultBackPath,
+  users,
 }) => {
+  const form = useForm<PositionWithStaffIds>({
+    mode: 'onChange',
+    defaultValues: position
+      ? { ...position, staff: position.staff.map((s) => s.id) }
+      : undefined,
+    disabled: readOnly || isSubmitting,
+    criteriaMode: 'all',
+    resolver: zodResolver(schema),
+  });
   const {
     register,
     formState: { errors, isDirty, isValid },
     handleSubmit: formHandleSubmit,
     reset,
-  } = useForm<Position>({
-    mode: 'onChange',
-    defaultValues: position,
-    disabled: readOnly || isSubmitting,
-    criteriaMode: 'all',
-    resolver: zodResolver(schema),
-  });
+  } = form;
 
   useEffect(() => {
-    reset(position);
+    reset(
+      position
+        ? { ...position, staff: position.staff.map((s) => s.id) }
+        : undefined,
+    );
   }, [JSON.stringify(position), readOnly]);
 
   const location = useLocation();
@@ -84,64 +96,70 @@ export const PositionDetailForm: React.FC<Props> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} id={`position-${position?.id ?? 'new'}`}>
-      <Flex
-        direction="row"
-        justifyContent="space-between"
-        alignItems="flex-start"
-        zIndex="docked"
-        position="sticky"
-        top={0}
-        bg="white"
-        pt={2}
-      >
-        <Flex direction="row" gap={4} alignItems="flex-start">
-          <Heading mb={4}>{position?.name ?? 'New position'}</Heading>
-          {isSubmitting && <Spinner colorScheme="primary" size="lg" />}
-        </Flex>
-        <HStack>
-          <Link to={defaultBackPath}>
-            <Button colorScheme="secondary" isDisabled={isSubmitting}>
-              {readOnly ? 'Back' : 'Cancel'}
-            </Button>
-          </Link>
-          {readOnly ? (
-            <Link to={`${location.pathname.replace(/\/$/, '')}/edit`}>
-              <Button colorScheme="primary">Edit</Button>
+    <FormProvider {...form}>
+      <form onSubmit={handleSubmit} id={`position-${position?.id ?? 'new'}`}>
+        <Flex
+          direction="row"
+          justifyContent="space-between"
+          alignItems="flex-start"
+          zIndex="docked"
+          position="sticky"
+          top={0}
+          bg="white"
+          pt={2}
+        >
+          <Flex direction="row" gap={4} alignItems="flex-start">
+            <Heading mb={4}>{position?.name ?? 'New position'}</Heading>
+            {isSubmitting && <Spinner colorScheme="primary" size="lg" />}
+          </Flex>
+          <HStack>
+            <Link to={defaultBackPath}>
+              <Button colorScheme="secondary" isDisabled={isSubmitting}>
+                {readOnly ? 'Back' : 'Cancel'}
+              </Button>
             </Link>
-          ) : (
-            <Button
-              colorScheme="primary"
-              type={'submit'}
-              isDisabled={!isValid || isSubmitting}
-            >
-              Save
-            </Button>
-          )}
-        </HStack>
-      </Flex>
+            {readOnly ? (
+              <Link to={`${location.pathname.replace(/\/$/, '')}/edit`}>
+                <Button colorScheme="primary">Edit</Button>
+              </Link>
+            ) : (
+              <Button
+                colorScheme="primary"
+                type={'submit'}
+                isDisabled={!isValid || isSubmitting}
+              >
+                Save
+              </Button>
+            )}
+          </HStack>
+        </Flex>
 
-      <Flex direction="column" gap={4}>
-        {position && (
-          <FormControl>
-            <FormLabel>ID</FormLabel>
-            <Text>{position.id}</Text>
+        <Flex direction="column" gap={4}>
+          {position && (
+            <FormControl>
+              <FormLabel>ID</FormLabel>
+              <Text>{position.id}</Text>
+            </FormControl>
+          )}
+
+          <FormControl isInvalid={Boolean(errors.name)} isRequired>
+            <FormLabel>Name</FormLabel>
+            <Input
+              isInvalid={Boolean(errors.name)}
+              isRequired
+              type="text"
+              {...register('name')}
+            />
+            {errors.name && (
+              <FormErrorMessage>{errors.name.message}</FormErrorMessage>
+            )}
           </FormControl>
-        )}
 
-        <FormControl isInvalid={Boolean(errors.name)} isRequired>
-          <FormLabel>Name</FormLabel>
-          <Input
-            isInvalid={Boolean(errors.name)}
-            isRequired
-            type="text"
-            {...register('name')}
+          <PositionStaff
+            users={users.length > 0 ? users : position?.staff ?? []}
           />
-          {errors.name && (
-            <FormErrorMessage>{errors.name.message}</FormErrorMessage>
-          )}
-        </FormControl>
-      </Flex>
-    </form>
+        </Flex>
+      </form>
+    </FormProvider>
   );
 };

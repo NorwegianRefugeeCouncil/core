@@ -5,9 +5,22 @@ import { User } from '@nrcno/core-models';
 import { ScimUser } from '../scim.types';
 import * as UserStore from '../stores/user.store';
 
-export const mapScimUserToUser = (
-  scimUser: Partial<ScimUser>,
-): Partial<User> => {
+interface IUserService {
+  mapScimUserToUser: (scimUser: Partial<ScimUser>) => Partial<User>;
+  mapUserToScimUser: (user: User) => ScimUser;
+  create: (scimUser: ScimUser) => Promise<User>;
+  get: (userId: string) => Promise<User | null>;
+  getByOidcId: (oidcId: string) => Promise<User | null>;
+  update: (
+    userId: string,
+    scimUserUpdate: Partial<ScimUser>,
+  ) => Promise<User | null>;
+  list: (startIndex: number, count: number) => Promise<User[]>;
+  search: (attribute: string, value: string | string[]) => Promise<User[]>;
+  getCount: () => Promise<number>;
+}
+
+const mapScimUserToUser = (scimUser: Partial<ScimUser>): Partial<User> => {
   const { id, externalId, userName, displayName, name, emails, active } =
     scimUser;
 
@@ -23,7 +36,7 @@ export const mapScimUserToUser = (
   };
 };
 
-export const mapUserToScimUser = (user: User): ScimUser => {
+const mapUserToScimUser = (user: User): ScimUser => {
   const {
     id,
     oktaId,
@@ -55,7 +68,7 @@ export const mapUserToScimUser = (user: User): ScimUser => {
   return scimUser;
 };
 
-export const create = async (scimUser: ScimUser): Promise<User> => {
+const create = async (scimUser: ScimUser): Promise<User> => {
   const user = {
     ...mapScimUserToUser(scimUser),
     id: uuidv4(),
@@ -63,15 +76,15 @@ export const create = async (scimUser: ScimUser): Promise<User> => {
   return UserStore.create(user as Omit<User, 'createdAt' | 'updatedAt'>);
 };
 
-export const get = async (userId: string): Promise<User | null> => {
+const get = async (userId: string): Promise<User | null> => {
   return UserStore.getById(userId);
 };
 
-export const getByOidcId = async (oidcId: string): Promise<User | null> => {
+const getByOidcId = async (oidcId: string): Promise<User | null> => {
   return UserStore.getByOidcId(oidcId);
 };
 
-export const update = async (
+const update = async (
   userId: string,
   scimUserUpdate: Partial<ScimUser>,
 ): Promise<User | null> => {
@@ -79,20 +92,29 @@ export const update = async (
   return UserStore.update(userId, userUpdate);
 };
 
-export const list = async (
-  startIndex: number,
-  count: number,
-): Promise<User[]> => {
+const list = async (startIndex: number, count: number): Promise<User[]> => {
   return UserStore.findAll(startIndex, count);
 };
 
-export const search = async (
+const search = async (
   attribute: string,
-  value: string,
+  value: string | string[],
 ): Promise<User[]> => {
   return UserStore.findAll(undefined, undefined, attribute, value);
 };
 
-export const getCount = async (): Promise<number> => {
+const getCount = async (): Promise<number> => {
   return UserStore.countAll();
+};
+
+export const UserService: IUserService = {
+  mapScimUserToUser,
+  mapUserToScimUser,
+  create,
+  get,
+  getByOidcId,
+  update,
+  list,
+  search,
+  getCount,
 };

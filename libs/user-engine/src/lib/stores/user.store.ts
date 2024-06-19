@@ -58,7 +58,7 @@ export const findAll = async (
   startIndex?: number,
   count?: number,
   attribute?: string,
-  value?: string,
+  value?: string | string[],
 ): Promise<User[]> => {
   const db = getDb();
 
@@ -73,7 +73,14 @@ export const findAll = async (
   }
 
   if (attribute !== undefined && value !== undefined) {
-    query = query.where(attribute, '=', value);
+    if (Array.isArray(value)) {
+      if (value.length === 0) {
+        return [];
+      }
+      query = query.whereIn(attribute, value);
+    } else {
+      query = query.where(attribute, '=', value);
+    }
   }
 
   const rows = await query;

@@ -5,7 +5,7 @@ import { User } from '@nrcno/core-models';
 
 import * as UserStore from '../stores/user.store';
 
-import * as UserService from './user.service';
+export { UserService } from './lib/services/user.service';
 
 jest.mock('../data-access/user.store');
 

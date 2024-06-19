@@ -2,8 +2,8 @@ import { Alert, AlertIcon, Box, Skeleton } from '@chakra-ui/react';
 import {
   PositionDefinition,
   PositionDefinitionSchema,
-  PositionPartialUpdate,
-  PositionPartialUpdateSchema,
+  PositionUpdate,
+  PositionUpdateSchema,
   PositionSchema,
 } from '@nrcno/core-models';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -22,6 +22,7 @@ export const PositionDetailPage: React.FC<Props> = ({ mode }) => {
   const { positionId } = useParams();
 
   const {
+    user,
     position: { create, update, read },
   } = useUserContext();
 
@@ -31,6 +32,15 @@ export const PositionDetailPage: React.FC<Props> = ({ mode }) => {
       read.onRead(positionId);
     }
   }, [mode, positionId]);
+
+  React.useEffect(() => {
+    if (mode === 'create' || mode === 'edit') {
+      user.list.getUserList({
+        startIndex: 0,
+        pageSize: 1000,
+      });
+    }
+  }, [mode]);
 
   // Reset form when switching between create and edit mode
   React.useEffect(() => {
@@ -44,7 +54,7 @@ export const PositionDetailPage: React.FC<Props> = ({ mode }) => {
     };
   }, [mode]);
 
-  const { status, error, onSubmit, defaultBackPath, schema } = (() => {
+  const { data, status, error, onSubmit, defaultBackPath, schema } = (() => {
     switch (mode) {
       case 'create':
         return {
@@ -55,6 +65,7 @@ export const PositionDetailPage: React.FC<Props> = ({ mode }) => {
           },
           defaultBackPath: `/admin/positions`,
           schema: PositionDefinitionSchema,
+          data: undefined,
         };
       case 'edit':
         if (!positionId) {
@@ -62,10 +73,10 @@ export const PositionDetailPage: React.FC<Props> = ({ mode }) => {
         }
         return {
           ...update,
-          onSubmit: (data: PositionPartialUpdate) =>
-            update.onUpdate(positionId, data),
+          onSubmit: (data: PositionUpdate) => update.onUpdate(positionId, data),
           defaultBackPath: `/admin/positions/${positionId}`,
-          schema: PositionPartialUpdateSchema,
+          schema: PositionUpdateSchema,
+          data: update.data ? update.data : read.data,
         };
       case 'read':
         return {
@@ -100,11 +111,12 @@ export const PositionDetailPage: React.FC<Props> = ({ mode }) => {
       <Skeleton isLoaded={!isLoading}>
         <PositionDetailForm
           onSubmit={onSubmit}
-          position={read.data}
+          position={data}
           isSubmitting={isSubmitting}
           defaultBackPath={defaultBackPath}
           readOnly={mode === 'read'}
           schema={schema}
+          users={user.list.data?.items ?? []}
         />
       </Skeleton>
     </Box>

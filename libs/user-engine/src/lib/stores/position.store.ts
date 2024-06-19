@@ -7,18 +7,20 @@ import {
   Position,
   PositionDefinition,
   PositionListItem,
+  PositionListItemSchema,
   PositionPartialUpdate,
-  PositionSchema,
 } from '@nrcno/core-models';
 
+type PositionWithStaffIds = Omit<Position, 'staff'> & { staff: string[] };
+
 export interface IPositionStore {
-  create: (position: PositionDefinition) => Promise<Position>;
-  get: (positionId: string) => Promise<Position | null>;
+  create: (position: PositionDefinition) => Promise<PositionWithStaffIds>;
+  get: (positionId: string) => Promise<PositionWithStaffIds | null>;
   list: (pagination: Pagination) => Promise<PositionListItem[]>;
   update: (
     positionId: string,
     partialPosition: PositionPartialUpdate,
-  ) => Promise<Position>;
+  ) => Promise<void>;
   del: (positionId: string) => Promise<void>;
   count: () => Promise<number>;
 }
@@ -26,26 +28,49 @@ export interface IPositionStore {
 const create: IPositionStore['create'] = async (position) => {
   const db = getDb();
 
+  const { staff, ...positionDetails } = position;
+
   const result = await db('positions')
     .insert({
-      ...position,
+      ...positionDetails,
       id: uuid(),
     })
     .returning('*');
 
-  return PositionSchema.parse(result[0]);
+  const positionId = result[0].id;
+  if (staff.length > 0) {
+    await db('position_user_assignments').insert(
+      staff.map((userId) => ({
+        position_id: positionId,
+        user_id: userId,
+      })),
+    );
+  }
+
+  return {
+    ...result[0],
+    staff,
+  };
 };
 
 const get: IPositionStore['get'] = async (positionId) => {
   const db = getDb();
 
-  const result = await db('positions').where('id', positionId).first();
+  const [position, staffIds] = await Promise.all([
+    db('positions').where('id', positionId).first(),
+    db('position_user_assignments')
+      .where('positionId', positionId)
+      .select('userId'),
+  ]);
 
-  if (!result) {
+  if (!position) {
     return null;
   }
 
-  return PositionSchema.parse(result);
+  return {
+    ...position,
+    staff: staffIds.map((row) => row.userId),
+  };
 };
 
 const list: IPositionStore['list'] = async (pagination) => {
@@ -55,27 +80,44 @@ const list: IPositionStore['list'] = async (pagination) => {
     .limit(pagination.pageSize)
     .offset(pagination.startIndex);
 
-  return z.array(PositionSchema).parse(result);
+  return z.array(PositionListItemSchema).parse(result);
 };
 
 const update: IPositionStore['update'] = async (
   positionId,
-  partialPosition,
+  partialPositionUpdate,
 ) => {
   const db = getDb();
 
-  const result = await db('positions')
-    .where('id', positionId)
-    .update(partialPosition)
-    .returning('*');
+  const {
+    staff: { add: staffToAdd = [], remove: staffToRemove = [] },
+    ...positionDetails
+  } = partialPositionUpdate;
 
-  return PositionSchema.parse(result[0]);
+  await db('positions').where('id', positionId).update(positionDetails);
+
+  if (staffToAdd.length > 0) {
+    await db('position_user_assignments').insert(
+      staffToAdd.map((userId) => ({
+        positionId: positionId,
+        userId: userId,
+      })),
+    );
+  }
+
+  if (staffToRemove.length > 0) {
+    await db('position_user_assignments')
+      .where('positionId', positionId)
+      .whereIn('userId', staffToRemove)
+      .del();
+  }
 };
 
 const del: IPositionStore['del'] = async (positionId) => {
   const db = getDb();
 
   await db('positions').where('id', positionId).del();
+  await db('position_user_assignments').where('positionId', positionId).del();
 };
 
 const count: IPositionStore['count'] = async () => {
