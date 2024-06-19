@@ -6,8 +6,8 @@ import {
   PositionListItem,
   PaginationSchema,
   PositionDefinitionSchema,
-  PositionPartialUpdateSchema,
   PositionIdSchema,
+  PositionUpdateSchema,
 } from '@nrcno/core-models';
 
 // This is exported for testing purposes (not great)
@@ -65,7 +65,7 @@ export const updatePosition = async (
       return;
     }
 
-    const positionUpdate = PositionPartialUpdateSchema.parse(req.body);
+    const positionUpdate = PositionUpdateSchema.parse(req.body);
 
     const updatedPosition = await PositionService.update(
       positionId.data,
