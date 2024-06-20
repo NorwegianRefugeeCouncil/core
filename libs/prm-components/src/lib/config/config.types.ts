@@ -69,6 +69,7 @@ export type TableColumn = {
 export type EntityUIConfig = {
   detail: {
     sections: Section[];
+    fields?: (FieldConfig | ListFieldConfig)[];
   };
   list: {
     fields: TableColumn[];

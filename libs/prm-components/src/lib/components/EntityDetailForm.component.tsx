@@ -21,6 +21,7 @@ import { z } from 'zod';
 import { EntityUIConfig } from '../config';
 
 import { Section } from './Section.component';
+import { Field } from './Fields';
 
 type Props = {
   id: string;
@@ -127,6 +128,10 @@ export const EntityDetailForm: React.FC<Props> = ({
             )}
           </HStack>
         </Flex>
+        {config.fields &&
+          config.fields.map((field, i) => (
+            <Field key={`${id}_${field.path.join('.')}_${i}`} config={field} />
+          ))}
         <Accordion
           defaultIndex={config.sections.map((_, i) => i)}
           allowMultiple
