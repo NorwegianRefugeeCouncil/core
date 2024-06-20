@@ -1,0 +1,44 @@
+[
+  {
+    "name": "role_assigned_to_position",
+    "arguments": ["role", "positionId", "organisationId"],
+    "operations": [
+      {
+        "relationships_write": [
+          "organisation:{{.organizationID}}#p_{{.role}}@position:{{.positionId}}"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "role_assigned_to_team",
+    "arguments": ["role", "teamId", "organisationId"],
+    "operations": [
+      {
+        "relationships_write": [
+          "organisation:{{.organizationID}}#t_{{.role}}@team:{{.teamId}}"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "position_assigned_to_team",
+    "arguments": ["positionId", "teamId"],
+    "operations": [
+      {
+        "relationships_write": [
+          "team:{{teamId}}#position@position{{positionId}}"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "user_assigned_to_position",
+    "arguments": ["userId", "positionId"],
+    "operations": [
+      {
+        "relationships_write": ["position:{{positionId}}#staff@user:{{userId}}"]
+      }
+    ]
+  }
+]
