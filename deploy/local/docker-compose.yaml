@@ -12,3 +12,29 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  db_authz:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: authz
+    ports:
+      - '5433:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  permify:
+    image: ghcr.io/permify/permify:latest
+    environment:
+    ports:
+      - '3476:3476'
+      - '3478:3478'
+    volumes:
+      - ./deploy/local/config/permify.yaml:/config
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/health']
+      interval: 10s
+      timeout: 5s
+      retries: 5
