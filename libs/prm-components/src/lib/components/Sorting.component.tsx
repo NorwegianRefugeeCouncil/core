@@ -49,7 +49,6 @@ export const SortingControl = ({ fields, sorting, onChange }: Props) => {
           options={sortOptions}
           onChange={handleChangeSort}
           menuPortalTarget={document.getElementById('react-select-portal')}
-          defaultMenuIsOpen
         />
         <Select
           value={directionOptions.find(
