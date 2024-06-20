@@ -4,7 +4,11 @@ import {
   FormHelperText,
   FormLabel,
 } from '@chakra-ui/react';
-import { AsyncSelect, Select as S, components } from 'chakra-react-select';
+import {
+  AsyncSelect,
+  Select as ReactSelect,
+  components,
+} from 'chakra-react-select';
 import { useController, useFormContext } from 'react-hook-form';
 
 import { FieldConfig } from '../../config';
@@ -63,7 +67,7 @@ export const Select: React.FC<Props> = ({ config }) => {
           }
         />
       ) : (
-        <S
+        <ReactSelect
           options={config.options}
           value={config.options?.find((option) => option.value === field.value)}
           onChange={(option) => field.onChange(option?.value)}
