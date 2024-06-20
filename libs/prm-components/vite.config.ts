@@ -23,6 +23,6 @@ export default defineConfig({
       reportsDirectory: '../../coverage/libs/prm-components',
       provider: 'v8',
     },
-    setupFiles: ['./vitest.window-setup.ts'],
+    setupFiles: ['./vitest.window-setup.js'],
   },
 });
