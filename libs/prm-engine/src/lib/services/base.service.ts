@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
+import { z } from 'zod';
+
 import {
   Entity,
   EntityDefinition,
@@ -101,7 +103,9 @@ export const GetMixin =
     };
 
 export const CreateMixin =
-  <TDefinition extends EntityDefinition, TEntity extends Entity>() =>
+  <TDefinition extends EntityDefinition, TEntity extends Entity>(
+    definitionSchema: z.ZodType<TDefinition>,
+  ) =>
   <
     TBase extends GConstructor<
       BaseService<TDefinition, TEntity, any, any, any>
@@ -110,11 +114,21 @@ export const CreateMixin =
     Base: TBase,
   ) =>
     class extends Base {
-      public create(entity: TDefinition): Promise<TEntity> {
+      public definitionSchema: z.ZodType<TDefinition> = definitionSchema;
+
+      public create(entityDefinition: TDefinition): Promise<TEntity> {
         if (!this.store.create) {
           throw new Error('Method not implemented');
         }
-        return this.store.create(entity);
+        return this.store.create(entityDefinition);
+      }
+
+      public validateDefinition(entityDefinition: unknown): TDefinition {
+        return this.definitionSchema.parse(entityDefinition);
+      }
+
+      public validateAndCreate(entityDefinition: unknown): Promise<TEntity> {
+        return this.create(this.validateDefinition(entityDefinition));
       }
     };
 
@@ -156,7 +170,9 @@ export const CRUDMixin =
     TPartialUpdate extends EntityPartialUpdate,
     TEntityListItem extends EntityListItem,
     TEntityFiltering extends EntityFiltering,
-  >() =>
+  >(
+    definitionSchema: z.ZodType<TDefinition>,
+  ) =>
   <
     TBase extends GConstructor<
       BaseService<
@@ -171,7 +187,7 @@ export const CRUDMixin =
     Base: TBase,
   ) =>
     UpdateMixin<TEntity, TUpdate, TPartialUpdate>()(
-      CreateMixin<TDefinition, TEntity>()(
+      CreateMixin<TDefinition, TEntity>(definitionSchema)(
         GetMixin<TEntity>()(
           ListMixin<TEntityListItem, TEntityFiltering>()(Base),
         ),

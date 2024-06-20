@@ -34,7 +34,7 @@ export const useCreateEntity = (
     }
     try {
       actions.submitting();
-      const entity = await client.create(entityDefinition);
+      const entity = await client.validateAndCreate(entityDefinition);
       actions.success(entity);
       return entity;
     } catch (error) {

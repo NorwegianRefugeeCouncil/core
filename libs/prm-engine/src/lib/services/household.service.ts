@@ -1,4 +1,11 @@
-import { EntityType, Household, HouseholdDefinition } from '@nrcno/core-models';
+import { z } from 'zod';
+
+import {
+  EntityType,
+  Household,
+  HouseholdDefinition,
+  HouseholdDefinitionSchema,
+} from '@nrcno/core-models';
 
 import { HouseholdStore } from '../stores/household.store';
 
@@ -11,7 +18,7 @@ export class HouseholdService extends CRUDMixin<
   any,
   any,
   any
->()(
+>(HouseholdDefinitionSchema as z.ZodType<HouseholdDefinition>)(
   class {
     public entityType = EntityType.Household;
     public store = HouseholdStore;
