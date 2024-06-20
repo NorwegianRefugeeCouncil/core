@@ -2,10 +2,8 @@ import { ZodError } from 'zod';
 
 export const formatZodError = (err: ZodError) => ({
   message: 'Validation Failed',
-  errors: err.errors.map((e) => ({
-    path: e.path.join('.'),
-    message: e.message,
-  })),
+  issues: err.issues,
+  errors: err.errors,
 });
 
 const hasStatusCode = (err: any): err is { statusCode: number } => {

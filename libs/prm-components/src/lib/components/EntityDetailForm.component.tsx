@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { Entity } from '@nrcno/core-models';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 
 import { EntityUIConfig } from '../config';
 
@@ -33,6 +33,7 @@ type Props = {
   defaultBackPath: string;
   readOnly: boolean;
   schema: z.ZodType<any, any>;
+  error: ZodError | undefined | null;
 };
 
 export const EntityDetailForm: React.FC<Props> = ({
@@ -45,6 +46,7 @@ export const EntityDetailForm: React.FC<Props> = ({
   defaultBackPath,
   readOnly,
   schema,
+  error,
 }) => {
   const form = useForm<Entity>({
     mode: 'onChange',
@@ -82,6 +84,17 @@ export const EntityDetailForm: React.FC<Props> = ({
       window.onbeforeunload = null;
     };
   }, [form.formState.isDirty, readOnly]);
+
+  useEffect(() => {
+    if (error) {
+      error.issues.forEach((issue) => {
+        form.setError(issue.path.join('.') as keyof Entity, {
+          type: 'manual',
+          message: issue.message,
+        });
+      });
+    }
+  }, [error]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     if (onSubmit) {

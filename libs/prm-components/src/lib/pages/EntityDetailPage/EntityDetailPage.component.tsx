@@ -1,10 +1,13 @@
 import { useMemo } from 'react';
-import { Alert, AlertIcon, Box, Skeleton } from '@chakra-ui/react';
 import {
   getEntityDefinitionSchema,
   getEntitySchema,
   getEntityUpdateSchema,
 } from '@nrcno/core-models';
+import { Alert, AlertIcon, Box, Skeleton, Text } from '@chakra-ui/react';
+import { isAxiosError } from 'axios';
+import { ZodError } from 'zod';
+import { Link } from 'react-router-dom';
 
 import { EntityDetailForm } from '../../components';
 import { useEntityDetailPage } from '../../hooks/useEntityDetailPage.hook';
@@ -59,12 +62,46 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
     }
   }, [mode, entityType]);
 
+  const errorMessage = (() => {
+    if (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === 400) {
+          return (
+            <Text>
+              There was an error with the data you submitted. Please check the
+              form and try again.';
+            </Text>
+          );
+        }
+        return (
+          <Text>
+            Internal error,{' '}
+            <Link
+              to="https://nrc.freshservice.com/support/catalog/items/95"
+              target="_blank"
+            >
+              contact support
+            </Link>
+            .
+          </Text>
+        );
+      }
+      return 'An error occurred. Please try again.';
+    }
+    return '';
+  })();
+
+  const validationError =
+    error && isAxiosError(error) && error.response?.status === 400
+      ? new ZodError(error.response.data.errors)
+      : null;
+
   return (
     <Box p={10} maxW="850px" ml="auto" mr="auto">
       {isError && (
         <Alert status="error" mb={4}>
           <AlertIcon />
-          {error?.message}
+          {errorMessage}
         </Alert>
       )}
       {isSuccess && (
@@ -84,6 +121,7 @@ export const EntityDetailPage: React.FC<Props> = ({ mode }) => {
           defaultBackPath={defaultBackPath}
           readOnly={mode === 'read'}
           schema={schema}
+          error={validationError}
         />
       </Skeleton>
     </Box>
