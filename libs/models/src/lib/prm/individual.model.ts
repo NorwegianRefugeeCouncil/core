@@ -86,17 +86,13 @@ export type ContactDetailsDefinition = z.infer<
   typeof EmailContactDetailsDefinitionSchema
 >;
 
-const EmailContactDetailsSchema = EmailContactDetailsDefinitionSchema.merge(
-  z.object({
-    id: z.string().uuid(),
-  }),
-);
+const EmailContactDetailsSchema = EmailContactDetailsDefinitionSchema.extend({
+  id: z.string().uuid(),
+});
 export const PhoneContactDetailsSchema =
-  PhoneContactDetailsDefinitionSchema.merge(
-    z.object({
-      id: z.string().uuid(),
-    }),
-  );
+  PhoneContactDetailsDefinitionSchema.extend({
+    id: z.string().uuid(),
+  });
 export type ContactDetails = z.infer<typeof EmailContactDetailsSchema>;
 
 export const IdentificationDefinitionSchema = z.object({
@@ -107,122 +103,106 @@ export type IdentificationDefinition = z.infer<
   typeof IdentificationDefinitionSchema
 >;
 
-export const IdentificationSchema = IdentificationDefinitionSchema.merge(
-  z.object({
-    id: z.string().uuid(),
-  }),
-);
+export const IdentificationSchema = IdentificationDefinitionSchema.extend({
+  id: z.string().uuid(),
+});
 export type Identification = z.infer<typeof IdentificationSchema>;
 
-export const IndividualDefinitionSchema = IndividualDetailsSchema.merge(
-  z.object({
-    languages: z.array(IsoCodeSchema).optional().default([]),
-    nationalities: z.array(IsoCodeSchema).optional().default([]),
-    emails: z.array(EmailContactDetailsDefinitionSchema).optional().default([]),
-    phones: z.array(PhoneContactDetailsDefinitionSchema).optional().default([]),
-    identification: z
-      .array(IdentificationDefinitionSchema)
-      .optional()
-      .default([]),
-  }),
-);
-
+export const IndividualDefinitionSchema = IndividualDetailsSchema.extend({
+  languages: z.array(IsoCodeSchema).optional().default([]),
+  nationalities: z.array(IsoCodeSchema).optional().default([]),
+  emails: z.array(EmailContactDetailsDefinitionSchema).optional().default([]),
+  phones: z.array(PhoneContactDetailsDefinitionSchema).optional().default([]),
+  identification: z
+    .array(IdentificationDefinitionSchema)
+    .optional()
+    .default([]),
+});
 export type IndividualDefinition = z.infer<typeof IndividualDefinitionSchema>;
 
-export const IndividualSchema = IndividualDefinitionSchema.merge(
-  z.object({
-    id: z.string().ulid(),
-    emails: z.array(EmailContactDetailsSchema).optional().default([]),
-    phones: z.array(PhoneContactDetailsSchema).optional().default([]),
-    identification: z.array(IdentificationSchema).optional().default([]),
-  }),
-);
-
+export const IndividualSchema = IndividualDefinitionSchema.extend({
+  id: z.string().ulid(),
+  emails: z.array(EmailContactDetailsSchema).optional().default([]),
+  phones: z.array(PhoneContactDetailsSchema).optional().default([]),
+  identification: z.array(IdentificationSchema).optional().default([]),
+});
 export type Individual = z.infer<typeof IndividualSchema>;
 
 const EmailContactDetailsWithOptionalIdSchema =
-  EmailContactDetailsDefinitionSchema.merge(
-    z.object({
-      id: z.string().uuid().optional(),
-    }),
-  );
-const PhoneContactDetailsWithOptionalIdSchema =
-  PhoneContactDetailsDefinitionSchema.merge(
-    z.object({
-      id: z.string().uuid().optional(),
-    }),
-  );
-const IdentificationWithOptionalIdSchema = IdentificationDefinitionSchema.merge(
-  z.object({
+  EmailContactDetailsDefinitionSchema.extend({
     id: z.string().uuid().optional(),
-  }),
-);
-export const IndividualUpdateSchema = IndividualDefinitionSchema.merge(
-  z.object({
-    emails: z
-      .array(EmailContactDetailsWithOptionalIdSchema)
-      .optional()
-      .default([]),
-    phones: z
-      .array(PhoneContactDetailsWithOptionalIdSchema)
-      .optional()
-      .default([]),
-    identification: z
-      .array(IdentificationWithOptionalIdSchema)
-      .optional()
-      .default([]),
-  }),
-);
+  });
+const PhoneContactDetailsWithOptionalIdSchema =
+  PhoneContactDetailsDefinitionSchema.extend({
+    id: z.string().uuid().optional(),
+  });
+const IdentificationWithOptionalIdSchema =
+  IdentificationDefinitionSchema.extend({
+    id: z.string().uuid().optional(),
+  });
+export const IndividualUpdateSchema = IndividualDefinitionSchema.extend({
+  emails: z
+    .array(EmailContactDetailsWithOptionalIdSchema)
+    .optional()
+    .default([]),
+  phones: z
+    .array(PhoneContactDetailsWithOptionalIdSchema)
+    .optional()
+    .default([]),
+  identification: z
+    .array(IdentificationWithOptionalIdSchema)
+    .optional()
+    .default([]),
+});
 export type IndividualUpdate = z.infer<typeof IndividualUpdateSchema>;
 
-const IndividualPartialUpdateSchema = IndividualUpdateSchema.merge(
-  z.object({
-    languages: z
-      .object({
-        add: z.array(IsoCodeSchema).optional(),
-        remove: z.array(IsoCodeSchema).optional(),
-      })
-      .optional(),
-    nationalities: z
-      .object({
-        add: z.array(IsoCodeSchema).optional(),
-        remove: z.array(IsoCodeSchema).optional(),
-      })
-      .optional(),
-    phones: z
-      .object({
-        add: z.array(PhoneContactDetailsDefinitionSchema).optional(),
-        update: z.array(PhoneContactDetailsSchema).optional(),
-        remove: z.array(z.string().uuid()).optional(),
-      })
-      .optional(),
-    emails: z
-      .object({
-        add: z.array(EmailContactDetailsDefinitionSchema).optional(),
-        update: z.array(EmailContactDetailsSchema).optional(),
-        remove: z.array(z.string().uuid()).optional(),
-      })
-      .optional(),
-    identification: z
-      .object({
-        add: z.array(IdentificationDefinitionSchema).optional(),
-        update: z.array(IdentificationSchema).optional(),
-        remove: z.array(z.string().uuid()).optional(),
-      })
-      .optional(),
-  }),
-);
+const IndividualPartialUpdateSchema = IndividualUpdateSchema.extend({
+  languages: z
+    .object({
+      add: z.array(IsoCodeSchema).optional(),
+      remove: z.array(IsoCodeSchema).optional(),
+    })
+    .optional(),
+  nationalities: z
+    .object({
+      add: z.array(IsoCodeSchema).optional(),
+      remove: z.array(IsoCodeSchema).optional(),
+    })
+    .optional(),
+  phones: z
+    .object({
+      add: z.array(PhoneContactDetailsDefinitionSchema).optional(),
+      update: z.array(PhoneContactDetailsSchema).optional(),
+      remove: z.array(z.string().uuid()).optional(),
+    })
+    .optional(),
+  emails: z
+    .object({
+      add: z.array(EmailContactDetailsDefinitionSchema).optional(),
+      update: z.array(EmailContactDetailsSchema).optional(),
+      remove: z.array(z.string().uuid()).optional(),
+    })
+    .optional(),
+  identification: z
+    .object({
+      add: z.array(IdentificationDefinitionSchema).optional(),
+      update: z.array(IdentificationSchema).optional(),
+      remove: z.array(z.string().uuid()).optional(),
+    })
+    .optional(),
+});
 export type IndividualPartialUpdate = z.infer<
   typeof IndividualPartialUpdateSchema
 >;
 
-export const IndividualListItemSchema = z.object({
-  id: z.string().ulid(),
-  firstName: z.string().max(100).nullable(),
-  lastName: z.string().max(100).nullable(),
-  dateOfBirth: z.coerce.date().nullable(),
-  sex: SexSchema.nullable(),
-  displacementStatus: DisplacementStatusSchema.nullable(),
+export const IndividualListItemSchema = IndividualSchema.pick({
+  id: true,
+  firstName: true,
+  lastName: true,
+  dateOfBirth: true,
+  sex: true,
+  displacementStatus: true,
+}).extend({
   nationalities: z.array(IsoCodeSchema).max(1).optional().default([]),
   emails: z.array(EmailContactDetailsSchema).max(1).optional().default([]),
   phones: z.array(PhoneContactDetailsSchema).max(1).optional().default([]),

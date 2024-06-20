@@ -1,12 +1,9 @@
 import { z } from 'zod';
 
-import { DateOfBirthSchema, IsoCodeSchema } from './common';
+import { IsoCodeSchema } from './common';
 import {
-  IdentificationDefinitionSchema,
-  IdentificationSchema,
-  PhoneContactDetailsDefinitionSchema,
-  PhoneContactDetailsSchema,
-  SexSchema,
+  IndividualDefinitionSchema,
+  IndividualSchema,
 } from './individual.model';
 
 export enum HeadOfHouseholdType {
@@ -19,16 +16,17 @@ export enum HeadOfHouseholdType {
 }
 const HeadOfHouseholdTypeSchema = z.nativeEnum(HeadOfHouseholdType);
 
-const HouseholdIndividualDefinitionSchema = z.object({
+const HouseholdIndividualDefinitionSchema = IndividualDefinitionSchema.pick({
+  lastName: true,
+  firstName: true,
+  sex: true,
+  dateOfBirth: true,
+  address: true,
+  nationalities: true,
+  identification: true,
+  phones: true,
+}).extend({
   isHeadOfHousehold: z.boolean().optional().default(false),
-  lastName: z.string().max(100).optional().nullable(),
-  firstName: z.string().max(100).optional().nullable(),
-  sex: SexSchema.optional().nullable(),
-  dateOfBirth: DateOfBirthSchema.optional().nullable(),
-  nationality: IsoCodeSchema.optional().nullable(),
-  identification: IdentificationDefinitionSchema.optional().nullable(),
-  address: z.string().max(512).optional().nullable(),
-  phone: PhoneContactDetailsDefinitionSchema.optional().nullable(),
 });
 
 export const HouseholdDefinitionSchema = z.object({
@@ -39,19 +37,13 @@ export const HouseholdDefinitionSchema = z.object({
 export type HouseholdDefinition = z.infer<typeof HouseholdDefinitionSchema>;
 
 const HouseholdIndividualSchema = HouseholdIndividualDefinitionSchema.merge(
-  z.object({
-    id: z.string().ulid(),
-    identification: IdentificationSchema.nullable(),
-    phone: PhoneContactDetailsSchema.nullable(),
-  }),
+  IndividualSchema.pick({ id: true, identification: true, phones: true }),
 );
 
-export const HouseholdSchema = HouseholdDefinitionSchema.merge(
-  z.object({
-    id: z.string().ulid(),
-    headId: z.string().ulid().optional(), // TODO: remove optional once enforcing head of household
-    headNationality: IsoCodeSchema.optional(),
-    individuals: z.array(HouseholdIndividualSchema),
-  }),
-);
+export const HouseholdSchema = HouseholdDefinitionSchema.extend({
+  id: z.string().ulid(),
+  headId: z.string().ulid().optional(), // TODO: remove optional once enforcing head of household
+  headNationality: IsoCodeSchema.optional(),
+  individuals: z.array(HouseholdIndividualSchema),
+});
 export type Household = z.infer<typeof HouseholdSchema>;
