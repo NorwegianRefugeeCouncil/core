@@ -1,4 +1,8 @@
-import { EntityType, SortingDirection } from '@nrcno/core-models';
+import {
+  EntityType,
+  IndividualDefinitionSchema,
+  SortingDirection,
+} from '@nrcno/core-models';
 
 import { CreateMixin, GetMixin, ListMixin, UpdateMixin } from './base.service';
 
@@ -155,7 +159,9 @@ describe('BaseService', () => {
         }),
       };
 
-      const ServiceWithCreateMixin = class Foo extends CreateMixin<any, any>()(
+      const ServiceWithCreateMixin = class Foo extends CreateMixin<any, any>(
+        IndividualDefinitionSchema,
+      )(
         class {
           public entityType = EntityType.Individual;
           public store = storeMock;

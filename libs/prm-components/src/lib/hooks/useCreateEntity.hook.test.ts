@@ -13,6 +13,7 @@ describe('useCreateEntity', () => {
   beforeEach(() => {
     individualClient = {
       create: vi.fn(),
+      validateAndCreate: vi.fn(),
     } as unknown as PrmClient[EntityType.Individual];
   });
 
@@ -35,7 +36,9 @@ describe('useCreateEntity', () => {
       await onCreateEntity(entityDefinition);
     });
 
-    expect(individualClient.create).toHaveBeenCalledWith(entityDefinition);
+    expect(individualClient.validateAndCreate).toHaveBeenCalledWith(
+      entityDefinition,
+    );
   });
 
   test('should update status to "SUBMITTING" while creating entity', async () => {
@@ -50,7 +53,9 @@ describe('useCreateEntity', () => {
   test('should update status to "SUCCESS" and set data when entity creation is successful', async () => {
     const mockCreatedEntity = IndividualGenerator.generateEntity();
 
-    (individualClient.create as Mock).mockResolvedValueOnce(mockCreatedEntity);
+    (individualClient.validateAndCreate as Mock).mockResolvedValueOnce(
+      mockCreatedEntity,
+    );
 
     const { result } = renderHook(() => useCreateEntity(individualClient));
     const { onCreateEntity } = result.current;
@@ -67,7 +72,9 @@ describe('useCreateEntity', () => {
   test('should update status to "REJECTED" and set error when entity creation fails', async () => {
     const mockError = new Error('An error occurred');
 
-    (individualClient.create as Mock).mockRejectedValueOnce(mockError);
+    (individualClient.validateAndCreate as Mock).mockRejectedValueOnce(
+      mockError,
+    );
 
     const { result } = renderHook(() => useCreateEntity(individualClient));
     const { onCreateEntity } = result.current;
