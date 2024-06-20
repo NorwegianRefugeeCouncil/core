@@ -1,11 +1,9 @@
 import { render } from '@testing-library/react';
 import { EntityType } from '@nrcno/core-models';
+import { theme } from '@nrcno/core-theme';
 import axios from 'axios';
-import {
-  MemoryRouter,
-  RouterProvider,
-  createMemoryRouter,
-} from 'react-router-dom';
+import { RouterProvider, createMemoryRouter } from 'react-router-dom';
+import { ChakraProvider } from '@chakra-ui/react';
 
 import { PrmProvider } from '../../prm.context';
 
@@ -19,13 +17,15 @@ describe('EntityDetailPage', () => {
       {
         path: '/',
         element: (
-          <PrmProvider
-            axiosInstance={axiosInstance}
-            entityType={EntityType.Individual}
-            entityId={undefined}
-          >
-            <EntityDetailPage mode="create" />
-          </PrmProvider>
+          <ChakraProvider theme={theme}>
+            <PrmProvider
+              axiosInstance={axiosInstance}
+              entityType={EntityType.Individual}
+              entityId={undefined}
+            >
+              <EntityDetailPage mode="create" />
+            </PrmProvider>
+          </ChakraProvider>
         ),
       },
     ]);

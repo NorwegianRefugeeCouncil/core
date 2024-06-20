@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { Flex, Select, Text } from '@chakra-ui/react';
+import { Flex, Text } from '@chakra-ui/react';
+import { Select, SingleValue } from 'chakra-react-select';
 import { Sorting, SortingDirection } from '@nrcno/core-models';
 type Props = {
   fields: string[] | readonly string[];
@@ -8,38 +8,57 @@ type Props = {
 };
 
 export const SortingControl = ({ fields, sorting, onChange }: Props) => {
-  const handleChangeSort = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const sort = event.target.value;
-    const newSorting = { ...sorting, sort };
-    onChange(newSorting);
+  const handleChangeSort = (
+    value: SingleValue<{
+      value: string;
+      label: string;
+    }>,
+  ) => {
+    if (value) {
+      onChange({ ...sorting, sort: value.value });
+    }
   };
 
   const handleChangeDirection = (
-    event: React.ChangeEvent<HTMLSelectElement>,
+    value: SingleValue<{
+      value: SortingDirection;
+      label: SortingDirection;
+    }>,
   ) => {
-    const direction = event.target.value as SortingDirection;
-    const newSorting = { ...sorting, direction };
-    onChange(newSorting);
+    if (value) {
+      onChange({ ...sorting, direction: value.value });
+    }
   };
+
+  const sortOptions = fields.map((field) => ({
+    value: field,
+    label: field,
+  }));
+
+  const directionOptions = Object.values(SortingDirection).map((direction) => ({
+    value: direction,
+    label: direction,
+  }));
 
   return (
     <Flex direction="column" gap={1}>
       <Text>Sort by:</Text>
       <Flex direction="row" gap={4}>
-        <Select value={sorting.sort} onChange={handleChangeSort}>
-          {fields.map((field, index) => (
-            <option key={index} value={field}>
-              {field}
-            </option>
-          ))}
-        </Select>
-        <Select value={sorting.direction} onChange={handleChangeDirection}>
-          {Object.values(SortingDirection).map((direction) => (
-            <option key={direction} value={direction}>
-              {direction}
-            </option>
-          ))}
-        </Select>
+        <Select
+          value={sortOptions.find((option) => option.value === sorting.sort)}
+          options={sortOptions}
+          onChange={handleChangeSort}
+          menuPortalTarget={document.getElementById('react-select-portal')}
+          defaultMenuIsOpen
+        />
+        <Select
+          value={directionOptions.find(
+            (direction) => direction.value === sorting.direction,
+          )}
+          options={directionOptions}
+          onChange={handleChangeDirection}
+          menuPortalTarget={document.getElementById('react-select-portal')}
+        />
       </Flex>
     </Flex>
   );

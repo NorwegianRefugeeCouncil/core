@@ -6,3 +6,7 @@ body {
   padding: 0;
   overflow: hidden;
 }
+
+#react-select-portal > div {
+  z-index: var(--chakra-zIndices-dropdown);
+}

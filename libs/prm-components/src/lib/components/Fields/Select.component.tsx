@@ -3,11 +3,22 @@ import {
   FormErrorMessage,
   FormHelperText,
   FormLabel,
-  Select as S,
 } from '@chakra-ui/react';
+import {
+  AsyncSelect,
+  Select as ReactSelect,
+  components,
+} from 'chakra-react-select';
 import { useController, useFormContext } from 'react-hook-form';
 
 import { FieldConfig } from '../../config';
+
+// This is to help with performance in large lists
+const Option = ({ children, ...props }: any) => {
+  const { onMouseMove, onMouseOver, ...rest } = props.innerProps;
+  const newProps = Object.assign(props, { innerProps: rest });
+  return <components.Option {...newProps}>{children}</components.Option>;
+};
 
 type Props = {
   config: FieldConfig;
@@ -27,21 +38,46 @@ export const Select: React.FC<Props> = ({ config }) => {
 
   return (
     <FormControl isInvalid={fieldState.invalid} isRequired={config.required}>
-      <FormLabel>{config.label}</FormLabel>
-      <S
-        isInvalid={fieldState.invalid}
-        isRequired={config.required}
-        placeholder={config.placeholder}
-        {...field}
-      >
-        <option value="">{!disabled ? `Select ${config.label}` : ''}</option>
-        {config.options &&
-          config.options.map((option) => (
-            <option value={option.value} key={`${name}_${option.value}`}>
-              {option.label}
-            </option>
-          ))}
-      </S>
+      {config.label && <FormLabel>{config.label}</FormLabel>}
+
+      {(config.options?.length ?? 0) > 300 ? (
+        <AsyncSelect
+          loadOptions={(inputValue) =>
+            new Promise((resolve) =>
+              resolve(
+                config.options
+                  ?.filter((option) =>
+                    option.label
+                      .toLowerCase()
+                      .includes(inputValue.toLowerCase()),
+                  )
+                  .slice(0, 100) ?? [],
+              ),
+            )
+          }
+          value={config.options?.find((option) => option.value === field.value)}
+          onChange={(option) => field.onChange(option?.value)}
+          isDisabled={disabled}
+          isClearable={!config.required}
+          placeholder={config.placeholder}
+          isSearchable
+          menuPortalTarget={document.getElementById('react-select-portal')}
+          noOptionsMessage={({ inputValue }) =>
+            inputValue.length > 0 ? 'No results' : 'Type to search'
+          }
+        />
+      ) : (
+        <ReactSelect
+          options={config.options}
+          value={config.options?.find((option) => option.value === field.value)}
+          onChange={(option) => field.onChange(option?.value)}
+          isDisabled={disabled}
+          isClearable={!config.required}
+          placeholder={config.placeholder}
+          isSearchable
+          menuPortalTarget={document.getElementById('react-select-portal')}
+        />
+      )}
       {config.description && (
         <FormHelperText>{config.description}</FormHelperText>
       )}
