@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-import { IsoCodeSchema } from './common';
 import {
   IndividualDefinitionSchema,
   IndividualSchema,
@@ -30,9 +29,9 @@ const HouseholdIndividualDefinitionSchema = IndividualDefinitionSchema.pick({
 });
 
 export const HouseholdDefinitionSchema = z.object({
-  headType: HeadOfHouseholdTypeSchema.optional(),
-  sizeOverride: z.number().int().optional(),
-  individuals: z.array(HouseholdIndividualDefinitionSchema),
+  headType: HeadOfHouseholdTypeSchema.optional().nullable(),
+  sizeOverride: z.number().int().optional().nullable(),
+  individuals: z.array(HouseholdIndividualDefinitionSchema).default([]), // TODO: remove default once enforcing head of household
 });
 export type HouseholdDefinition = z.infer<typeof HouseholdDefinitionSchema>;
 
@@ -42,8 +41,6 @@ const HouseholdIndividualSchema = HouseholdIndividualDefinitionSchema.merge(
 
 export const HouseholdSchema = HouseholdDefinitionSchema.extend({
   id: z.string().ulid(),
-  headId: z.string().ulid().optional(), // TODO: remove optional once enforcing head of household
-  headNationality: IsoCodeSchema.optional(),
-  individuals: z.array(HouseholdIndividualSchema),
+  individuals: z.array(HouseholdIndividualSchema).default([]), // TODO: remove default once enforcing head of household
 });
 export type Household = z.infer<typeof HouseholdSchema>;

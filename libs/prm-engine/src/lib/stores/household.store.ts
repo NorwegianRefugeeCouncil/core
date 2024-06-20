@@ -26,10 +26,12 @@ const create: IHouseholdStore['create'] = async (
 
   const householdId = ulid();
 
+  const { individuals, ...householdDetails } = householdDefinition;
+
   const result = await db.transaction(async (trx) => {
     try {
       await trx('households').insert({
-        ...householdDefinition,
+        ...householdDetails,
         id: householdId,
       });
 
@@ -57,11 +59,29 @@ const create: IHouseholdStore['create'] = async (
   return result;
 };
 
+const get: IHouseholdStore['get'] = async (
+  id: string,
+): Promise<Household | null> => {
+  const db = getDb();
+
+  const household = await db('households').where({ id }).first();
+
+  if (!household) {
+    return null;
+  }
+  const parsedHousehold = HouseholdSchema.safeParse(household);
+  if (parsedHousehold.error) {
+    throw new Error(
+      `Corrupt data in database for household: ${parsedHousehold.error.errors.join(', ')}`,
+    );
+  }
+
+  return parsedHousehold.data;
+};
+
 export const HouseholdStore: IHouseholdStore = {
   create,
-  get: function (id: string): Promise<Household | null> {
-    throw new Error('Function not implemented.');
-  },
+  get,
   update: function (id: string, entity: any): Promise<Household> {
     throw new Error('Function not implemented.');
   },
