@@ -57,7 +57,7 @@ export const Select: React.FC<Props> = ({ config }) => {
           isClearable={!config.required}
           placeholder={config.placeholder}
           isSearchable
-          menuPortalTarget={document.querySelector('body')}
+          menuPortalTarget={document.getElementById('react-select-portal')}
           noOptionsMessage={({ inputValue }) =>
             inputValue.length > 0 ? 'No results' : 'Type to search'
           }
@@ -71,7 +71,7 @@ export const Select: React.FC<Props> = ({ config }) => {
           isClearable={!config.required}
           placeholder={config.placeholder}
           isSearchable
-          menuPortalTarget={document.querySelector('body')}
+          menuPortalTarget={document.getElementById('react-select-portal')}
         />
       )}
       {config.description && (
