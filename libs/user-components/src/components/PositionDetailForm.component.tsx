@@ -13,11 +13,12 @@ import {
   Spinner,
   Text,
 } from '@chakra-ui/react';
-import { Position, User } from '@nrcno/core-models';
+import { Position, Roles, User } from '@nrcno/core-models';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 import { PositionStaff } from './PositionStaff.component';
+import { RoleTable } from './RoleTable.component';
 
 type PositionWithStaffIds = Omit<Position, 'staff'> & { staff: string[] };
 
@@ -43,7 +44,10 @@ export const PositionDetailForm: React.FC<Props> = ({
   const form = useForm<PositionWithStaffIds>({
     mode: 'onChange',
     defaultValues: position
-      ? { ...position, staff: position.staff.map((s) => s.id) }
+      ? {
+          ...position,
+          staff: position.staff.map((s) => s.id),
+        }
       : undefined,
     disabled: readOnly || isSubmitting,
     criteriaMode: 'all',
@@ -159,6 +163,8 @@ export const PositionDetailForm: React.FC<Props> = ({
           <PositionStaff
             users={users.length > 0 ? users : position?.staff ?? []}
           />
+
+          <RoleTable fieldName="roles" />
         </Flex>
       </form>
     </FormProvider>

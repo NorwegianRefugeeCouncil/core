@@ -36,6 +36,42 @@ export const up = async (knex: Knex): Promise<void> => {
 
     table.foreign('user_id').references('users.id').onDelete('CASCADE');
   });
+
+  await knex.schema.createTable('position_roles', (table) => {
+    table.uuid('position_id').notNullable();
+    table
+      .enum('role', [
+        'super-admin',
+        'staff-admin',
+        'system-admin',
+        'programmatic-admin',
+        'programmatic-editor',
+        'programmatic-viewer',
+      ])
+      .notNullable();
+
+    table.primary(['position_id', 'role']);
+
+    table.foreign('position_id').references('positions.id').onDelete('CASCADE');
+  });
+
+  await knex.schema.createTable('team_roles', (table) => {
+    table.uuid('team_id').notNullable();
+    table
+      .enum('role', [
+        'super-admin',
+        'staff-admin',
+        'system-admin',
+        'programmatic-admin',
+        'programmatic-editor',
+        'programmatic-viewer',
+      ])
+      .notNullable();
+
+    table.primary(['team_id', 'role']);
+
+    table.foreign('team_id').references('teams.id').onDelete('CASCADE');
+  });
 };
 
 export const down = async (knex: Knex): Promise<void> => {

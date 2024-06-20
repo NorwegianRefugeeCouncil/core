@@ -5,6 +5,7 @@ import {
   PositionListItem,
   PositionSchema,
   PositionUpdate,
+  Roles,
 } from '@nrcno/core-models';
 
 import { PositionStore } from '../stores/position.store';
@@ -71,6 +72,18 @@ const update: IPositionService['update'] = async (
       ),
       remove: existingPosition.staff.filter((id) =>
         positionUpdate.staff.every((staffId) => staffId !== id),
+      ),
+    },
+    roles: {
+      add: Object.values(Roles).filter(
+        (role) =>
+          positionUpdate.roles?.[role] &&
+          positionUpdate.roles[role] !== existingPosition.roles[role],
+      ),
+      remove: Object.values(Roles).filter(
+        (role) =>
+          !positionUpdate.roles?.[role] &&
+          positionUpdate.roles[role] !== existingPosition.roles[role],
       ),
     },
   };

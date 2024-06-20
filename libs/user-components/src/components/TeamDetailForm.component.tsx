@@ -18,6 +18,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 import { TeamPosition } from './TeamPosition.component';
+import { RoleTable } from './RoleTable.component';
 
 type TeamWithPositionIds = Omit<Team, 'positions'> & { positions: string[] };
 
@@ -159,6 +160,8 @@ export const TeamDetailForm: React.FC<Props> = ({
           <TeamPosition
             positions={positions.length > 0 ? positions : team?.positions ?? []}
           />
+
+          <RoleTable fieldName="roles" />
         </Flex>
       </form>
     </FormProvider>

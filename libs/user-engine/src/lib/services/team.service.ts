@@ -1,5 +1,6 @@
 import {
   Pagination,
+  Roles,
   Team,
   TeamDefinition,
   TeamListItem,
@@ -64,6 +65,17 @@ const update: ITeamService['update'] = async (teamId, teamUpdate) => {
       ),
       remove: existingTeam.positions.filter((id) =>
         teamUpdate.positions.every((pId) => pId !== id),
+      ),
+    },
+    roles: {
+      add: Object.values(Roles).filter(
+        (role) =>
+          teamUpdate.roles?.[role] &&
+          teamUpdate.roles[role] !== existingTeam.roles[role],
+      ),
+      remove: Object.values(Roles).filter(
+        (role) =>
+          !teamUpdate.roles?.[role] && existingTeam.roles[role] === true,
       ),
     },
   };

@@ -9,6 +9,7 @@ import {
   PositionListItem,
   PositionListItemSchema,
   PositionPartialUpdate,
+  Roles,
 } from '@nrcno/core-models';
 
 type PositionWithStaffIds = Omit<Position, 'staff'> & { staff: string[] };
@@ -29,7 +30,7 @@ export interface IPositionStore {
 const create: IPositionStore['create'] = async (position) => {
   const db = getDb();
 
-  const { staff, ...positionDetails } = position;
+  const { staff, roles, ...positionDetails } = position;
 
   const result = await db('positions')
     .insert({
@@ -39,17 +40,30 @@ const create: IPositionStore['create'] = async (position) => {
     .returning('*');
 
   const positionId = result[0].id;
+
   if (staff.length > 0) {
     await db('position_user_assignments').insert(
       staff.map((userId) => ({
-        position_id: positionId,
-        user_id: userId,
+        positionId: positionId,
+        userId: userId,
       })),
+    );
+  }
+
+  if (Object.values(roles).some((enabled) => enabled)) {
+    await db('position_roles').insert(
+      Object.entries(roles)
+        .filter(([, enabled]) => enabled)
+        .map(([role]) => ({
+          positionId: positionId,
+          role,
+        })),
     );
   }
 
   return {
     ...result[0],
+    roles,
     staff,
   };
 };
@@ -57,11 +71,12 @@ const create: IPositionStore['create'] = async (position) => {
 const get: IPositionStore['get'] = async (positionId) => {
   const db = getDb();
 
-  const [position, staffIds] = await Promise.all([
+  const [position, staffIds, roles] = await Promise.all([
     db('positions').where('id', positionId).first(),
     db('position_user_assignments')
       .where('positionId', positionId)
       .select('userId'),
+    db('position_roles').where('positionId', positionId).select('role'),
   ]);
 
   if (!position) {
@@ -71,6 +86,13 @@ const get: IPositionStore['get'] = async (positionId) => {
   return {
     ...position,
     staff: staffIds.map((row) => row.userId),
+    roles: Object.values(Roles).reduce(
+      (acc, role) => ({
+        ...acc,
+        [role]: roles.some((r) => r.role === role),
+      }),
+      {} as Record<Roles, boolean>,
+    ),
   };
 };
 
@@ -92,6 +114,7 @@ const update: IPositionStore['update'] = async (
 
   const {
     staff: { add: staffToAdd = [], remove: staffToRemove = [] },
+    roles: { add: rolesToAdd = [], remove: rolesToRemove = [] },
     ...positionDetails
   } = partialPositionUpdate;
 
@@ -112,6 +135,22 @@ const update: IPositionStore['update'] = async (
       .whereIn('userId', staffToRemove)
       .del();
   }
+
+  if (rolesToAdd.length > 0) {
+    await db('position_roles').insert(
+      rolesToAdd.map((role) => ({
+        positionId: positionId,
+        role,
+      })),
+    );
+  }
+
+  if (rolesToRemove.length > 0) {
+    await db('position_roles')
+      .where('positionId', positionId)
+      .whereIn('role', rolesToRemove)
+      .del();
+  }
 };
 
 const del: IPositionStore['del'] = async (positionId) => {
@@ -119,6 +158,7 @@ const del: IPositionStore['del'] = async (positionId) => {
 
   await db('positions').where('id', positionId).del();
   await db('position_user_assignments').where('positionId', positionId).del();
+  await db('position_roles').where('positionId', positionId).del();
 };
 
 const count: IPositionStore['count'] = async () => {

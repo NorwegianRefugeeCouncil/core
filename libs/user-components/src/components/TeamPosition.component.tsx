@@ -39,7 +39,7 @@ export const TeamPosition: React.FC<Props> = ({ positions }) => {
   return (
     <Flex direction="column" gap={4}>
       <Heading as="h4" size="sm">
-        Position
+        Positions
       </Heading>
       {!disabled && (
         <Flex gap={4} w="100%" alignItems="center">

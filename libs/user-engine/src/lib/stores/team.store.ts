@@ -4,12 +4,12 @@ import { v4 as uuid } from 'uuid';
 import { getDb } from '@nrcno/core-db';
 import {
   Pagination,
+  Roles,
   Team,
   TeamDefinition,
   TeamListItem,
   TeamListItemSchema,
   TeamPartialUpdate,
-  TeamSchema,
 } from '@nrcno/core-models';
 
 type TeamWithPositionIds = Omit<Team, 'positions'> & { positions: string[] };
@@ -26,7 +26,7 @@ export interface ITeamStore {
 const create: ITeamStore['create'] = async (team) => {
   const db = getDb();
 
-  const { positions, ...teamDetails } = team;
+  const { positions, roles, ...teamDetails } = team;
 
   const result = await db('teams')
     .insert({
@@ -46,20 +46,33 @@ const create: ITeamStore['create'] = async (team) => {
     );
   }
 
+  if (Object.values(roles).some((enabled) => enabled)) {
+    await db('team_roles').insert(
+      Object.entries(roles)
+        .filter(([, enabled]) => enabled)
+        .map(([role]) => ({
+          teamId,
+          role,
+        })),
+    );
+  }
+
   return {
     ...result[0],
     positions: team.positions,
+    roles,
   };
 };
 
 const get: ITeamStore['get'] = async (teamId) => {
   const db = getDb();
 
-  const [team, positionIds] = await Promise.all([
+  const [team, positionIds, roles] = await Promise.all([
     db('teams').where('id', teamId).first(),
     db('team_position_assignments')
       .where('teamId', teamId)
       .select('positionId'),
+    db('team_roles').where('teamId', teamId).select('role'),
   ]);
 
   if (!team) {
@@ -69,6 +82,13 @@ const get: ITeamStore['get'] = async (teamId) => {
   return {
     ...team,
     positions: positionIds.map((row) => row.positionId),
+    roles: roles.reduce(
+      (acc, { role }) => ({
+        ...acc,
+        [role]: true,
+      }),
+      {} as Record<Roles, boolean>,
+    ),
   };
 };
 
@@ -86,6 +106,7 @@ const update: ITeamStore['update'] = async (teamId, partialTeamUpdate) => {
   const db = getDb();
 
   const {
+    roles: { add: addRoles = [], remove: removeRoles = [] },
     positions: { add = [], remove = [] },
     ...teamUpdate
   } = partialTeamUpdate;
@@ -105,6 +126,22 @@ const update: ITeamStore['update'] = async (teamId, partialTeamUpdate) => {
     await db('team_position_assignments')
       .where('teamId', teamId)
       .whereIn('positionId', remove)
+      .del();
+  }
+
+  if (addRoles.length > 0) {
+    await db('team_roles').insert(
+      addRoles.map((role) => ({
+        teamId,
+        role,
+      })),
+    );
+  }
+
+  if (removeRoles.length > 0) {
+    await db('team_roles')
+      .where('teamId', teamId)
+      .whereIn('role', removeRoles)
       .del();
   }
 };
