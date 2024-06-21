@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { AxiosInstance } from 'axios';
+import { z } from 'zod';
 
 import {
   Entity,
@@ -32,13 +33,25 @@ export const BasePrmClient = (entityType: EntityType) =>
 type TBasePrmClient = InstanceType<ReturnType<typeof BasePrmClient>>;
 
 export const CreateMixin =
-  <TEntity extends Entity, TEntityDefinition extends EntityDefinition>() =>
+  <TEntity extends Entity, TEntityDefinition extends EntityDefinition>(
+    definitionSchema: z.ZodType<TEntityDefinition>,
+  ) =>
   <TBase extends GConstructor<TBasePrmClient>>(Base: TBase) => {
     return class extends Base {
+      public definitionSchema: z.ZodType<TEntityDefinition> = definitionSchema;
+
       public async create(entity: TEntityDefinition): Promise<TEntity> {
         const entitySchema = getEntitySchema(this.entityType);
         const response = await this.post(`/prm/${this.entityType}`, entity);
         return entitySchema.parse(response.data) as TEntity;
+      }
+
+      public validateDefinition(entityDefinition: unknown): TEntityDefinition {
+        return this.definitionSchema.parse(entityDefinition);
+      }
+
+      public validateAndCreate(entityDefinition: unknown): Promise<TEntity> {
+        return this.create(this.validateDefinition(entityDefinition));
       }
     };
   };
@@ -100,11 +113,15 @@ export const CRUDMixin =
     TEntity extends Entity,
     TEntityDefinition extends EntityDefinition,
     TEntityListItem extends EntityListItem,
-  >() =>
+  >(
+    definitionSchema: z.ZodType<TEntityDefinition>,
+  ) =>
   <TBase extends GConstructor<TBasePrmClient>>(Base: TBase) =>
     ListMixin<TEntityListItem>()(
       UpdateMixin<TEntity>()(
-        ReadMixin<TEntity>()(CreateMixin<TEntity, TEntityDefinition>()(Base)),
+        ReadMixin<TEntity>()(
+          CreateMixin<TEntity, TEntityDefinition>(definitionSchema)(Base),
+        ),
       ),
     );
 

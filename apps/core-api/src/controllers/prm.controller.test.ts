@@ -33,6 +33,10 @@ const ps = {
     ...entityDefinition,
     id: ulid(),
   })),
+  validateAndCreate: jest.fn().mockImplementation((entityDefinition) => ({
+    ...entityDefinition,
+    id: ulid(),
+  })),
   get: jest.fn().mockImplementation((id) => ({
     ...fakeIndividualWithDefaults,
     id,
@@ -70,14 +74,14 @@ describe('PRM Controller', () => {
           params: {
             entityType: EntityType.Individual,
           },
-          body: fakeIndividual,
+          body: fakeIndividualWithDefaults,
         });
         const res = httpMocks.createResponse();
         const next = jest.fn();
 
         await createEntity(req, res, next);
 
-        expect(individualService.create).toHaveBeenCalledWith(
+        expect(individualService.validateAndCreate).toHaveBeenCalledWith(
           fakeIndividualWithDefaults,
         );
         expect(res.statusCode).toEqual(201);
@@ -112,7 +116,7 @@ describe('PRM Controller', () => {
         const res = httpMocks.createResponse();
         const next = jest.fn();
 
-        (individualService.create as jest.Mock).mockRejectedValue(
+        (individualService.validateAndCreate as jest.Mock).mockRejectedValue(
           new Error('Failed to create entity'),
         );
 
