@@ -1,0 +1,32 @@
+model
+  schema 1.1
+ 
+type user
+
+type position
+  relations
+    define staff: [user]
+
+type team
+  relations
+    define position: [position]
+    define member: staff from position
+
+type organisation
+  relations
+    define super_admin: [position#staff, team#member]
+    define staff_admin: [position#staff, team#member]
+    define system_admin: [position#staff, team#member]
+    define programmatic_admin: [position#staff, team#member]
+    define programmatic_editor: [position#staff, team#member]
+    define programmatic_viewer: [position#staff, team#member]
+
+    define view_programme_data: super_admin or programmatic_admin or programmatic_editor or programmatic_viewer
+    define edit_programme_data: super_admin or programmatic_admin or programmatic_editor
+    define delete_programme_data: super_admin or programmatic_admin
+
+    define manage_users: super_admin or staff_admin
+
+    define view_system_data: super_admin or system_admin or staff_admin or programmatic_admin or programmatic_editor or programmatic_viewer
+    define edit_system_data: super_admin or system_admin
+    define delete_system_data: super_admin or system_admin
