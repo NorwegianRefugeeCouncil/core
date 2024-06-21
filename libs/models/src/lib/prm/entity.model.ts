@@ -33,8 +33,14 @@ import {
 } from './nationality.model';
 import {
   Household,
+  HouseholdDefaultSorting,
   HouseholdDefinition,
   HouseholdDefinitionSchema,
+  HouseholdFiltering,
+  HouseholdFilteringSchema,
+  HouseholdListItem,
+  HouseholdListItemSchema,
+  HouseholdListSortingFields,
   HouseholdSchema,
 } from './household.model';
 
@@ -54,13 +60,18 @@ export type EmptyFilter = z.infer<typeof EmptyFilterSchema>;
 
 export type Entity = Household | Individual | Language | Nationality;
 export type EntityDefinition = HouseholdDefinition | IndividualDefinition;
-export type EntityListItem = IndividualListItem | Language | Nationality;
+export type EntityListItem =
+  | IndividualListItem
+  | Language
+  | Nationality
+  | HouseholdListItem;
 export type EntityUpdate = IndividualUpdate;
 export type EntityPartialUpdate = IndividualPartialUpdate;
 export type EntityFiltering =
   | IndividualFiltering
   | LanguageFilter
   | NationalityFilter
+  | HouseholdFiltering
   | EmptyFilter;
 
 export const getEntitySchema = (entityType: EntityType) => {
@@ -102,6 +113,8 @@ export const getEntityListItemSchema = (entityType: EntityType) => {
   switch (entityType) {
     case EntityType.Individual:
       return IndividualListItemSchema;
+    case EntityType.Household:
+      return HouseholdListItemSchema;
     case EntityType.Language:
       return LanguageSchema;
     case EntityType.Nationality:
@@ -115,6 +128,8 @@ export const getEntityListSortingFields = (entityType: EntityType) => {
   switch (entityType) {
     case EntityType.Individual:
       return IndividualListSortingFields;
+    case EntityType.Household:
+      return HouseholdListSortingFields;
     case EntityType.Language:
       return LanguageSortingFields;
     case EntityType.Nationality:
@@ -128,6 +143,8 @@ export const getEntityDefaultSorting = (entityType: EntityType) => {
   switch (entityType) {
     case EntityType.Individual:
       return IndividualDefaultSorting;
+    case EntityType.Household:
+      return HouseholdDefaultSorting;
     case EntityType.Language:
       return LanguageDefaultSorting;
     case EntityType.Nationality:
@@ -141,6 +158,8 @@ export const getEntityFilteringSchema = (entityType: EntityType) => {
   switch (entityType) {
     case EntityType.Individual:
       return IndividualFilteringSchema;
+    case EntityType.Household:
+      return HouseholdFilteringSchema;
     case EntityType.Language:
       return LanguageFilterSchema;
     case EntityType.Nationality:
