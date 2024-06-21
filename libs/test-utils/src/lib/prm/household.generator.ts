@@ -14,7 +14,7 @@ const generateDefinition = (
   overrides?: Partial<HouseholdDefinition>,
 ): HouseholdDefinition => {
   return {
-    sizeOverride: faker.number.int(),
+    sizeOverride: faker.number.int({ max: 100 }),
     headType: faker.helpers.enumValue(HeadOfHouseholdType),
     individuals: [],
     ...overrides,
@@ -54,7 +54,6 @@ const generateEntity = (overrides?: Partial<Household>): Household => {
         ],
       };
     }),
-    headNationality: faker.location.countryCode('alpha-3'),
     id: overrides?.id || ulid(),
   };
 };
