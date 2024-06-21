@@ -1,6 +1,10 @@
 import * as fs from 'fs';
 
-import { OpenFgaClient, TupleKey } from '@openfga/sdk';
+import {
+  OpenFgaClient,
+  TupleKey,
+  WriteAuthorizationModelRequest,
+} from '@openfga/sdk';
 import { friendlySyntaxToApiSyntax } from '@openfga/syntax-transformer';
 
 import {
@@ -118,7 +122,9 @@ export class AuthorisationClient {
       throw new Error('Client not initialised');
 
     const modelDSL = fs.readFileSync('./store.fga.yaml', 'utf-8');
-    const modelJSON = friendlySyntaxToApiSyntax(modelDSL);
+    const modelJSON = friendlySyntaxToApiSyntax(
+      modelDSL,
+    ) as WriteAuthorizationModelRequest;
 
     const response = await this.client.readLatestAuthorizationModel();
 
