@@ -10,7 +10,6 @@ import {
 import {
   EntityTypeSchema,
   EntityIdSchema,
-  getEntityDefinitionSchema,
   getEntityUpdateSchema,
   PaginatedResponse,
   EntityListItem,
