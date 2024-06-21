@@ -141,10 +141,16 @@ export const EntityDetailForm: React.FC<Props> = ({
             )}
           </HStack>
         </Flex>
-        {config.fields &&
-          config.fields.map((field, i) => (
-            <Field key={`${id}_${field.path.join('.')}_${i}`} config={field} />
-          ))}
+        {config.fields && (
+          <Flex direction="column" gap={4}>
+            {config.fields.map((field, i) => (
+              <Field
+                key={`${id}_${field.path.join('.')}_${i}`}
+                config={field}
+              />
+            ))}
+          </Flex>
+        )}
         <Accordion
           defaultIndex={config.sections.map((_, i) => i)}
           allowMultiple
