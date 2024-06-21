@@ -8,6 +8,7 @@ import {
   Roles,
 } from '@nrcno/core-models';
 import { getTrx } from '@nrcno/core-db';
+import { getAuthorisationClient } from '@nrcno/core-authorisation';
 
 import { PositionStore } from '../stores/position.store';
 
@@ -29,6 +30,8 @@ export interface IPositionService {
 const create: IPositionService['create'] = async (position) => {
   const trx = await getTrx();
 
+  const authorisationClient = getAuthorisationClient();
+
   try {
     const createdPosition = await PositionStore.create(position, trx);
     const staff =
@@ -40,11 +43,14 @@ const create: IPositionService['create'] = async (position) => {
       staff,
     });
 
+    await authorisationClient.position.create(validatedCreatedPosition);
+
     await trx.commit();
 
     return validatedCreatedPosition;
   } catch (error) {
     await trx.rollback();
+    // TODO: Rollback authorisation tuples
     throw error;
   }
 };
@@ -73,6 +79,8 @@ const update: IPositionService['update'] = async (
   positionUpdate,
 ) => {
   const trx = await getTrx();
+
+  const authorisationClient = getAuthorisationClient();
 
   try {
     const existingPosition = await PositionStore.get(positionId);
@@ -106,6 +114,11 @@ const update: IPositionService['update'] = async (
 
     await PositionStore.update(positionId, positionPartialUpdate, trx);
 
+    await authorisationClient.position.update(
+      positionId,
+      positionPartialUpdate,
+    );
+
     const position = await get(positionId);
     if (!position) {
       throw new Error('Position not found');
@@ -116,6 +129,7 @@ const update: IPositionService['update'] = async (
     return position;
   } catch (error) {
     await trx.rollback();
+    // TODO: Rollback authorisation tuples
     throw error;
   }
 };
@@ -123,11 +137,15 @@ const update: IPositionService['update'] = async (
 const del: IPositionService['del'] = async (positionId) => {
   const trx = await getTrx();
 
+  const authorisationClient = getAuthorisationClient();
+
   try {
     await PositionStore.del(positionId, trx);
+    await authorisationClient.position.delete(positionId);
     await trx.commit();
   } catch (error) {
     await trx.rollback();
+    // TODO: Rollback authorisation tuples
     throw error;
   }
 };

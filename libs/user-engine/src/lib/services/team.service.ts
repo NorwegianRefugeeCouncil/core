@@ -8,6 +8,7 @@ import {
   TeamUpdate,
 } from '@nrcno/core-models';
 import { getTrx } from '@nrcno/core-db';
+import { getAuthorisationClient } from '@nrcno/core-authorisation';
 
 import { TeamStore } from '../stores/team.store';
 
@@ -25,6 +26,8 @@ export interface ITeamService {
 const create: ITeamService['create'] = async (team) => {
   const trx = await getTrx();
 
+  const authorisationClient = getAuthorisationClient();
+
   try {
     const createdTeam = await TeamStore.create(team, trx);
     const positions =
@@ -36,10 +39,13 @@ const create: ITeamService['create'] = async (team) => {
       positions,
     });
 
+    await authorisationClient.team.create(validatedCreatedTeam);
+
     await trx.commit();
     return validatedCreatedTeam;
   } catch (error) {
     await trx.rollback();
+    // TODO: Rollback authorisation tuples
     throw error;
   }
 };
@@ -65,6 +71,8 @@ const list: ITeamService['list'] = async (pagination) => {
 
 const update: ITeamService['update'] = async (teamId, teamUpdate) => {
   const trx = await getTrx();
+
+  const authorisationClient = getAuthorisationClient();
 
   try {
     const existingTeam = await TeamStore.get(teamId);
@@ -93,7 +101,10 @@ const update: ITeamService['update'] = async (teamId, teamUpdate) => {
         ),
       },
     };
+
     await TeamStore.update(teamId, partialTeamUpdate, trx);
+
+    await authorisationClient.team.update(teamId, partialTeamUpdate);
 
     const team = await get(teamId);
     if (!team) {
@@ -105,17 +116,23 @@ const update: ITeamService['update'] = async (teamId, teamUpdate) => {
     return team;
   } catch (error) {
     await trx.rollback();
+    // TODO: Rollback authorisation tuples
     throw error;
   }
 };
 
 const del: ITeamService['del'] = async (teamId) => {
   const trx = await getTrx();
+
+  const authorisationClient = getAuthorisationClient();
+
   try {
     await TeamStore.del(teamId, trx);
+    await authorisationClient.team.delete(teamId);
     await trx.commit();
   } catch (error) {
     await trx.rollback();
+    // TODO: Rollback authorisation tuples
     throw error;
   }
 };
