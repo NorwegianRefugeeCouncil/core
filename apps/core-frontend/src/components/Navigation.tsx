@@ -1,10 +1,11 @@
-import { HStack } from '@chakra-ui/react';
+import { VStack } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 
 export const Navigation: React.FC = () => {
   return (
-    <HStack>
+    <VStack>
       <Link to="/prm/individuals">Individuals</Link>
-    </HStack>
+      <Link to="/prm/households">Households</Link>
+    </VStack>
   );
 };
