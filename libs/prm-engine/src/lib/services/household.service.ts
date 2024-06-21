@@ -5,6 +5,8 @@ import {
   Household,
   HouseholdDefinition,
   HouseholdDefinitionSchema,
+  HouseholdFiltering,
+  HouseholdListItem,
 } from '@nrcno/core-models';
 
 import { HouseholdStore } from '../stores/household.store';
@@ -16,8 +18,8 @@ export class HouseholdService extends CRUDMixin<
   Household,
   any,
   any,
-  any,
-  any
+  HouseholdListItem,
+  HouseholdFiltering
 >(HouseholdDefinitionSchema as z.ZodType<HouseholdDefinition>)(
   class {
     public entityType = EntityType.Household;
