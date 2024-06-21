@@ -46,6 +46,9 @@ export const ServerConfigSchema = z.object({
     scope: z.string().default('openid profile'),
     scimApiToken: z.string(),
   }),
+  authorisation: z.object({
+    apiUrl: z.string(),
+  }),
   db: z.object({
     host: z.string(),
     user: z.string(),
@@ -85,6 +88,9 @@ export const getServerConfig = (): ServerConfig => {
         clientSecret: process.env.OIDC_CLIENT_SECRET,
         scope: process.env.OIDC_SCOPE,
         scimApiToken: process.env.OKTA_SCIM_API_TOKEN,
+      },
+      authorisation: {
+        apiUrl: process.env.AUTHORISATION_API_URL,
       },
       db: {
         host: process.env.DB_HOST,
