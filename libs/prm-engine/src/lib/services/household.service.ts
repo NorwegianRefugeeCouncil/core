@@ -27,8 +27,4 @@ export class HouseholdService extends CRUDMixin<
   override mapUpdateToPartial(id: string, update: any): Promise<any> {
     throw new Error('Method not implemented.');
   }
-
-  override async create(household: HouseholdDefinition) {
-    return super.create(household);
-  }
 }

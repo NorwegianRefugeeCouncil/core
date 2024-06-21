@@ -3,9 +3,9 @@ import { AxiosInstance } from 'axios';
 import { EntityType } from '@nrcno/core-models';
 
 import { LanguageClient } from './language.client';
-import { IndividualClient } from './individual';
+import { IndividualClient } from './individual.client';
 import { NationalityClient } from './nationality.client';
-import { HouseholdClient } from './household';
+import { HouseholdClient } from './household.client';
 
 export {
   hasCreateMixin,
