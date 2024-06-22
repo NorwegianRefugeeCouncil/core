@@ -48,6 +48,9 @@ export const ServerConfigSchema = z.object({
   }),
   authorisation: z.object({
     apiUrl: z.string(),
+    modelConfigPath: z
+      .string()
+      .default('./dist/libs/authorisation/src/store.fga.yaml'),
   }),
   db: z.object({
     host: z.string(),
@@ -91,6 +94,7 @@ export const getServerConfig = (): ServerConfig => {
       },
       authorisation: {
         apiUrl: process.env.AUTHORISATION_API_URL,
+        modelConfigPath: process.env.AUTHORISATION_MODEL_CONFIG_PATH,
       },
       db: {
         host: process.env.DB_HOST,

@@ -52,7 +52,7 @@ const startServer = async () => {
   const authorisationClient = getAuthorisationClient(
     config.authorisation.apiUrl,
   );
-  await authorisationClient.init();
+  await authorisationClient.init(config.authorisation.modelConfigPath);
 
   // Create Express server
   const app = express();
