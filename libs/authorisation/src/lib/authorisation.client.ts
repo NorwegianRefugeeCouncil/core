@@ -38,7 +38,7 @@ export class AuthorisationClient {
   private client: OpenFgaClient | undefined;
   private apiUrl: string;
 
-  private readonly storeName = 'core-tenant';
+  private readonly storeName = 'core-store';
   private storeId = '';
   private authorizationModelId = '';
 
