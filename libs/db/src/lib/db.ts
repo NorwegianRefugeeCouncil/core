@@ -30,6 +30,11 @@ export const getDb = (
   return db;
 };
 
+export const getTrx = async () => {
+  const _db = getDb();
+  return _db.transaction();
+};
+
 export interface PostgresError extends Error {
   code?: string;
 }

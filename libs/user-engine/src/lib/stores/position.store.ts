@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
+import { Knex } from 'knex';
 
 import { getDb } from '@nrcno/core-db';
 import {
@@ -15,24 +16,26 @@ import {
 type PositionWithStaffIds = Omit<Position, 'staff'> & { staff: string[] };
 
 export interface IPositionStore {
-  create: (position: PositionDefinition) => Promise<PositionWithStaffIds>;
+  create: (
+    position: PositionDefinition,
+    trx: Knex.Transaction,
+  ) => Promise<PositionWithStaffIds>;
   get: (positionId: string) => Promise<PositionWithStaffIds | null>;
   list: (pagination: Pagination) => Promise<PositionListItem[]>;
   update: (
     positionId: string,
     partialPosition: PositionPartialUpdate,
+    trx: Knex.Transaction,
   ) => Promise<void>;
-  del: (positionId: string) => Promise<void>;
+  del: (positionId: string, trx: Knex.Transaction) => Promise<void>;
   count: () => Promise<number>;
   listByIds: (ids: string[]) => Promise<PositionListItem[]>;
 }
 
-const create: IPositionStore['create'] = async (position) => {
-  const db = getDb();
-
+const create: IPositionStore['create'] = async (position, trx) => {
   const { staff, roles, ...positionDetails } = position;
 
-  const result = await db('positions')
+  const result = await trx('positions')
     .insert({
       ...positionDetails,
       id: uuid(),
@@ -42,7 +45,7 @@ const create: IPositionStore['create'] = async (position) => {
   const positionId = result[0].id;
 
   if (staff.length > 0) {
-    await db('position_user_assignments').insert(
+    await trx('position_user_assignments').insert(
       staff.map((userId) => ({
         positionId: positionId,
         userId: userId,
@@ -51,7 +54,7 @@ const create: IPositionStore['create'] = async (position) => {
   }
 
   if (Object.values(roles).some((enabled) => enabled)) {
-    await db('position_roles').insert(
+    await trx('position_roles').insert(
       Object.entries(roles)
         .filter(([, enabled]) => enabled)
         .map(([role]) => ({
@@ -109,19 +112,18 @@ const list: IPositionStore['list'] = async (pagination) => {
 const update: IPositionStore['update'] = async (
   positionId,
   partialPositionUpdate,
+  trx,
 ) => {
-  const db = getDb();
-
   const {
     staff: { add: staffToAdd = [], remove: staffToRemove = [] },
     roles: { add: rolesToAdd = [], remove: rolesToRemove = [] },
     ...positionDetails
   } = partialPositionUpdate;
 
-  await db('positions').where('id', positionId).update(positionDetails);
+  await trx('positions').where('id', positionId).update(positionDetails);
 
   if (staffToAdd.length > 0) {
-    await db('position_user_assignments').insert(
+    await trx('position_user_assignments').insert(
       staffToAdd.map((userId) => ({
         positionId: positionId,
         userId: userId,
@@ -130,14 +132,14 @@ const update: IPositionStore['update'] = async (
   }
 
   if (staffToRemove.length > 0) {
-    await db('position_user_assignments')
+    await trx('position_user_assignments')
       .where('positionId', positionId)
       .whereIn('userId', staffToRemove)
       .del();
   }
 
   if (rolesToAdd.length > 0) {
-    await db('position_roles').insert(
+    await trx('position_roles').insert(
       rolesToAdd.map((role) => ({
         positionId: positionId,
         role,
@@ -146,19 +148,17 @@ const update: IPositionStore['update'] = async (
   }
 
   if (rolesToRemove.length > 0) {
-    await db('position_roles')
+    await trx('position_roles')
       .where('positionId', positionId)
       .whereIn('role', rolesToRemove)
       .del();
   }
 };
 
-const del: IPositionStore['del'] = async (positionId) => {
-  const db = getDb();
-
-  await db('positions').where('id', positionId).del();
-  await db('position_user_assignments').where('positionId', positionId).del();
-  await db('position_roles').where('positionId', positionId).del();
+const del: IPositionStore['del'] = async (positionId, trx) => {
+  await trx('positions').where('id', positionId).del();
+  await trx('position_user_assignments').where('positionId', positionId).del();
+  await trx('position_roles').where('positionId', positionId).del();
 };
 
 const count: IPositionStore['count'] = async () => {

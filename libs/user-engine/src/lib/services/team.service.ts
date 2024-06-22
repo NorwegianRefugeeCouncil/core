@@ -7,6 +7,7 @@ import {
   TeamSchema,
   TeamUpdate,
 } from '@nrcno/core-models';
+import { getTrx } from '@nrcno/core-db';
 
 import { TeamStore } from '../stores/team.store';
 
@@ -22,15 +23,25 @@ export interface ITeamService {
 }
 
 const create: ITeamService['create'] = async (team) => {
-  const createdTeam = await TeamStore.create(team);
-  const positions =
-    team.positions.length > 0
-      ? await PositionService.listByIds(team.positions)
-      : [];
-  return TeamSchema.parse({
-    ...createdTeam,
-    positions,
-  });
+  const trx = await getTrx();
+
+  try {
+    const createdTeam = await TeamStore.create(team, trx);
+    const positions =
+      team.positions.length > 0
+        ? await PositionService.listByIds(team.positions)
+        : [];
+    const validatedCreatedTeam = TeamSchema.parse({
+      ...createdTeam,
+      positions,
+    });
+
+    await trx.commit();
+    return validatedCreatedTeam;
+  } catch (error) {
+    await trx.rollback();
+    throw error;
+  }
 };
 
 const get: ITeamService['get'] = async (teamId) => {
@@ -53,42 +64,60 @@ const list: ITeamService['list'] = async (pagination) => {
 };
 
 const update: ITeamService['update'] = async (teamId, teamUpdate) => {
-  const existingTeam = await TeamStore.get(teamId);
-  if (!existingTeam) {
-    throw new Error(`Team with id ${teamId} not found`);
+  const trx = await getTrx();
+
+  try {
+    const existingTeam = await TeamStore.get(teamId);
+    if (!existingTeam) {
+      throw new Error(`Team with id ${teamId} not found`);
+    }
+    const partialTeamUpdate = {
+      ...teamUpdate,
+      positions: {
+        add: teamUpdate.positions.filter((id) =>
+          existingTeam.positions.every((pId) => pId !== id),
+        ),
+        remove: existingTeam.positions.filter((id) =>
+          teamUpdate.positions.every((pId) => pId !== id),
+        ),
+      },
+      roles: {
+        add: Object.values(Roles).filter(
+          (role) =>
+            teamUpdate.roles?.[role] &&
+            teamUpdate.roles[role] !== existingTeam.roles[role],
+        ),
+        remove: Object.values(Roles).filter(
+          (role) =>
+            !teamUpdate.roles?.[role] && existingTeam.roles[role] === true,
+        ),
+      },
+    };
+    await TeamStore.update(teamId, partialTeamUpdate, trx);
+
+    const team = await get(teamId);
+    if (!team) {
+      throw new Error(`Team with id ${teamId} not found`);
+    }
+
+    await trx.commit();
+
+    return team;
+  } catch (error) {
+    await trx.rollback();
+    throw error;
   }
-  const partialTeamUpdate = {
-    ...teamUpdate,
-    positions: {
-      add: teamUpdate.positions.filter((id) =>
-        existingTeam.positions.every((pId) => pId !== id),
-      ),
-      remove: existingTeam.positions.filter((id) =>
-        teamUpdate.positions.every((pId) => pId !== id),
-      ),
-    },
-    roles: {
-      add: Object.values(Roles).filter(
-        (role) =>
-          teamUpdate.roles?.[role] &&
-          teamUpdate.roles[role] !== existingTeam.roles[role],
-      ),
-      remove: Object.values(Roles).filter(
-        (role) =>
-          !teamUpdate.roles?.[role] && existingTeam.roles[role] === true,
-      ),
-    },
-  };
-  await TeamStore.update(teamId, partialTeamUpdate);
-  const team = await get(teamId);
-  if (!team) {
-    throw new Error(`Team with id ${teamId} not found`);
-  }
-  return team;
 };
 
 const del: ITeamService['del'] = async (teamId) => {
-  return TeamStore.del(teamId);
+  const trx = await getTrx();
+  try {
+    await TeamStore.del(teamId, trx);
+    await trx.commit();
+  } catch (error) {
+    await trx.rollback();
+    throw error;
+  }
 };
 
 const count: ITeamService['count'] = async () => {

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
+import { Knex } from 'knex';
 
 import { getDb } from '@nrcno/core-db';
 import {
@@ -15,20 +16,25 @@ import {
 type TeamWithPositionIds = Omit<Team, 'positions'> & { positions: string[] };
 
 export interface ITeamStore {
-  create: (team: TeamDefinition) => Promise<TeamWithPositionIds>;
+  create: (
+    team: TeamDefinition,
+    trx: Knex.Transaction,
+  ) => Promise<TeamWithPositionIds>;
   get: (teamId: string) => Promise<TeamWithPositionIds | null>;
   list: (pagination: Pagination) => Promise<TeamListItem[]>;
-  update: (teamId: string, partialTeam: TeamPartialUpdate) => Promise<void>;
-  del: (teamId: string) => Promise<void>;
+  update: (
+    teamId: string,
+    partialTeam: TeamPartialUpdate,
+    trx: Knex.Transaction,
+  ) => Promise<void>;
+  del: (teamId: string, trx: Knex.Transaction) => Promise<void>;
   count: () => Promise<number>;
 }
 
-const create: ITeamStore['create'] = async (team) => {
-  const db = getDb();
-
+const create: ITeamStore['create'] = async (team, trx) => {
   const { positions, roles, ...teamDetails } = team;
 
-  const result = await db('teams')
+  const result = await trx('teams')
     .insert({
       ...teamDetails,
       id: uuid(),
@@ -38,7 +44,7 @@ const create: ITeamStore['create'] = async (team) => {
   const teamId = result[0].id;
 
   if (positions.length > 0) {
-    await db('team_position_assignments').insert(
+    await trx('team_position_assignments').insert(
       positions.map((positionId) => ({
         teamId,
         positionId,
@@ -47,7 +53,7 @@ const create: ITeamStore['create'] = async (team) => {
   }
 
   if (Object.values(roles).some((enabled) => enabled)) {
-    await db('team_roles').insert(
+    await trx('team_roles').insert(
       Object.entries(roles)
         .filter(([, enabled]) => enabled)
         .map(([role]) => ({
@@ -102,19 +108,17 @@ const list: ITeamStore['list'] = async (pagination) => {
   return z.array(TeamListItemSchema).parse(result);
 };
 
-const update: ITeamStore['update'] = async (teamId, partialTeamUpdate) => {
-  const db = getDb();
-
+const update: ITeamStore['update'] = async (teamId, partialTeamUpdate, trx) => {
   const {
     roles: { add: addRoles = [], remove: removeRoles = [] },
     positions: { add = [], remove = [] },
     ...teamUpdate
   } = partialTeamUpdate;
 
-  await db('teams').where('id', teamId).update(teamUpdate);
+  await trx('teams').where('id', teamId).update(teamUpdate);
 
   if (add.length > 0) {
-    await db('team_position_assignments').insert(
+    await trx('team_position_assignments').insert(
       add.map((positionId) => ({
         teamId,
         positionId,
@@ -123,14 +127,14 @@ const update: ITeamStore['update'] = async (teamId, partialTeamUpdate) => {
   }
 
   if (remove.length > 0) {
-    await db('team_position_assignments')
+    await trx('team_position_assignments')
       .where('teamId', teamId)
       .whereIn('positionId', remove)
       .del();
   }
 
   if (addRoles.length > 0) {
-    await db('team_roles').insert(
+    await trx('team_roles').insert(
       addRoles.map((role) => ({
         teamId,
         role,
@@ -139,17 +143,15 @@ const update: ITeamStore['update'] = async (teamId, partialTeamUpdate) => {
   }
 
   if (removeRoles.length > 0) {
-    await db('team_roles')
+    await trx('team_roles')
       .where('teamId', teamId)
       .whereIn('role', removeRoles)
       .del();
   }
 };
 
-const del: ITeamStore['del'] = async (teamId) => {
-  const db = getDb();
-
-  await db('teams').where('id', teamId).del();
+const del: ITeamStore['del'] = async (teamId, trx) => {
+  await trx('teams').where('id', teamId).del();
 };
 
 const count: ITeamStore['count'] = async () => {
