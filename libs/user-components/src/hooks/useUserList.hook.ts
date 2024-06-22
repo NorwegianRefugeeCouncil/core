@@ -1,11 +1,15 @@
 import { UserClient } from '@nrcno/core-clients';
-import { PaginatedResponse, Pagination, User } from '@nrcno/core-models';
+import {
+  PaginatedResponse,
+  Pagination,
+  UserListItem,
+} from '@nrcno/core-models';
 import { SubmitStatus, useApiReducer } from '@nrcno/core-prm-components';
 
 export type UserListState = {
   getUserList: (pagination: Pagination) => Promise<void>;
   status: SubmitStatus;
-  data?: PaginatedResponse<User>;
+  data?: PaginatedResponse<UserListItem>;
   error?: Error;
 };
 
@@ -15,7 +19,7 @@ export const defaultUserListState: UserListState = {
 };
 
 export const useUserList = (client: UserClient): UserListState => {
-  const [state, actions] = useApiReducer<PaginatedResponse<User>>();
+  const [state, actions] = useApiReducer<PaginatedResponse<UserListItem>>();
 
   const getUserList = async (pagination: Pagination) => {
     try {

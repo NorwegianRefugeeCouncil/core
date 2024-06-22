@@ -5,12 +5,15 @@ import {
   PaginatedResponse,
   Pagination,
   User,
+  UserListItem,
+  UserListItemSchema,
   UserSchema,
 } from '@nrcno/core-models';
 
 import { BaseClient } from '../base.client';
 
-const paginatedUserSchema = createPaginatedResponseSchema(UserSchema);
+const paginatedUserListItemSchema =
+  createPaginatedResponseSchema(UserListItemSchema);
 
 export class UserClient extends BaseClient {
   constructor(instance: AxiosInstance) {
@@ -22,9 +25,9 @@ export class UserClient extends BaseClient {
     return UserSchema.parse(res.data);
   }
 
-  async list(pagination: Pagination): Promise<PaginatedResponse<User>> {
+  async list(pagination: Pagination): Promise<PaginatedResponse<UserListItem>> {
     const res = await super.get('/users', { params: pagination });
-    return paginatedUserSchema.parse(res.data);
+    return paginatedUserListItemSchema.parse(res.data);
   }
 
   async read(id: string): Promise<User> {
