@@ -8,6 +8,12 @@ export async function seed(knex: Knex): Promise<void> {
   // const users: User[] = scimUsers.map(mapScimUserToUser);
   // const snakeCaseUsers = users.map((user) => camelToSnake(user));
   // await knex('users').insert(snakeCaseUsers);
+
+  const [{ count }] = await knex('users').count();
+  if (count !== '0') {
+    return;
+  }
+
   const users = [
     {
       id: '261d304f-ec5b-4ecb-8d7c-88c4583cc832',
