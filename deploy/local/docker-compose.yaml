@@ -13,20 +13,6 @@ services:
       timeout: 5s
       retries: 5
 
-  db_authz:
-    image: postgres:16
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: authz
-    ports:
-      - '5433:5432'
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   openfga:
     depends_on:
       migrate:
@@ -35,25 +21,25 @@ services:
     container_name: openfga
     environment:
       - OPENFGA_DATASTORE_ENGINE=postgres
-      - OPENFGA_DATASTORE_URI=postgres://postgres:password@postgres:5433/authz?sslmode=disable
+      - OPENFGA_DATASTORE_URI=postgres://postgres:postgres@db:5432/core?sslmode=disable
       - OPENFGA_LOG_FORMAT=text
       - OPENFGA_EXPERIMENTALS=enable-list-users
     command: run
     ports:
       # Needed for the http server
-      - "8080:8080"
+      - '8080:8080'
       # Needed for the grpc server (if used)
-      - "8081:8081"
+      - '8081:8081'
       # Needed for the playground (Do not enable in prod!)
-      - "3000:3000"
+      - '3000:3000'
 
   migrate:
     depends_on:
-      db_authz:
+      db:
         condition: service_healthy
     image: openfga/openfga:latest
     container_name: migrate
     command: migrate
     environment:
       - OPENFGA_DATASTORE_ENGINE=postgres
-      - OPENFGA_DATASTORE_URI=postgres://postgres:password@postgres:5433/authz?sslmode=disable
+      - OPENFGA_DATASTORE_URI=postgres://postgres:postgres@db:5432/core?sslmode=disable
