@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { UserService } from '@nrcno/core-user-engine';
 
+import { UserService } from '@nrcno/core-user-engine';
 import {
   PaginatedResponse,
   PaginationSchema,
