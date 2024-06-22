@@ -1,8 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import { Strategy as OidcStrategy } from 'passport-openidconnect';
-import { UserService } from '@nrcno/core-user-engine';
 
+import { UserService } from '@nrcno/core-user-engine';
 import { getLogger } from '@nrcno/core-logger';
 
 import { getServerConfig } from '../config';
@@ -79,11 +79,14 @@ export const requireAuthentication = async (
     logger.error(
       'DANGER: Bypassing authentication. This should only be used in development or test environments.',
     );
-    const userList = await UserService.list(0, 1);
-    if (userList.length === 0) {
+    const selectedUserId =
+      (req.query.selectedUserId as string) ||
+      (await UserService.list(0, 1))[0].id;
+    const user = await UserService.get(selectedUserId);
+    if (!user) {
       throw new Error('No users found in the database');
     }
-    req.user = userList[0];
+    req.user = user;
     next();
   } else if (req.isAuthenticated()) {
     next();
