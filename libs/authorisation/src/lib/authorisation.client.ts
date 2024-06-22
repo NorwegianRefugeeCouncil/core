@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 
+import { z } from 'zod';
 import {
   OpenFgaClient,
   TupleKey,
@@ -14,6 +15,9 @@ import {
   PositionPartialUpdate,
   User,
   Roles,
+  Permissions,
+  PermissionSchema,
+  PermissionMap,
 } from '@nrcno/core-models';
 
 let authorisationClient: AuthorisationClient;
@@ -41,7 +45,7 @@ export class AuthorisationClient {
   private teamClient: TeamClient | undefined;
   private positionClient: PositionClient | undefined;
   private userClient: UserClient | undefined;
-  private roleClient: RoleClient | undefined;
+  private permissionClient: PermissionClient | undefined;
 
   constructor(apiUrl: string) {
     this.apiUrl = apiUrl;
@@ -62,9 +66,9 @@ export class AuthorisationClient {
     return this.userClient;
   }
 
-  get role() {
-    if (!this.roleClient) throw new Error('Client not initialised');
-    return this.roleClient;
+  get permission() {
+    if (!this.permissionClient) throw new Error('Client not initialised');
+    return this.permissionClient;
   }
 
   public init = async () => {
@@ -96,7 +100,7 @@ export class AuthorisationClient {
     this.teamClient = new TeamClient(this.client);
     this.positionClient = new PositionClient(this.client);
     this.userClient = new UserClient(this.client);
-    this.roleClient = new RoleClient(this.client);
+    this.permissionClient = new PermissionClient(this.client);
   };
 
   private putStore = async () => {
@@ -121,7 +125,7 @@ export class AuthorisationClient {
     if (!this.client || this.storeId.length === 0)
       throw new Error('Client not initialised');
 
-    const modelDSL = fs.readFileSync('./store.fga.yaml', 'utf-8');
+    const modelDSL = fs.readFileSync('../store.fga.yaml', 'utf-8');
     const modelJSON = friendlySyntaxToApiSyntax(
       modelDSL,
     ) as WriteAuthorizationModelRequest;
@@ -143,20 +147,44 @@ export class AuthorisationClient {
   };
 }
 
-class RoleClient {
+class PermissionClient {
   private client: OpenFgaClient;
 
   constructor(client: OpenFgaClient) {
     this.client = client;
   }
 
-  check = async (userId: string, role: string) => {
+  check = async (userId: string, permission: Permissions) => {
     const result = await this.client.check({
       user: `user:${userId}`,
-      relation: role,
+      relation: permission,
       object: 'organisation:nrc',
     });
     return Boolean(result.allowed);
+  };
+
+  getForUser = async (userId: string): Promise<PermissionMap> => {
+    const response = await this.client.listRelations({
+      user: `user:${userId}`,
+      object: 'organisation:nrc',
+    });
+    return response.relations.reduce<PermissionMap>(
+      (acc, relation) => {
+        if (relation in Permissions) {
+          return {
+            ...acc,
+            [relation]: true,
+          };
+        }
+        return acc;
+      },
+      Object.values(Permissions).reduce<PermissionMap>((acc, permission) => {
+        return {
+          ...acc,
+          [permission]: false,
+        };
+      }, {}),
+    );
   };
 }
 
@@ -352,5 +380,5 @@ class UserClient {
     this.client = client;
   }
 
-  delete = async (user: User) => {};
+  // delete = async (userId: string) => {};
 }
