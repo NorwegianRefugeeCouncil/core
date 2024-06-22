@@ -4,6 +4,7 @@ import { UserService } from '@nrcno/core-user-engine';
 import {
   PaginatedResponse,
   PaginationSchema,
+  PermissionMapSchema,
   User,
   UserSchema,
 } from '@nrcno/core-models';
@@ -13,7 +14,9 @@ const router = Router();
 router.get('/users/me', async (req, res, next) => {
   try {
     if (req.user) {
-      const user = UserSchema.parse(req.user);
+      const user = UserSchema.extend({
+        permissions: PermissionMapSchema,
+      }).parse(req.user);
       res.status(200).json(user);
     } else {
       res.sendStatus(401);
