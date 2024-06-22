@@ -1,7 +1,7 @@
 {
-  "name": "authorisation-authorisation",
+  "name": "authorisation",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/authorisation/authorisation/src",
+  "sourceRoot": "libs/authorisation/src",
   "projectType": "library",
   "tags": [],
   "// targets": "to see all targets run: nx show project authorisation-authorisation --web",
