@@ -4,6 +4,19 @@
   "sourceRoot": "libs/authorisation/src",
   "projectType": "library",
   "tags": [],
-  "// targets": "to see all targets run: nx show project authorisation-authorisation --web",
-  "targets": {}
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/authorisation",
+        "tsConfig": "libs/authorisation/tsconfig.lib.json",
+        "main": "libs/authorisation/src/index.ts",
+        "assets": [
+          "libs/authorisation/*.md",
+          "libs/authorisation/src/store.fga.yaml"
+        ]
+      }
+    }
+  }
 }
