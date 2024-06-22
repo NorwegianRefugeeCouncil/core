@@ -5,7 +5,7 @@ import { SubmitStatus, useApiReducer } from '@nrcno/core-prm-components';
 export type MeState = {
   getMe: () => Promise<any>;
   status: SubmitStatus;
-  data?: any;
+  data?: User;
   error?: Error;
 };
 
