@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { UUIDSchema } from '../utils';
 
-import { UserSchema } from './user.model';
+import { UserListItemSchema } from './user.model';
 import { RoleSchema } from './role.model';
 
 export const PositionIdSchema = UUIDSchema;
@@ -17,7 +17,7 @@ export type PositionDefinition = z.infer<typeof PositionDefinitionSchema>;
 export const PositionSchema = z.object({
   id: PositionIdSchema,
   name: z.string().min(1).max(100),
-  staff: z.array(UserSchema).optional().default([]),
+  staff: z.array(UserListItemSchema).optional().default([]),
   roles: z.record(RoleSchema, z.boolean()),
 });
 export type Position = z.infer<typeof PositionSchema>;
