@@ -1,10 +1,38 @@
+import { z } from 'zod';
+
 import { AlreadyExistsError } from '@nrcno/core-errors';
 import { getDb, PostgresError, PostgresErrorCode } from '@nrcno/core-db';
-import { User, UserSchema } from '@nrcno/core-models';
+import {
+  UserDefinition,
+  User,
+  UserSchema,
+  UserListItem,
+  UserListItemSchema,
+} from '@nrcno/core-models';
 
-export const create = async (
-  user: Omit<User, 'createdAt' | 'updatedAt'>,
-): Promise<User> => {
+const DBUserSchema = UserSchema.omit({
+  permissions: true,
+});
+type DBUser = z.infer<typeof DBUserSchema>;
+
+interface IUserStore {
+  create: (user: Partial<UserDefinition>) => Promise<DBUser>;
+  getById: (userId: string) => Promise<DBUser | null>;
+  getByOidcId: (oidcId: string) => Promise<DBUser | null>;
+  update: (
+    userId: string,
+    updatedUser: Partial<User>,
+  ) => Promise<DBUser | null>;
+  findAll: (
+    startIndex?: number,
+    count?: number,
+    attribute?: string,
+    value?: string | string[],
+  ) => Promise<UserListItem[]>;
+  countAll: () => Promise<number>;
+}
+
+const create: IUserStore['create'] = async (user) => {
   try {
     const db = getDb();
 
@@ -13,7 +41,7 @@ export const create = async (
       emails: user.emails ? JSON.stringify(user.emails) : undefined,
     };
     const rows = await db('users').insert(userToInsert).returning('*');
-    return UserSchema.parse(rows[0]);
+    return DBUserSchema.parse(rows[0]);
   } catch (error) {
     if ((error as PostgresError).code === PostgresErrorCode.UniqueViolation) {
       throw new AlreadyExistsError('User already exists');
@@ -22,23 +50,20 @@ export const create = async (
   }
 };
 
-export const getById = async (userId: string): Promise<User | null> => {
+const getById: IUserStore['getById'] = async (userId) => {
   const db = getDb();
 
   const rows = await db('users').where('id', userId);
-  return rows.length > 0 ? UserSchema.parse(rows[0]) : null;
+  return rows.length > 0 ? DBUserSchema.parse(rows[0]) : null;
 };
 
-export const getByOidcId = async (oidcId: string): Promise<User | null> => {
+const getByOidcId: IUserStore['getByOidcId'] = async (oidcId) => {
   const db = getDb();
   const rows = await db('users').where('oktaId', oidcId);
-  return rows.length > 0 ? UserSchema.parse(rows[0]) : null;
+  return rows.length > 0 ? DBUserSchema.parse(rows[0]) : null;
 };
 
-export const update = async (
-  userId: string,
-  updatedUser: Partial<User>,
-): Promise<User | null> => {
+const update: IUserStore['update'] = async (userId, updatedUser) => {
   const db = getDb();
 
   const userToUpdate = {
@@ -51,15 +76,15 @@ export const update = async (
     .update(userToUpdate)
     .where('id', userId)
     .returning('*');
-  return rows.length > 0 ? UserSchema.parse(rows[0]) : null;
+  return rows.length > 0 ? DBUserSchema.parse(rows[0]) : null;
 };
 
-export const findAll = async (
-  startIndex?: number,
-  count?: number,
-  attribute?: string,
-  value?: string | string[],
-): Promise<User[]> => {
+const findAll: IUserStore['findAll'] = async (
+  startIndex,
+  count,
+  attribute,
+  value,
+) => {
   const db = getDb();
 
   let query = db('users');
@@ -84,12 +109,21 @@ export const findAll = async (
   }
 
   const rows = await query;
-  return rows.map((row) => UserSchema.parse(row));
+  return z.array(UserListItemSchema).parse(rows);
 };
 
-export const countAll = async (): Promise<number> => {
+const countAll: IUserStore['countAll'] = async () => {
   const db = getDb();
 
   const rows = await db('users').count();
   return Number(rows[0].count);
+};
+
+export const UserStore: IUserStore = {
+  create,
+  getById,
+  getByOidcId,
+  update,
+  findAll,
+  countAll,
 };

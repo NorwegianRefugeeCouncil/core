@@ -1,14 +1,14 @@
 import { Router, json } from 'express';
 import { z } from 'zod';
+
 import {
   scimUserSchema,
   scimUserAttributeSchema,
   scimUserPatchSchema,
   UserService,
 } from '@nrcno/core-user-engine';
-
 import { AlreadyExistsError } from '@nrcno/core-errors';
-import { User } from '@nrcno/core-models';
+import { User, UserListItem } from '@nrcno/core-models';
 
 import {
   authorise,
@@ -111,7 +111,7 @@ router.get('/Users', async (req, res, next) => {
   try {
     const startIndex = req.query.startIndex ? Number(req.query.startIndex) : 1; // SCIM uses 1-based index
     const count = req.query.count ? Number(req.query.count) : 100;
-    let users: User[];
+    let users: UserListItem[];
     let totalResults: number;
 
     if (req.query.filter) {

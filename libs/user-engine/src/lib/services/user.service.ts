@@ -1,31 +1,36 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { PermissionMap, User } from '@nrcno/core-models';
+import {
+  defaultPermissionMap,
+  User,
+  UserDefinition,
+  UserListItem,
+  UserSchema,
+} from '@nrcno/core-models';
 import { getAuthorisationClient } from '@nrcno/core-authorisation';
 
 import { ScimUser } from '../scim.types';
-import * as UserStore from '../stores/user.store';
+import { UserStore } from '../stores/user.store';
 
 interface IUserService {
-  mapScimUserToUser: (scimUser: Partial<ScimUser>) => Partial<User>;
-  mapUserToScimUser: (user: User) => ScimUser;
+  mapScimUserToUser: (scimUser: Partial<ScimUser>) => Partial<UserDefinition>;
+  mapUserToScimUser: (user: User | UserListItem) => ScimUser;
   create: (scimUser: ScimUser) => Promise<User>;
-  get: (
-    userId: string,
-  ) => Promise<(User & { permissions: PermissionMap }) | null>;
-  getByOidcId: (
-    oidcId: string,
-  ) => Promise<(User & { permissions: PermissionMap }) | null>;
+  get: (userId: string) => Promise<User | null>;
+  getByOidcId: (oidcId: string) => Promise<User | null>;
   update: (
     userId: string,
     scimUserUpdate: Partial<ScimUser>,
   ) => Promise<User | null>;
-  list: (startIndex: number, count: number) => Promise<User[]>;
-  search: (attribute: string, value: string | string[]) => Promise<User[]>;
+  list: (startIndex: number, count: number) => Promise<UserListItem[]>;
+  search: (
+    attribute: string,
+    value: string | string[],
+  ) => Promise<UserListItem[]>;
   getCount: () => Promise<number>;
 }
 
-const mapScimUserToUser = (scimUser: Partial<ScimUser>): Partial<User> => {
+const mapScimUserToUser: IUserService['mapScimUserToUser'] = (scimUser) => {
   const { id, externalId, userName, displayName, name, emails, active } =
     scimUser;
 
@@ -41,7 +46,7 @@ const mapScimUserToUser = (scimUser: Partial<ScimUser>): Partial<User> => {
   };
 };
 
-const mapUserToScimUser = (user: User): ScimUser => {
+const mapUserToScimUser: IUserService['mapUserToScimUser'] = (user) => {
   const {
     id,
     oktaId,
@@ -73,17 +78,19 @@ const mapUserToScimUser = (user: User): ScimUser => {
   return scimUser;
 };
 
-const create = async (scimUser: ScimUser): Promise<User> => {
+const create: IUserService['create'] = async (scimUser) => {
   const user = {
     ...mapScimUserToUser(scimUser),
     id: uuidv4(),
   };
-  return UserStore.create(user as Omit<User, 'createdAt' | 'updatedAt'>);
+  const createdUser = await UserStore.create(user);
+  return {
+    ...createdUser,
+    permissions: defaultPermissionMap,
+  };
 };
 
-const get = async (
-  userId: string,
-): Promise<(User & { permissions: PermissionMap }) | null> => {
+const get: IUserService['get'] = async (userId) => {
   const authorisationClient = getAuthorisationClient();
 
   const [user, permissions] = await Promise.all([
@@ -95,41 +102,51 @@ const get = async (
     return null;
   }
 
-  return {
+  return UserSchema.parse({
     ...user,
     permissions,
-  };
+  });
 };
 
-const getByOidcId = async (
-  oidcId: string,
-): Promise<(User & { permissions: PermissionMap }) | null> => {
+const getByOidcId: IUserService['getByOidcId'] = async (oidcId) => {
   const authorisationClient = getAuthorisationClient();
+
   const user = await UserStore.getByOidcId(oidcId);
   if (!user) return null;
+
   const permissions = await authorisationClient.permission.getForUser(user.id);
-  return {
+
+  return UserSchema.parse({
     ...user,
     permissions,
-  };
+  });
 };
 
-const update = async (
-  userId: string,
-  scimUserUpdate: Partial<ScimUser>,
-): Promise<User | null> => {
+const update: IUserService['update'] = async (userId, scimUserUpdate) => {
+  const authorisationClient = getAuthorisationClient();
+
   const userUpdate = mapScimUserToUser(scimUserUpdate);
-  return UserStore.update(userId, userUpdate);
+
+  const [user, permissions] = await Promise.all([
+    UserStore.update(userId, userUpdate),
+    authorisationClient.permission.getForUser(userId),
+  ]);
+
+  if (!user) {
+    return null;
+  }
+
+  return UserSchema.parse({
+    ...user,
+    permissions,
+  });
 };
 
-const list = async (startIndex: number, count: number): Promise<User[]> => {
+const list: IUserService['list'] = async (startIndex, count) => {
   return UserStore.findAll(startIndex, count);
 };
 
-const search = async (
-  attribute: string,
-  value: string | string[],
-): Promise<User[]> => {
+const search: IUserService['search'] = async (attribute, value) => {
   return UserStore.findAll(undefined, undefined, attribute, value);
 };
 
