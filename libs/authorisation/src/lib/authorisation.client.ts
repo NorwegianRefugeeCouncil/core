@@ -11,10 +11,8 @@ import {
   Position,
   TeamPartialUpdate,
   PositionPartialUpdate,
-  User,
   Roles,
   Permissions,
-  PermissionSchema,
   PermissionMap,
 } from '@nrcno/core-models';
 
@@ -169,7 +167,7 @@ class PermissionClient {
     });
     return response.relations.reduce<PermissionMap>(
       (acc, relation) => {
-        if (relation in Permissions) {
+        if (Object.values(Permissions).includes(relation as Permissions)) {
           return {
             ...acc,
             [relation]: true,
@@ -195,7 +193,7 @@ class TeamClient {
   }
 
   create = async (team: Team) => {
-    await this.client.writeTuples([
+    const tuples = [
       ...team.positions.map<TupleKey>((position) => ({
         user: `position:${position.id}`,
         relation: 'position',
@@ -208,36 +206,43 @@ class TeamClient {
           relation: role,
           object: 'organisation:nrc',
         })),
-    ]);
+    ];
+    if (tuples.length > 0) await this.client.writeTuples(tuples);
   };
 
   update = async (teamId: string, team: TeamPartialUpdate) => {
-    await this.client.write({
-      writes: [
-        ...team.positions.add.map<TupleKey>((position) => ({
-          user: `position:${position}`,
-          relation: 'position',
-          object: `team:${teamId}`,
-        })),
-        ...team.roles.add.map<TupleKey>((role) => ({
-          user: `team:${teamId}#member`,
-          relation: role,
-          object: 'organisation:nrc',
-        })),
-      ],
-      deletes: [
-        ...team.positions.remove.map<TupleKey>((position) => ({
-          user: `position:${position}`,
-          relation: 'position',
-          object: `team:${teamId}`,
-        })),
-        ...team.roles.remove.map<TupleKey>((role) => ({
-          user: `team:${teamId}#member`,
-          relation: role,
-          object: 'organisation:nrc',
-        })),
-      ],
-    });
+    const writeTuples = [
+      ...team.positions.add.map<TupleKey>((position) => ({
+        user: `position:${position}`,
+        relation: 'position',
+        object: `team:${teamId}`,
+      })),
+      ...team.roles.add.map<TupleKey>((role) => ({
+        user: `team:${teamId}#member`,
+        relation: role,
+        object: 'organisation:nrc',
+      })),
+    ];
+
+    const deleteTuples = [
+      ...team.positions.remove.map<TupleKey>((position) => ({
+        user: `position:${position}`,
+        relation: 'position',
+        object: `team:${teamId}`,
+      })),
+      ...team.roles.remove.map<TupleKey>((role) => ({
+        user: `team:${teamId}#member`,
+        relation: role,
+        object: 'organisation:nrc',
+      })),
+    ];
+
+    const tuples = {
+      writes: writeTuples.length > 0 ? writeTuples : undefined,
+      deletes: deleteTuples.length > 0 ? deleteTuples : undefined,
+    };
+
+    if (tuples.writes || tuples.deletes) await this.client.write(tuples);
   };
 
   delete = async (teamId: string) => {
@@ -283,7 +288,9 @@ class TeamClient {
       object: `team:${teamId}`,
     }));
 
-    await this.client.deleteTuples([...roleTuples, ...positionTuples]);
+    const tuples = [...roleTuples, ...positionTuples];
+
+    if (tuples.length > 0) await this.client.deleteTuples(tuples);
   };
 }
 
@@ -295,9 +302,9 @@ class PositionClient {
   }
 
   create = async (position: Position) => {
-    await this.client.writeTuples([
-      ...position.staff.map<TupleKey>((userId) => ({
-        user: `user:${userId}`,
+    const tuples = [
+      ...position.staff.map<TupleKey>((user) => ({
+        user: `user:${user.id}`,
         relation: 'staff',
         object: `position:${position.id}`,
       })),
@@ -308,36 +315,44 @@ class PositionClient {
           relation: role,
           object: 'organisation:nrc',
         })),
-    ]);
+    ];
+
+    if (tuples.length > 0) await this.client.writeTuples(tuples);
   };
 
   update = async (positionId: string, position: PositionPartialUpdate) => {
-    await this.client.write({
-      writes: [
-        ...position.staff.add.map<TupleKey>((userId) => ({
-          user: `user:${userId}`,
-          relation: 'staff',
-          object: `position:${positionId}`,
-        })),
-        ...position.roles.add.map<TupleKey>((role) => ({
-          user: `position:${positionId}#staff`,
-          relation: role,
-          object: 'organisation:nrc',
-        })),
-      ],
-      deletes: [
-        ...position.staff.remove.map<TupleKey>((userId) => ({
-          user: `user:${userId}`,
-          relation: 'staff',
-          object: `position:${positionId}`,
-        })),
-        ...position.roles.remove.map<TupleKey>((role) => ({
-          user: `position:${positionId}#staff`,
-          relation: role,
-          object: 'organisation:nrc',
-        })),
-      ],
-    });
+    const writeTuples = [
+      ...position.staff.add.map<TupleKey>((userId) => ({
+        user: `user:${userId}`,
+        relation: 'staff',
+        object: `position:${positionId}`,
+      })),
+      ...position.roles.add.map<TupleKey>((role) => ({
+        user: `position:${positionId}#staff`,
+        relation: role,
+        object: 'organisation:nrc',
+      })),
+    ];
+
+    const deleteTuples = [
+      ...position.staff.remove.map<TupleKey>((userId) => ({
+        user: `user:${userId}`,
+        relation: 'staff',
+        object: `position:${positionId}`,
+      })),
+      ...position.roles.remove.map<TupleKey>((role) => ({
+        user: `position:${positionId}#staff`,
+        relation: role,
+        object: 'organisation:nrc',
+      })),
+    ];
+
+    const tuples = {
+      writes: writeTuples.length > 0 ? writeTuples : undefined,
+      deletes: deleteTuples.length > 0 ? deleteTuples : undefined,
+    };
+
+    if (tuples.writes || tuples.deletes) await this.client.write(tuples);
   };
 
   delete = async (positionId: string) => {
@@ -368,7 +383,9 @@ class PositionClient {
       object: `position:${positionId}`,
     }));
 
-    await this.client.deleteTuples([...teamTuples, ...staffTuples]);
+    const tuples = [...teamTuples, ...staffTuples];
+
+    if (tuples.length > 0) await this.client.deleteTuples(tuples);
   };
 }
 
