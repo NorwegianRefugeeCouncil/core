@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { PositionService } from '@nrcno/core-user-engine';
 
+import { PositionService } from '@nrcno/core-user-engine';
 import {
   PaginatedResponse,
   PositionListItem,

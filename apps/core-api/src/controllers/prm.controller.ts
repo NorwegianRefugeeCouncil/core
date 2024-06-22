@@ -17,7 +17,11 @@ import {
   PaginationSchema,
   createSortingSchema,
   getEntityFilteringSchema,
+  Permissions,
+  EntityType,
 } from '@nrcno/core-models';
+
+import { checkPermissions } from '../middleware/authorisation.middleware';
 
 // This is exported for testing purposes (not great)
 export const createEntity = async (
@@ -159,10 +163,64 @@ export const listEntities = async (
   }
 };
 
+const checkPermissionsForEntityType =
+  (action: 'read' | 'write' | 'delete') =>
+  (request: Request, response: Response, next: NextFunction) => {
+    const entityType = EntityTypeSchema.parse(request.params.entityType);
+
+    const permission = (() => {
+      switch (entityType) {
+        case EntityType.Individual: {
+          switch (action) {
+            case 'read':
+              return Permissions.ViewProgrammeData;
+            case 'write':
+              return Permissions.EditProgrammeData;
+            case 'delete':
+              return Permissions.DeleteProgrammeData;
+            default:
+              throw new Error('Invalid action');
+          }
+        }
+        case EntityType.Language:
+        case EntityType.Nationality: {
+          switch (action) {
+            case 'read':
+              return Permissions.ViewSystemData;
+            case 'write':
+              return Permissions.EditSystemData;
+            case 'delete':
+              return Permissions.DeleteSystemData;
+            default:
+              throw new Error('Invalid action');
+          }
+        }
+      }
+    })();
+
+    return checkPermissions(permission)(request, response, next);
+  };
+
 const router = Router();
-router.post('/prm/:entityType', createEntity);
-router.get('/prm/:entityType', listEntities);
-router.get('/prm/:entityType/:entityId', getEntity);
-router.put('/prm/:entityType/:entityId', updateEntity);
+router.post(
+  '/prm/:entityType',
+  checkPermissionsForEntityType('write'),
+  createEntity,
+);
+router.get(
+  '/prm/:entityType',
+  checkPermissionsForEntityType('read'),
+  listEntities,
+);
+router.get(
+  '/prm/:entityType/:entityId',
+  checkPermissionsForEntityType('read'),
+  getEntity,
+);
+router.put(
+  '/prm/:entityType/:entityId',
+  checkPermissionsForEntityType('write'),
+  updateEntity,
+);
 
 export { router as prmRouter };

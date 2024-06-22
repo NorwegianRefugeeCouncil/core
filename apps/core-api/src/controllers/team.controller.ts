@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { TeamService } from '@nrcno/core-user-engine';
 
+import { TeamService } from '@nrcno/core-user-engine';
 import {
   PaginatedResponse,
   TeamListItem,

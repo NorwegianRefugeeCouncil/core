@@ -4,14 +4,18 @@ import { getAuthorisationClient } from '@nrcno/core-authorisation';
 import { Permissions } from '@nrcno/core-models';
 
 export const checkPermissions =
-  (permissions: Permissions[], every = true) =>
+  (permissions: Permissions | Permissions[], every = true) =>
   async (req: Request, res: Response, next: NextFunction) => {
     const authorisationClient = getAuthorisationClient();
 
     const checks = await Promise.all(
-      permissions.map((p) =>
-        req.user ? authorisationClient.permission.check(req.user.id, p) : false,
-      ),
+      [permissions]
+        .flat()
+        .map((p) =>
+          req.user
+            ? authorisationClient.permission.check(req.user.id, p)
+            : false,
+        ),
     );
 
     const success = every
