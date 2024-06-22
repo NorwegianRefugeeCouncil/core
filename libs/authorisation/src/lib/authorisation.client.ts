@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 
-import { z } from 'zod';
 import {
   OpenFgaClient,
   TupleKey,
@@ -70,10 +69,10 @@ export class AuthorisationClient {
     return this.permissionClient;
   }
 
-  public init = async () => {
+  public init = async (modelConfigPath: string) => {
     this.initClient();
     await this.putStore();
-    await this.putModel();
+    await this.putModel(modelConfigPath);
     await this.initClients();
   };
 
@@ -120,11 +119,11 @@ export class AuthorisationClient {
     this.initClient();
   };
 
-  private putModel = async () => {
+  private putModel = async (modelConfigPath: string) => {
     if (!this.client || this.storeId.length === 0)
       throw new Error('Client not initialised');
 
-    const modelDSL = fs.readFileSync('../store.fga.yaml', 'utf-8');
+    const modelDSL = fs.readFileSync(modelConfigPath, 'utf-8');
     const modelJSON = friendlySyntaxToApiSyntax(
       modelDSL,
     ) as WriteAuthorizationModelRequest;
