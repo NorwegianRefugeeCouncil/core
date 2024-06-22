@@ -5,14 +5,22 @@ import { useUserContext } from '../user.context';
 
 type Props = {
   permissions: Permissions | Permissions[];
+  every?: boolean;
   children: React.ReactNode;
 };
 
-export const PermissionGate: React.FC<Props> = ({ permissions, children }) => {
+export const PermissionGate: React.FC<Props> = ({
+  permissions,
+  every,
+  children,
+}) => {
   const { me } = useUserContext();
 
   const hasPermission = useMemo(
-    () => [permissions].flat().every((p) => me.data?.permissions[p]),
+    () =>
+      every
+        ? [permissions].flat().every((p) => me.data?.permissions[p])
+        : [permissions].flat().some((p) => me.data?.permissions[p]),
     [JSON.stringify(me.data?.permissions), JSON.stringify(permissions)],
   );
 
