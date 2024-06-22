@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { UUIDSchema } from '../utils';
 
 import { PositionListItemSchema } from './position.model';
-import { RoleSchema } from './role.model';
+import { RoleMapSchema, RoleSchema } from './role.model';
 
 export const TeamIdSchema = UUIDSchema;
 
@@ -11,7 +11,7 @@ export const TeamDefinitionSchema = z.object({
   name: z.string().min(1).max(100),
   // parentTeamId: z.string().length(26).optional(),
   positions: z.array(UUIDSchema).optional().default([]),
-  roles: z.record(RoleSchema, z.boolean()),
+  roles: RoleMapSchema,
 });
 export type TeamDefinition = z.infer<typeof TeamDefinitionSchema>;
 
@@ -34,7 +34,7 @@ export const TeamUpdateSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   // parentTeam: TeamSchema.optional(),
   positions: z.array(UUIDSchema).optional().default([]),
-  roles: z.record(RoleSchema, z.boolean()),
+  roles: RoleMapSchema,
 });
 export type TeamUpdate = z.infer<typeof TeamUpdateSchema>;
 
