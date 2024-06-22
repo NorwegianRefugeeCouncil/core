@@ -41,12 +41,12 @@ export const up = async (knex: Knex): Promise<void> => {
     table.uuid('position_id').notNullable();
     table
       .enum('role', [
-        'super-admin',
-        'staff-admin',
-        'system-admin',
-        'programmatic-admin',
-        'programmatic-editor',
-        'programmatic-viewer',
+        'super_admin',
+        'staff_admin',
+        'system_admin',
+        'programmatic_admin',
+        'programmatic_editor',
+        'programmatic_viewer',
       ])
       .notNullable();
 
@@ -59,12 +59,12 @@ export const up = async (knex: Knex): Promise<void> => {
     table.uuid('team_id').notNullable();
     table
       .enum('role', [
-        'super-admin',
-        'staff-admin',
-        'system-admin',
-        'programmatic-admin',
-        'programmatic-editor',
-        'programmatic-viewer',
+        'super_admin',
+        'staff_admin',
+        'system_admin',
+        'programmatic_admin',
+        'programmatic_editor',
+        'programmatic_viewer',
       ])
       .notNullable();
 
