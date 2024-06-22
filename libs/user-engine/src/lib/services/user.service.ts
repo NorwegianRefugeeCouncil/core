@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { User } from '@nrcno/core-models';
+import { PermissionMap, User } from '@nrcno/core-models';
+import { getAuthorisationClient } from '@nrcno/core-authorisation';
 
 import { ScimUser } from '../scim.types';
 import * as UserStore from '../stores/user.store';
@@ -9,8 +10,12 @@ interface IUserService {
   mapScimUserToUser: (scimUser: Partial<ScimUser>) => Partial<User>;
   mapUserToScimUser: (user: User) => ScimUser;
   create: (scimUser: ScimUser) => Promise<User>;
-  get: (userId: string) => Promise<User | null>;
-  getByOidcId: (oidcId: string) => Promise<User | null>;
+  get: (
+    userId: string,
+  ) => Promise<(User & { permissions: PermissionMap }) | null>;
+  getByOidcId: (
+    oidcId: string,
+  ) => Promise<(User & { permissions: PermissionMap }) | null>;
   update: (
     userId: string,
     scimUserUpdate: Partial<ScimUser>,
@@ -76,12 +81,37 @@ const create = async (scimUser: ScimUser): Promise<User> => {
   return UserStore.create(user as Omit<User, 'createdAt' | 'updatedAt'>);
 };
 
-const get = async (userId: string): Promise<User | null> => {
-  return UserStore.getById(userId);
+const get = async (
+  userId: string,
+): Promise<(User & { permissions: PermissionMap }) | null> => {
+  const authorisationClient = getAuthorisationClient();
+
+  const [user, permissions] = await Promise.all([
+    UserStore.getById(userId),
+    authorisationClient.permission.getForUser(userId),
+  ]);
+
+  if (!user) {
+    return null;
+  }
+
+  return {
+    ...user,
+    permissions,
+  };
 };
 
-const getByOidcId = async (oidcId: string): Promise<User | null> => {
-  return UserStore.getByOidcId(oidcId);
+const getByOidcId = async (
+  oidcId: string,
+): Promise<(User & { permissions: PermissionMap }) | null> => {
+  const authorisationClient = getAuthorisationClient();
+  const user = await UserStore.getByOidcId(oidcId);
+  if (!user) return null;
+  const permissions = await authorisationClient.permission.getForUser(user.id);
+  return {
+    ...user,
+    permissions,
+  };
 };
 
 const update = async (
