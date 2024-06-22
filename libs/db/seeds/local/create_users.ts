@@ -8,8 +8,7 @@ export async function seed(knex: Knex): Promise<void> {
   // const users: User[] = scimUsers.map(mapScimUserToUser);
   // const snakeCaseUsers = users.map((user) => camelToSnake(user));
   // await knex('users').insert(snakeCaseUsers);
-
-  await knex('users').insert([
+  const users = [
     {
       id: '261d304f-ec5b-4ecb-8d7c-88c4583cc832',
       oktaId: '00u7gyomqtlFFSaNW5d7',
@@ -64,5 +63,31 @@ export async function seed(knex: Knex): Promise<void> {
       createdAt: '2024-04-16T12:17:54.390Z',
       updatedAt: '2024-04-16T12:17:54.390Z',
     },
+  ];
+
+  await knex('users').insert(users);
+
+  const superAdminPosition = {
+    id: 'b0e5f7f6-3b6e-4e7a-9f9f-2e3f1b8b2d7a',
+    name: 'Default super admin',
+  };
+
+  await knex('positions').del();
+  await knex('positions').insert([superAdminPosition]);
+
+  await knex('position_roles').del();
+  await knex('position_roles').insert([
+    {
+      position_id: superAdminPosition.id,
+      role: 'super_admin',
+    },
   ]);
+
+  await knex('position_user_assignments').del();
+  await knex('position_user_assignments').insert(
+    users.map((user) => ({
+      position_id: superAdminPosition.id,
+      user_id: user.id,
+    })),
+  );
 }
