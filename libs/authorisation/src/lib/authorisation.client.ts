@@ -7,7 +7,6 @@ import {
   WriteAuthorizationModelRequest,
 } from '@openfga/sdk';
 import { friendlySyntaxToApiSyntax } from '@openfga/syntax-transformer';
-
 import {
   Team,
   Position,
@@ -167,6 +166,7 @@ class PermissionClient {
     const response = await this.client.listRelations({
       user: `user:${userId}`,
       object: 'organisation:nrc',
+      relations: Object.values(Permissions),
     });
     return response.relations.reduce<PermissionMap>(
       (acc, relation) => {
