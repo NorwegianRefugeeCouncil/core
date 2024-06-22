@@ -1,8 +1,7 @@
+import { getAuthorisationClient } from '@nrcno/core-authorisation';
 import { Knex } from 'knex';
 
 export async function seed(knex: Knex): Promise<void> {
-  await knex('users').del();
-
   // TODO: Fetch users from Okta and insert them into the database
   // const scimUsers: ScimUser[] = await axios.get(...);
   // const users: User[] = scimUsers.map(mapScimUserToUser);
@@ -30,8 +29,9 @@ export async function seed(knex: Knex): Promise<void> {
         },
       ]),
       active: true,
-      createdAt: '2024-04-15T17:10:22.288Z',
-      updatedAt: '2024-04-15T17:10:22.288Z',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      permissions: {},
     },
     {
       id: '0b8e4278-a133-49dc-adf6-f43e74d4546a',
@@ -48,8 +48,9 @@ export async function seed(knex: Knex): Promise<void> {
         },
       ]),
       active: true,
-      createdAt: '2024-04-15T17:10:22.875Z',
-      updatedAt: '2024-04-15T17:10:22.875Z',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      permissions: {},
     },
     {
       id: '2663e6fc-ed4d-4c7d-af31-22a3b88c4dec',
@@ -66,17 +67,19 @@ export async function seed(knex: Knex): Promise<void> {
         },
       ]),
       active: true,
-      createdAt: '2024-04-16T12:17:54.390Z',
-      updatedAt: '2024-04-16T12:17:54.390Z',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      permissions: {},
     },
   ];
-
-  await knex('users').insert(users);
 
   const superAdminPosition = {
     id: 'b0e5f7f6-3b6e-4e7a-9f9f-2e3f1b8b2d7a',
     name: 'Default super admin',
   };
+
+  await knex('users').del();
+  await knex('users').insert(users);
 
   await knex('positions').del();
   await knex('positions').insert([superAdminPosition]);
@@ -96,4 +99,17 @@ export async function seed(knex: Knex): Promise<void> {
       user_id: user.id,
     })),
   );
+
+  const authorisationClient = getAuthorisationClient();
+  await authorisationClient.position.create({
+    id: superAdminPosition.id,
+    name: superAdminPosition.name,
+    staff: users.map((user) => ({
+      ...user,
+      emails: [],
+    })),
+    roles: {
+      super_admin: true,
+    },
+  });
 }
