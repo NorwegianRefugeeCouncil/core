@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, useParams } from 'react-router-dom';
 
 import { EntityDetailPage, EntityListPage } from '@nrcno/core-prm-components';
 
@@ -24,19 +24,46 @@ export const router = createBrowserRouter([
           },
           {
             path: '/prm/:entityType',
-            element: <EntityListPage />,
+            Component: () => {
+              const { entityType } = useParams();
+              return <EntityListPage key={`entity-list-${entityType}`} />;
+            },
           },
           {
             path: '/prm/:entityType/new',
-            element: <EntityDetailPage mode="create" />,
+            Component: () => {
+              const { entityType } = useParams();
+              return (
+                <EntityDetailPage
+                  key={`entity-detail-${entityType}`}
+                  mode="create"
+                />
+              );
+            },
           },
           {
             path: '/prm/:entityType/:entityId',
-            element: <EntityDetailPage mode="read" />,
+            Component: () => {
+              const { entityType, entityId } = useParams();
+              return (
+                <EntityDetailPage
+                  key={`entity-detail-${entityType}-${entityId}`}
+                  mode="read"
+                />
+              );
+            },
           },
           {
             path: '/prm/:entityType/:entityId/edit',
-            element: <EntityDetailPage mode="edit" />,
+            Component: () => {
+              const { entityType, entityId } = useParams();
+              return (
+                <EntityDetailPage
+                  key={`entity-detail-${entityType}-${entityId}`}
+                  mode="edit"
+                />
+              );
+            },
           },
           {
             path: '/users',
