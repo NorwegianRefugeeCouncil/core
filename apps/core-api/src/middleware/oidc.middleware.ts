@@ -80,7 +80,7 @@ export const requireAuthentication = async (
       'DANGER: Bypassing authentication. This should only be used in development or test environments.',
     );
     const selectedUserId =
-      (req.query.selectedUserId as string) ||
+      (req.headers['x-override-user-id'] as string) ||
       (await UserService.list(0, 1))[0].id;
     const user = await UserService.get(selectedUserId);
     if (!user) {

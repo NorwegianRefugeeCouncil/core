@@ -9,13 +9,19 @@ import { useEffect, useState } from 'react';
 
 import { useUserContext } from '@nrcno/core-user-components';
 
-export const DeveloperTools = () => {
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+import { useAxiosInstance } from './ApiProvider.component';
 
+export const DeveloperTools = () => {
   const {
     me,
     user: { list },
   } = useUserContext();
+
+  const [selectedUserId, setSelectedUserId] = useState<string>(
+    me.data?.id || '',
+  );
+
+  const axiosInstance = useAxiosInstance();
 
   useEffect(() => {
     list.getUserList({
@@ -26,9 +32,16 @@ export const DeveloperTools = () => {
 
   useEffect(() => {
     if (selectedUserId) {
-      me.getMe();
+      axiosInstance.defaults.headers['x-override-user-id'] = selectedUserId;
+    } else {
+      delete axiosInstance.defaults.headers['x-override-user-id'];
     }
+    // me.getMe();
   }, [selectedUserId]);
+
+  useEffect(() => {
+    setSelectedUserId(me.data?.id || '');
+  }, [me.data?.id]);
 
   return (
     <Flex direction="column" gap={4}>
@@ -38,8 +51,8 @@ export const DeveloperTools = () => {
         <Select
           placeholder="Select User"
           onChange={(e) => setSelectedUserId(e.target.value)}
+          value={selectedUserId}
         >
-          <option value="">Default user</option>
           {list.data?.items.map((user) => (
             <option key={user.id} value={user.id}>
               {user.displayName}
