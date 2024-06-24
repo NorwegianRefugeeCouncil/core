@@ -47,4 +47,17 @@ describe('Household service', () => {
       expect(HouseholdStore.create).toHaveBeenCalledWith(householdDefinition);
     });
   });
+
+  describe('get', () => {
+    it('should call the store get method', async () => {
+      const householdId = 'household-id';
+      const household = HouseholdGenerator.generateEntity();
+      HouseholdStore.get = jest.fn().mockResolvedValueOnce(household);
+
+      const result = await householdService.get(householdId);
+
+      expect(HouseholdStore.get).toHaveBeenCalledWith(householdId);
+      expect(result).toEqual(household);
+    });
+  });
 });
