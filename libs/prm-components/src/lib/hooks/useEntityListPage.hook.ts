@@ -13,7 +13,9 @@ export const useEntityListPage = (
   const { entityType, list, config } = usePrmContext();
 
   useEffect(() => {
-    list.listEntities(pagination, sorting, filters || {});
+    if (filters != null) {
+      list.listEntities(pagination, sorting, filters);
+    }
   }, [
     entityType,
     JSON.stringify(pagination),
