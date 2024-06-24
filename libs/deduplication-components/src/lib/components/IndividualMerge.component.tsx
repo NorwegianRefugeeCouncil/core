@@ -1,7 +1,7 @@
 import { IconButton, Flex, Checkbox } from '@chakra-ui/react';
 import { ArrowLeftIcon, ArrowRightIcon, CloseIcon } from '@chakra-ui/icons';
 
-import { Participant } from '@nrcno/core-models';
+import { Individual } from '@nrcno/core-models';
 import {
   Component,
   DataType,
@@ -9,10 +9,10 @@ import {
   ListFieldConfig,
 } from '@nrcno/core-prm-components';
 
-import styles from './ParticipantMerge.module.scss';
+import styles from './IndividualMerge.module.scss';
 
 type Props = {
-  participant: Partial<Participant>;
+  individual: Partial<Individual>;
   side?: 'left' | 'right';
   onSelect?: (path: string[], value: any) => void;
   pathsFromSide: Record<string, 'left' | 'right'>;
@@ -44,7 +44,7 @@ const getListValueFromPath = (obj: any, path: (string | number)[]) => {
 
 export const ReadOnlyField: React.FC<Props & { field: FieldConfig }> = ({
   field,
-  participant,
+  individual,
   side,
   onSelect,
   pathsFromSide,
@@ -53,7 +53,7 @@ export const ReadOnlyField: React.FC<Props & { field: FieldConfig }> = ({
     if (onSelect)
       onSelect(
         field.path,
-        getValueFromPath(participant, field.path, field.dataType),
+        getValueFromPath(individual, field.path, field.dataType),
       );
   };
 
@@ -69,7 +69,7 @@ export const ReadOnlyField: React.FC<Props & { field: FieldConfig }> = ({
     className += ` ${styles.selected}`;
   }
 
-  const value = getValueFromPath(participant, field.path, field.dataType);
+  const value = getValueFromPath(individual, field.path, field.dataType);
 
   return (
     <Flex
@@ -105,7 +105,7 @@ export const ReadOnlyField: React.FC<Props & { field: FieldConfig }> = ({
           <Checkbox isChecked={value} disabled />
         ) : (
           <span>
-            {getValueFromPath(participant, field.path, field.dataType)}
+            {getValueFromPath(individual, field.path, field.dataType)}
           </span>
         )}
       </Flex>
@@ -123,7 +123,7 @@ export const ReadOnlyField: React.FC<Props & { field: FieldConfig }> = ({
 };
 
 type ListProps = {
-  participant: Partial<Participant>;
+  individual: Partial<Individual>;
   side?: 'left' | 'right';
   onSelect?: (path: (string | number)[], value: any) => void;
   pathsFromSide?: Record<string, Record<number, number>>;
@@ -132,7 +132,7 @@ type ListProps = {
 
 export const ReadOnlyListField: React.FC<ListProps> = ({
   field,
-  participant,
+  individual,
   side,
   onSelect,
   pathsFromSide,
@@ -141,7 +141,7 @@ export const ReadOnlyListField: React.FC<ListProps> = ({
     if (onSelect) {
       onSelect(
         [...field.path, idx],
-        getListValueFromPath(participant, [...field.path, idx]),
+        getListValueFromPath(individual, [...field.path, idx]),
       );
     }
   };
@@ -155,7 +155,7 @@ export const ReadOnlyListField: React.FC<ListProps> = ({
     className += ` ${styles.mergeFieldCentre}`;
   }
 
-  const listValue: any[] = getListValueFromPath(participant, field.path) || [];
+  const listValue: any[] = getListValueFromPath(individual, field.path) || [];
 
   return (
     <Flex direction="column" height="100%" p={2} textAlign={side || 'left'}>
@@ -188,7 +188,7 @@ export const ReadOnlyListField: React.FC<ListProps> = ({
                   )
                   .map((childField) => {
                     const value = getValueFromPath(
-                      participant,
+                      individual,
                       [...field.path, index, ...childField.path],
                       childField.dataType,
                     );

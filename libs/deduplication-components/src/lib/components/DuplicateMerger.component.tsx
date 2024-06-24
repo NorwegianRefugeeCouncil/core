@@ -4,27 +4,27 @@ import { Grid, GridItem, Heading } from '@chakra-ui/react';
 import {
   DenormalisedDeduplicationRecord,
   EntityType,
-  Participant,
+  Individual,
 } from '@nrcno/core-models';
 import { Component, configLoader } from '@nrcno/core-prm-components';
 
-import { ReadOnlyField, ReadOnlyListField } from './ParticipantMerge.component';
+import { ReadOnlyField, ReadOnlyListField } from './IndividualMerge.component';
 
-const participantDetailConfig = configLoader({
+const individualDetailConfig = configLoader({
   languages: [],
   nationalities: [],
-})[EntityType.Participant].detail;
+})[EntityType.Individual].detail;
 
 type Props = {
   duplicateRecord: DenormalisedDeduplicationRecord;
-  mergedParticipant: Partial<Participant>;
-  setMergedParticipant: (participant: Partial<Participant>) => void;
+  mergedIndividual: Partial<Individual>;
+  setMergedIndividual: (individual: Partial<Individual>) => void;
 };
 
 export const DuplicateMerger: React.FC<Props> = ({
   duplicateRecord,
-  mergedParticipant,
-  setMergedParticipant,
+  mergedIndividual,
+  setMergedIndividual,
 }) => {
   const [pathsFromSide, setPathsFromSide] = useState<
     Record<string, 'left' | 'right'>
@@ -59,12 +59,12 @@ export const DuplicateMerger: React.FC<Props> = ({
         };
       }
     }
-    const nextParticipant = setNestedObjectValue(
-      { ...mergedParticipant },
+    const nextIndividual = setNestedObjectValue(
+      { ...mergedIndividual },
       path,
       value,
     );
-    setMergedParticipant(nextParticipant);
+    setMergedIndividual(nextIndividual);
   };
 
   const handleSelect =
@@ -89,7 +89,7 @@ export const DuplicateMerger: React.FC<Props> = ({
           if (i === arr.length - 1) return [];
           return {};
         },
-        mergedParticipant,
+        mergedIndividual,
       );
       const nextArr = [...currentArr, value];
       setField(pathWithoutIndex, nextArr, false);
@@ -127,7 +127,7 @@ export const DuplicateMerger: React.FC<Props> = ({
 
       const currentArr: any = pathWithoutIndex.reduce(
         (acc: any, key) => acc[key],
-        mergedParticipant,
+        mergedIndividual,
       );
       const nextArr = currentArr.filter(
         (_: any, i: number) => i !== originalIdx,
@@ -188,7 +188,7 @@ export const DuplicateMerger: React.FC<Props> = ({
       h="100%"
       overflow="scroll"
     >
-      {participantDetailConfig.sections.map((section) => (
+      {individualDetailConfig.sections.map((section) => (
         <>
           <GridItem key={section.title} colSpan={3}>
             <Heading
@@ -209,7 +209,7 @@ export const DuplicateMerger: React.FC<Props> = ({
                     {field.component === Component.List ? (
                       <ReadOnlyListField
                         field={field}
-                        participant={duplicateRecord.participantA}
+                        individual={duplicateRecord.individualA}
                         side="left"
                         onSelect={handleListSelect('left')}
                         pathsFromSide={listPathsFromSide['left']}
@@ -217,7 +217,7 @@ export const DuplicateMerger: React.FC<Props> = ({
                     ) : (
                       <ReadOnlyField
                         field={field}
-                        participant={duplicateRecord.participantA}
+                        individual={duplicateRecord.individualA}
                         side="left"
                         onSelect={handleSelect('left')}
                         pathsFromSide={pathsFromSide}
@@ -228,12 +228,12 @@ export const DuplicateMerger: React.FC<Props> = ({
                     {field.component === Component.List ? (
                       <ReadOnlyListField
                         field={field}
-                        participant={mergedParticipant}
+                        individual={mergedIndividual}
                       />
                     ) : (
                       <ReadOnlyField
                         field={field}
-                        participant={mergedParticipant}
+                        individual={mergedIndividual}
                         pathsFromSide={pathsFromSide}
                       />
                     )}
@@ -242,7 +242,7 @@ export const DuplicateMerger: React.FC<Props> = ({
                     {field.component === Component.List ? (
                       <ReadOnlyListField
                         field={field}
-                        participant={duplicateRecord.participantB}
+                        individual={duplicateRecord.individualB}
                         side="right"
                         onSelect={handleListSelect('right')}
                         pathsFromSide={listPathsFromSide['right']}
@@ -250,7 +250,7 @@ export const DuplicateMerger: React.FC<Props> = ({
                     ) : (
                       <ReadOnlyField
                         field={field}
-                        participant={duplicateRecord.participantB}
+                        individual={duplicateRecord.individualB}
                         side="right"
                         onSelect={handleSelect('right')}
                         pathsFromSide={pathsFromSide}

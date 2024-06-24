@@ -27,8 +27,8 @@ export const list = async (
 
   return rows.map((row: any) => {
     const {
-      participantIdA,
-      participantIdB,
+      individualIdA,
+      individualIdB,
       weightedScore,
       createdAt,
       updatedAt,
@@ -36,8 +36,8 @@ export const list = async (
     } = row;
 
     return DeduplicationRecordSchema.parse({
-      participantIdA,
-      participantIdB,
+      individualIdA,
+      individualIdB,
       weightedScore,
       scores,
       createdAt,
@@ -52,15 +52,15 @@ export const upsert = async (
   const db = getDb();
 
   const insertRecords = records.map((record) => ({
-    participantIdA: record.participantIdA,
-    participantIdB: record.participantIdB,
+    individualIdA: record.individualIdA,
+    individualIdB: record.individualIdB,
     weightedScore: record.weightedScore,
     scores: JSON.stringify(record.scores),
   }));
 
   const rows = await db('duplicates')
     .insert(insertRecords)
-    .onConflict(['participantId_a', 'participantId_b'])
+    .onConflict(['individualId_a', 'individualId_b'])
     .merge()
     .returning('*');
 
@@ -68,39 +68,39 @@ export const upsert = async (
 };
 
 export const getForUser = async (
-  participantId: string,
+  individualId: string,
 ): Promise<DeduplicationRecord[]> => {
   const db = getDb();
 
   const rows = await db('duplicates')
-    .where('participantId_a', participantId)
-    .orWhere('participantId_b', participantId);
+    .where('individualId_a', individualId)
+    .orWhere('individualId_b', individualId);
 
   return rows.map((r: unknown) => DeduplicationRecordSchema.parse(r));
 };
 
 export const deletePair = async (
-  participantIdA: string,
-  participantIdB: string,
+  individualIdA: string,
+  individualIdB: string,
 ): Promise<void> => {
   const db = getDb();
 
   await db('duplicates')
-    .where('participantId_a', participantIdA)
-    .andWhere('participantId_b', participantIdB)
+    .where('individualId_a', individualIdA)
+    .andWhere('individualId_b', individualIdB)
     .del();
 };
 
 export const logResolution = async (
-  participantIdA: string,
-  participantIdB: string,
+  individualIdA: string,
+  individualIdB: string,
   resolution: 'merge' | 'ignore',
 ): Promise<void> => {
   const db = getDb();
 
   await db('deduplication_resolutions').insert({
-    participantId_a: participantIdA,
-    participantId_b: participantIdB,
+    individualId_a: individualIdA,
+    individualId_b: individualIdB,
     resolution,
   });
 };
@@ -109,56 +109,56 @@ export const prepareViews = async (): Promise<void> => {
   const logger = getLogger();
   const db = getDb();
 
-  logger.info('Preparing participant_identification_matches temp table');
+  logger.info('Preparing individual_identification_matches temp table');
   await db.raw(`
-    CREATE TEMPORARY TABLE participant_identification_matches AS (
+    CREATE TEMPORARY TABLE individual_identification_matches AS (
       SELECT
-        participant_identifications_a.participant_id AS participant_id_a,
-        participant_identifications_b.participant_id AS participant_id_b
+        individual_identifications_a.individual_id AS individual_id_a,
+        individual_identifications_b.individual_id AS individual_id_b
       FROM
-        participant_identifications AS participant_identifications_a
+        individual_identifications AS individual_identifications_a
       CROSS JOIN
-        participant_identifications AS participant_identifications_b
+        individual_identifications AS individual_identifications_b
       WHERE
-        participant_identifications_a.identification_type = participant_identifications_b.identification_type
+        individual_identifications_a.identification_type = individual_identifications_b.identification_type
       AND
-        participant_identifications_a.identification_number = participant_identifications_b.identification_number
+        individual_identifications_a.identification_number = individual_identifications_b.identification_number
     )
   `);
 
-  logger.info('Creating indexes for participant_identification_matches');
+  logger.info('Creating indexes for individual_identification_matches');
   await db.raw(`
-    CREATE INDEX idx_pim_on_participant_id_a_id_b
-    ON participant_identification_matches(participant_id_a, participant_id_b)
+    CREATE INDEX idx_pim_on_individual_id_a_id_b
+    ON individual_identification_matches(individual_id_a, individual_id_b)
   `);
 
   return;
 };
 
-export async function* getParticipantIdPairs(
+export async function* getIndividualIdPairs(
   fromDate: Date,
 ): AsyncGenerator<[string, string], void, unknown> {
   const db = getDb();
 
   const result = await db.raw(
     `
-    SELECT participants_a.id as participant_id_a, participants_b.id as participant_id_b
-    FROM participants participants_a
-    CROSS JOIN participants participants_b
-    WHERE participants_a.id != participants_b.id
-    AND participants_a.updated_at >= ?
-    AND participants_a.sex = participants_b.sex
-    AND participants_a.nrc_id != participants_b.nrc_id
-    AND (participants_a.id, participants_b.id) NOT IN (
-      SELECT participant_id_a, participant_id_b
-      FROM participant_identification_matches
+    SELECT individuals_a.id as individual_id_a, individuals_b.id as individual_id_b
+    FROM individuals individuals_a
+    CROSS JOIN individuals individuals_b
+    WHERE individuals_a.id != individuals_b.id
+    AND individuals_a.updated_at >= ?
+    AND individuals_a.sex = individuals_b.sex
+    AND individuals_a.nrc_id != individuals_b.nrc_id
+    AND (individuals_a.id, individuals_b.id) NOT IN (
+      SELECT individual_id_a, individual_id_b
+      FROM individual_identification_matches
     )
   `,
     [fromDate],
   );
 
   for (const row of result.rows) {
-    yield [row.participant_id_a, row.participant_id_b];
+    yield [row.individual_id_a, row.individual_id_b];
   }
 }
 
@@ -169,16 +169,16 @@ export async function* getExactMatches(
 
   const result = await db.raw(
     `
-    SELECT participants_a.id as participant_id_a, participants_b.id as participant_id_b
-    FROM participants participants_a
-    CROSS JOIN participants participants_b
-    WHERE participants_a.id != participants_b.id
-    AND participants_a.updated_at >= ?
+    SELECT individuals_a.id as individual_id_a, individuals_b.id as individual_id_b
+    FROM individuals individuals_a
+    CROSS JOIN individuals individuals_b
+    WHERE individuals_a.id != individuals_b.id
+    AND individuals_a.updated_at >= ?
     AND (
-      participants_a.nrc_id = participants_b.nrc_id
-      OR (participants_a.id, participants_b.id) IN (
-        SELECT participant_id_a, participant_id_b
-        FROM participant_identification_matches
+      individuals_a.nrc_id = individuals_b.nrc_id
+      OR (individuals_a.id, individuals_b.id) IN (
+        SELECT individual_id_a, individual_id_b
+        FROM individual_identification_matches
       )
     )
   `,
@@ -187,8 +187,8 @@ export async function* getExactMatches(
 
   for (const row of result.rows) {
     yield row.map((r: any) => ({
-      participantIdA: r.participant_id_a,
-      participantIdB: r.participant_id_b,
+      individualIdA: r.individual_id_a,
+      individualIdB: r.individual_id_b,
       weightedScore: 1,
       scores: {},
     }));
@@ -203,41 +203,41 @@ export async function* getWeightedMatches(
 
   await db.raw(
     `
-    CREATE TEMPORARY TABLE participant_max_email_score AS (
+    CREATE TEMPORARY TABLE individual_max_email_score AS (
       SELECT
-        pcd_a.participant_id as participant_id_a,
-        pcd_b.participant_id as participant_id_b,  
+        pcd_a.individual_id as individual_id_a,
+        pcd_b.individual_id as individual_id_b,  
         MAX(
           CASE
             WHEN split_part(pcd_a.raw_value, '@', 2) != split_part(pcd_b.raw_value, '@', 2) THEN 0
             ELSE DICE_COEFF(pcd_a.raw_value, pcd_b.raw_value)
           END
         ) as email_score_max
-      FROM participant_contact_details AS pcd_a
-      JOIN participant_contact_details AS pcd_b ON pcd_a.participant_id != pcd_b.participant_id AND pcd_a.contact_detail_type = 'email' AND pcd_b.contact_detail_type = 'email'
+      FROM individual_contact_details AS pcd_a
+      JOIN individual_contact_details AS pcd_b ON pcd_a.individual_id != pcd_b.individual_id AND pcd_a.contact_detail_type = 'email' AND pcd_b.contact_detail_type = 'email'
       JOIN (
         SELECT id
-        FROM participant_contact_details
+        FROM individual_contact_details
         ORDER BY updated_at DESC
         LIMIT ?
         OFFSET ?
       ) sub_pcd ON pcd_a.id = sub_pcd.id
-      GROUP BY pcd_a.participant_id, pcd_b.participant_id
+      GROUP BY pcd_a.individual_id, pcd_b.individual_id
     )  
   `,
     [pagination.pageSize, pagination.startIndex],
   );
 
   await db.raw(`
-    CREATE INDEX idx_pmes_on_participant_id_a_id_b
-    ON participant_max_email_score(participant_id_a, participant_id_b)
+    CREATE INDEX idx_pmes_on_individual_id_a_id_b
+    ON individual_max_email_score(individual_id_a, individual_id_b)
   `);
 
   const result = await db.raw(
     `
     SELECT
-      pa.id as participant_id_a,
-      pb.id as participant_id_b,
+      pa.id as individual_id_a,
+      pb.id as individual_id_b,
       CASE
         WHEN pa.date_of_birth IS NOT NULL AND pb.date_of_birth IS NOT NULL AND pa.date_of_birth = pb.date_of_birth THEN 1
         ELSE 0
@@ -249,26 +249,26 @@ export async function* getWeightedMatches(
       ) / 3) as name_score,
       pmes.email_score_max as email_score,
       calculate_residence_score(pa.residence, pb.residence) as residence_score
-    FROM participants pa
-    JOIN participants pb ON pa.sex = pb.sex AND pa.nrc_id != pb.nrc_id AND pa.id != pb.id
-    LEFT JOIN participant_max_email_score pmes ON pa.id = pmes.participant_id_a AND pb.id = pmes.participant_id_b
-    LEFT JOIN participant_identification_matches pim ON pa.id = pim.participant_id_a AND pb.id = pim.participant_id_b
+    FROM individuals pa
+    JOIN individuals pb ON pa.sex = pb.sex AND pa.nrc_id != pb.nrc_id AND pa.id != pb.id
+    LEFT JOIN individual_max_email_score pmes ON pa.id = pmes.individual_id_a AND pb.id = pmes.individual_id_b
+    LEFT JOIN individual_identification_matches pim ON pa.id = pim.individual_id_a AND pb.id = pim.individual_id_b
     JOIN (
       SELECT id
-      FROM participants
+      FROM individuals
       ORDER BY updated_at DESC
       LIMIT ?
       OFFSET ?
     ) sub_pa ON pa.id = sub_pa.id
     WHERE pa.updated_at >= ?
-    AND pim.participant_id_a IS NULL
-    AND pim.participant_id_b IS NULL  
+    AND pim.individual_id_a IS NULL
+    AND pim.individual_id_b IS NULL  
   `,
     [pagination.pageSize, pagination.startIndex, fromDate],
   );
 
   await db.raw(`
-    DROP TABLE participant_max_email_score
+    DROP TABLE individual_max_email_score
   `);
 
   for (const row of result.rows) {

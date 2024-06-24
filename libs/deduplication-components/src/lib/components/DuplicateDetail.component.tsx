@@ -3,8 +3,8 @@ import { useState } from 'react';
 
 import {
   DenormalisedDeduplicationRecord,
-  Participant,
-  ParticipantSchema,
+  Individual,
+  IndividualSchema,
 } from '@nrcno/core-models';
 
 import { useDeduplicationContext } from '../deduplication.context';
@@ -18,78 +18,78 @@ type Props = {
 };
 
 // WIP
-const autoMerge = (duplicate: DenormalisedDeduplicationRecord): Participant => {
+const autoMerge = (duplicate: DenormalisedDeduplicationRecord): Individual => {
   const keys = Array.from(
     new Set([
-      ...Object.keys(duplicate.participantA),
-      ...Object.keys(duplicate.participantB),
-    ]) as Set<keyof Participant>,
+      ...Object.keys(duplicate.individualA),
+      ...Object.keys(duplicate.individualB),
+    ]) as Set<keyof Individual>,
   );
-  return ParticipantSchema.parse(
+  return IndividualSchema.parse(
     keys.reduce((acc, key) => {
       if (
-        typeof duplicate.participantA[key] === 'object' ||
-        typeof duplicate.participantB[key] === 'object' ||
-        Array.isArray(duplicate.participantA[key]) ||
-        Array.isArray(duplicate.participantB[key])
+        typeof duplicate.individualA[key] === 'object' ||
+        typeof duplicate.individualB[key] === 'object' ||
+        Array.isArray(duplicate.individualA[key]) ||
+        Array.isArray(duplicate.individualB[key])
       ) {
         return acc;
       }
 
-      if (duplicate.participantA[key] === duplicate.participantB[key]) {
+      if (duplicate.individualA[key] === duplicate.individualB[key]) {
         return {
           ...acc,
-          [key]: duplicate.participantA[key],
+          [key]: duplicate.individualA[key],
         };
       }
       if (
-        duplicate.participantA[key] !== undefined &&
-        duplicate.participantB[key] === undefined
+        duplicate.individualA[key] !== undefined &&
+        duplicate.individualB[key] === undefined
       ) {
         return {
           ...acc,
-          [key]: duplicate.participantA[key],
+          [key]: duplicate.individualA[key],
         };
       }
       if (
-        duplicate.participantA[key] === undefined &&
-        duplicate.participantB[key] !== undefined
+        duplicate.individualA[key] === undefined &&
+        duplicate.individualB[key] !== undefined
       ) {
         return {
           ...acc,
-          [key]: duplicate.participantB[key],
+          [key]: duplicate.individualB[key],
         };
       }
       return acc;
-    }, {} as Participant),
+    }, {} as Individual),
   );
 };
 
 export const DuplicateDetail: React.FC<Props> = ({ duplicate, onSubmit }) => {
   const { resolve } = useDeduplicationContext();
 
-  const [mergedParticipant, setMergedParticipant] = useState<
-    Partial<Participant>
-  >({});
+  const [mergedIndividual, setMergedIndividual] = useState<Partial<Individual>>(
+    {},
+  );
 
   const handleAutoMerge = () => {
-    setMergedParticipant(autoMerge(duplicate));
+    setMergedIndividual(autoMerge(duplicate));
   };
 
   const handleMerge = async () => {
     await resolve.merge(
-      duplicate.participantA.id,
-      duplicate.participantB.id,
-      ParticipantSchema.parse({
-        ...mergedParticipant,
-        id: duplicate.participantA.id,
+      duplicate.individualA.id,
+      duplicate.individualB.id,
+      IndividualSchema.parse({
+        ...mergedIndividual,
+        id: duplicate.individualA.id,
       }),
     );
     await onSubmit();
   };
 
   const handleIgnore = async () => {
-    await resolve.ignore(duplicate.participantA.id, duplicate.participantB.id);
+    await resolve.ignore(duplicate.individualA.id, duplicate.individualB.id);
     await onSubmit();
   };
 
@@ -106,8 +106,8 @@ export const DuplicateDetail: React.FC<Props> = ({ duplicate, onSubmit }) => {
       <Flex w="100%" flex={1} overflow="scroll">
         <DuplicateMerger
           duplicateRecord={duplicate}
-          mergedParticipant={mergedParticipant}
-          setMergedParticipant={setMergedParticipant}
+          mergedIndividual={mergedIndividual}
+          setMergedIndividual={setMergedIndividual}
         />
       </Flex>
     </Flex>

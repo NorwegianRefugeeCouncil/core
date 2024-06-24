@@ -53,18 +53,18 @@ const seedCount = 1_000;
 export async function seed(knex: Knex): Promise<void> {
   await knex('duplicates').del();
   await knex('deduplication_resolutions').del();
-  await knex('participant_contact_details').del();
-  await knex('participant_identifications').del();
-  await knex('participant_languages').del();
-  await knex('participant_nationalities').del();
-  await knex('participants').del();
+  await knex('individual_contact_details').del();
+  await knex('individual_identifications').del();
+  await knex('individual_languages').del();
+  await knex('individual_nationalities').del();
+  await knex('individuals').del();
   await knex('entities').del();
   await knex('persons').del();
 
-  const makeParticipant = () => {
-    const participantId = ulid();
+  const makeIndividual = () => {
+    const individualId = ulid();
     return {
-      id: participantId,
+      id: individualId,
       personId: ulid(),
       entityId: ulid(),
       firstName: faker.person.firstName(),
@@ -85,13 +85,13 @@ export async function seed(knex: Knex): Promise<void> {
       engagementContext: faker.helpers.enumValue(EngagementContext),
       languages: [
         // {
-        //   participantId,
+        //   individualId,
         //   languageIsoCode: faker.helpers.arrayElement(['en', 'es', 'fr', 'ar']),
         // },
       ],
       nationalities: [
         // {
-        //   participantId,
+        //   individualId,
         //   nationalityIsoCode: faker.helpers.arrayElement([
         //     'en',
         //     'es',
@@ -106,34 +106,34 @@ export async function seed(knex: Knex): Promise<void> {
           contactDetailType: ContactDetailType.Email,
           rawValue: faker.internet.email(),
           cleanValue: faker.internet.email(),
-          participantId,
+          individualId,
         },
         {
           id: faker.string.uuid(),
           contactDetailType: ContactDetailType.Email,
           rawValue: faker.internet.email(),
           cleanValue: faker.internet.email(),
-          participantId,
+          individualId,
         },
         {
           id: faker.string.uuid(),
           contactDetailType: ContactDetailType.PhoneNumber,
           rawValue: faker.phone.number(),
           cleanValue: faker.string.numeric(),
-          participantId,
+          individualId,
         },
         {
           id: faker.string.uuid(),
           contactDetailType: ContactDetailType.PhoneNumber,
           rawValue: faker.phone.number(),
           cleanValue: faker.string.numeric(),
-          participantId,
+          individualId,
         },
       ],
       identification: [
         {
           id: faker.string.uuid(),
-          participantId,
+          individualId,
           identificationType: faker.helpers.enumValue(IdentificationType),
           identificationNumber: faker.string.uuid(),
           isPrimary: faker.datatype.boolean(),
@@ -147,12 +147,12 @@ export async function seed(knex: Knex): Promise<void> {
       `Inserting batch ${i / batchSize + 1} of ${seedCount / batchSize}`,
     );
 
-    const foo = Array.from({ length: batchSize }, () => makeParticipant());
+    const foo = Array.from({ length: batchSize }, () => makeIndividual());
 
     const {
       persons,
       entities,
-      participants,
+      individuals,
       contactDetails,
       identification,
       languages,
@@ -160,7 +160,7 @@ export async function seed(knex: Knex): Promise<void> {
     } = foo.reduce<{
       persons: any[];
       entities: any[];
-      participants: any[];
+      individuals: any[];
       contactDetails: any[];
       identification: any[];
       languages: any[];
@@ -172,12 +172,12 @@ export async function seed(knex: Knex): Promise<void> {
           identification,
           languages,
           nationalities,
-          ...participants
+          ...individuals
         } = cur;
         return {
           persons: [...acc.persons, { id: cur.personId }],
           entities: [...acc.entities, { id: cur.entityId }],
-          participants: [...acc.participants, participants],
+          individuals: [...acc.individuals, individuals],
           contactDetails: [...acc.contactDetails, ...cur.contactDetails],
           identification: [...acc.identification, ...cur.identification],
           languages: [...acc.languages, ...cur.languages],
@@ -187,7 +187,7 @@ export async function seed(knex: Knex): Promise<void> {
       {
         persons: [],
         entities: [],
-        participants: [],
+        individuals: [],
         contactDetails: [],
         identification: [],
         languages: [],
@@ -197,15 +197,14 @@ export async function seed(knex: Knex): Promise<void> {
 
     if (persons.length > 0) await knex('persons').insert(persons);
     if (entities.length > 0) await knex('entities').insert(entities);
-    if (participants.length > 0)
-      await knex('participants').insert(participants);
+    if (individuals.length > 0) await knex('individuals').insert(individuals);
     if (contactDetails.length > 0)
-      await knex('participant_contact_details').insert(contactDetails);
+      await knex('individual_contact_details').insert(contactDetails);
     if (identification.length > 0)
-      await knex('participant_identifications').insert(identification);
+      await knex('individual_identifications').insert(identification);
     if (languages.length > 0)
-      await knex('participant_languages').insert(languages);
+      await knex('individual_languages').insert(languages);
     if (nationalities.length > 0)
-      await knex('participant_nationalities').insert(nationalities);
+      await knex('individual_nationalities').insert(nationalities);
   }
 }

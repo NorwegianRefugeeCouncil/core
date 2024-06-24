@@ -5,7 +5,7 @@ import { LanguageService } from './language.service';
 import { NationalityService } from './nationality.service';
 import { HouseholdService } from './household.service';
 
-export { ParticipantService, LanguageService };
+export { IndividualService, LanguageService };
 
 export {
   hasListMixin,

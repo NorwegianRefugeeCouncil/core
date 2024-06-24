@@ -9,25 +9,25 @@ export const config: DeduplicationConfigWithScoreFunc = {
   name: {
     weight: 1,
     mechanism: ScoringMechanism.Weighted,
-    score: (participant1, participant2) => {
+    score: (individual1, individual2) => {
       const firstNameScore =
-        participant1.firstName && participant2.firstName
-          ? diceCoefficient(participant1.firstName, participant2.firstName)
+        individual1.firstName && individual2.firstName
+          ? diceCoefficient(individual1.firstName, individual2.firstName)
           : 0;
 
       const lastNameScore =
-        participant1.lastName && participant2.lastName
-          ? diceCoefficient(participant1.lastName, participant2.lastName)
+        individual1.lastName && individual2.lastName
+          ? diceCoefficient(individual1.lastName, individual2.lastName)
           : 0;
 
       const fullNameScore =
-        participant1.firstName &&
-        participant1.lastName &&
-        participant2.firstName &&
-        participant2.lastName
+        individual1.firstName &&
+        individual1.lastName &&
+        individual2.firstName &&
+        individual2.lastName
           ? diceCoefficient(
-              `${participant1.firstName} ${participant1.lastName}`,
-              `${participant2.firstName} ${participant2.lastName}`,
+              `${individual1.firstName} ${individual1.lastName}`,
+              `${individual2.firstName} ${individual2.lastName}`,
             )
           : 0;
 
@@ -42,14 +42,14 @@ export const config: DeduplicationConfigWithScoreFunc = {
   email: {
     weight: 1,
     mechanism: ScoringMechanism.Weighted,
-    score: (participant1, participant2) => {
+    score: (individual1, individual2) => {
       const emails1 =
-        participant1.contactDetails?.emails?.map((email) => [
+        individual1.emails?.map((email) => [
           email.value,
           ...email.value.split('@'),
         ]) ?? [];
       const emails2 =
-        participant2.contactDetails?.emails?.map((email) => [
+        individual2.emails?.map((email) => [
           email.value,
           ...email.value.split('@'),
         ]) ?? [];
@@ -75,18 +75,18 @@ export const config: DeduplicationConfigWithScoreFunc = {
     // TODO: Offload to database query
     weight: 1,
     mechanism: ScoringMechanism.ExactOrNothing,
-    score: (participant1, participant2) => {
-      if (!participant1.nrcId || !participant2.nrcId) return 0;
-      return participant1.nrcId === participant2.nrcId ? 1 : 0;
+    score: (individual1, individual2) => {
+      if (!individual1.nrcId || !individual2.nrcId) return 0;
+      return individual1.nrcId === individual2.nrcId ? 1 : 0;
     },
   },
   identification: {
     // TODO: Offload to database query
     weight: 1,
     mechanism: ScoringMechanism.ExactOrNothing,
-    score: (participant1, participant2) => {
+    score: (individual1, individual2) => {
       const identityByType1 =
-        participant1.identification?.reduce<
+        individual1.identification?.reduce<
           Record<IdentificationType, string[]>
         >(
           (acc, cur) => ({
@@ -100,7 +100,7 @@ export const config: DeduplicationConfigWithScoreFunc = {
         ) ?? ({} as Record<IdentificationType, string[]>);
 
       const identityByType2 =
-        participant2.identification?.reduce<
+        individual2.identification?.reduce<
           Record<IdentificationType, string[]>
         >(
           (acc, cur) => ({
@@ -126,12 +126,12 @@ export const config: DeduplicationConfigWithScoreFunc = {
     },
   },
   */
-  residence: {
+  address: {
     weight: 1,
     mechanism: ScoringMechanism.Weighted,
-    score: (participant1, participant2) => {
-      const address1 = participant1.residence;
-      const address2 = participant2.residence;
+    score: (individual1, individual2) => {
+      const address1 = individual1.address;
+      const address2 = individual2.address;
 
       if (!address1 || !address2) return 0;
 
@@ -149,9 +149,9 @@ export const config: DeduplicationConfigWithScoreFunc = {
     // TODO: Offload to database query
     weight: 1,
     mechanism: ScoringMechanism.ExactOrNothing,
-    score: (participant1, participant2) => {
-      if (!participant1.sex || !participant2.sex) return 0;
-      return participant1.sex !== participant2.sex ? -1 : 0;
+    score: (individual1, individual2) => {
+      if (!individual1.sex || !individual2.sex) return 0;
+      return individual1.sex !== individual2.sex ? -1 : 0;
     },
   },
   */
@@ -159,9 +159,9 @@ export const config: DeduplicationConfigWithScoreFunc = {
     // TODO: Offload to database query
     weight: 1,
     mechanism: ScoringMechanism.Weighted,
-    score: (participant1, participant2) => {
-      if (!participant1.dateOfBirth || !participant2.dateOfBirth) return 0;
-      return participant1.dateOfBirth === participant2.dateOfBirth ? 1 : 0;
+    score: (individual1, individual2) => {
+      if (!individual1.dateOfBirth || !individual2.dateOfBirth) return 0;
+      return individual1.dateOfBirth === individual2.dateOfBirth ? 1 : 0;
     },
   },
 };

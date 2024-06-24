@@ -95,8 +95,8 @@ export const ExistingDuplicates: React.FC = () => {
         <ModalOverlay />
         <ModalContent height="100%">
           <ModalHeader>
-            Participant {selectedDuplicate?.participantA.id} | Participant{' '}
-            {selectedDuplicate?.participantB.id} |{' '}
+            Individual {selectedDuplicate?.individualA.id} | Individual{' '}
+            {selectedDuplicate?.individualB.id} |{' '}
             {selectedDuplicate?.weightedScore}
           </ModalHeader>
           <ModalCloseButton />

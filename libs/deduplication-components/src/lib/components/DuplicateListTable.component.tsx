@@ -20,8 +20,8 @@ export const DuplicateListTable: React.FC<Props> = ({ data, onRowClick }) => (
     <Table variant="simple" size="sm">
       <Thead zIndex={'docked'} position={'sticky'} top={'0'} bg="white">
         <Tr>
-          <Th>Participant ID A</Th>
-          <Th>Participant ID B</Th>
+          <Th>Individual ID A</Th>
+          <Th>Individual ID B</Th>
           <Th>Likely hood</Th>
           <Th>Updated At</Th>
         </Tr>
@@ -29,13 +29,13 @@ export const DuplicateListTable: React.FC<Props> = ({ data, onRowClick }) => (
       <Tbody>
         {data?.map((duplicate) => (
           <Tr
-            key={`${duplicate.participantA?.id}-${duplicate.participantB?.id}`}
+            key={`${duplicate.individualA?.id}-${duplicate.individualB?.id}`}
             onClick={() => onRowClick(duplicate)}
             _hover={{ bg: 'primary.200' }}
             cursor="pointer"
           >
-            <Td>{duplicate.participantA?.id}</Td>
-            <Td>{duplicate.participantB?.id}</Td>
+            <Td>{duplicate.individualA?.id}</Td>
+            <Td>{duplicate.individualB?.id}</Td>
             <Td>{duplicate.weightedScore}</Td>
             <Td>{duplicate.updatedAt.toLocaleDateString()}</Td>
           </Tr>

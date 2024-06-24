@@ -136,13 +136,13 @@ $$ LANGUAGE plpgsql;
   `);
 
   await knex.schema.createTable('duplicates', (table) => {
-    table.string('participant_id_a', 26).notNullable();
-    table.string('participant_id_b', 26).notNullable();
+    table.string('individual_id_a', 26).notNullable();
+    table.string('individual_id_b', 26).notNullable();
     table.float('weighted_score').notNullable();
     table.jsonb('scores').notNullable();
     table.timestamp('created_at').defaultTo(knex.fn.now());
     table.timestamp('updated_at').defaultTo(knex.fn.now());
-    table.primary(['participant_id_a', 'participantIdB']);
+    table.primary(['individual_id_a', 'individualIdB']);
   });
 
   await knex.raw(`
@@ -154,12 +154,12 @@ $$ LANGUAGE plpgsql;
   `);
 
   await knex.schema.createTable('deduplication_resolutions', (table) => {
-    table.string('participant_id_a', 26).notNullable();
-    table.string('participantIdB', 26).notNullable();
+    table.string('individual_id_a', 26).notNullable();
+    table.string('individualIdB', 26).notNullable();
     table.enum('resolution', ['merge', 'ignore']).notNullable();
     table.timestamp('created_at').defaultTo(knex.fn.now());
     table.timestamp('updated_at').defaultTo(knex.fn.now());
-    table.primary(['participant_id_a', 'participantIdB']);
+    table.primary(['individual_id_a', 'individualIdB']);
   });
 
   await knex.raw(`
@@ -171,8 +171,8 @@ $$ LANGUAGE plpgsql;
   `);
 
   await knex.raw(`
-    CREATE INDEX idx_participants_on_id_updated_at_sex_nrc_id
-    ON participants(id, updated_at, sex, nrc_id)
+    CREATE INDEX idx_individuals_on_id_updated_at_sex_nrc_id
+    ON individuals(id, updated_at, sex, nrc_id)
   `);
 }
 

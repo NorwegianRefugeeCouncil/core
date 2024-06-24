@@ -8,8 +8,8 @@ import {
   DenormalisedDeduplicationRecordSchema,
   PaginatedResponse,
   Pagination,
-  Participant,
-  ParticipantSchema,
+  Individual,
+  IndividualSchema,
   createPaginatedResponseSchema,
 } from '@nrcno/core-models';
 
@@ -21,9 +21,9 @@ export class DeduplicationClient extends BaseClient {
   }
 
   public check = async (
-    participant: Partial<Participant>,
+    individual: Partial<Individual>,
   ): Promise<DeduplicationRecord[]> => {
-    const response = await this.post('/deduplication/check', participant);
+    const response = await this.post('/deduplication/check', individual);
     const data = z
       .object({
         duplicates: z.array(DeduplicationRecordSchema),
@@ -33,25 +33,25 @@ export class DeduplicationClient extends BaseClient {
   };
 
   public merge = async (
-    participantIdA: string,
-    participantIdB: string,
-    resolvedParticipant: Participant,
-  ): Promise<Participant> => {
+    individualIdA: string,
+    individualIdB: string,
+    resolvedIndividual: Individual,
+  ): Promise<Individual> => {
     const response = await this.post('/deduplication/merge', {
-      participantIdA,
-      participantIdB,
-      resolvedParticipant,
+      individualIdA,
+      individualIdB,
+      resolvedIndividual,
     });
-    return ParticipantSchema.parse(response.data);
+    return IndividualSchema.parse(response.data);
   };
 
   public ignore = async (
-    participantIdA: string,
-    participantIdB: string,
+    individualIdA: string,
+    individualIdB: string,
   ): Promise<void> => {
     await this.post('/deduplication/ignore', {
-      participantIdA,
-      participantIdB,
+      individualIdA,
+      individualIdB,
     });
   };
 

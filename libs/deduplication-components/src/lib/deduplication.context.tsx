@@ -21,12 +21,12 @@ import {
 
 type Props = {
   axiosInstance: AxiosInstance;
-  participantId: string | undefined;
+  individualId: string | undefined;
   children: React.ReactNode;
 };
 
 export type DeduplicationContextData = {
-  participantId: string | undefined;
+  individualId: string | undefined;
   list: DuplicateListState;
   resolve: ResolveDuplicateState;
   check: CheckDuplicatesState;
@@ -34,7 +34,7 @@ export type DeduplicationContextData = {
 
 export const DeduplicationContext =
   React.createContext<DeduplicationContextData>({
-    participantId: undefined,
+    individualId: undefined,
     list: defaultDuplicateListState,
     resolve: defaultResolveDuplicateState,
     check: defaultCheckDuplicatesState,
@@ -45,7 +45,7 @@ export const useDeduplicationContext = () =>
 
 export const DeduplicationProvider: React.FC<Props> = ({
   axiosInstance,
-  participantId,
+  individualId,
   children,
 }) => {
   const client = React.useMemo(
@@ -59,7 +59,7 @@ export const DeduplicationProvider: React.FC<Props> = ({
 
   return (
     <DeduplicationContext.Provider
-      value={{ participantId, list, resolve, check }}
+      value={{ individualId, list, resolve, check }}
     >
       {children}
     </DeduplicationContext.Provider>

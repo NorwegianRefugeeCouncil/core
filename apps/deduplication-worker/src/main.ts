@@ -58,7 +58,7 @@ const run = async () => {
 
   logger.info('Starting duplicate calculation...');
 
-  await DeduplicationService.compareAllParticipants(new Date('2021-01-01'));
+  await DeduplicationService.compareAllIndividuals(new Date('2021-01-01'));
 
   logger.info('Duplicate calculation complete');
   logger.info('Exiting...');

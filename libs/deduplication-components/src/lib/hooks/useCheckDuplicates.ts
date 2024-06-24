@@ -1,9 +1,9 @@
 import { DeduplicationClient } from '@nrcno/core-clients';
-import { DeduplicationRecord, Participant } from '@nrcno/core-models';
+import { DeduplicationRecord, Individual } from '@nrcno/core-models';
 import { SubmitStatus, useApiReducer } from '@nrcno/core-prm-components';
 
 export type CheckDuplicatesState = {
-  check: (participant: Partial<Participant>) => Promise<void>;
+  check: (individual: Partial<Individual>) => Promise<void>;
   status: SubmitStatus;
   data?: DeduplicationRecord[];
   error?: Error;
@@ -21,10 +21,10 @@ export const useCheckDuplicates = (
 ): CheckDuplicatesState => {
   const [state, actions] = useApiReducer<DeduplicationRecord[]>();
 
-  const check = async (participant: Partial<Participant>) => {
+  const check = async (individual: Partial<Individual>) => {
     try {
       actions.submitting();
-      const duplicates = await client.check(participant);
+      const duplicates = await client.check(individual);
       actions.success(duplicates);
     } catch (error) {
       const err =

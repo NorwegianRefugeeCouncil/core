@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { DeduplicationService } from '@nrcno/core-deduplication-engine';
 
 import {
-  ParticipantSchema,
+  IndividualSchema,
   DeduplicationIgnoreDefinitionSchema,
   DeduplicationMergeDefinitionSchema,
   PaginationSchema,
@@ -14,11 +14,9 @@ const router = Router();
 
 router.post('/deduplication/check', async (req, res, next) => {
   try {
-    const partialParticipant = ParticipantSchema.partial().parse(req.body);
+    const partialIndividual = IndividualSchema.partial().parse(req.body);
     const duplicates =
-      await DeduplicationService.getDuplicatesForParticipant(
-        partialParticipant,
-      );
+      await DeduplicationService.getDuplicatesForIndividual(partialIndividual);
     res.json({ duplicates }).status(200);
   } catch (error) {
     next(error);
@@ -27,16 +25,16 @@ router.post('/deduplication/check', async (req, res, next) => {
 
 router.post('/deduplication/merge', async (req, res, next) => {
   try {
-    const { participantIdA, participantIdB, resolvedParticipant } =
+    const { individualIdA, individualIdB, resolvedIndividual } =
       DeduplicationMergeDefinitionSchema.parse(req.body);
 
-    const participant = await DeduplicationService.mergeDuplicate(
-      participantIdA,
-      participantIdB,
-      resolvedParticipant,
+    const individual = await DeduplicationService.mergeDuplicate(
+      individualIdA,
+      individualIdB,
+      resolvedIndividual,
     );
 
-    res.json(participant).status(200);
+    res.json(individual).status(200);
   } catch (error) {
     next(error);
   }
@@ -44,10 +42,10 @@ router.post('/deduplication/merge', async (req, res, next) => {
 
 router.post('/deduplication/ignore', async (req, res, next) => {
   try {
-    const { participantIdA, participantIdB } =
+    const { individualIdA, individualIdB } =
       DeduplicationIgnoreDefinitionSchema.parse(req.body);
 
-    await DeduplicationService.ignoreDuplicate(participantIdA, participantIdB);
+    await DeduplicationService.ignoreDuplicate(individualIdA, individualIdB);
 
     res.status(204).send();
   } catch (error) {

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ParticipantSchema } from './prm/participant.model';
+import { IndividualSchema } from './prm/individual.model';
 
 export enum ScoringMechanism {
   Weighted = 'weighted', // Take the score, multiply by the weight, and sum all the scores
@@ -22,7 +22,7 @@ export const DeduplicationConfigWithScoreFuncSchema = z.record(
   DeduplicationConfigItem.extend({
     score: z
       .function()
-      .args(ParticipantSchema.partial(), ParticipantSchema)
+      .args(IndividualSchema.partial(), IndividualSchema)
       .returns(z.number().positive().min(-1).max(1)),
   }),
 );
@@ -31,25 +31,25 @@ export type DeduplicationConfigWithScoreFunc = z.infer<
 >;
 
 export const DeduplicationMergeDefinitionSchema = z.object({
-  participantIdA: z.string(),
-  participantIdB: z.string(),
-  resolvedParticipant: ParticipantSchema,
+  individualIdA: z.string(),
+  individualIdB: z.string(),
+  resolvedIndividual: IndividualSchema,
 });
 export type DeduplicationMergeDefinition = z.infer<
   typeof DeduplicationMergeDefinitionSchema
 >;
 
 export const DeduplicationIgnoreDefinitionSchema = z.object({
-  participantIdA: z.string(),
-  participantIdB: z.string(),
+  individualIdA: z.string(),
+  individualIdB: z.string(),
 });
 export type DeduplicationIgnoreDefinition = z.infer<
   typeof DeduplicationIgnoreDefinitionSchema
 >;
 
 export const DeduplicationRecordDefinitionSchema = z.object({
-  participantIdA: z.string().optional(),
-  participantIdB: z.string(),
+  individualIdA: z.string().optional(),
+  individualIdB: z.string(),
   weightedScore: z.number().min(-1).max(1),
   scores: z.record(
     z.object({
@@ -70,8 +70,8 @@ export const DeduplicationRecordSchema =
 export type DeduplicationRecord = z.infer<typeof DeduplicationRecordSchema>;
 
 export const DenormalisedDeduplicationRecordDefinitionSchema = z.object({
-  participantA: ParticipantSchema,
-  participantB: ParticipantSchema,
+  individualA: IndividualSchema,
+  individualB: IndividualSchema,
   weightedScore: z.number().min(-1).max(1),
   scores: z.record(
     z.object({
@@ -110,7 +110,7 @@ export const deduplicationConfig: DeduplicationConfig = {
     weight: 1,
     mechanism: ScoringMechanism.ExactOrNothing,
   },
-  residence: {
+  address: {
     weight: 1,
     mechanism: ScoringMechanism.Weighted,
   },

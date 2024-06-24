@@ -1,16 +1,16 @@
 import { DeduplicationClient } from '@nrcno/core-clients';
-import { Participant } from '@nrcno/core-models';
+import { Individual } from '@nrcno/core-models';
 import { SubmitStatus, useApiReducer } from '@nrcno/core-prm-components';
 
 export type ResolveDuplicateState = {
   merge: (
-    participantIdA: string,
-    participantIdB: string,
-    resolvedParticipant: Participant,
+    individualIdA: string,
+    individualIdB: string,
+    resolvedIndividual: Individual,
   ) => Promise<void>;
-  ignore: (participantIdA: string, participantIdB: string) => Promise<void>;
+  ignore: (individualIdA: string, individualIdB: string) => Promise<void>;
   status: SubmitStatus;
-  data?: Participant;
+  data?: Individual;
   error?: Error;
 };
 
@@ -25,21 +25,21 @@ export const defaultResolveDuplicateState: ResolveDuplicateState = {
 export const useResolveDuplicate = (
   client: DeduplicationClient,
 ): ResolveDuplicateState => {
-  const [state, actions] = useApiReducer<Participant | undefined>();
+  const [state, actions] = useApiReducer<Individual | undefined>();
 
   const merge = async (
-    participantIdA: string,
-    participantIdB: string,
-    resolvedParticipant: Participant,
+    individualIdA: string,
+    individualIdB: string,
+    resolvedIndividual: Individual,
   ) => {
     try {
       actions.submitting();
-      const participant = await client.merge(
-        participantIdA,
-        participantIdB,
-        resolvedParticipant,
+      const individual = await client.merge(
+        individualIdA,
+        individualIdB,
+        resolvedIndividual,
       );
-      actions.success(participant);
+      actions.success(individual);
     } catch (error) {
       const err =
         error instanceof Error ? error : new Error('An error occurred');
@@ -47,10 +47,10 @@ export const useResolveDuplicate = (
     }
   };
 
-  const ignore = async (participantIdA: string, participantIdB: string) => {
+  const ignore = async (individualIdA: string, individualIdB: string) => {
     try {
       actions.submitting();
-      await client.ignore(participantIdA, participantIdB);
+      await client.ignore(individualIdA, individualIdB);
       actions.success(undefined);
     } catch (error) {
       const err =

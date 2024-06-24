@@ -10,8 +10,8 @@ import { UserProvider } from '../contexts/user.context';
 export const ApiProvider: React.FC = () => {
   const { entityType, entityId } = useParams();
 
-  const participantId =
-    entityType === EntityType.Participant ? entityId : undefined;
+  const individualId =
+    entityType === EntityType.Individual ? entityId : undefined;
 
   const axiosInstance = useAxiosInstance();
 
@@ -24,7 +24,7 @@ export const ApiProvider: React.FC = () => {
       >
         <DeduplicationProvider
           axiosInstance={axiosInstance}
-          participantId={participantId}
+          individualId={individualId}
         >
           <Outlet />
         </DeduplicationProvider>

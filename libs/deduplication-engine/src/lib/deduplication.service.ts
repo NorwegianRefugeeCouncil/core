@@ -1,5 +1,5 @@
 import {
-  Participant,
+  Individual,
   DeduplicationRecord,
   ScoringMechanism,
   DeduplicationRecordDefinition,
@@ -7,7 +7,7 @@ import {
   DenormalisedDeduplicationRecordSchema,
   Pagination,
 } from '@nrcno/core-models';
-import { ParticipantService } from '@nrcno/core-prm-engine';
+import { IndividualService } from '@nrcno/core-prm-engine';
 import { getLogger } from '@nrcno/core-logger';
 
 import * as DeduplicationStore from './deduplication.store';
@@ -18,25 +18,25 @@ const processingBatchSize = 1_000;
 const dbBatchSize = 1_000;
 const batchSize = 1_000;
 
-const participantService = new ParticipantService();
+const individualService = new IndividualService();
 
 interface IDeduplicationService {
-  getDuplicatesForParticipant: (
-    participant: Partial<Participant>,
+  getDuplicatesForIndividual: (
+    individual: Partial<Individual>,
   ) => Promise<DeduplicationRecordDefinition[]>;
-  compareAllParticipants: (fromDate: Date) => Promise<void>;
+  compareAllIndividuals: (fromDate: Date) => Promise<void>;
   mergeDuplicate: (
-    participantId: string,
-    duplicateParticipantId: string,
-    resolvedParticipant: Participant,
-  ) => Promise<Participant>;
+    individualId: string,
+    duplicateIndividualId: string,
+    resolvedIndividual: Individual,
+  ) => Promise<Individual>;
   ignoreDuplicate: (
-    participantId: string,
-    duplicateParticipantId: string,
+    individualId: string,
+    duplicateIndividualId: string,
   ) => Promise<void>;
   listDuplicates: (pagination: Pagination) => Promise<DeduplicationRecord[]>;
   checkDuplicatesWithinList: (
-    participants: Participant[],
+    individuals: Individual[],
   ) => Promise<DeduplicationRecordDefinition[]>;
   denormaliseDuplicateRecords: (
     duplicates: DeduplicationRecord[],
@@ -45,14 +45,14 @@ interface IDeduplicationService {
 }
 
 // TODO remove when DB is implemented
-// Compare two participants
-const compareParticipants = (
-  participantA: Partial<Participant>,
-  participantB: Participant,
+// Compare two individuals
+const compareIndividuals = (
+  individualA: Partial<Individual>,
+  individualB: Individual,
 ): DeduplicationRecordDefinition => {
   const scores: DeduplicationRecord['scores'] = Object.entries(config).reduce(
     (acc, [key, { score, weight }]) => {
-      const s = score(participantA, participantB);
+      const s = score(individualA, individualB);
       return {
         ...acc,
         [key]: {
@@ -92,39 +92,39 @@ const compareParticipants = (
   })();
 
   return {
-    participantIdA: participantA.id,
-    participantIdB: participantB.id,
+    individualIdA: individualA.id,
+    individualIdB: individualB.id,
     weightedScore,
     scores,
   };
 };
 
 // TODO refactor to use DB
-// Used for finding duplicates when inputting a new participant
-const getDuplicatesForParticipant = async (
-  participantA: Partial<Participant>,
+// Used for finding duplicates when inputting a new individual
+const getDuplicatesForIndividual = async (
+  individualA: Partial<Individual>,
 ): Promise<DeduplicationRecordDefinition[]> => {
   throw new Error('Not implemented');
   /*
-  const getDuplicatesForParticipantIdBatch = async (
+  const getDuplicatesForIndividualIdBatch = async (
     startIndex: number,
   ): Promise<DeduplicationRecordDefinition[]> => {
-    const participants = await participantService.listFull({
+    const individuals = await individualService.listFull({
       startIndex,
       pageSize: batchSize,
     });
-    return participants.map((participantB) =>
-      compareParticipants(participantA, participantB),
+    return individuals.map((individualB) =>
+      compareIndividuals(individualA, individualB),
     );
   };
 
   const results: DeduplicationRecordDefinition[] = [];
-  const totalParticipants = await participantService.count();
-  const batches = Math.ceil(totalParticipants / batchSize);
+  const totalIndividuals = await individualService.count();
+  const batches = Math.ceil(totalIndividuals / batchSize);
 
   for (let i = 0; i < batches; i++) {
     const startIdx = i * batchSize;
-    const records = await getDuplicatesForParticipantIdBatch(startIdx);
+    const records = await getDuplicatesForIndividualIdBatch(startIdx);
     for (const record of records) {
       if (record.weightedScore > cutoff) {
         results.push(record);
@@ -136,7 +136,7 @@ const getDuplicatesForParticipant = async (
   */
 };
 
-const compareAllParticipants = async (fromDate: Date) => {
+const compareAllIndividuals = async (fromDate: Date) => {
   const logger = getLogger();
 
   const processDuplicateRecordBatch = async (
@@ -174,8 +174,8 @@ const compareAllParticipants = async (fromDate: Date) => {
   logger.info('Calculating weighted scores...');
   let weightedIdx = 0;
   let weightedBatch = [];
-  const participantCount = await participantService.count();
-  const totalBatches = Math.ceil(participantCount / batchSize);
+  const individualCount = await individualService.count();
+  const totalBatches = Math.ceil(individualCount / batchSize);
   for (let i = 0; i < totalBatches; i++) {
     logger.info(`Processing batch ${i + 1} of ${totalBatches}...`);
     const pagination: Pagination = {
@@ -187,8 +187,8 @@ const compareAllParticipants = async (fromDate: Date) => {
       pagination,
     )) {
       const duplicateRecord = {
-        participantIdA: record.participant_id_a,
-        participantIdB: record.participant_id_b,
+        individualIdA: record.individual_id_a,
+        individualIdB: record.individual_id_b,
         weightedScore: 0,
         scores: {
           name: {
@@ -234,55 +234,53 @@ const compareAllParticipants = async (fromDate: Date) => {
 
 // Used for resolving duplicates
 const mergeDuplicate = async (
-  participantId: string,
-  duplicateParticipantId: string,
-  resolvedParticipant: Participant,
-): Promise<Participant> => {
-  await DeduplicationStore.deletePair(participantId, duplicateParticipantId);
+  individualId: string,
+  duplicateIndividualId: string,
+  resolvedIndividual: Individual,
+): Promise<Individual> => {
+  await DeduplicationStore.deletePair(individualId, duplicateIndividualId);
   await DeduplicationStore.logResolution(
-    participantId,
-    duplicateParticipantId,
+    individualId,
+    duplicateIndividualId,
     'merge',
   );
 
-  const emptyParticipant: Participant = {
-    id: duplicateParticipantId,
-    firstName: `Duplicate of ${participantId}`,
+  const emptyIndividual: Individual = {
+    id: duplicateIndividualId,
+    firstName: `Duplicate of ${individualId}`,
     consentGdpr: false,
     consentReferral: false,
     languages: [],
     nationalities: [],
     identification: [],
-    contactDetails: {
-      emails: [],
-      phones: [],
-    },
+    emails: [],
+    phones: [],
   };
-  await participantService.update(duplicateParticipantId, emptyParticipant);
-  // TODO: Implement participant delete
-  // await participantService.del(duplicateParticipantId);
+  await individualService.update(duplicateIndividualId, emptyIndividual);
+  // TODO: Implement individual delete
+  // await individualService.del(duplicateIndividualId);
 
-  const participant = await participantService.update(
-    participantId,
-    resolvedParticipant,
+  const individual = await individualService.update(
+    individualId,
+    resolvedIndividual,
   );
 
-  if (!participant) {
-    throw new Error('Participant not found');
+  if (!individual) {
+    throw new Error('Individual not found');
   }
 
-  return participant;
+  return individual;
 };
 
 // Used for resolving duplicates
 const ignoreDuplicate = async (
-  participantId: string,
-  duplicateParticipantId: string,
+  individualId: string,
+  duplicateIndividualId: string,
 ): Promise<void> => {
-  await DeduplicationStore.deletePair(participantId, duplicateParticipantId);
+  await DeduplicationStore.deletePair(individualId, duplicateIndividualId);
   await DeduplicationStore.logResolution(
-    participantId,
-    duplicateParticipantId,
+    individualId,
+    duplicateIndividualId,
     'ignore',
   );
 };
@@ -297,13 +295,13 @@ const listDuplicates = async (
 // TODO refactor to use DB
 // Used for checking duplicates within a file
 const checkDuplicatesWithinList = async (
-  participants: Participant[],
+  individuals: Individual[],
 ): Promise<DeduplicationRecordDefinition[]> => {
   const records: DeduplicationRecordDefinition[] = [];
-  for (const participantA of participants) {
-    for (const participantB of participants) {
-      if (participantA.id === participantB.id) continue;
-      const record = compareParticipants(participantA, participantB);
+  for (const individualA of individuals) {
+    for (const individualB of individuals) {
+      if (individualA.id === individualB.id) continue;
+      const record = compareIndividuals(individualA, individualB);
       if (record.weightedScore > cutoff) {
         records.push(record);
       }
@@ -316,12 +314,12 @@ const checkDuplicatesWithinList = async (
 const denormaliseDuplicateRecords = async (
   duplicates: DeduplicationRecord[],
 ): Promise<DenormalisedDeduplicationRecord[]> => {
-  const participantIds = duplicates
-    .flatMap((d) => [d.participantIdA, d.participantIdB])
+  const individualIds = duplicates
+    .flatMap((d) => [d.individualIdA, d.individualIdB])
     .filter((id): id is string => id !== null && id !== undefined);
-  const participantsMap = (
-    await Promise.all(participantIds.map((id) => participantService.get(id)))
-  ).reduce<Record<string, Participant>>(
+  const individualsMap = (
+    await Promise.all(individualIds.map((id) => individualService.get(id)))
+  ).reduce<Record<string, Individual>>(
     (acc, p) =>
       p
         ? {
@@ -334,8 +332,8 @@ const denormaliseDuplicateRecords = async (
   return duplicates.map((d) =>
     DenormalisedDeduplicationRecordSchema.parse({
       ...d,
-      participantA: d.participantIdA ? participantsMap[d.participantIdA] : null,
-      participantB: participantsMap[d.participantIdB],
+      individualA: d.individualIdA ? individualsMap[d.individualIdA] : null,
+      individualB: individualsMap[d.individualIdB],
     }),
   );
 };
@@ -345,8 +343,8 @@ const countDuplicates = async (): Promise<number> => {
 };
 
 export const DeduplicationService: IDeduplicationService = {
-  getDuplicatesForParticipant,
-  compareAllParticipants,
+  getDuplicatesForIndividual,
+  compareAllIndividuals,
   mergeDuplicate,
   ignoreDuplicate,
   listDuplicates,
