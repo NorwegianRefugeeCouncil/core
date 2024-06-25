@@ -58,7 +58,7 @@ export class HouseholdService extends CRUDMixin<
     );
     // TODO: define strategy for updating individuals
 
-    const householdDetailsUpdate = this.mapUpdateToPartial(id, household);
+    const householdDetailsUpdate = await this.mapUpdateToPartial(id, household);
     return this.store.update(id, householdDetailsUpdate);
   }
 }

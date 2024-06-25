@@ -29,6 +29,10 @@ const fakeIndividualWithDefaults = {
 
 const ps = {
   count: jest.fn().mockResolvedValue(0),
+  create: jest.fn().mockImplementation((entityDefinition) => ({
+    ...entityDefinition,
+    id: ulid(),
+  })),
   validateAndCreate: jest.fn().mockImplementation((entityDefinition) => ({
     ...entityDefinition,
     id: ulid(),
@@ -38,6 +42,10 @@ const ps = {
     id,
   })),
   list: jest.fn().mockResolvedValue([]),
+  update: jest.fn().mockImplementation((id, entityDefinition) => ({
+    ...entityDefinition,
+    id,
+  })),
   validateAndUpdate: jest.fn().mockImplementation((id, entityDefinition) => ({
     ...entityDefinition,
     id,
@@ -338,11 +346,11 @@ describe('PRM Controller', () => {
 
         expect(individualService.validateAndUpdate).toHaveBeenCalledWith(
           id,
-          fakeIndividualWithDefaults,
+          fakeIndividual,
         );
         expect(res.statusCode).toEqual(200);
         expect(res._getJSONData()).toEqual({
-          ...fakeIndividualWithDefaults,
+          ...fakeIndividual,
           id,
         });
       });
