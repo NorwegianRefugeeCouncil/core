@@ -75,7 +75,7 @@ export async function seed(knex: Knex): Promise<void> {
       preferredName: faker.person.firstName(),
       dateOfBirth: faker.date.past(),
       nrcId: faker.string.uuid(),
-      residence: faker.location.streetAddress(),
+      address: faker.location.streetAddress(),
       contactMeansComment: faker.lorem.sentence(),
       consentGdpr: faker.datatype.boolean(),
       consentReferral: faker.datatype.boolean(),

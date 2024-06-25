@@ -100,7 +100,7 @@ $$ LANGUAGE plpgsql;
     `);
 
   await knex.raw(`
-    CREATE OR REPLACE FUNCTION calculate_residence_score(address1 text, address2 text)
+    CREATE OR REPLACE FUNCTION calculate_address_score(address1 text, address2 text)
   RETURNS float AS $$
   DECLARE
     address1Normalised text;
