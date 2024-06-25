@@ -4,6 +4,8 @@ import {
   DeduplicationRecord,
   DeduplicationRecordDefinition,
   DeduplicationRecordSchema,
+  Individual,
+  IndividualDefinition,
   Pagination,
 } from '@nrcno/core-models';
 
@@ -105,9 +107,131 @@ export const logResolution = async (
   });
 };
 
-export const prepareViews = async (): Promise<void> => {
+export const prepareTempIndividualTables = async (
+  individuals: (Individual | IndividualDefinition)[],
+  tempTableId: string,
+): Promise<void> => {
+  const db = getDb();
+
+  await db.raw(`
+    CREATE TEMPORARY TABLE individuals_${tempTableId} AS (
+      SELECT * FROM individuals WHERE FALSE
+    )  
+  `);
+
+  await db.raw(`
+    ALTER TABLE individuals_${tempTableId}
+    ALTER COLUMN id DROP NOT NULL
+  `);
+
+  await db.raw(`
+    ALTER TABLE individuals_${tempTableId}
+    ADD COLUMN idx SERIAL PRIMARY KEY
+  `);
+
+  await db.raw(`
+    CREATE TEMPORARY TABLE individual_contact_details_${tempTableId} AS (
+      SELECT * FROM individual_contact_details WHERE FALSE
+    )
+  `);
+
+  await db.raw(`
+    ALTER TABLE individual_contact_details_${tempTableId}
+    ALTER COLUMN individualId DROP NOT NULL
+  `);
+
+  await db.raw(`
+    ALTER TABLE individual_contact_details_${tempTableId}
+    ADD COLUMN idx SERIAL PRIMARY KEY
+  `);
+
+  await db.raw(`
+    CREATE TEMPORARY TABLE individual_identifications_${tempTableId} AS (
+      SELECT * FROM individual_identifications WHERE FALSE
+    )
+  `);
+
+  await db.raw(`
+    ALTER TABLE individual_identifications_${tempTableId}
+    ALTER COLUMN individualId DROP NOT NULL
+  `);
+
+  await db.raw(`
+    ALTER TABLE individual_identifications_${tempTableId}
+    ADD COLUMN idx SERIAL PRIMARY KEY
+  `);
+
+  const data = individuals.reduce<{
+    individuals: any[];
+    individualContactDetails: any[];
+    individualIdentifications: any[];
+  }>(
+    (acc, ind: any, idx) => {
+      const { id, phones, emails, identification, ...individual } = ind;
+      return {
+        individuals: [
+          ...acc.individuals,
+          {
+            ...individual,
+            id,
+            idx,
+          },
+        ],
+        individualContactDetails: [
+          ...acc.individualContactDetails,
+          ...phones.map((phone: any) => ({
+            ...phone,
+            individualId: id,
+            contactDetailType: 'phone',
+            idx,
+          })),
+          ...emails.map((email: any) => ({
+            ...email,
+            individualId: id,
+            contactDetailType: 'email',
+            idx,
+          })),
+        ],
+        individualIdentifications: [
+          ...acc.individualIdentifications,
+          ...identification.map((idn: any) => ({
+            ...idn,
+            individualId: id,
+            idx,
+          })),
+        ],
+      };
+    },
+    {
+      individuals: [],
+      individualContactDetails: [],
+      individualIdentifications: [],
+    },
+  );
+
+  await db(`individuals_${tempTableId}`).insert(data.individuals);
+  await db(`individual_contact_details_${tempTableId}`).insert(
+    data.individualContactDetails,
+  );
+  await db(`individual_identifications_${tempTableId}`).insert(
+    data.individualIdentifications,
+  );
+};
+
+export const prepareViews = async (
+  tempTableId?: string,
+  compareWithSelf?: boolean,
+): Promise<void> => {
   const logger = getLogger();
   const db = getDb();
+
+  const individualIdentificationsTableNameA = tempTableId
+    ? `individual_identifications_${tempTableId}`
+    : 'individual_identifications';
+  const individualIdentificationsTableNameB =
+    compareWithSelf && tempTableId
+      ? `individual_identifications_${tempTableId}`
+      : 'individual_identifications';
 
   logger.info('Preparing individual_identification_matches temp table');
   await db.raw(`
@@ -116,9 +240,9 @@ export const prepareViews = async (): Promise<void> => {
         individual_identifications_a.individual_id AS individual_id_a,
         individual_identifications_b.individual_id AS individual_id_b
       FROM
-        individual_identifications AS individual_identifications_a
+        ${individualIdentificationsTableNameA} AS individual_identifications_a
       CROSS JOIN
-        individual_identifications AS individual_identifications_b
+        ${individualIdentificationsTableNameB} AS individual_identifications_b
       WHERE
         individual_identifications_a.identification_type = individual_identifications_b.identification_type
       AND
@@ -135,43 +259,26 @@ export const prepareViews = async (): Promise<void> => {
   return;
 };
 
-export async function* getIndividualIdPairs(
-  fromDate: Date,
-): AsyncGenerator<[string, string], void, unknown> {
-  const db = getDb();
-
-  const result = await db.raw(
-    `
-    SELECT individuals_a.id as individual_id_a, individuals_b.id as individual_id_b
-    FROM individuals individuals_a
-    CROSS JOIN individuals individuals_b
-    WHERE individuals_a.id != individuals_b.id
-    AND individuals_a.updated_at >= ?
-    AND individuals_a.sex = individuals_b.sex
-    AND individuals_a.nrc_id != individuals_b.nrc_id
-    AND (individuals_a.id, individuals_b.id) NOT IN (
-      SELECT individual_id_a, individual_id_b
-      FROM individual_identification_matches
-    )
-  `,
-    [fromDate],
-  );
-
-  for (const row of result.rows) {
-    yield [row.individual_id_a, row.individual_id_b];
-  }
-}
-
 export async function* getExactMatches(
   fromDate: Date,
+  tempTableId?: boolean,
+  compareWithSelf?: boolean,
 ): AsyncGenerator<DeduplicationRecord, void, unknown> {
+  const individualATableName = tempTableId
+    ? `individuals_${tempTableId}`
+    : 'individuals';
+  const individualBTableName =
+    compareWithSelf && tempTableId
+      ? `individuals_${tempTableId}`
+      : 'individuals';
+
   const db = getDb();
 
   const result = await db.raw(
     `
     SELECT individuals_a.id as individual_id_a, individuals_b.id as individual_id_b
-    FROM individuals individuals_a
-    CROSS JOIN individuals individuals_b
+    FROM ${individualATableName} individuals_a
+    CROSS JOIN ${individualBTableName} individuals_b
     WHERE individuals_a.id != individuals_b.id
     AND individuals_a.updated_at >= ?
     AND (
@@ -198,31 +305,49 @@ export async function* getExactMatches(
 export async function* getWeightedMatches(
   fromDate: Date,
   pagination: Pagination,
+  tempTableId?: boolean,
+  compareWithSelf?: boolean,
 ): AsyncGenerator<any, void, unknown> {
+  const individualATableName = tempTableId
+    ? `individuals_${tempTableId}`
+    : 'individuals';
+  const individualBTableName =
+    compareWithSelf && tempTableId
+      ? `individuals_${tempTableId}`
+      : 'individuals';
+
+  const individualContactDetailsTableNameA = tempTableId
+    ? `individual_contact_details_${tempTableId}`
+    : 'individual_contact_details';
+  const individualContactDetailsTableNameB =
+    compareWithSelf && tempTableId
+      ? `individual_contact_detail_${tempTableId}`
+      : 'individual_contact_details';
+
   const db = getDb();
 
   await db.raw(
     `
     CREATE TEMPORARY TABLE individual_max_email_score AS (
       SELECT
-        pcd_a.individual_id as individual_id_a,
-        pcd_b.individual_id as individual_id_b,  
+        icd_a.individual_id as individual_id_a,
+        icd_b.individual_id as individual_id_b,  
         MAX(
           CASE
-            WHEN split_part(pcd_a.raw_value, '@', 2) != split_part(pcd_b.raw_value, '@', 2) THEN 0
-            ELSE DICE_COEFF(pcd_a.raw_value, pcd_b.raw_value)
+            WHEN split_part(icd_a.raw_value, '@', 2) != split_part(icd_b.raw_value, '@', 2) THEN 0
+            ELSE DICE_COEFF(icd_a.raw_value, icd_b.raw_value)
           END
         ) as email_score_max
-      FROM individual_contact_details AS pcd_a
-      JOIN individual_contact_details AS pcd_b ON pcd_a.individual_id != pcd_b.individual_id AND pcd_a.contact_detail_type = 'email' AND pcd_b.contact_detail_type = 'email'
+      FROM ${individualContactDetailsTableNameA} AS icd_a
+      JOIN ${individualContactDetailsTableNameB} AS icd_b ON icd_a.individual_id != icd_b.individual_id AND icd_a.contact_detail_type = 'email' AND icd_b.contact_detail_type = 'email'
       JOIN (
         SELECT id
-        FROM individual_contact_details
+        FROM ${individualContactDetailsTableNameA} 
         ORDER BY updated_at DESC
         LIMIT ?
         OFFSET ?
-      ) sub_pcd ON pcd_a.id = sub_pcd.id
-      GROUP BY pcd_a.individual_id, pcd_b.individual_id
+      ) sub_icd ON icd_a.id = sub_icd.id
+      GROUP BY icd_a.individual_id, icd_b.individual_id
     )  
   `,
     [pagination.pageSize, pagination.startIndex],
@@ -236,31 +361,31 @@ export async function* getWeightedMatches(
   const result = await db.raw(
     `
     SELECT
-      pa.id as individual_id_a,
-      pb.id as individual_id_b,
+      ia.id as individual_id_a,
+      ib.id as individual_id_b,
       CASE
-        WHEN pa.date_of_birth IS NOT NULL AND pb.date_of_birth IS NOT NULL AND pa.date_of_birth = pb.date_of_birth THEN 1
+        WHEN ia.date_of_birth IS NOT NULL AND ib.date_of_birth IS NOT NULL AND ia.date_of_birth = ib.date_of_birth THEN 1
         ELSE 0
       END as dob_score,
       ((
-        DICE_COEFF(pa.first_name, pb.first_name) +
-        DICE_COEFF(pa.last_name, pb.last_name) +
-        DICE_COEFF(concat(pa.first_name, ' ', pa.last_name), concat(pb.first_name, ' ', pb.last_name))
+        DICE_COEFF(ia.first_name, ib.first_name) +
+        DICE_COEFF(ia.last_name, ib.last_name) +
+        DICE_COEFF(concat(ia.first_name, ' ', ia.last_name), concat(ib.first_name, ' ', ib.last_name))
       ) / 3) as name_score,
       pmes.email_score_max as email_score,
-      calculate_residence_score(pa.residence, pb.residence) as residence_score
-    FROM individuals pa
-    JOIN individuals pb ON pa.sex = pb.sex AND pa.nrc_id != pb.nrc_id AND pa.id != pb.id
-    LEFT JOIN individual_max_email_score pmes ON pa.id = pmes.individual_id_a AND pb.id = pmes.individual_id_b
-    LEFT JOIN individual_identification_matches pim ON pa.id = pim.individual_id_a AND pb.id = pim.individual_id_b
+      calculate_address_score(ia.address, ib.address) as address_score
+    FROM ${individualATableName} ia
+    JOIN ${individualBTableName} ib ON ia.sex = ib.sex AND ia.nrc_id != ib.nrc_id AND ia.id != ib.id
+    LEFT JOIN individual_max_email_score pmes ON ia.id = pmes.individual_id_a AND ib.id = pmes.individual_id_b
+    LEFT JOIN individual_identification_matches pim ON ia.id = pim.individual_id_a AND ib.id = pim.individual_id_b
     JOIN (
       SELECT id
-      FROM individuals
+      FROM ${individualATableName} 
       ORDER BY updated_at DESC
       LIMIT ?
       OFFSET ?
-    ) sub_pa ON pa.id = sub_pa.id
-    WHERE pa.updated_at >= ?
+    ) sub_ia ON ia.id = sub_ia.id
+    WHERE ia.updated_at >= ?
     AND pim.individual_id_a IS NULL
     AND pim.individual_id_b IS NULL  
   `,

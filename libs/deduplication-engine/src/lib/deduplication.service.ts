@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import {
   Individual,
   DeduplicationRecord,
@@ -6,6 +8,8 @@ import {
   DenormalisedDeduplicationRecord,
   DenormalisedDeduplicationRecordSchema,
   Pagination,
+  PaginatedResponse,
+  IndividualDefinition,
 } from '@nrcno/core-models';
 import { IndividualService } from '@nrcno/core-prm-engine';
 import { getLogger } from '@nrcno/core-logger';
@@ -44,59 +48,20 @@ interface IDeduplicationService {
   countDuplicates: () => Promise<number>;
 }
 
-// TODO remove when DB is implemented
-// Compare two individuals
-const compareIndividuals = (
-  individualA: Partial<Individual>,
-  individualB: Individual,
-): DeduplicationRecordDefinition => {
-  const scores: DeduplicationRecord['scores'] = Object.entries(config).reduce(
-    (acc, [key, { score, weight }]) => {
-      const s = score(individualA, individualB);
-      return {
-        ...acc,
-        [key]: {
-          raw: s,
-          weighted: s * weight,
-        },
-      };
-    },
-    {},
-  );
-
-  const isExactMatch = Object.entries(scores).some(
-    ([key, { raw }]) =>
-      (config[key].mechanism === ScoringMechanism.ExactOrNothing ||
-        config[key].mechanism === ScoringMechanism.ExactOrWeighted) &&
-      raw === 1,
-  );
-
-  const isExactNoMatch = Object.entries(scores).some(
-    ([key, { raw }]) =>
-      (config[key].mechanism === ScoringMechanism.ExactOrNothing ||
-        config[key].mechanism === ScoringMechanism.ExactOrWeighted) &&
-      raw === -1,
-  );
-
-  const weightedScore = (() => {
-    if (isExactMatch) return 1;
-    if (isExactNoMatch) return 0;
-    const score =
-      Object.entries(scores).reduce((acc, [key, { weighted }]) => {
-        if (config[key].mechanism === ScoringMechanism.ExactOrNothing) {
-          return acc;
-        }
-        return acc + weighted;
-      }, 0) / totalWeight;
-    return Math.max(0, score);
-  })();
-
-  return {
-    individualIdA: individualA.id,
-    individualIdB: individualB.id,
-    weightedScore,
-    scores,
-  };
+const writeDuplicateRecords = async (
+  result: AsyncGenerator<DeduplicationRecord, void, unknown>,
+) => {
+  const records: DeduplicationRecord[] = [];
+  for await (const record of result) {
+    records.push(record);
+    if (records.length >= processingBatchSize) {
+      await DeduplicationStore.upsert(records);
+      records.length = 0;
+    }
+  }
+  if (records.length > 0) {
+    await DeduplicationStore.upsert(records);
+  }
 };
 
 // TODO refactor to use DB
@@ -136,7 +101,10 @@ const getDuplicatesForIndividual = async (
   */
 };
 
-const compareAllIndividuals = async (fromDate: Date) => {
+const compareAllIndividuals = async (
+  fromDate: Date,
+  checkList?: Individual[],
+): Promise<DeduplicationRecordDefinition[]> => {
   const logger = getLogger();
 
   const processDuplicateRecordBatch = async (
@@ -153,27 +121,15 @@ const compareAllIndividuals = async (fromDate: Date) => {
   await DeduplicationStore.prepareViews();
 
   logger.info('Fetching exact matches...');
-  let exactIdx = 0;
-  let exactBatch: DeduplicationRecordDefinition[] = [];
+  const exactMatches: DeduplicationRecordDefinition[] = [];
   for await (const exactDuplicate of DeduplicationStore.getExactMatches(
     fromDate,
   )) {
-    exactBatch.push(exactDuplicate);
-    if (exactBatch.length >= dbBatchSize) {
-      exactIdx++;
-      await processDuplicateRecordBatch(exactIdx, exactBatch);
-      exactBatch = [];
-    }
-  }
-  if (exactBatch.length > 0) {
-    exactIdx++;
-    await processDuplicateRecordBatch(exactIdx, exactBatch);
-    exactBatch = [];
+    exactMatches.push(exactDuplicate);
   }
 
   logger.info('Calculating weighted scores...');
-  let weightedIdx = 0;
-  let weightedBatch = [];
+  const weightedMatches: DeduplicationRecordDefinition[] = [];
   const individualCount = await individualService.count();
   const totalBatches = Math.ceil(individualCount / batchSize);
   for (let i = 0; i < totalBatches; i++) {
@@ -199,9 +155,9 @@ const compareAllIndividuals = async (fromDate: Date) => {
             raw: record.email_score || 0,
             weighted: (record.email_score || 0) * config.email.weight,
           },
-          residence: {
-            raw: record.residence_score || 0,
-            weighted: (record.residence_score || 0) * config.residence.weight,
+          address: {
+            raw: record.address_score || 0,
+            weighted: (record.address_score || 0) * config.address.weight,
           },
           dateOfBirth: {
             raw: record.dob_score || 0,
@@ -216,20 +172,13 @@ const compareAllIndividuals = async (fromDate: Date) => {
         ) / totalWeight;
 
       if (duplicateRecord.weightedScore > cutoff)
-        weightedBatch.push(duplicateRecord);
-
-      if (weightedBatch.length >= dbBatchSize) {
-        weightedIdx++;
-        await processDuplicateRecordBatch(weightedIdx, weightedBatch);
-        weightedBatch = [];
-      }
+        weightedMatches.push(duplicateRecord);
     }
   }
-  if (weightedBatch.length > 0) {
-    weightedIdx++;
-    await processDuplicateRecordBatch(weightedIdx, weightedBatch);
-    weightedBatch = [];
-  }
+
+  return [...exactMatches, ...weightedMatches].sort(
+    (a, b) => b.weightedScore - a.weightedScore,
+  );
 };
 
 // Used for resolving duplicates
@@ -295,20 +244,10 @@ const listDuplicates = async (
 // TODO refactor to use DB
 // Used for checking duplicates within a file
 const checkDuplicatesWithinList = async (
+  fromDate: Date,
   individuals: Individual[],
 ): Promise<DeduplicationRecordDefinition[]> => {
-  const records: DeduplicationRecordDefinition[] = [];
-  for (const individualA of individuals) {
-    for (const individualB of individuals) {
-      if (individualA.id === individualB.id) continue;
-      const record = compareIndividuals(individualA, individualB);
-      if (record.weightedScore > cutoff) {
-        records.push(record);
-      }
-    }
-  }
-
-  return records.sort((a, b) => b.weightedScore - a.weightedScore);
+  return compareAllIndividuals(fromDate, individuals);
 };
 
 const denormaliseDuplicateRecords = async (
@@ -352,3 +291,188 @@ export const DeduplicationService: IDeduplicationService = {
   denormaliseDuplicateRecords,
   countDuplicates,
 };
+
+class DS {
+  public getDuplicatesForIndividual = async (
+    individual:
+      | Individual
+      | IndividualDefinition
+      | (Individual | IndividualDefinition)[],
+  ): Promise<DeduplicationRecordDefinition[]> => {
+    const tempTableId = uuidv4();
+    await DeduplicationStore.prepareTempIndividualTables(
+      [individual].flat(),
+      tempTableId,
+    );
+    await DeduplicationStore.prepareViews(tempTableId);
+    return this.getDuplicates(
+      undefined,
+      Array.isArray(individual) ? individual : [individual],
+    );
+  };
+
+  public processDuplicatesSinceLastRun = async () => {
+    const lastRunDate = await this.getLastRunDate();
+    await DeduplicationStore.prepareViews();
+    const duplicates = await this.getDuplicates(lastRunDate);
+    await this.writeDuplicateRecords(duplicates);
+  };
+
+  public denormaliseDuplicateRecords = async (
+    duplicates: DeduplicationRecord[],
+  ) => {
+    const individualIds = duplicates
+      .flatMap((d) => [d.individualIdA, d.individualIdB])
+      .filter((id): id is string => id !== null && id !== undefined);
+    const individualsMap = (
+      await Promise.all(individualIds.map((id) => individualService.get(id)))
+    ).reduce<Record<string, Individual>>(
+      (acc, p) =>
+        p
+          ? {
+              ...acc,
+              [p.id]: p,
+            }
+          : acc,
+      {},
+    );
+    return duplicates.map((d) =>
+      DenormalisedDeduplicationRecordSchema.parse({
+        ...d,
+        individualA: d.individualIdA ? individualsMap[d.individualIdA] : null,
+        individualB: individualsMap[d.individualIdB],
+      }),
+    );
+  };
+
+  public mergeDuplicate = async (
+    individualId: string,
+    duplicateIndividualId: string,
+    resolvedIndividual: Individual,
+  ): Promise<Individual> => {
+    await DeduplicationStore.deletePair(individualId, duplicateIndividualId);
+    await DeduplicationStore.logResolution(
+      individualId,
+      duplicateIndividualId,
+      'merge',
+    );
+
+    const emptyIndividual: Individual = {
+      id: duplicateIndividualId,
+      firstName: `Duplicate of ${individualId}`,
+      consentGdpr: false,
+      consentReferral: false,
+      languages: [],
+      nationalities: [],
+      identification: [],
+      emails: [],
+      phones: [],
+    };
+    await individualService.update(duplicateIndividualId, emptyIndividual);
+    // TODO: Implement individual delete
+    // await individualService.del(duplicateIndividualId);
+
+    const individual = await individualService.update(
+      individualId,
+      resolvedIndividual,
+    );
+
+    if (!individual) {
+      throw new Error('Individual not found');
+    }
+
+    return individual;
+  };
+
+  public ignoreDuplicate = async (
+    individualId: string,
+    duplicateIndividualId: string,
+  ): Promise<void> => {
+    await DeduplicationStore.deletePair(individualId, duplicateIndividualId);
+    await DeduplicationStore.logResolution(
+      individualId,
+      duplicateIndividualId,
+      'ignore',
+    );
+  };
+
+  public listDuplicates = async (
+    pagination: Pagination,
+  ): Promise<DeduplicationRecord[]> => {
+    return DeduplicationStore.list(pagination);
+  };
+
+  public countDuplicates = async (): Promise<number> => {
+    return DeduplicationStore.count();
+  };
+
+  private getLastRunDate = async (): Promise<Date> => {
+    throw new Error('Not implemented');
+  };
+
+  private async *getDuplicates(
+    fromDate?: Date,
+    individuals?: Individual[],
+    tempTableId?: string,
+  ): AsyncGenerator<DeduplicationRecordDefinition, void, unknown> {
+    for await (const exactMatch of DeduplicationStore.getExactMatches(
+      fromDate,
+      tempTableId,
+    )) {
+      yield exactMatch;
+    }
+
+    const individualCount = await individualService.count();
+    const totalBatches = Math.ceil(individualCount / batchSize);
+    for (let i = 0; i < totalBatches; i++) {
+      const pagination: Pagination = {
+        startIndex: i * batchSize,
+        pageSize: batchSize,
+      };
+      for await (const record of DeduplicationStore.getWeightedMatches(
+        fromDate,
+        pagination,
+        tempTableId
+        Boolean(individuals),
+        false,
+      )) {
+        const duplicateRecord = {
+          individualIdA: record.individual_id_a,
+          individualIdB: record.individual_id_b,
+          weightedScore: 0,
+          scores: {
+            name: {
+              raw: record.name_score || 0,
+              weighted: (record.name_score || 0) * config.name.weight,
+            },
+            email: {
+              raw: record.email_score || 0,
+              weighted: (record.email_score || 0) * config.email.weight,
+            },
+            address: {
+              raw: record.address_score || 0,
+              weighted: (record.address_score || 0) * config.address.weight,
+            },
+            dateOfBirth: {
+              raw: record.dob_score || 0,
+              weighted: (record.dob_score || 0) * config.dateOfBirth.weight,
+            },
+          },
+        };
+        duplicateRecord.weightedScore =
+          Object.values(duplicateRecord.scores).reduce(
+            (acc, { weighted }) => acc + weighted,
+            0,
+          ) / totalWeight;
+
+        if (duplicateRecord.weightedScore > cutoff) yield duplicateRecord;
+      }
+    }
+  }
+
+  private writeDuplicateRecords = async (
+    records: DeduplicationRecordDefinition[],
+  ) => {
+    await DeduplicationStore.upsert(records);
+  };
+}
