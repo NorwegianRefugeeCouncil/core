@@ -60,4 +60,34 @@ describe('Household service', () => {
       expect(result).toEqual(household);
     });
   });
+
+  describe('update', () => {
+    it('should call the store update method with only the basic household fields', async () => {
+      const householdUpdate = HouseholdGenerator.generateDefinition();
+      const household = HouseholdGenerator.generateEntity();
+      HouseholdStore.get = jest.fn().mockResolvedValueOnce(household);
+      HouseholdStore.update = jest.fn().mockResolvedValueOnce(household);
+
+      const result = await householdService.update(
+        household.id,
+        householdUpdate,
+      );
+
+      expect(HouseholdStore.update).toHaveBeenCalledWith(household.id, {
+        headType: householdUpdate.headType,
+        sizeOverride: householdUpdate.sizeOverride,
+      });
+      expect(result).toEqual(household);
+    });
+
+    it('should throw an error if the household does not exist', async () => {
+      HouseholdStore.get = jest.fn().mockResolvedValueOnce(null);
+
+      await expect(
+        householdService.update('12345', HouseholdGenerator.generateEntity()),
+      ).rejects.toThrow('Household with id 12345 not found');
+
+      expect(HouseholdStore.get).toHaveBeenCalledWith('12345');
+    });
+  });
 });

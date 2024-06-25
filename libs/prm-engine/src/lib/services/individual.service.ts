@@ -12,6 +12,7 @@ import {
   IndividualListItem,
   IndividualPartialUpdate,
   IndividualUpdate,
+  IndividualUpdateSchema,
 } from '@nrcno/core-models';
 import { NotFoundError } from '@nrcno/core-errors';
 
@@ -28,7 +29,10 @@ export class IndividualService extends CRUDMixin<
   IndividualPartialUpdate,
   IndividualListItem,
   IndividualFiltering
->(IndividualDefinitionSchema as z.ZodType<IndividualDefinition>)(
+>(
+  IndividualDefinitionSchema as z.ZodType<IndividualDefinition>,
+  IndividualUpdateSchema as z.ZodType<IndividualUpdate>,
+)(
   class {
     public entityType = EntityType.Individual;
     public store = IndividualStore;

@@ -35,7 +35,10 @@ import {
   Household,
   HouseholdDefinition,
   HouseholdDefinitionSchema,
+  HouseholdPartialUpdate,
   HouseholdSchema,
+  HouseholdUpdate,
+  HouseholdUpdateSchema,
 } from './household.model';
 
 export enum EntityType {
@@ -55,8 +58,10 @@ export type EmptyFilter = z.infer<typeof EmptyFilterSchema>;
 export type Entity = Household | Individual | Language | Nationality;
 export type EntityDefinition = HouseholdDefinition | IndividualDefinition;
 export type EntityListItem = IndividualListItem | Language | Nationality;
-export type EntityUpdate = IndividualUpdate;
-export type EntityPartialUpdate = IndividualPartialUpdate;
+export type EntityUpdate = IndividualUpdate | HouseholdUpdate;
+export type EntityPartialUpdate =
+  | IndividualPartialUpdate
+  | HouseholdPartialUpdate;
 export type EntityFiltering =
   | IndividualFiltering
   | LanguageFilter
@@ -93,6 +98,8 @@ export const getEntityUpdateSchema = (entityType: EntityType) => {
   switch (entityType) {
     case EntityType.Individual:
       return IndividualUpdateSchema;
+    case EntityType.Household:
+      return HouseholdUpdateSchema;
     default:
       throw new Error(`No update schema found for ${entityType}`);
   }

@@ -29,10 +29,6 @@ const fakeIndividualWithDefaults = {
 
 const ps = {
   count: jest.fn().mockResolvedValue(0),
-  create: jest.fn().mockImplementation((entityDefinition) => ({
-    ...entityDefinition,
-    id: ulid(),
-  })),
   validateAndCreate: jest.fn().mockImplementation((entityDefinition) => ({
     ...entityDefinition,
     id: ulid(),
@@ -42,7 +38,7 @@ const ps = {
     id,
   })),
   list: jest.fn().mockResolvedValue([]),
-  update: jest.fn().mockImplementation((id, entityDefinition) => ({
+  validateAndUpdate: jest.fn().mockImplementation((id, entityDefinition) => ({
     ...entityDefinition,
     id,
   })),
@@ -340,7 +336,7 @@ describe('PRM Controller', () => {
 
         await updateEntity(req, res, next);
 
-        expect(individualService.update).toHaveBeenCalledWith(
+        expect(individualService.validateAndUpdate).toHaveBeenCalledWith(
           id,
           fakeIndividualWithDefaults,
         );
@@ -394,7 +390,7 @@ describe('PRM Controller', () => {
         const res = httpMocks.createResponse();
         const next = jest.fn();
 
-        (individualService.update as jest.Mock).mockRejectedValue(
+        (individualService.validateAndUpdate as jest.Mock).mockRejectedValue(
           new Error('Failed to update entity'),
         );
 
