@@ -2,10 +2,7 @@ import axios from 'axios';
 import { faker } from '@faker-js/faker';
 import { ulid } from 'ulidx';
 
-import {
-  IdentificationGenerator,
-  IndividualGenerator,
-} from '@nrcno/core-test-utils';
+import { IndividualGenerator } from '@nrcno/core-test-utils';
 import {
   IndividualSchema,
   IndividualDefinition,
