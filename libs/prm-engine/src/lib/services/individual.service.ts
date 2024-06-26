@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Knex } from 'knex';
 
 import {
   ContactDetails,
@@ -20,6 +21,8 @@ import { IndividualStore } from '../stores/individual.store';
 import { CRUDMixin } from './base.service';
 import { LanguageService } from './language.service';
 import { NationalityService } from './nationality.service';
+import { HouseholdService } from './household.service';
+import { createTrx } from './utils';
 
 export class IndividualService extends CRUDMixin<
   IndividualDefinition,
@@ -34,14 +37,14 @@ export class IndividualService extends CRUDMixin<
     public store = IndividualStore;
   },
 ) {
-  private async validateLanguages(languages: string[]) {
+  private async validateLanguages(languages: string[] = []) {
     const languageService = new LanguageService();
     await Promise.all(
       languages.map((lang) => languageService.validateIsoCode(lang)),
     );
   }
 
-  private async validateNationalities(nationalities: string[]) {
+  private async validateNationalities(nationalities: string[] = []) {
     const nationalitiesService = new NationalityService();
     await Promise.all(
       nationalities.map((nat) => nationalitiesService.validateIsoCode(nat)),
@@ -59,10 +62,49 @@ export class IndividualService extends CRUDMixin<
     await this.validateNationalities(nationalities);
   }
 
-  override async create(individual: IndividualDefinition) {
-    await this.validate(individual);
+  override async create(
+    individualDef: IndividualDefinition,
+    _trx?: Knex.Transaction,
+  ) {
+    const trx = _trx || (await createTrx());
+    let individual;
 
-    return super.create(individual);
+    try {
+      await this.validate(individualDef);
+
+      if (!individualDef.householdId) {
+        const householdService = new HouseholdService();
+        await householdService
+          .create(
+            {
+              sizeOverride: 1,
+              individuals: [{ ...individualDef, isHeadOfHousehold: true }],
+            },
+            trx,
+          )
+          .then((h) => {
+            individual = {
+              ...h?.individuals[0],
+              householdId: h?.id,
+              emails: [],
+              phones: h?.individuals[0].phones || [],
+              identification: [],
+              nationalities: [],
+              languages: [],
+            };
+          });
+      } else {
+        individual = super.create(individualDef, trx);
+      }
+    } catch (error) {
+      trx.rollback();
+      throw error;
+    }
+
+    if (!_trx) {
+      trx.commit();
+    }
+    return individual;
   }
 
   override async update(id: string, individual: IndividualUpdate) {
@@ -133,22 +175,22 @@ export class IndividualService extends CRUDMixin<
 
     const languageUpdates = {
       add: languages?.filter((lang) =>
-        existingIndividual.languages.every(
+        existingIndividual.languages?.every(
           (existingLang) => lang !== existingLang,
         ),
       ),
-      remove: existingIndividual.languages.filter((existingLang) =>
+      remove: existingIndividual.languages?.filter((existingLang) =>
         languages?.every((lang) => lang !== existingLang),
       ),
     };
 
     const nationalityUpdates = {
       add: nationalities?.filter((nat) =>
-        existingIndividual.nationalities.every(
+        existingIndividual.nationalities?.every(
           (existingNat) => nat !== existingNat,
         ),
       ),
-      remove: existingIndividual.nationalities.filter((existingNat) =>
+      remove: existingIndividual.nationalities?.filter((existingNat) =>
         nationalities?.every((nat) => nat !== existingNat),
       ),
     };

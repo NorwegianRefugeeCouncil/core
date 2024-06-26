@@ -109,14 +109,13 @@ export const IdentificationSchema = IdentificationDefinitionSchema.extend({
 export type Identification = z.infer<typeof IdentificationSchema>;
 
 export const IndividualDefinitionSchema = IndividualDetailsSchema.extend({
-  languages: z.array(IsoCodeSchema).optional().default([]),
-  nationalities: z.array(IsoCodeSchema).optional().default([]),
-  emails: z.array(EmailContactDetailsDefinitionSchema).optional().default([]),
-  phones: z.array(PhoneContactDetailsDefinitionSchema).optional().default([]),
-  identification: z
-    .array(IdentificationDefinitionSchema)
-    .optional()
-    .default([]),
+  languages: z.array(IsoCodeSchema).optional(),
+  nationalities: z.array(IsoCodeSchema).optional(),
+  emails: z.array(EmailContactDetailsDefinitionSchema).optional(),
+  phones: z.array(PhoneContactDetailsDefinitionSchema).optional(),
+  identification: z.array(IdentificationDefinitionSchema).optional(),
+  householdId: z.string().ulid().optional(),
+  isHeadOfHousehold: z.boolean().optional(),
 });
 export type IndividualDefinition = z.infer<typeof IndividualDefinitionSchema>;
 
@@ -125,6 +124,7 @@ export const IndividualSchema = IndividualDefinitionSchema.extend({
   emails: z.array(EmailContactDetailsSchema).optional().default([]),
   phones: z.array(PhoneContactDetailsSchema).optional().default([]),
   identification: z.array(IdentificationSchema).optional().default([]),
+  householdId: z.string().ulid(),
 });
 export type Individual = z.infer<typeof IndividualSchema>;
 

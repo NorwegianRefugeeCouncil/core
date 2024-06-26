@@ -212,6 +212,7 @@ const count: IIndividualStore['count'] = async (
 
 const create: IIndividualStore['create'] = async (
   individualDefinition: IndividualDefinition,
+  _trx?: Knex.Transaction,
 ): Promise<Individual> => {
   const db = getDb();
 
@@ -221,6 +222,8 @@ const create: IIndividualStore['create'] = async (
     identification,
     languages,
     nationalities,
+    householdId,
+    isHeadOfHousehold,
     ...individualDetails
   } = individualDefinition;
 
@@ -229,38 +232,46 @@ const create: IIndividualStore['create'] = async (
   const individualId = ulid();
 
   const result = await db.transaction(async (trx) => {
+    const transaction = _trx || trx;
+
     try {
-      await trx('persons').insert({ id: personId });
+      await trx('persons').insert({ id: personId }).transacting(transaction);
 
-      await trx('entities').insert({ id: entityId });
+      await trx('entities').insert({ id: entityId }).transacting(transaction);
 
-      await trx('individuals').insert({
-        ...individualDetails,
-        id: individualId,
-        personId,
-        entityId,
-      });
+      await trx('individuals')
+        .insert({
+          ...individualDetails,
+          id: individualId,
+          personId,
+          entityId,
+        })
+        .transacting(transaction);
 
       if (languages && languages.length > 0) {
-        await trx('individual_languages').insert(
-          languages.map((lang) => ({
-            languageIsoCode: lang,
-            individualId,
-          })),
-        );
+        await trx('individual_languages')
+          .insert(
+            languages.map((lang) => ({
+              languageIsoCode: lang,
+              individualId,
+            })),
+          )
+          .transacting(transaction);
       }
 
       if (nationalities && nationalities.length > 0) {
-        await trx('individual_nationalities').insert(
-          nationalities.map((nat) => ({
-            nationalityIsoCode: nat,
-            individualId,
-          })),
-        );
+        await trx('individual_nationalities')
+          .insert(
+            nationalities.map((nat) => ({
+              nationalityIsoCode: nat,
+              individualId,
+            })),
+          )
+          .transacting(transaction);
       }
 
       const contactDetailsEmailsForDb =
-        emails.length > 0
+        emails?.length && emails.length > 0
           ? emails.map((email) => ({
               id: uuidv4(),
               contactDetailType: ContactDetailType.Email,
@@ -271,7 +282,7 @@ const create: IIndividualStore['create'] = async (
           : [];
 
       const contactDetailsPhonesForDb =
-        phones.length > 0
+        phones?.length && phones.length > 0
           ? phones.map((phone) => ({
               id: uuidv4(),
               contactDetailType: ContactDetailType.PhoneNumber,
@@ -284,7 +295,9 @@ const create: IIndividualStore['create'] = async (
         contactDetailsPhonesForDb,
       );
       if (contactDetailsForDb.length > 0) {
-        await trx('individual_contact_details').insert(contactDetailsForDb);
+        await trx('individual_contact_details')
+          .insert(contactDetailsForDb)
+          .transacting(transaction);
       }
 
       const identificationForDb =
@@ -296,7 +309,19 @@ const create: IIndividualStore['create'] = async (
             }))
           : [];
       if (identificationForDb.length > 0) {
-        await trx('individual_identifications').insert(identificationForDb);
+        await trx('individual_identifications')
+          .insert(identificationForDb)
+          .transacting(transaction);
+      }
+
+      if (householdId) {
+        await trx('household_individuals')
+          .insert({
+            householdId,
+            individualId,
+            isHeadOfHousehold,
+          })
+          .transacting(transaction);
       }
 
       const createdIndividual = IndividualSchema.safeParse({
@@ -315,11 +340,13 @@ const create: IIndividualStore['create'] = async (
           value: contact.rawValue,
         })),
         identification: identificationForDb,
+        householdId,
+        isHeadOfHousehold,
       });
 
       if (createdIndividual.error) {
         throw new Error(
-          `Corrupt data in database for individuals: ${createdIndividual.error.errors.join(', ')}`,
+          `Corrupt data in database for individuals: ${createdIndividual.error.message.toString()}`,
         );
       }
       return createdIndividual.data;

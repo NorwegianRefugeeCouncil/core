@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { z } from 'zod';
+import { Knex } from 'knex';
 
 import {
   Entity,
@@ -116,18 +117,23 @@ export const CreateMixin =
     class extends Base {
       public definitionSchema: z.ZodType<TDefinition> = definitionSchema;
 
-      public create(entityDefinition: TDefinition): Promise<TEntity> {
+      public create(
+        entityDefinition: TDefinition,
+        _trx?: Knex.Transaction,
+      ): Promise<TEntity | void> {
         if (!this.store.create) {
           throw new Error('Method not implemented');
         }
-        return this.store.create(entityDefinition);
+        return this.store.create(entityDefinition, _trx);
       }
 
       public validateDefinition(entityDefinition: unknown): TDefinition {
         return this.definitionSchema.parse(entityDefinition);
       }
 
-      public validateAndCreate(entityDefinition: unknown): Promise<TEntity> {
+      public validateAndCreate(
+        entityDefinition: unknown,
+      ): Promise<TEntity | void> {
         return this.create(this.validateDefinition(entityDefinition));
       }
     };

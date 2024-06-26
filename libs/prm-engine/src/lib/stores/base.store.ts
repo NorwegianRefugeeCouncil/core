@@ -1,3 +1,5 @@
+import { Knex } from 'knex';
+
 import { Pagination, Sorting } from '@nrcno/core-models';
 
 export interface ListStore<TEntityListItem, TEntityFiltering> {
@@ -14,7 +16,7 @@ export interface GetStore<TEntity> {
 }
 
 export interface CreateStore<TDefinition, TEntity> {
-  create: (entity: TDefinition) => Promise<TEntity>;
+  create: (entity: TDefinition, _trx?: Knex.Transaction) => Promise<TEntity>;
 }
 
 export interface UpdateStore<TEntity, TPartialUpdateDefinition> {
