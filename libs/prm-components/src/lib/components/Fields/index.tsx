@@ -8,6 +8,7 @@ import { Select } from './Select.component';
 import { TextArea } from './TextArea.component';
 import { TextInput } from './TextInput.component';
 import { Hidden } from './Hidden.component';
+import { NumberInput } from './NumberInput.component';
 
 type FieldProps = {
   config: FieldConfig | ListFieldConfig;
@@ -21,6 +22,8 @@ export const Field: React.FC<FieldProps> = ({ config }) => {
       return <Hidden config={config} />;
     case Component.TextInput:
       return <TextInput config={config} />;
+    case Component.NumberInput:
+      return <NumberInput config={config} />;
     case Component.TextArea:
       return <TextArea config={config} />;
     case Component.Select:

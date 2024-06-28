@@ -17,6 +17,7 @@ export const useEntityListPage = (
       list.listEntities(pagination, sorting, filters);
     }
   }, [
+    entityType,
     JSON.stringify(pagination),
     JSON.stringify(sorting),
     JSON.stringify(filters),

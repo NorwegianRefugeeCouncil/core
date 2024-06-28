@@ -6,6 +6,7 @@ import {
   Household,
   HeadOfHouseholdType,
   IdentificationType,
+  HouseholdListItem,
 } from '@nrcno/core-models';
 
 import { BaseTestEntityGenerator } from '../base-test-entity-generator';
@@ -58,12 +59,21 @@ const generateEntity = (overrides?: Partial<Household>): Household => {
   };
 };
 
+const generateListItem = (): HouseholdListItem => {
+  return {
+    id: ulid(),
+    headType: faker.helpers.enumValue(HeadOfHouseholdType),
+    sizeOverride: faker.number.int(),
+    individuals: [{ id: ulid(), isHeadOfHousehold: true }],
+  };
+};
+
 export const HouseholdGenerator: BaseTestEntityGenerator<
   HouseholdDefinition,
   Household,
-  any
+  HouseholdListItem
 > = {
   generateDefinition,
   generateEntity,
-  generateListItem: () => [],
+  generateListItem,
 };

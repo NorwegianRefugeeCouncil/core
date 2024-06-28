@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Sorting, SortingDirection } from '@nrcno/core-models';
 
 export interface UseSorting {
@@ -14,6 +14,12 @@ export const useSorting = (defaultSort: Sorting | null): UseSorting => {
       direction: SortingDirection.Asc,
     },
   );
+
+  useEffect(() => {
+    if (defaultSort) {
+      setSorting(defaultSort);
+    }
+  }, [JSON.stringify(defaultSort)]);
 
   const isCurrentSort = (field: Sorting['sort']) => {
     return sorting.sort === field;

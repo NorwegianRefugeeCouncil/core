@@ -45,6 +45,10 @@ export const useFilters = (): UseFilters => {
   };
 
   useEffect(() => {
+    setFilters(null);
+  }, [entityType]);
+
+  useEffect(() => {
     parseParams(searchParams);
 
     return () => {

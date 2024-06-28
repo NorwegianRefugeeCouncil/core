@@ -1,10 +1,15 @@
 import { ulid } from 'ulidx';
+import { z } from 'zod';
 
 import {
   HouseholdDefinition,
   HouseholdSchema,
   Household,
   Pagination,
+  createSortingSchema,
+  EntityType,
+  HouseholdFiltering,
+  HouseholdListItemSchema,
 } from '@nrcno/core-models';
 import { PostgresError, PostgresErrorCode, getDb } from '@nrcno/core-db';
 import { AlreadyExistsError } from '@nrcno/core-errors';
@@ -79,16 +84,116 @@ const get: IHouseholdStore['get'] = async (
   return parsedHousehold.data;
 };
 
+const list: IHouseholdStore['list'] = async (
+  pagination: Pagination,
+  { sort, direction } = createSortingSchema(EntityType.Household).parse({}),
+  filtering: HouseholdFiltering = {},
+) => {
+  const db = getDb();
+
+  const rows = await db('households')
+    .select([
+      'households.id',
+      'households.head_type',
+      'households.size_override',
+      'household_individuals.individual_id as headId',
+    ])
+    .leftJoin(
+      'household_individuals',
+      'households.id',
+      'household_individuals.household_id',
+    )
+    .where((builder) => {
+      // TODO - uncomment this line and remove null check when we have a head of household
+      // builder.where('household_individuals.is_head_of_household', true);
+      builder.whereNull('household_individuals.individual_id');
+
+      if (filtering.id) {
+        builder.where('households.id', filtering.id);
+      }
+      if (filtering.headType) {
+        builder.where('households.head_type', filtering.headType);
+      }
+      if (filtering.sizeOverrideMin) {
+        builder.where(
+          'households.size_override',
+          '>=',
+          filtering.sizeOverrideMin,
+        );
+      }
+      if (filtering.sizeOverrideMax) {
+        builder.where(
+          'households.size_override',
+          '<=',
+          filtering.sizeOverrideMax,
+        );
+      }
+    })
+    .limit(pagination.pageSize)
+    .offset(pagination.startIndex)
+    .orderBy(sort, direction);
+
+  return z.array(HouseholdListItemSchema).parse(
+    rows.map((row) => ({
+      id: row.id,
+      headType: row.headType,
+      sizeOverride: row.sizeOverride,
+      individuals: row.headId
+        ? [
+            {
+              id: row.headId,
+              isHeadOfHousehold: true,
+            },
+          ]
+        : [],
+    })),
+  );
+};
+
+const count: IHouseholdStore['count'] = async (
+  filtering: HouseholdFiltering = {},
+): Promise<number> => {
+  const db = getDb();
+
+  const [{ count }] = await db('households')
+    .count()
+    .leftJoin(
+      'household_individuals',
+      'households.id',
+      'household_individuals.household_id',
+    )
+    .where((builder) => {
+      if (filtering.id) {
+        builder.where('households.id', filtering.id);
+      }
+      if (filtering.headType) {
+        builder.where('households.head_type', filtering.headType);
+      }
+      if (filtering.sizeOverrideMin) {
+        builder.where(
+          'households.size_override',
+          '>=',
+          filtering.sizeOverrideMin,
+        );
+      }
+      if (filtering.sizeOverrideMax) {
+        builder.where(
+          'households.size_override',
+          '<=',
+          filtering.sizeOverrideMax,
+        );
+      }
+    });
+
+  return typeof count === 'string' ? parseInt(count, 10) : count;
+};
+
 export const HouseholdStore: IHouseholdStore = {
   create,
   get,
+  list,
+  count,
   update: function (id: string, entity: any): Promise<Household> {
-    throw new Error('Function not implemented.');
-  },
-  count: function (filtering?: any): Promise<number> {
-    throw new Error('Function not implemented.');
-  },
-  list: function (p: Pagination): Promise<any[]> {
     throw new Error('Function not implemented.');
   },
 };

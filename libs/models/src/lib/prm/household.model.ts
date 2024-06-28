@@ -30,7 +30,7 @@ const HouseholdIndividualDefinitionSchema = IndividualDefinitionSchema.pick({
 
 export const HouseholdDefinitionSchema = z.object({
   headType: HeadOfHouseholdTypeSchema.optional().nullable(),
-  sizeOverride: z.number().int().optional().nullable(),
+  sizeOverride: z.coerce.number().int().min(0).optional().nullable(),
   individuals: z.array(HouseholdIndividualDefinitionSchema).default([]), // TODO: remove default once enforcing head of household
 });
 export type HouseholdDefinition = z.infer<typeof HouseholdDefinitionSchema>;
@@ -44,3 +44,34 @@ export const HouseholdSchema = HouseholdDefinitionSchema.extend({
   individuals: z.array(HouseholdIndividualSchema).default([]), // TODO: remove default once enforcing head of household
 });
 export type Household = z.infer<typeof HouseholdSchema>;
+
+export const HouseholdListItemSchema = HouseholdSchema.pick({
+  id: true,
+  headType: true,
+  sizeOverride: true,
+}).extend({
+  individuals: z
+    .array(
+      HouseholdIndividualSchema.pick({ id: true, isHeadOfHousehold: true }),
+    )
+    .max(1),
+});
+export type HouseholdListItem = z.infer<typeof HouseholdListItemSchema>;
+
+export const HouseholdListSortingFields = ['id', 'headType', 'sizeOverride'];
+export const HouseholdDefaultSorting = 'id';
+
+export const HouseholdFilteringSchema = z
+  .object({
+    id: z.string().optional(),
+    headType: HeadOfHouseholdTypeSchema.optional(),
+    sizeOverrideMin: z.number().int().min(0).optional(),
+    sizeOverrideMax: z.number().int().min(0).optional(),
+  })
+  .refine((filtering) => {
+    if (filtering.sizeOverrideMin && filtering.sizeOverrideMax) {
+      return filtering.sizeOverrideMin <= filtering.sizeOverrideMax;
+    }
+    return true;
+  });
+export type HouseholdFiltering = z.infer<typeof HouseholdFilteringSchema>;

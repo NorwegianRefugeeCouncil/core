@@ -8,7 +8,7 @@ export enum Component {
   Display = 'display',
   TextInput = 'text-input',
   TextArea = 'text-area',
-  // NumberInput = 'number-input',
+  NumberInput = 'number-input',
   // Range = 'range',
   Select = 'select',
   Checkbox = 'checkbox',
