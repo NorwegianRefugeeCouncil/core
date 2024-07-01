@@ -2,6 +2,7 @@ import { EntityType } from '@nrcno/core-models';
 
 import { PrmUIConfigLoader } from './config.types';
 import { individualConfig } from './individual';
+import { householdConfig } from './houseHold';
 
 export * from './config.types';
 
@@ -10,6 +11,7 @@ export * from './config.types';
 const emptyConfig = {
   detail: {
     sections: [],
+    fields: [],
   },
   list: {
     fields: [],
@@ -19,7 +21,7 @@ const emptyConfig = {
 
 export const configLoader: PrmUIConfigLoader = (staticData) => ({
   [EntityType.Individual]: individualConfig(staticData),
-  [EntityType.Household]: emptyConfig,
+  [EntityType.Household]: householdConfig(staticData),
   [EntityType.Language]: emptyConfig,
   [EntityType.Nationality]: emptyConfig,
 });
