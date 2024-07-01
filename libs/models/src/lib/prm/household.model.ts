@@ -30,7 +30,7 @@ const HouseholdIndividualDefinitionSchema = IndividualDefinitionSchema.pick({
 
 export const HouseholdDefinitionSchema = z.object({
   headType: HeadOfHouseholdTypeSchema.optional().nullable(),
-  sizeOverride: z.number().int().optional().nullable(),
+  sizeOverride: z.coerce.number().int().optional().nullable(),
   individuals: z.array(HouseholdIndividualDefinitionSchema).default([]), // TODO: remove default once enforcing head of household
 });
 export type HouseholdDefinition = z.infer<typeof HouseholdDefinitionSchema>;
