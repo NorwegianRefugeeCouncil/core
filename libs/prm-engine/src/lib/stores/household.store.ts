@@ -1,4 +1,5 @@
 import { ulid } from 'ulidx';
+import { Knex } from 'knex';
 
 import {
   HouseholdDefinition,
@@ -11,6 +12,7 @@ import { PostgresError, PostgresErrorCode, getDb } from '@nrcno/core-db';
 import { AlreadyExistsError, NotFoundError } from '@nrcno/core-errors';
 
 import { BaseStore } from './base.store';
+import { IndividualStore } from './individual.store';
 
 export type IHouseholdStore = BaseStore<
   HouseholdDefinition,
@@ -22,30 +24,56 @@ export type IHouseholdStore = BaseStore<
 
 const create: IHouseholdStore['create'] = async (
   householdDefinition: HouseholdDefinition,
+  _trx?: Knex.Transaction,
 ): Promise<Household> => {
   const db = getDb();
 
   const householdId = ulid();
 
-  const { individuals, ...householdDetails } = householdDefinition;
-
   const result = await db.transaction(async (trx) => {
+    const transaction = _trx || trx;
+
+    const { individuals: individualDefs, ...householdDetails } =
+      householdDefinition;
+
     try {
-      await trx('households').insert({
-        ...householdDetails,
-        id: householdId,
-      });
+      const h = await trx('households')
+        .insert({
+          ...householdDetails,
+          id: householdId,
+        })
+        .transacting(transaction);
+
+      const individuals = await Promise.all(
+        individualDefs.map((individual) => {
+          const isHoH =
+            individualDefs.length === 1 || individual.isHeadOfHousehold;
+
+          return IndividualStore.create(
+            {
+              ...individual,
+              householdId,
+              isHeadOfHousehold: isHoH,
+              languages: [],
+              emails: [],
+            },
+            transaction,
+          );
+        }),
+      );
 
       const createdHousehold = HouseholdSchema.safeParse({
-        ...householdDefinition,
+        ...householdDetails,
+        individuals,
         id: householdId,
       });
 
       if (createdHousehold.error) {
         throw new Error(
-          `Corrupt data in database for households: ${createdHousehold.error.errors.join(', ')}`,
+          `Corrupt data in database for households: ${createdHousehold.error.message.toString()}`,
         );
       }
+
       return createdHousehold.data;
     } catch (error) {
       if ((error as PostgresError).code === PostgresErrorCode.UniqueViolation) {
@@ -70,6 +98,7 @@ const get: IHouseholdStore['get'] = async (
   if (!household) {
     return null;
   }
+
   const parsedHousehold = HouseholdSchema.safeParse(household);
   if (parsedHousehold.error) {
     throw new Error(

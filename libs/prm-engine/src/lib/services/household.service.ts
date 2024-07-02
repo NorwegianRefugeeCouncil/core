@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Knex } from 'knex';
 
 import {
   EntityType,
@@ -14,6 +15,7 @@ import { NotFoundError } from '@nrcno/core-errors';
 import { HouseholdStore } from '../stores/household.store';
 
 import { CRUDMixin } from './base.service';
+import { createTrx } from './utils';
 
 export class HouseholdService extends CRUDMixin<
   HouseholdDefinition,
@@ -60,5 +62,23 @@ export class HouseholdService extends CRUDMixin<
 
     const householdDetailsUpdate = await this.mapUpdateToPartial(id, household);
     return this.store.update(id, householdDetailsUpdate);
+  }
+
+  override async create(
+    householdDef: HouseholdDefinition,
+    _trx?: Knex.Transaction,
+  ) {
+    const trx = _trx || (await createTrx());
+
+    const household = await super.create(householdDef, trx).catch((error) => {
+      trx.rollback();
+      throw error;
+    });
+
+    if (!_trx) {
+      trx.commit();
+    }
+
+    return household;
   }
 }

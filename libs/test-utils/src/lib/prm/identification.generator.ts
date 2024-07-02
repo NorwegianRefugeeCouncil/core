@@ -29,6 +29,17 @@ const generateEntity = (
   };
 };
 
+const generateEntityFromDefinition = (
+  overrides?: Partial<Identification>,
+): Identification => {
+  const definition = generateDefinition(overrides);
+
+  return {
+    ...definition,
+    id: faker.string.uuid(),
+  };
+};
+
 export const IdentificationGenerator: BaseTestEntityGenerator<
   IdentificationDefinition,
   Identification,
@@ -37,4 +48,5 @@ export const IdentificationGenerator: BaseTestEntityGenerator<
   generateDefinition,
   generateEntity,
   generateListItem: generateEntity,
+  generateEntityFromDefinition,
 };

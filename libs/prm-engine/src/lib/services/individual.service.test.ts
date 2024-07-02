@@ -1,12 +1,19 @@
-import { IndividualGenerator } from '@nrcno/core-test-utils';
-import { EntityType } from '@nrcno/core-models';
+import { faker } from '@faker-js/faker';
+
+import {
+  HouseholdGenerator,
+  IndividualGenerator,
+} from '@nrcno/core-test-utils';
+import { EntityType, HeadOfHouseholdType } from '@nrcno/core-models';
 
 import { IndividualStore } from '../stores/individual.store';
+import { HouseholdStore } from '../stores/household.store';
 
 import { IndividualService } from './individual.service';
 import { buildCountTests, buildListTests } from './test-utils';
 import { LanguageService } from './language.service';
 import { NationalityService } from './nationality.service';
+import { createTrx } from './utils';
 
 jest.mock('../stores/individual.store', () => ({
   IndividualStore: {
@@ -16,6 +23,23 @@ jest.mock('../stores/individual.store', () => ({
     list: jest.fn(),
     count: jest.fn(),
   },
+}));
+
+jest.mock('../stores/household.store', () => ({
+  HouseholdStore: {
+    create: jest.fn(),
+    get: jest.fn(),
+    update: jest.fn(),
+    list: jest.fn(),
+    count: jest.fn(),
+  },
+}));
+
+jest.mock('./utils', () => ({
+  createTrx: jest.fn().mockResolvedValue({
+    rollback: jest.fn(),
+    commit: jest.fn(),
+  }),
 }));
 
 jest.mock('./language.service', () => ({
@@ -41,29 +65,93 @@ describe('Individual service', () => {
   buildCountTests(EntityType.Individual, IndividualService, IndividualStore);
 
   describe('create', () => {
-    it('should call the store create method', async () => {
-      const individualDefinition = IndividualGenerator.generateDefinition();
+    it('should call the individual store create method, when given a household id', async () => {
+      const individualDefinition = IndividualGenerator.generateDefinition({
+        householdId: faker.string.uuid(),
+      });
       const individual = IndividualGenerator.generateEntity();
       IndividualStore.create = jest.fn().mockResolvedValueOnce(individual);
 
-      const result = await individualService.create(individualDefinition);
+      const trx = await createTrx();
+      const result = await individualService.create(individualDefinition, trx);
 
-      expect(IndividualStore.create).toHaveBeenCalledWith(individualDefinition);
+      expect(IndividualStore.create).toHaveBeenCalledWith(
+        individualDefinition,
+        trx,
+      );
       expect(result).toEqual(individual);
     });
 
-    it('should throw an error if the store create method fails', async () => {
+    it('should call the household store create method, when not given a household id', async () => {
       const individualDefinition = IndividualGenerator.generateDefinition();
+      const householdDef = HouseholdGenerator.generateDefinition({
+        individuals: [
+          {
+            ...individualDefinition,
+            isHeadOfHousehold: true,
+          },
+        ],
+        headType: null,
+        sizeOverride: 1,
+      });
+      const household =
+        HouseholdGenerator.generateEntityFromDefinition(householdDef);
+      IndividualStore.create = jest.fn();
+      HouseholdStore.create = jest.fn().mockResolvedValueOnce(household);
 
+      const trx = await createTrx();
+      const result = await individualService.create(individualDefinition);
+
+      expect(HouseholdStore.create).toHaveBeenCalledWith(householdDef, trx);
+      expect(IndividualStore.create).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        ...household.individuals[0],
+        householdId: household.id,
+        isHeadOfHousehold: true,
+      });
+    });
+
+    it('should throw an error if the store create method fails, when given a household id', async () => {
+      const individualDefinition = IndividualGenerator.generateDefinition({
+        householdId: faker.string.uuid(),
+      });
       IndividualStore.create = jest
         .fn()
         .mockRejectedValueOnce(new Error('Failed to create individual'));
 
+      const trx = await createTrx();
       await expect(
-        individualService.create(individualDefinition),
+        individualService.create(individualDefinition, trx),
       ).rejects.toThrow('Failed to create individual');
 
-      expect(IndividualStore.create).toHaveBeenCalledWith(individualDefinition);
+      expect(IndividualStore.create).toHaveBeenCalledWith(
+        individualDefinition,
+        trx,
+      );
+    });
+
+    it('should throw an error if the store create method fails, when not given a household id', async () => {
+      const individualDefinition = IndividualGenerator.generateDefinition();
+      const householdDef = HouseholdGenerator.generateDefinition({
+        individuals: [
+          {
+            ...individualDefinition,
+            isHeadOfHousehold: true,
+          },
+        ],
+        sizeOverride: 1,
+        headType: null,
+      });
+      HouseholdStore.create = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('Failed to create household'));
+
+      const trx = await createTrx();
+      await expect(
+        individualService.create(individualDefinition, trx),
+      ).rejects.toThrow('Failed to create household');
+
+      expect(HouseholdStore.create).toHaveBeenCalledWith(householdDef, trx);
     });
 
     it('should throw an error if language validation fails', async () => {

@@ -101,6 +101,7 @@ describe('PRM client', () => {
           emails: [],
           phones: [],
           identification: [],
+          householdId: ulid(),
         };
 
         const individual = {
@@ -171,6 +172,7 @@ describe('PRM client', () => {
           emails: [],
           phones: [],
           identification: [],
+          householdId: ulid(),
         };
         mock.onGet(`/prm/individuals/${individualId}`).reply(200, individual);
         const res = await client.read(individualId);

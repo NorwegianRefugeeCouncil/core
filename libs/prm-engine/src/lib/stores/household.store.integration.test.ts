@@ -21,11 +21,9 @@ describe('Household store', () => {
       const expectedHousehold = {
         ...householdDefinition,
         id: expect.any(String),
-        individuals: [],
       };
 
       const createdHousehold = await HouseholdStore.create(householdDefinition);
-
       expect(createdHousehold).toEqual(expectedHousehold);
 
       const household = await HouseholdStore.get(createdHousehold.id);

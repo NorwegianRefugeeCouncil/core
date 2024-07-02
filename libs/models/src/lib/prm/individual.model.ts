@@ -117,6 +117,8 @@ export const IndividualDefinitionSchema = IndividualDetailsSchema.extend({
     .array(IdentificationDefinitionSchema)
     .optional()
     .default([]),
+  householdId: z.string().ulid().optional(),
+  isHeadOfHousehold: z.boolean().optional(),
 });
 export type IndividualDefinition = z.infer<typeof IndividualDefinitionSchema>;
 
@@ -125,6 +127,7 @@ export const IndividualSchema = IndividualDefinitionSchema.extend({
   emails: z.array(EmailContactDetailsSchema).optional().default([]),
   phones: z.array(PhoneContactDetailsSchema).optional().default([]),
   identification: z.array(IdentificationSchema).optional().default([]),
+  householdId: z.string().ulid(),
 });
 export type Individual = z.infer<typeof IndividualSchema>;
 

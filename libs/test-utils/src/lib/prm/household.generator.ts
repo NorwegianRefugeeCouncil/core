@@ -26,19 +26,55 @@ const generateEntity = (overrides?: Partial<Household>): Household => {
 
   return {
     ...definition,
+    individuals:
+      overrides?.individuals ||
+      definition.individuals.map((individual, i) => {
+        const phoneId =
+          overrides?.individuals && overrides?.individuals[i].phones?.[0]?.id;
+        const identificationId =
+          overrides?.individuals &&
+          overrides?.individuals[i].identification?.[0]?.id;
+        return {
+          ...individual,
+          id: ulid(),
+          phones: [
+            {
+              value:
+                individual.phones?.[0]?.value || faker.string.alphanumeric(),
+              id: phoneId || faker.string.uuid(),
+            },
+          ],
+          identification: [
+            {
+              identificationNumber:
+                individual.identification?.[0]?.identificationNumber ||
+                faker.string.uuid(),
+              identificationType:
+                individual.identification?.[0]?.identificationType ||
+                faker.helpers.enumValue(IdentificationType),
+              id: identificationId || faker.string.uuid(),
+            },
+          ],
+        };
+      }),
+    id: overrides?.id || ulid(),
+  };
+};
+const generateEntityFromDefinition = (
+  overrides?: Partial<HouseholdDefinition>,
+): Household => {
+  const definition = generateDefinition(overrides);
+
+  return {
+    ...definition,
     individuals: definition.individuals.map((individual, i) => {
-      const phoneId =
-        overrides?.individuals && overrides?.individuals[i].phones?.[0]?.id;
-      const identificationId =
-        overrides?.individuals &&
-        overrides?.individuals[i].identification?.[0].id;
       return {
         ...individual,
-        id: faker.string.uuid(),
+        id: ulid(),
         phones: [
           {
             value: individual.phones?.[0]?.value || faker.string.alphanumeric(),
-            id: phoneId || faker.string.uuid(),
+            id: faker.string.uuid(),
           },
         ],
         identification: [
@@ -49,12 +85,12 @@ const generateEntity = (overrides?: Partial<Household>): Household => {
             identificationType:
               individual.identification?.[0]?.identificationType ||
               faker.helpers.enumValue(IdentificationType),
-            id: identificationId || faker.string.uuid(),
+            id: faker.string.uuid(),
           },
         ],
       };
     }),
-    id: overrides?.id || ulid(),
+    id: ulid(),
   };
 };
 
@@ -66,4 +102,5 @@ export const HouseholdGenerator: BaseTestEntityGenerator<
   generateDefinition,
   generateEntity,
   generateListItem: () => [],
+  generateEntityFromDefinition,
 };
