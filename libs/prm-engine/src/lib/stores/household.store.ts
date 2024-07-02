@@ -5,16 +5,17 @@ import {
   HouseholdSchema,
   Household,
   Pagination,
+  HouseholdPartialUpdate,
 } from '@nrcno/core-models';
 import { PostgresError, PostgresErrorCode, getDb } from '@nrcno/core-db';
-import { AlreadyExistsError } from '@nrcno/core-errors';
+import { AlreadyExistsError, NotFoundError } from '@nrcno/core-errors';
 
 import { BaseStore } from './base.store';
 
 export type IHouseholdStore = BaseStore<
   HouseholdDefinition,
   Household,
-  any,
+  HouseholdPartialUpdate,
   any,
   any
 >;
@@ -79,12 +80,27 @@ const get: IHouseholdStore['get'] = async (
   return parsedHousehold.data;
 };
 
+const update: IHouseholdStore['update'] = async (
+  id: string,
+  householdUpdate: HouseholdPartialUpdate,
+): Promise<Household> => {
+  const db = getDb();
+
+  await db('households').where({ id }).update(householdUpdate);
+
+  const updatedHousehold = await get(id);
+
+  if (!updatedHousehold) {
+    throw new NotFoundError('Household that was updated not found');
+  }
+
+  return updatedHousehold;
+};
+
 export const HouseholdStore: IHouseholdStore = {
   create,
   get,
-  update: function (id: string, entity: any): Promise<Household> {
-    throw new Error('Function not implemented.');
-  },
+  update,
   count: function (filtering?: any): Promise<number> {
     throw new Error('Function not implemented.');
   },

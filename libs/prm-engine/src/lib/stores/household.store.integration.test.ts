@@ -42,4 +42,25 @@ describe('Household store', () => {
       expect(household).toBeNull();
     });
   });
+
+  describe('update', () => {
+    test('should update a household', async () => {
+      const householdDefinition = HouseholdGenerator.generateDefinition({
+        sizeOverride: 3,
+      });
+      const createdHousehold = await HouseholdStore.create(householdDefinition);
+
+      const updatedHousehold = await HouseholdStore.update(
+        createdHousehold.id,
+        {
+          sizeOverride: 5,
+        },
+      );
+
+      expect(updatedHousehold).toEqual({
+        ...createdHousehold,
+        sizeOverride: 5,
+      });
+    });
+  });
 });

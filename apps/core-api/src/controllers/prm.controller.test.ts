@@ -46,6 +46,10 @@ const ps = {
     ...entityDefinition,
     id,
   })),
+  validateAndUpdate: jest.fn().mockImplementation((id, entityDefinition) => ({
+    ...entityDefinition,
+    id,
+  })),
 };
 
 jest.mock('@nrcno/core-prm-engine', () => ({
@@ -340,13 +344,13 @@ describe('PRM Controller', () => {
 
         await updateEntity(req, res, next);
 
-        expect(individualService.update).toHaveBeenCalledWith(
+        expect(individualService.validateAndUpdate).toHaveBeenCalledWith(
           id,
-          fakeIndividualWithDefaults,
+          fakeIndividual,
         );
         expect(res.statusCode).toEqual(200);
         expect(res._getJSONData()).toEqual({
-          ...fakeIndividualWithDefaults,
+          ...fakeIndividual,
           id,
         });
       });
@@ -394,7 +398,7 @@ describe('PRM Controller', () => {
         const res = httpMocks.createResponse();
         const next = jest.fn();
 
-        (individualService.update as jest.Mock).mockRejectedValue(
+        (individualService.validateAndUpdate as jest.Mock).mockRejectedValue(
           new Error('Failed to update entity'),
         );
 

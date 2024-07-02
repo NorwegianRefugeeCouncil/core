@@ -137,7 +137,9 @@ export const UpdateMixin =
     TEntity extends Entity,
     TUpdate extends EntityUpdate,
     TPartialUpdate extends EntityPartialUpdate,
-  >() =>
+  >(
+    updateSchema: z.ZodType<TUpdate>,
+  ) =>
   <
     TBase extends GConstructor<
       BaseService<any, TEntity, TPartialUpdate, any, any>
@@ -146,12 +148,25 @@ export const UpdateMixin =
     Base: TBase,
   ) => {
     abstract class Update extends Base {
+      public updateSchema: z.ZodType<TUpdate> = updateSchema;
+
       public async update(id: string, entity: TUpdate): Promise<TEntity> {
         if (!this.store.update) {
           throw new Error('Method not implemented');
         }
         const partialUpdate = await this.mapUpdateToPartial(id, entity);
         return this.store.update(id, partialUpdate);
+      }
+
+      public validateUpdate(entityUpdate: unknown): TUpdate {
+        return this.updateSchema.parse(entityUpdate);
+      }
+
+      public validateAndUpdate(
+        id: string,
+        entityUpdate: unknown,
+      ): Promise<TEntity> {
+        return this.update(id, this.validateUpdate(entityUpdate));
       }
 
       abstract mapUpdateToPartial(
@@ -172,6 +187,7 @@ export const CRUDMixin =
     TEntityFiltering extends EntityFiltering,
   >(
     definitionSchema: z.ZodType<TDefinition>,
+    updateSchema: z.ZodType<TUpdate>,
   ) =>
   <
     TBase extends GConstructor<
@@ -186,7 +202,7 @@ export const CRUDMixin =
   >(
     Base: TBase,
   ) =>
-    UpdateMixin<TEntity, TUpdate, TPartialUpdate>()(
+    UpdateMixin<TEntity, TUpdate, TPartialUpdate>(updateSchema)(
       CreateMixin<TDefinition, TEntity>(definitionSchema)(
         GetMixin<TEntity>()(
           ListMixin<TEntityListItem, TEntityFiltering>()(Base),

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   IndividualDefinitionSchema,
   IndividualSchema,
+  IndividualUpdateSchema,
 } from './individual.model';
 
 export enum HeadOfHouseholdType {
@@ -44,3 +45,24 @@ export const HouseholdSchema = HouseholdDefinitionSchema.extend({
   individuals: z.array(HouseholdIndividualSchema).default([]), // TODO: remove default once enforcing head of household
 });
 export type Household = z.infer<typeof HouseholdSchema>;
+
+const HouseholdIndividualUpdateSchema =
+  HouseholdIndividualDefinitionSchema.merge(
+    IndividualUpdateSchema.pick({
+      identification: true,
+      phones: true,
+    }),
+  ).extend({
+    id: z.string().ulid().optional(),
+  });
+export const HouseholdUpdateSchema = HouseholdDefinitionSchema.extend({
+  individuals: z.array(HouseholdIndividualUpdateSchema).default([]),
+});
+export type HouseholdUpdate = z.infer<typeof HouseholdUpdateSchema>;
+
+export const HouseholdPartialUpdateSchema = HouseholdUpdateSchema.omit({
+  individuals: true,
+});
+export type HouseholdPartialUpdate = z.infer<
+  typeof HouseholdPartialUpdateSchema
+>;

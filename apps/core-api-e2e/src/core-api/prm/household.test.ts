@@ -56,4 +56,42 @@ describe('Households', () => {
       expect(response.status).toBe(404);
     });
   });
+
+  describe('PUT /households/:id', () => {
+    let householdId: string;
+    const householdDefinition = HouseholdGenerator.generateDefinition();
+
+    beforeAll(async () => {
+      const res = await axiosInstance.post(
+        `/api/prm/households`,
+        householdDefinition,
+      );
+
+      householdId = res.data.id;
+    });
+
+    it('should update a household', async () => {
+      const updatedHousehold = {
+        ...householdDefinition,
+        sizeOverride: 5,
+      };
+
+      const res = await axiosInstance.put(
+        `/api/prm/households/${householdId}`,
+        updatedHousehold,
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data).toEqual({ ...updatedHousehold, id: householdId });
+    });
+
+    it('should return an error if the household does not exist', async () => {
+      const response = await axiosInstance.put(
+        `/api/prm/households/${ulid()}`,
+        householdDefinition,
+      );
+
+      expect(response.status).toBe(404);
+    });
+  });
 });

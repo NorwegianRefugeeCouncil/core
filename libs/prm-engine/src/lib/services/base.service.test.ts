@@ -1,6 +1,7 @@
 import {
   EntityType,
   IndividualDefinitionSchema,
+  IndividualUpdateSchema,
   SortingDirection,
 } from '@nrcno/core-models';
 
@@ -23,7 +24,7 @@ describe('BaseService', () => {
         any,
         any,
         any
-      >()(
+      >(IndividualUpdateSchema)(
         class {
           public entityType = EntityType.Individual;
           public store = storeMock;

@@ -10,7 +10,6 @@ import {
 import {
   EntityTypeSchema,
   EntityIdSchema,
-  getEntityUpdateSchema,
   PaginatedResponse,
   EntityListItem,
   PaginationSchema,
@@ -101,10 +100,10 @@ export const updateEntity = async (
       return;
     }
 
-    const schema = getEntityUpdateSchema(entityType.data);
-    const entityUpdate = schema.parse(req.body);
-
-    const updatedEntity = await prmService.update(entityId.data, entityUpdate);
+    const updatedEntity = await prmService.validateAndUpdate(
+      entityId.data,
+      req.body,
+    );
 
     res.status(200).json(updatedEntity);
   } catch (error) {
