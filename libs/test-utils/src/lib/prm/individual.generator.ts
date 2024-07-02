@@ -66,6 +66,7 @@ const generateDefinition = (
       },
     ],
     identification: [IdentificationGenerator.generateDefinition()],
+    isHeadOfHousehold: false,
     ...overrides,
   };
 };
@@ -76,20 +77,53 @@ const generateEntity = (overrides?: Partial<Individual>): Individual => {
   return {
     ...definition,
     id: overrides?.id || ulid(),
-    emails: definition.emails.map((contactDetail, index) => ({
-      ...contactDetail,
-      id: overrides?.emails?.[index]?.id || faker.string.uuid(),
-    })),
-    phones: definition.phones.map((contactDetail, index) => ({
-      ...contactDetail,
-      id: overrides?.phones?.[index]?.id || faker.string.uuid(),
-    })),
-    identification: definition.identification.map((identification, index) => ({
-      ...identification,
-      id: overrides?.identification?.[index]?.id || faker.string.uuid(),
-    })),
+    emails:
+      definition.emails?.map((contactDetail, index) => ({
+        ...contactDetail,
+        id: overrides?.emails?.[index]?.id || faker.string.uuid(),
+      })) || [],
+    phones:
+      definition.phones?.map((contactDetail, index) => ({
+        ...contactDetail,
+        id: overrides?.phones?.[index]?.id || faker.string.uuid(),
+      })) || [],
+    identification:
+      definition.identification?.map((identification, index) => ({
+        ...identification,
+        id: overrides?.identification?.[index]?.id || faker.string.uuid(),
+      })) || [],
     languages: definition.languages,
     nationalities: definition.nationalities,
+    householdId: overrides?.householdId || ulid(),
+  };
+};
+
+const generateEntityFromDefinition = (
+  overrides?: Partial<IndividualDefinition>,
+): Individual => {
+  const definition = generateDefinition(overrides);
+
+  return {
+    ...definition,
+    id: ulid(),
+    emails:
+      definition.emails?.map((contactDetail) => ({
+        ...contactDetail,
+        id: faker.string.uuid(),
+      })) || [],
+    phones:
+      definition.phones?.map((contactDetail) => ({
+        ...contactDetail,
+        id: faker.string.uuid(),
+      })) || [],
+    identification:
+      definition.identification?.map((identification) => ({
+        ...identification,
+        id: faker.string.uuid(),
+      })) || [],
+    languages: definition.languages,
+    nationalities: definition.nationalities,
+    householdId: overrides?.householdId || ulid(),
   };
 };
 
@@ -119,4 +153,5 @@ export const IndividualGenerator: BaseTestEntityGenerator<
   generateDefinition,
   generateEntity,
   generateListItem,
+  generateEntityFromDefinition,
 };

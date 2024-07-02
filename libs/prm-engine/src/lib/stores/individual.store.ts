@@ -346,7 +346,7 @@ const create: IIndividualStore['create'] = async (
 
       if (createdIndividual.error) {
         throw new Error(
-          `Corrupt data in database for individuals: ${createdIndividual.error.message.toString()}`,
+          `Corrupt data in database for individuals: ${createdIndividual.error.message}`,
         );
       }
       return createdIndividual.data;
@@ -372,21 +372,29 @@ const get: IIndividualStore['get'] = async (
     return null;
   }
 
-  const [languages, nationalities, contactDetails, identifications] =
-    await Promise.all([
-      db('individual_languages')
-        .where('individualId', id)
-        .select('languageIsoCode'),
-      db('individual_nationalities')
-        .where('individualId', id)
-        .select('nationalityIsoCode'),
-      db('individual_contact_details')
-        .where('individualId', id)
-        .select('id', 'contactDetailType', 'rawValue'),
-      db('individual_identifications')
-        .where('individualId', id)
-        .select('id', 'identificationType', 'identificationNumber'),
-    ]);
+  const [
+    languages,
+    nationalities,
+    contactDetails,
+    identifications,
+    householdData,
+  ] = await Promise.all([
+    db('individual_languages')
+      .where('individualId', id)
+      .select('languageIsoCode'),
+    db('individual_nationalities')
+      .where('individualId', id)
+      .select('nationalityIsoCode'),
+    db('individual_contact_details')
+      .where('individualId', id)
+      .select('id', 'contactDetailType', 'rawValue'),
+    db('individual_identifications')
+      .where('individualId', id)
+      .select('id', 'identificationType', 'identificationNumber'),
+    db('household_individuals')
+      .where('individualId', id)
+      .select('isHeadOfHousehold', 'householdId'),
+  ]);
 
   const individualResult = IndividualSchema.safeParse({
     ...individual,
@@ -411,11 +419,12 @@ const get: IIndividualStore['get'] = async (
         value: contactDetail.rawValue,
       })),
     identification: identifications,
+    ...householdData[0],
   });
 
   if (individualResult.error) {
     throw new Error(
-      `Corrupt data in database for individuals: ${individualResult.error.errors.join(', ')}`,
+      `Corrupt data in database for individuals: ${individualResult.error.message}`,
     );
   }
   return individualResult.data;
@@ -542,7 +551,7 @@ const list: IIndividualStore['list'] = async (
 
   if (result.error) {
     throw new Error(
-      `Corrupt data in database for individuals: ${result.error.errors.join(', ')}`,
+      `Corrupt data in database for individuals: ${result.error.message}`,
     );
   }
   return result.data;

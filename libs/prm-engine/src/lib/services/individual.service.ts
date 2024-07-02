@@ -79,6 +79,7 @@ export class IndividualService extends CRUDMixin<
             {
               sizeOverride: 1,
               individuals: [{ ...individualDef, isHeadOfHousehold: true }],
+              headType: null,
             },
             trx,
           )
@@ -86,11 +87,7 @@ export class IndividualService extends CRUDMixin<
             individual = {
               ...h?.individuals[0],
               householdId: h?.id,
-              emails: [],
-              phones: h?.individuals[0].phones || [],
-              identification: [],
-              nationalities: [],
-              languages: [],
+              isHeadOfHousehold: true,
             };
           });
       } else {

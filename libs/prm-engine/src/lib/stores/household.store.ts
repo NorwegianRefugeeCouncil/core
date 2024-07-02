@@ -29,8 +29,6 @@ const create: IHouseholdStore['create'] = async (
 
   const householdId = ulid();
 
-  const { individuals, ...householdDetails } = householdDefinition;
-
   const result = await db.transaction(async (trx) => {
     const transaction = _trx || trx;
 
@@ -55,6 +53,8 @@ const create: IHouseholdStore['create'] = async (
               ...individual,
               householdId,
               isHeadOfHousehold: isHoH,
+              languages: [],
+              emails: [],
             },
             transaction,
           );
@@ -62,7 +62,7 @@ const create: IHouseholdStore['create'] = async (
       );
 
       const createdHousehold = HouseholdSchema.safeParse({
-        ...h,
+        ...householdDetails,
         individuals,
         id: householdId,
       });
@@ -97,6 +97,7 @@ const get: IHouseholdStore['get'] = async (
   if (!household) {
     return null;
   }
+
   const parsedHousehold = HouseholdSchema.safeParse(household);
   if (parsedHousehold.error) {
     throw new Error(

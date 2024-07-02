@@ -37,6 +37,7 @@ describe('IndividualSchema', () => {
           identificationNumber: '1234567890',
         },
       ],
+      householdId: ulid(),
     };
 
     const result = IndividualSchema.parse(individual);

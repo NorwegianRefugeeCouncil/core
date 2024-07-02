@@ -3,17 +3,20 @@ import { v4 } from 'uuid';
 import { faker } from '@faker-js/faker';
 
 import {
+  HouseholdGenerator,
   IdentificationGenerator,
   IndividualGenerator,
 } from '@nrcno/core-test-utils';
 import { getDb } from '@nrcno/core-db';
 import {
+  Household,
   IdentificationType,
   IndividualPartialUpdate,
   SortingDirection,
 } from '@nrcno/core-models';
 
 import { IndividualStore } from './individual.store';
+import { HouseholdStore } from './household.store';
 
 jest.mock('ulidx', () => {
   const realUlid = jest.requireActual('ulidx').ulid;
@@ -51,10 +54,21 @@ describe('Individual store', () => {
   });
 
   describe('create', () => {
+    let household: Household;
+
+    beforeAll(async () => {
+      const householdDef = HouseholdGenerator.generateDefinition();
+      household = await HouseholdStore.create(householdDef);
+    });
+
     test('should throw an AlredyExistsError when creating a individual that already exists', async () => {
-      const individualDefinition = IndividualGenerator.generateDefinition();
+      const individualDefinition = IndividualGenerator.generateDefinition({
+        householdId: household.id,
+      });
       const id = generateMockUlid();
-      (ulid as jest.Mock).mockReturnValue(id);
+      (ulid as jest.Mock).mockReturnValueOnce(id);
+      (ulid as jest.Mock).mockReturnValueOnce(id);
+      (ulid as jest.Mock).mockReturnValueOnce(household.id);
       (v4 as jest.Mock).mockReturnValueOnce(faker.string.uuid());
       (v4 as jest.Mock).mockReturnValue(faker.string.uuid());
 
@@ -67,7 +81,9 @@ describe('Individual store', () => {
     });
 
     test('should create and get a individual', async () => {
-      const individualDefinition = IndividualGenerator.generateDefinition();
+      const individualDefinition = IndividualGenerator.generateDefinition({
+        householdId: household.id,
+      });
       const personId = generateMockUlid();
       const entityId = generateMockUlid();
       const individualId = generateMockUlid();
@@ -93,6 +109,7 @@ describe('Individual store', () => {
         ),
         languages: individualDefinition.languages,
         nationalities: individualDefinition.nationalities,
+        householdId: household.id,
       });
 
       (ulid as jest.Mock)
@@ -126,16 +143,24 @@ describe('Individual store', () => {
   });
 
   describe('count', () => {
-    beforeAll(() => {
+    let household: Household;
+
+    beforeAll(async () => {
       (ulid as jest.Mock).mockImplementation(() =>
         jest.requireActual('ulidx').ulid(),
       );
       (v4 as jest.Mock).mockImplementation(() =>
         jest.requireActual('uuid').v4(),
       );
+
+      const householdDef = HouseholdGenerator.generateDefinition();
+      household = await HouseholdStore.create(householdDef);
     });
+
     test('should return the number of individuals', async () => {
-      const individualDefinition = IndividualGenerator.generateDefinition();
+      const individualDefinition = IndividualGenerator.generateDefinition({
+        householdId: household.id,
+      });
 
       await IndividualStore.create(individualDefinition);
 
@@ -151,9 +176,17 @@ describe('Individual store', () => {
     });
 
     test('should return the number of individuals, filtered by id', async () => {
-      const individualDefinition = IndividualGenerator.generateDefinition();
+      const individualDefinition = IndividualGenerator.generateDefinition({
+        householdId: household.id,
+        isHeadOfHousehold: true,
+      });
       const individual = await IndividualStore.create(individualDefinition);
-      await IndividualStore.create(IndividualGenerator.generateDefinition());
+      await IndividualStore.create(
+        IndividualGenerator.generateDefinition({
+          householdId: household.id,
+          isHeadOfHousehold: false,
+        }),
+      );
 
       const count = await IndividualStore.count({
         id: individual.id,
@@ -164,17 +197,22 @@ describe('Individual store', () => {
   });
 
   describe('list', () => {
-    beforeAll(() => {
+    let household: Household;
+    beforeAll(async () => {
       (ulid as jest.Mock).mockImplementation(() =>
         jest.requireActual('ulidx').ulid(),
       );
       (v4 as jest.Mock).mockImplementation(() =>
         jest.requireActual('uuid').v4(),
       );
+      const householdDef = HouseholdGenerator.generateDefinition();
+      household = await HouseholdStore.create(householdDef);
     });
 
     test('should return a list of individuals', async () => {
-      const individualDefinition = IndividualGenerator.generateDefinition();
+      const individualDefinition = IndividualGenerator.generateDefinition({
+        householdId: household.id,
+      });
       const individual = await IndividualStore.create(individualDefinition);
 
       const individuals = await IndividualStore.list({
@@ -201,9 +239,15 @@ describe('Individual store', () => {
     test('should return a paginated list of individuals, sorted by lastname by default', async () => {
       const firstIndividualDefinition = IndividualGenerator.generateDefinition({
         lastName: 'Allende',
+        householdId: household.id,
+        isHeadOfHousehold: true,
       });
       const secondIndividualDefinition = IndividualGenerator.generateDefinition(
-        { lastName: 'Bach' },
+        {
+          lastName: 'Bach',
+          householdId: household.id,
+          isHeadOfHousehold: false,
+        },
       );
       const firstIndividual = await IndividualStore.create(
         firstIndividualDefinition,
@@ -223,9 +267,15 @@ describe('Individual store', () => {
     test('should return a paginated list of individuals, sorted by firstname descending', async () => {
       const firstIndividualDefinition = IndividualGenerator.generateDefinition({
         firstName: 'Isabel',
+        householdId: household.id,
+        isHeadOfHousehold: true,
       });
       const secondIndividualDefinition = IndividualGenerator.generateDefinition(
-        { firstName: 'Richard' },
+        {
+          firstName: 'Richard',
+          householdId: household.id,
+          isHeadOfHousehold: false,
+        },
       );
       await IndividualStore.create(firstIndividualDefinition);
       const secondIndividual = await IndividualStore.create(
@@ -251,9 +301,15 @@ describe('Individual store', () => {
     test('should return a paginated list of individuals, sorted by nationality descending', async () => {
       const firstIndividualDefinition = IndividualGenerator.generateDefinition({
         nationalities: ['ALA'],
+        householdId: household.id,
+        isHeadOfHousehold: true,
       });
       const secondIndividualDefinition = IndividualGenerator.generateDefinition(
-        { nationalities: ['AFG'] },
+        {
+          nationalities: ['AFG'],
+          householdId: household.id,
+          isHeadOfHousehold: false,
+        },
       );
       const firstIndividual = await IndividualStore.create(
         firstIndividualDefinition,
@@ -280,11 +336,15 @@ describe('Individual store', () => {
       const firstIndividualDefinition = IndividualGenerator.generateDefinition({
         emails: [{ value: 'a@test.com' }],
         phones: [],
+        householdId: household.id,
+        isHeadOfHousehold: true,
       });
       const secondIndividualDefinition = IndividualGenerator.generateDefinition(
         {
           emails: [{ value: 'b@test.com' }],
           phones: [],
+          householdId: household.id,
+          isHeadOfHousehold: false,
         },
       );
       const firstIndividual = await IndividualStore.create(
@@ -315,6 +375,8 @@ describe('Individual store', () => {
             identificationType: IdentificationType.NationalId,
           },
         ],
+        householdId: household.id,
+        isHeadOfHousehold: true,
       });
       const secondIndividualDefinition = IndividualGenerator.generateDefinition(
         {
@@ -324,6 +386,8 @@ describe('Individual store', () => {
               identificationType: IdentificationType.NationalId,
             },
           ],
+          householdId: household.id,
+          isHeadOfHousehold: false,
         },
       );
       const firstIndividual = await IndividualStore.create(
@@ -347,9 +411,15 @@ describe('Individual store', () => {
     });
 
     test('should return a paginated list of individuals, sorted by id ascending', async () => {
-      const individualDefinition = IndividualGenerator.generateDefinition();
+      const individualDefinition = IndividualGenerator.generateDefinition({
+        householdId: household.id,
+        isHeadOfHousehold: true,
+      });
       const individual1 = await IndividualStore.create(individualDefinition);
-      const individual2 = await IndividualStore.create(individualDefinition);
+      const individual2 = await IndividualStore.create({
+        ...individualDefinition,
+        isHeadOfHousehold: false,
+      });
       const expectedFirstIndividualId =
         individual1.id < individual2.id ? individual1.id : individual2.id;
 
@@ -389,9 +459,17 @@ describe('Individual store', () => {
     });
 
     test('should return a list of individuals, filtered by id', async () => {
-      const individualDefinition = IndividualGenerator.generateDefinition();
+      const individualDefinition = IndividualGenerator.generateDefinition({
+        householdId: household.id,
+        isHeadOfHousehold: true,
+      });
       const individual = await IndividualStore.create(individualDefinition);
-      await IndividualStore.create(IndividualGenerator.generateDefinition());
+      await IndividualStore.create(
+        IndividualGenerator.generateDefinition({
+          householdId: household.id,
+          isHeadOfHousehold: false,
+        }),
+      );
 
       const individuals = await IndividualStore.list(
         {
@@ -413,9 +491,17 @@ describe('Individual store', () => {
     });
 
     test('should return a list of individuals, filtered by combination of names', async () => {
-      const individualDefinition = IndividualGenerator.generateDefinition();
+      const individualDefinition = IndividualGenerator.generateDefinition({
+        householdId: household.id,
+        isHeadOfHousehold: true,
+      });
       const individual = await IndividualStore.create(individualDefinition);
-      await IndividualStore.create(IndividualGenerator.generateDefinition());
+      await IndividualStore.create(
+        IndividualGenerator.generateDefinition({
+          householdId: household.id,
+          isHeadOfHousehold: false,
+        }),
+      );
 
       const individuals = await IndividualStore.list(
         {
@@ -445,11 +531,15 @@ describe('Individual store', () => {
       const dateOfBirthOutOfRange = new Date('2001-01-01');
       const individualDefinition = IndividualGenerator.generateDefinition({
         dateOfBirth: dateOfBirthInRange,
+        householdId: household.id,
+        isHeadOfHousehold: true,
       });
       const individual = await IndividualStore.create(individualDefinition);
       await IndividualStore.create(
         IndividualGenerator.generateDefinition({
           dateOfBirth: dateOfBirthOutOfRange,
+          householdId: household.id,
+          isHeadOfHousehold: false,
         }),
       );
 
@@ -476,11 +566,15 @@ describe('Individual store', () => {
     test('should return a list of individuals, filtered by nationality', async () => {
       const individualDefinition = IndividualGenerator.generateDefinition({
         nationalities: ['AFG', 'ALA'],
+        householdId: household.id,
+        isHeadOfHousehold: true,
       });
       const individual = await IndividualStore.create(individualDefinition);
       await IndividualStore.create(
         IndividualGenerator.generateDefinition({
           nationalities: ['ALB', 'ALA'],
+          householdId: household.id,
+          isHeadOfHousehold: false,
         }),
       );
 
@@ -507,12 +601,16 @@ describe('Individual store', () => {
       const individualDefinition = IndividualGenerator.generateDefinition({
         phones: [{ value: '123' }, { value: '456' }],
         emails: [],
+        householdId: household.id,
+        isHeadOfHousehold: true,
       });
       const individual = await IndividualStore.create(individualDefinition);
       const anotherIndividualSamePhone = await IndividualStore.create(
         IndividualGenerator.generateDefinition({
           phones: [{ value: '456' }, { value: '789' }],
           emails: [],
+          householdId: household.id,
+          isHeadOfHousehold: false,
         }),
       );
 
@@ -541,12 +639,16 @@ describe('Individual store', () => {
       const individualDefinition = IndividualGenerator.generateDefinition({
         phones: [],
         emails: [{ value: 'test@nrc.no' }, { value: 'test2@nrc.no' }],
+        householdId: household.id,
+        isHeadOfHousehold: true,
       });
       const individual = await IndividualStore.create(individualDefinition);
       await IndividualStore.create(
         IndividualGenerator.generateDefinition({
           phones: [],
           emails: [{ value: 'test3@nrc.no' }],
+          householdId: household.id,
+          isHeadOfHousehold: false,
         }),
       );
       const individuals = await IndividualStore.list(
@@ -580,6 +682,8 @@ describe('Individual store', () => {
             identificationType: IdentificationType.NationalId,
           },
         ],
+        householdId: household.id,
+        isHeadOfHousehold: true,
       });
       const individual = await IndividualStore.create(individualDefinition);
       await IndividualStore.create(
@@ -594,6 +698,8 @@ describe('Individual store', () => {
               identificationType: IdentificationType.NationalId,
             },
           ],
+          householdId: household.id,
+          isHeadOfHousehold: false,
         }),
       );
 
@@ -618,16 +724,22 @@ describe('Individual store', () => {
   });
 
   describe('update', () => {
-    beforeAll(() => {
+    let household: Household;
+    beforeAll(async () => {
       (ulid as jest.Mock).mockImplementation(() =>
         jest.requireActual('ulidx').ulid(),
       );
       (v4 as jest.Mock).mockImplementation(() =>
         jest.requireActual('uuid').v4(),
       );
+      const householdDef = HouseholdGenerator.generateDefinition();
+      household = await HouseholdStore.create(householdDef);
     });
+
     test('should update a individual basic details', async () => {
-      const individualDefinition = IndividualGenerator.generateDefinition();
+      const individualDefinition = IndividualGenerator.generateDefinition({
+        householdId: household.id,
+      });
       const createdIndividual =
         await IndividualStore.create(individualDefinition);
 
@@ -694,6 +806,7 @@ describe('Individual store', () => {
           { value: phoneToUpdate },
           { value: phoneToRemove },
         ],
+        householdId: household.id,
       });
       const createdIndividual =
         await IndividualStore.create(individualDefinition);
@@ -786,6 +899,7 @@ describe('Individual store', () => {
           identificationToUpdate,
           identificationToRemove,
         ],
+        householdId: household.id,
       });
       const createdIndividual =
         await IndividualStore.create(individualDefinition);
@@ -844,6 +958,7 @@ describe('Individual store', () => {
       const languageToRemove = 'aab';
       const individualDefinition = IndividualGenerator.generateDefinition({
         languages: [languageToKeep, languageToRemove],
+        householdId: household.id,
       });
       const createdIndividual =
         await IndividualStore.create(individualDefinition);
@@ -875,6 +990,7 @@ describe('Individual store', () => {
       const nationalityToRemove = 'ALA';
       const individualDefinition = IndividualGenerator.generateDefinition({
         nationalities: [nationalityToKeep, nationalityToRemove],
+        householdId: household.id,
       });
       const createdIndividual =
         await IndividualStore.create(individualDefinition);

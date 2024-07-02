@@ -5,6 +5,14 @@ import {
 } from '@nrcno/core-models';
 
 import { CreateMixin, GetMixin, ListMixin, UpdateMixin } from './base.service';
+import { createTrx } from './utils';
+
+jest.mock('./utils', () => ({
+  createTrx: jest.fn().mockResolvedValue({
+    rollback: jest.fn(),
+    commit: jest.fn(),
+  }),
+}));
 
 describe('BaseService', () => {
   describe('UpdateMixin', () => {
@@ -173,14 +181,15 @@ describe('BaseService', () => {
       const entity = {
         value: 'foo',
       };
+      const trx = await createTrx();
 
-      const result = await service.create(entity);
+      const result = await service.create(entity, trx);
 
       expect(result).toEqual({
         id: '123',
         value: 'foo',
       });
-      expect(storeMock.create).toHaveBeenCalledWith(entity);
+      expect(storeMock.create).toHaveBeenCalledWith(entity, trx);
     });
   });
 });

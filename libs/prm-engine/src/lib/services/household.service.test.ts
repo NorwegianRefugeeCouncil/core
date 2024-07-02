@@ -3,6 +3,7 @@ import { HouseholdGenerator } from '@nrcno/core-test-utils';
 import { HouseholdStore } from '../stores/household.store';
 
 import { HouseholdService } from './household.service';
+import { createTrx } from './utils';
 
 jest.mock('../stores/household.store', () => ({
   HouseholdStore: {
@@ -12,6 +13,13 @@ jest.mock('../stores/household.store', () => ({
     list: jest.fn(),
     count: jest.fn(),
   },
+}));
+
+jest.mock('./utils', () => ({
+  createTrx: jest.fn().mockResolvedValue({
+    rollback: jest.fn(),
+    commit: jest.fn(),
+  }),
 }));
 
 describe('Household service', () => {
@@ -27,9 +35,13 @@ describe('Household service', () => {
       const household = HouseholdGenerator.generateEntity();
       HouseholdStore.create = jest.fn().mockResolvedValueOnce(household);
 
-      const result = await householdService.create(householdDefinition);
+      const trx = await createTrx();
+      const result = await householdService.create(householdDefinition, trx);
 
-      expect(HouseholdStore.create).toHaveBeenCalledWith(householdDefinition);
+      expect(HouseholdStore.create).toHaveBeenCalledWith(
+        householdDefinition,
+        trx,
+      );
       expect(result).toEqual(household);
     });
 
@@ -39,12 +51,16 @@ describe('Household service', () => {
       HouseholdStore.create = jest
         .fn()
         .mockRejectedValueOnce(new Error('Failed to create household'));
+      const trx = await createTrx();
 
       await expect(
-        householdService.create(householdDefinition),
+        householdService.create(householdDefinition, trx),
       ).rejects.toThrow('Failed to create household');
 
-      expect(HouseholdStore.create).toHaveBeenCalledWith(householdDefinition);
+      expect(HouseholdStore.create).toHaveBeenCalledWith(
+        householdDefinition,
+        trx,
+      );
     });
   });
 
