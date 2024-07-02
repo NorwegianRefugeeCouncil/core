@@ -53,7 +53,7 @@ const HouseholdIndividualUpdateSchema =
       phones: true,
     }),
   ).extend({
-    id: z.string().uuid().optional(),
+    id: z.string().ulid().optional(),
   });
 export const HouseholdUpdateSchema = HouseholdDefinitionSchema.extend({
   individuals: z.array(HouseholdIndividualUpdateSchema).default([]),
