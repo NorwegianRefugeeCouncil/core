@@ -55,10 +55,7 @@ describe('Individual store', () => {
         .mockReturnValueOnce(generateMockUlid()) // identification
         .mockReturnValueOnce(generateMockUlid()) // personId
         .mockReturnValueOnce(generateMockUlid()) // entityId
-        .mockReturnValueOnce(id) // individualId
-        .mockReturnValueOnce(generateMockUlid()) // email
-        .mockReturnValueOnce(generateMockUlid()) // phone
-        .mockReturnValueOnce(generateMockUlid()); // identification
+        .mockReturnValueOnce(id); // individualId
 
       const individual = await IndividualStore.create(individualDefinition);
       expect(individual).toBeDefined();
