@@ -46,7 +46,19 @@ describe('Individual store', () => {
     test('should throw an AlredyExistsError when creating a individual that already exists', async () => {
       const individualDefinition = IndividualGenerator.generateDefinition();
       const id = generateMockUlid();
-      (ulid as jest.Mock).mockReturnValue(id);
+      (ulid as jest.Mock)
+        .mockReturnValueOnce(generateMockUlid()) // personId
+        .mockReturnValueOnce(generateMockUlid()) // entityId
+        .mockReturnValueOnce(id) // individualId
+        .mockReturnValueOnce(generateMockUlid()) // email
+        .mockReturnValueOnce(generateMockUlid()) // phone
+        .mockReturnValueOnce(generateMockUlid()) // identification
+        .mockReturnValueOnce(generateMockUlid()) // personId
+        .mockReturnValueOnce(generateMockUlid()) // entityId
+        .mockReturnValueOnce(id) // individualId
+        .mockReturnValueOnce(generateMockUlid()) // email
+        .mockReturnValueOnce(generateMockUlid()) // phone
+        .mockReturnValueOnce(generateMockUlid()); // identification
 
       const individual = await IndividualStore.create(individualDefinition);
       expect(individual).toBeDefined();
