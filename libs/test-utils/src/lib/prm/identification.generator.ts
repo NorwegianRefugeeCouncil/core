@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { ulid } from 'ulidx';
 
 import {
   IdentificationDefinition,
@@ -25,7 +26,7 @@ const generateEntity = (
 
   return {
     ...definition,
-    id: overrides?.id || faker.string.uuid(),
+    id: overrides?.id || ulid(),
   };
 };
 

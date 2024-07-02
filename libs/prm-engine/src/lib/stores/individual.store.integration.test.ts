@@ -1,5 +1,4 @@
 import { ulid } from 'ulidx';
-import { v4 } from 'uuid';
 import { faker } from '@faker-js/faker';
 
 import {
@@ -19,13 +18,6 @@ jest.mock('ulidx', () => {
   const realUlid = jest.requireActual('ulidx').ulid;
   return {
     ulid: jest.fn().mockImplementation(() => realUlid()),
-  };
-});
-
-jest.mock('uuid', () => {
-  const realUuid = jest.requireActual('uuid').v4;
-  return {
-    v4: jest.fn().mockImplementation(() => realUuid()),
   };
 });
 
@@ -55,8 +47,6 @@ describe('Individual store', () => {
       const individualDefinition = IndividualGenerator.generateDefinition();
       const id = generateMockUlid();
       (ulid as jest.Mock).mockReturnValue(id);
-      (v4 as jest.Mock).mockReturnValueOnce(faker.string.uuid());
-      (v4 as jest.Mock).mockReturnValue(faker.string.uuid());
 
       const individual = await IndividualStore.create(individualDefinition);
       expect(individual).toBeDefined();
@@ -71,9 +61,9 @@ describe('Individual store', () => {
       const personId = generateMockUlid();
       const entityId = generateMockUlid();
       const individualId = generateMockUlid();
-      const emailId = faker.string.uuid();
-      const phoneId = faker.string.uuid();
-      const identificationId = faker.string.uuid();
+      const emailId = generateMockUlid();
+      const phoneId = generateMockUlid();
+      const identificationId = generateMockUlid();
       const expectedIndividual = IndividualGenerator.generateEntity({
         ...individualDefinition,
         id: individualId,
@@ -98,9 +88,7 @@ describe('Individual store', () => {
       (ulid as jest.Mock)
         .mockReturnValueOnce(personId)
         .mockReturnValueOnce(entityId)
-        .mockReturnValueOnce(individualId);
-
-      (v4 as jest.Mock)
+        .mockReturnValueOnce(individualId)
         .mockReturnValueOnce(emailId)
         .mockReturnValueOnce(phoneId)
         .mockReturnValueOnce(identificationId);
@@ -129,9 +117,6 @@ describe('Individual store', () => {
     beforeAll(() => {
       (ulid as jest.Mock).mockImplementation(() =>
         jest.requireActual('ulidx').ulid(),
-      );
-      (v4 as jest.Mock).mockImplementation(() =>
-        jest.requireActual('uuid').v4(),
       );
     });
     test('should return the number of individuals', async () => {
@@ -167,9 +152,6 @@ describe('Individual store', () => {
     beforeAll(() => {
       (ulid as jest.Mock).mockImplementation(() =>
         jest.requireActual('ulidx').ulid(),
-      );
-      (v4 as jest.Mock).mockImplementation(() =>
-        jest.requireActual('uuid').v4(),
       );
     });
 
@@ -621,9 +603,6 @@ describe('Individual store', () => {
     beforeAll(() => {
       (ulid as jest.Mock).mockImplementation(() =>
         jest.requireActual('ulidx').ulid(),
-      );
-      (v4 as jest.Mock).mockImplementation(() =>
-        jest.requireActual('uuid').v4(),
       );
     });
     test('should update a individual basic details', async () => {
