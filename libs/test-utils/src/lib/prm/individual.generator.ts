@@ -78,15 +78,15 @@ const generateEntity = (overrides?: Partial<Individual>): Individual => {
     id: overrides?.id || ulid(),
     emails: definition.emails.map((contactDetail, index) => ({
       ...contactDetail,
-      id: overrides?.emails?.[index]?.id || faker.string.uuid(),
+      id: overrides?.emails?.[index]?.id || ulid(),
     })),
     phones: definition.phones.map((contactDetail, index) => ({
       ...contactDetail,
-      id: overrides?.phones?.[index]?.id || faker.string.uuid(),
+      id: overrides?.phones?.[index]?.id || ulid(),
     })),
     identification: definition.identification.map((identification, index) => ({
       ...identification,
-      id: overrides?.identification?.[index]?.id || faker.string.uuid(),
+      id: overrides?.identification?.[index]?.id || ulid(),
     })),
     languages: definition.languages,
     nationalities: definition.nationalities,
@@ -104,8 +104,8 @@ const generateListItem = (
     sex: faker.helpers.enumValue(Sex),
     displacementStatus: faker.helpers.enumValue(DisplacementStatus),
     nationalities: [faker.location.countryCode('alpha-3')],
-    emails: [{ value: faker.internet.email(), id: faker.string.uuid() }],
-    phones: [{ value: faker.phone.number(), id: faker.string.uuid() }],
+    emails: [{ value: faker.internet.email(), id: ulid() }],
+    phones: [{ value: faker.phone.number(), id: ulid() }],
     identification: [IdentificationGenerator.generateListItem()],
     ...overrides,
   };

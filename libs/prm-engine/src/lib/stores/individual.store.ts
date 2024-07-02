@@ -1,5 +1,4 @@
 import { snakeCase } from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
 import { ulid } from 'ulidx';
 import { z } from 'zod';
 import { Knex } from 'knex';
@@ -262,7 +261,7 @@ const create: IIndividualStore['create'] = async (
       const contactDetailsEmailsForDb =
         emails.length > 0
           ? emails.map((email) => ({
-              id: uuidv4(),
+              id: ulid(),
               contactDetailType: ContactDetailType.Email,
               rawValue: email.value,
               cleanValue: email.value, // TODO: Clean string for searching
@@ -273,7 +272,7 @@ const create: IIndividualStore['create'] = async (
       const contactDetailsPhonesForDb =
         phones.length > 0
           ? phones.map((phone) => ({
-              id: uuidv4(),
+              id: ulid(),
               contactDetailType: ContactDetailType.PhoneNumber,
               rawValue: phone.value,
               cleanValue: phone.value, // TODO: Clean string for searching
@@ -291,7 +290,7 @@ const create: IIndividualStore['create'] = async (
         identification && identification.length > 0
           ? identification.map((id) => ({
               ...id,
-              id: uuidv4(),
+              id: ulid(),
               individualId,
             }))
           : [];
@@ -577,7 +576,7 @@ const update: IIndividualStore['update'] = async (
 
     const phonesToAdd =
       phones?.add?.map((contact) => ({
-        id: uuidv4(),
+        id: ulid(),
         contactDetailType: ContactDetailType.PhoneNumber,
         rawValue: contact.value,
         cleanValue: contact.value, // TODO: Clean string for searching
@@ -585,7 +584,7 @@ const update: IIndividualStore['update'] = async (
       })) || [];
     const emailsToAdd =
       emails?.add?.map((contact) => ({
-        id: uuidv4(),
+        id: ulid(),
         contactDetailType: ContactDetailType.Email,
         rawValue: contact.value,
         cleanValue: contact.value, // TODO: Clean string for searching
@@ -638,7 +637,7 @@ const update: IIndividualStore['update'] = async (
     const identificationsToAdd =
       identification?.add?.map((identification) => ({
         ...identification,
-        id: uuidv4(),
+        id: ulid(),
         individualId,
       })) || [];
     if (identificationsToAdd.length > 0) {

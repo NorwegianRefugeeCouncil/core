@@ -20,19 +20,19 @@ describe('IndividualSchema', () => {
       nationalities: [],
       emails: [
         {
-          id: faker.string.uuid(),
+          id: ulid(),
           value: 'john.doe@example.com',
         },
       ],
       phones: [
         {
-          id: faker.string.uuid(),
+          id: ulid(),
           value: '1234567890',
         },
       ],
       identification: [
         {
-          id: faker.string.uuid(),
+          id: ulid(),
           identificationType: 'unhcr_id',
           identificationNumber: '1234567890',
         },

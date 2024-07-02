@@ -34,22 +34,21 @@ const generateEntity = (overrides?: Partial<Household>): Household => {
         overrides?.individuals[i].identification?.[0].id;
       return {
         ...individual,
-        id: faker.string.uuid(),
+        id: ulid(),
         phones: [
           {
             value: individual.phones?.[0]?.value || faker.string.alphanumeric(),
-            id: phoneId || faker.string.uuid(),
+            id: phoneId || ulid(),
           },
         ],
         identification: [
           {
             identificationNumber:
-              individual.identification?.[0]?.identificationNumber ||
-              faker.string.uuid(),
+              individual.identification?.[0]?.identificationNumber || ulid(),
             identificationType:
               individual.identification?.[0]?.identificationType ||
               faker.helpers.enumValue(IdentificationType),
-            id: identificationId || faker.string.uuid(),
+            id: identificationId || ulid(),
           },
         ],
       };

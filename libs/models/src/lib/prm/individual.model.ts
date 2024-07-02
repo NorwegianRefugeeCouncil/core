@@ -87,11 +87,11 @@ export type ContactDetailsDefinition = z.infer<
 >;
 
 const EmailContactDetailsSchema = EmailContactDetailsDefinitionSchema.extend({
-  id: z.string().uuid(),
+  id: z.string().ulid(),
 });
 export const PhoneContactDetailsSchema =
   PhoneContactDetailsDefinitionSchema.extend({
-    id: z.string().uuid(),
+    id: z.string().ulid(),
   });
 export type ContactDetails = z.infer<typeof EmailContactDetailsSchema>;
 
@@ -104,7 +104,7 @@ export type IdentificationDefinition = z.infer<
 >;
 
 export const IdentificationSchema = IdentificationDefinitionSchema.extend({
-  id: z.string().uuid(),
+  id: z.string().ulid(),
 });
 export type Identification = z.infer<typeof IdentificationSchema>;
 
@@ -130,15 +130,15 @@ export type Individual = z.infer<typeof IndividualSchema>;
 
 const EmailContactDetailsWithOptionalIdSchema =
   EmailContactDetailsDefinitionSchema.extend({
-    id: z.string().uuid().optional(),
+    id: z.string().ulid().optional(),
   });
 const PhoneContactDetailsWithOptionalIdSchema =
   PhoneContactDetailsDefinitionSchema.extend({
-    id: z.string().uuid().optional(),
+    id: z.string().ulid().optional(),
   });
 const IdentificationWithOptionalIdSchema =
   IdentificationDefinitionSchema.extend({
-    id: z.string().uuid().optional(),
+    id: z.string().ulid().optional(),
   });
 export const IndividualUpdateSchema = IndividualDefinitionSchema.extend({
   emails: z
@@ -173,21 +173,21 @@ const IndividualPartialUpdateSchema = IndividualUpdateSchema.extend({
     .object({
       add: z.array(PhoneContactDetailsDefinitionSchema).optional(),
       update: z.array(PhoneContactDetailsSchema).optional(),
-      remove: z.array(z.string().uuid()).optional(),
+      remove: z.array(z.string().ulid()).optional(),
     })
     .optional(),
   emails: z
     .object({
       add: z.array(EmailContactDetailsDefinitionSchema).optional(),
       update: z.array(EmailContactDetailsSchema).optional(),
-      remove: z.array(z.string().uuid()).optional(),
+      remove: z.array(z.string().ulid()).optional(),
     })
     .optional(),
   identification: z
     .object({
       add: z.array(IdentificationDefinitionSchema).optional(),
       update: z.array(IdentificationSchema).optional(),
-      remove: z.array(z.string().uuid()).optional(),
+      remove: z.array(z.string().ulid()).optional(),
     })
     .optional(),
 });
